@@ -1,0 +1,1007 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>My Garden Calendar</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  /* ── TODO FOR APP DEVELOPMENT ──
+     Timing data currently sourced from Portland Nursery Veggie Calendar (Willamette Valley).
+     Replace PLANT_DATABASE timing with approved Zone 8b data source before commercial release.
+     Custom variety local storage is in localStorage key: 'garden_custom_varieties'
+  */
+
+  :root {
+    --soil: #3d2b1f;
+    --moss: #4a5e3a;
+    --sprout: #b5cc8e;
+    --bloom: #e8c96d;
+    --terra: #c4704a;
+    --cream: #f5f0e8;
+    --parchment: #ede6d6;
+    --ink: #2a1f16;
+    --indoor: #b5cc8e;
+    --transplant: #e8c96d;
+    --harvest-color: #d4543a;
+    --bed-a: #4a7a9b;
+    --bed-b: #7a5e9b;
+    --bed-c: #9b7a3a;
+    --bed-d: #4a9b6a;
+    --bed-companion: #9b4a6a;
+    --bed-unassigned: #888;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--soil);
+    font-family: 'DM Sans', sans-serif;
+    color: var(--ink);
+    min-height: 100vh;
+    padding: 24px 16px 48px;
+    background-image:
+      radial-gradient(ellipse at 20% 0%, rgba(77,62,42,0.8) 0%, transparent 60%),
+      radial-gradient(ellipse at 80% 100%, rgba(74,94,58,0.4) 0%, transparent 50%);
+  }
+
+  .page-wrap { max-width: 1100px; margin: 0 auto; }
+
+  header { text-align: center; padding: 32px 0 24px; animation: fadeDown 0.7s ease both; }
+  header h1 { font-family: 'Playfair Display', serif; font-size: clamp(1.5rem, 5vw, 2.4rem); color: var(--cream); letter-spacing: 0.02em; }
+  header p { color: var(--sprout); font-size: 0.82rem; margin-top: 5px; font-weight: 300; letter-spacing: 0.1em; text-transform: uppercase; }
+
+  .frost-note { background: rgba(120,180,220,0.12); border: 1px solid rgba(120,180,220,0.3); border-radius: 8px; padding: 9px 16px; color: #b8daf0; font-size: 0.76rem; text-align: center; margin: 0 0 16px; letter-spacing: 0.04em; }
+
+  .legend { display: flex; gap: 18px; justify-content: center; flex-wrap: wrap; margin-bottom: 20px; animation: fadeUp 0.6s 0.2s ease both; }
+  .legend-item { display: flex; align-items: center; gap: 7px; color: var(--cream); font-size: 0.76rem; letter-spacing: 0.04em; }
+  .legend-swatch { width: 26px; height: 13px; border-radius: 3px; }
+
+  .calendar-outer { background: var(--cream); border-radius: 16px; overflow: hidden; box-shadow: 0 20px 60px rgba(0,0,0,0.4); animation: fadeUp 0.7s 0.1s ease both; }
+  .table-wrap { overflow: auto; max-height: 68vh; -webkit-overflow-scrolling: touch; }
+
+  table { border-collapse: collapse; width: 100%; min-width: 900px; }
+
+  /* ── MONTH HEADER ── */
+  thead tr.month-row th {
+    position: sticky; top: 0; z-index: 3;
+    background: var(--moss);
+    padding: 8px 2px 2px;
+    font-size: 0.7rem; font-weight: 600; letter-spacing: 0.07em; text-transform: uppercase;
+    text-align: center; color: var(--sprout);
+    border-left: 2px solid rgba(255,255,255,0.15); white-space: nowrap;
+  }
+  thead tr.month-row th:first-child { border-left: none; }
+  thead tr.month-row th.current-month-header { color: #7dd4f8; }
+
+  /* ── HALF-MONTH SUBHEADER ── */
+  thead tr.half-row th {
+    position: sticky; top: 26px; z-index: 3;
+    background: #3d5230;
+    padding: 2px 2px 6px;
+    font-size: 0.55rem; font-weight: 400; letter-spacing: 0.05em; text-transform: uppercase;
+    text-align: center; color: rgba(181,204,142,0.7);
+    border-left: 1px solid rgba(255,255,255,0.06); white-space: nowrap;
+  }
+  thead tr.half-row th:first-child { border-left: none; }
+  thead tr.half-row th.current-half { color: #7dd4f8; font-weight: 600; }
+
+  /* Add plant/bed buttons in header */
+  .header-btn-group {
+    display: flex;
+    gap: 3px;
+    padding: 3px 4px;
+  }
+  .add-plant-btn {
+    flex: 1;
+    padding: 4px 4px;
+    background: rgba(255,255,255,0.15);
+    border: 1px dashed rgba(255,255,255,0.4);
+    border-radius: 4px;
+    color: white;
+    font-size: 0.52rem;
+    font-weight: 500;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    cursor: pointer;
+    text-align: center;
+    transition: background 0.15s;
+    line-height: 1.3;
+  }
+  .add-plant-btn:hover { background: rgba(255,255,255,0.25); }
+
+  /* ── TOP-LEFT CORNER ── */
+  thead tr.month-row th.corner {
+    position: sticky; left: 0; z-index: 5;
+    text-align: left; padding-left: 12px;
+    min-width: 140px; width: 140px;
+    background: var(--moss); border-left: none;
+    vertical-align: bottom; padding-bottom: 2px;
+  }
+  thead tr.half-row th.corner {
+    position: sticky; left: 0; z-index: 5;
+    background: #3d5230;
+    min-width: 140px; width: 140px;
+    padding: 2px 4px;
+  }
+
+  /* ── STICKY PLANT COLUMN ── */
+  tbody tr td:first-child {
+    position: sticky; left: 0; z-index: 2;
+    background: var(--cream);
+    border-right: 1px solid #ddd5c5;
+    min-width: 140px; width: 140px;
+  }
+
+  /* ── BED HEADER ROWS ── */
+  tr.bed-row td { padding: 0; border-top: 3px solid #bbb; }
+  .bed-header { display: flex; align-items: center; gap: 10px; padding: 7px 12px; }
+  .bed-dot { width: 10px; height: 10px; border-radius: 50%; background: white; opacity: 0.7; flex-shrink: 0; }
+  .bed-name-input {
+    background: transparent; border: none;
+    border-bottom: 1px dashed rgba(255,255,255,0.4);
+    color: white; font-family: 'DM Sans', sans-serif;
+    font-size: 0.65rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase;
+    outline: none; width: 120px; cursor: pointer; padding: 1px 2px;
+  }
+  .bed-name-input:focus { border-bottom-color: white; background: rgba(255,255,255,0.1); border-radius: 2px; }
+  .bed-edit-hint { font-size: 0.52rem; opacity: 0.55; font-weight: 300; margin-left: auto; padding-right: 8px; color: white; }
+  tr.bed-row td:first-child { background: inherit; z-index: 2; }
+
+  /* ── BED ACCENT STRIPES ── */
+  tr.plant-bed-a td:first-child         { border-left: 3px solid var(--bed-a); }
+  tr.plant-bed-b td:first-child         { border-left: 3px solid var(--bed-b); }
+  tr.plant-bed-c td:first-child         { border-left: 3px solid var(--bed-c); }
+  tr.plant-bed-d td:first-child         { border-left: 3px solid var(--bed-d); }
+  tr.plant-bed-companion td:first-child { border-left: 3px solid var(--bed-companion); }
+  tr.plant-bed-unassigned td:first-child{ border-left: 3px solid var(--bed-unassigned); }
+
+  /* ── PLANT INFO CELL ── */
+  .plant-info { padding: 7px 10px; display: flex; flex-direction: column; gap: 2px; cursor: pointer; user-select: none; }
+  .plant-info:hover { background: rgba(0,0,0,0.03); }
+  .plant-name { font-family: 'Playfair Display', serif; font-size: 0.76rem; font-weight: 700; color: var(--ink); white-space: normal; line-height: 1.2; }
+  .plant-variety { font-size: 0.62rem; color: #7a6a58; font-weight: 400; font-style: italic; line-height: 1.2; }
+  .plant-dtm { font-size: 0.6rem; color: #9a8a78; font-weight: 300; }
+  .plant-badge { font-size: 0.55rem; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; }
+  .badge-planted    { color: #4a7a3a; }
+  .badge-willplant  { color: #4a7a9b; }
+  .badge-undecided  { color: #9b7a3a; }
+  .badge-maybe      { color: var(--terra); }
+  .expand-arrow { font-size: 0.5rem; color: #aaa; margin-top: 1px; transition: transform 0.2s; display: inline-block; }
+  .expanded .expand-arrow { transform: rotate(180deg); }
+
+  /* ── DETAIL PANEL ── */
+  tr.detail-row td { padding: 0; background: #f9f5ee; border-top: 1px solid #e5ddd0; }
+  tr.detail-row td:first-child { background: #f9f5ee; }
+  .detail-panel { padding: 12px 14px; font-size: 0.72rem; color: #6a5a48; line-height: 1.7; display: none; }
+  .detail-panel.open { display: block; }
+  .detail-coming-soon { font-style: italic; color: #aaa; font-size: 0.7rem; }
+
+  .panel-controls {
+    display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-top: 10px;
+  }
+  .panel-label { font-size: 0.68rem; color: #5a4a38; font-weight: 500; display: flex; align-items: center; gap: 6px; }
+  .panel-select {
+    font-size: 0.68rem; padding: 4px 8px; border-radius: 4px;
+    border: 1px solid #ccc; background: white; cursor: pointer;
+    text-transform: uppercase; letter-spacing: 0.05em;
+  }
+  .panel-select option { text-transform: uppercase; letter-spacing: 0.05em; }
+  .panel-btn {
+    padding: 5px 12px; font-size: 0.65rem; font-weight: 500;
+    letter-spacing: 0.06em; text-transform: uppercase;
+    border: none; border-radius: 4px; cursor: pointer;
+  }
+  .btn-assign { background: var(--moss); color: white; }
+  .btn-assign:hover { background: #3a4e2c; }
+  .btn-remove { background: #c0392b; color: white; }
+  .btn-remove:hover { background: #a93226; }
+
+  /* ── MONTH CELLS ── */
+  td.hcol { padding: 5px 1px; border-left: 1px solid #ede5d8; min-width: 22px; width: 22px; vertical-align: middle; }
+  td.hcol.month-start { border-left: 2px solid #d5cab8; }
+  td.hcol.current-half-col { background: rgba(100,180,230,0.18); }
+
+  tbody tr { border-top: 1px solid #e5ddd0; }
+  tbody tr:hover td { background: rgba(181,204,142,0.05); }
+  tbody tr:hover td:first-child { background: var(--cream); }
+  tr.bed-row:hover td { background: inherit; }
+  tr.detail-row:hover td { background: #f9f5ee; }
+
+  /* ── BARS ── */
+  .bar { height: 16px; border-radius: 2px; width: 100%; display: block; position: relative; overflow: hidden; }
+  .bar-indoor     { background: var(--indoor);        opacity: 0.85; }
+  .bar-transplant { background: var(--transplant);    opacity: 0.9;  }
+  .bar-harvest    { background: var(--harvest-color); opacity: 0.85; }
+  .bar-marigold   { background: #f0b03a;               opacity: 0.85; }
+  .bar-maybe      { opacity: 0.38 !important; }
+  .bar-left  { border-radius: 3px 0 0 3px; }
+  .bar-right { border-radius: 0 3px 3px 0; }
+  .bar-solo  { border-radius: 3px; }
+  .bar-mid   { border-radius: 0; }
+
+  /* Will Plant — diagonal stripe overlay, same color family */
+  .bar-willplant::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: repeating-linear-gradient(
+      -45deg,
+      transparent,
+      transparent 3px,
+      rgba(255,255,255,0.35) 3px,
+      rgba(255,255,255,0.35) 5px
+    );
+    border-radius: inherit;
+  }
+
+  /* ── ADD PLANT MODAL ── */
+  .modal-overlay {
+    display: none; position: fixed; inset: 0;
+    background: rgba(40,25,15,0.75); z-index: 100;
+    align-items: center; justify-content: center;
+    padding: 20px;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal {
+    background: var(--cream); border-radius: 14px;
+    padding: 24px; width: 100%; max-width: 420px;
+    box-shadow: 0 24px 60px rgba(0,0,0,0.5);
+    animation: fadeUp 0.25s ease both;
+  }
+  .modal h2 { font-family: 'Playfair Display', serif; font-size: 1.1rem; color: var(--ink); margin-bottom: 16px; }
+  .form-group { margin-bottom: 14px; }
+  .form-group label { display: block; font-size: 0.72rem; font-weight: 500; color: #5a4a38; margin-bottom: 4px; letter-spacing: 0.04em; }
+  .form-group select, .form-group input {
+    width: 100%; padding: 8px 10px; border-radius: 6px;
+    border: 1px solid #ccc; font-size: 0.78rem;
+    font-family: 'DM Sans', sans-serif; background: white; color: var(--ink);
+    text-transform: uppercase; letter-spacing: 0.04em;
+  }
+  .form-group select option { text-transform: uppercase; }
+  .form-group input { text-transform: none; letter-spacing: normal; }
+  .form-group select:focus, .form-group input:focus { outline: none; border-color: var(--moss); }
+  .form-row { display: flex; gap: 10px; }
+  .form-row .form-group { flex: 1; }
+  .modal-actions { display: flex; gap: 10px; margin-top: 18px; }
+  .btn-primary { flex: 1; padding: 10px; background: var(--moss); color: white; border: none; border-radius: 6px; font-size: 0.78rem; font-weight: 500; letter-spacing: 0.04em; cursor: pointer; }
+  .btn-primary:hover { background: #3a4e2c; }
+  .btn-cancel { flex: 1; padding: 10px; background: #e5ddd0; color: #5a4a38; border: none; border-radius: 6px; font-size: 0.78rem; font-weight: 500; cursor: pointer; }
+  .btn-cancel:hover { background: #d5cdc0; }
+  .custom-note { font-size: 0.64rem; color: #9a8a78; margin-top: 4px; font-style: italic; }
+
+  .color-opt {
+    width: 28px; height: 28px; border-radius: 50%;
+    cursor: pointer; border: 3px solid transparent;
+    transition: border-color 0.15s, transform 0.15s;
+  }
+  .color-opt:hover { transform: scale(1.15); }
+  .color-opt.selected { border-color: var(--ink); transform: scale(1.15); }
+
+  /* ── FOOTER ── */
+  .companion-section { background: var(--cream); padding: 14px 18px; display: flex; gap: 18px; flex-wrap: wrap; border-top: 2px solid #ddd5c5; }
+  .companion-box { flex: 1; min-width: 160px; }
+  .companion-box h3 { font-family: 'Playfair Display', serif; font-size: 0.82rem; color: var(--moss); margin-bottom: 4px; }
+  .companion-box p { font-size: 0.7rem; color: #6a5a48; line-height: 1.6; }
+  .companion-box p strong { color: var(--terra); }
+  .bottom-legend { background: var(--parchment); border-top: 1px solid #ddd5c5; padding: 10px 18px; font-size: 0.65rem; color: #7a6a58; line-height: 1.7; }
+  .bottom-legend strong { color: var(--moss); }
+  .tip { text-align: center; color: #8a7060; font-size: 0.67rem; margin-top: 10px; letter-spacing: 0.04em; }
+
+  @keyframes fadeDown { from { opacity:0; transform:translateY(-14px); } to { opacity:1; transform:translateY(0); } }
+  @keyframes fadeUp   { from { opacity:0; transform:translateY(14px);  } to { opacity:1; transform:translateY(0); } }
+</style>
+</head>
+<body>
+<div class="page-wrap">
+  <header>
+    <h1>🌱 My Garden Planting Calendar</h1>
+    <p>Zone 8b · Portland, OR · 2026 · Portland Nursery Timing</p>
+  </header>
+  <div class="frost-note">
+    <strong>Zone 8b Frost Dates:</strong> Last frost ~<strong>Mar 15</strong> · First fall frost ~<strong>Nov 15</strong> · Growing season ≈ 245 days
+  </div>
+  <div class="legend">
+    <div class="legend-item"><div class="legend-swatch" style="background:var(--indoor)"></div>Start Seeds Indoors</div>
+    <div class="legend-item"><div class="legend-swatch" style="background:var(--transplant)"></div>Plant / Transplant Outdoors</div>
+    <div class="legend-item"><div class="legend-swatch" style="background:var(--harvest-color)"></div>Harvest Window</div>
+  </div>
+
+  <div class="calendar-outer">
+    <div class="table-wrap">
+      <table id="main-table">
+        <thead>
+          <tr class="month-row">
+            <th class="corner">Plant</th>
+            <th colspan="2">Jan</th><th colspan="2">Feb</th><th colspan="2">Mar</th>
+            <th colspan="2" class="current-month-header">Apr ▾</th>
+            <th colspan="2">May</th><th colspan="2">Jun</th><th colspan="2">Jul</th>
+            <th colspan="2">Aug</th><th colspan="2">Sep</th><th colspan="2">Oct</th>
+            <th colspan="2">Nov</th><th colspan="2">Dec</th>
+          </tr>
+          <tr class="half-row">
+            <th class="corner">
+              <div class="header-btn-group">
+                <button class="add-plant-btn" onclick="event.stopPropagation(); openAddPlant()">+ Plant</button>
+                <button class="add-plant-btn" onclick="event.stopPropagation(); openAddBed()">+ Bed</button>
+              </div>
+            </th>
+            <th>E</th><th>L</th><th>E</th><th>L</th><th>E</th><th>L</th>
+            <th class="current-half">E</th><th>L</th>
+            <th>E</th><th>L</th><th>E</th><th>L</th><th>E</th><th>L</th>
+            <th>E</th><th>L</th><th>E</th><th>L</th><th>E</th><th>L</th>
+            <th>E</th><th>L</th><th>E</th><th>L</th>
+          </tr>
+        </thead>
+        <tbody id="calendar-body"></tbody>
+      </table>
+    </div>
+
+    <div class="companion-section">
+      <div class="companion-box">
+        <h3>🌼 Companion Notes</h3>
+        <p><strong>Basil + Tomatoes:</strong> Plant within 18" — repels aphids and whiteflies.<br><br><strong>Marigolds:</strong> Border beds to deter nematodes and whiteflies.</p>
+      </div>
+      <div class="companion-box">
+        <h3>⚡ Right Now (Early April)</h3>
+        <p>Last window to start tomatoes from seed indoors. Peppers go out late April. Lettuce and peas on schedule. Garlic and shallots harvest late June.</p>
+      </div>
+      <div class="companion-box">
+        <h3>🥒 Cucumber Tip</h3>
+        <p>Start one seed indoors now. Train up your trellis arch to save ground space alongside the beans.</p>
+      </div>
+    </div>
+    <div class="bottom-legend">
+      <strong>Column guide:</strong> <strong>E</strong> = Early (1st–15th) · <strong>L</strong> = Late (16th–end) ·
+      Timing: <em>Portland Nursery Veggie Calendar</em> ·
+      <strong>Tap a plant</strong> to change status, reassign bed, or remove ·
+      <strong>Tap a bed name</strong> to rename
+    </div>
+  </div>
+  <p class="tip">Scroll right to see all months · Headers stay fixed · Blue = current period</p>
+</div>
+
+<!-- ADD PLANT MODAL -->
+<div class="modal-overlay" id="modal-overlay" onclick="handleOverlayClick(event)">
+  <div class="modal">
+    <h2>🌿 Add a Plant</h2>
+    <div class="form-group">
+      <label>Plant Name</label>
+      <select id="form-plant-name" onchange="onPlantNameChange()">
+        <option value="">— select —</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>Variety <span style="font-weight:300;font-style:italic;">(optional)</span></label>
+      <select id="form-variety" onchange="onVarietyChange()">
+        <option value="">— none / enter custom —</option>
+      </select>
+      <input type="text" id="form-variety-custom" placeholder="Type custom variety…" style="margin-top:6px;display:none;" oninput="onCustomVarietyInput()" />
+      <div class="custom-note" id="variety-save-note" style="display:none;">
+        <label><input type="checkbox" id="save-custom-variety" style="width:auto;margin-right:4px;"> Save this variety locally for future use</label>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Days to Maturity</label>
+        <input type="text" id="form-dtm" placeholder="e.g. 70–80 days" />
+        <div class="custom-note">Auto-filled from data · override if needed</div>
+      </div>
+      <div class="form-group">
+        <label>Assign to Bed</label>
+        <select id="form-bed"></select>
+      </div>
+    </div>
+    <div class="form-group">
+      <label>Status</label>
+      <select id="form-status">
+        <option value="planted">✔ Planted</option>
+        <option value="willplant" selected>🌱 Will Plant</option>
+        <option value="undecided">? Undecided</option>
+      </select>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeAddPlant()">Cancel</button>
+      <button class="btn-primary" onclick="submitAddPlant()">Add to Calendar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ADD BED MODAL -->
+<div class="modal-overlay" id="bed-modal-overlay" onclick="handleBedOverlayClick(event)">
+  <div class="modal">
+    <h2>🪴 Add a Bed</h2>
+    <div class="form-group">
+      <label>Bed Name</label>
+      <input type="text" id="form-bed-name" placeholder="e.g. Bed E, Patio Pots…" style="text-transform:none;" />
+      <div class="custom-note">Defaults to next letter if left blank</div>
+    </div>
+    <div class="form-group">
+      <label>Color</label>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:4px;" id="bed-color-picker">
+        <div class="color-opt selected" data-color="#4a7a9b" style="background:#4a7a9b;" onclick="selectBedColor(this)"></div>
+        <div class="color-opt" data-color="#7a5e9b" style="background:#7a5e9b;" onclick="selectBedColor(this)"></div>
+        <div class="color-opt" data-color="#9b7a3a" style="background:#9b7a3a;" onclick="selectBedColor(this)"></div>
+        <div class="color-opt" data-color="#4a9b6a" style="background:#4a9b6a;" onclick="selectBedColor(this)"></div>
+        <div class="color-opt" data-color="#9b4a6a" style="background:#9b4a6a;" onclick="selectBedColor(this)"></div>
+        <div class="color-opt" data-color="#6a4a9b" style="background:#6a4a9b;" onclick="selectBedColor(this)"></div>
+        <div class="color-opt" data-color="#9b6a4a" style="background:#9b6a4a;" onclick="selectBedColor(this)"></div>
+        <div class="color-opt" data-color="#4a9b9b" style="background:#4a9b9b;" onclick="selectBedColor(this)"></div>
+        <div class="color-opt" data-color="#7a7a4a" style="background:#7a7a4a;" onclick="selectBedColor(this)"></div>
+        <div class="color-opt" data-color="#888"    style="background:#888;"    onclick="selectBedColor(this)"></div>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeAddBed()">Cancel</button>
+      <button class="btn-primary" onclick="submitAddBed()">Add Bed</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ══════════════════════════════════════════════════════════════
+// PLANT DATABASE
+// TODO: Replace timing with approved commercial data source.
+// Source: Portland Nursery Veggie Calendar (Willamette Valley)
+// months array: 24 entries (0=Jan-E … 23=Dec-L), value = phase string or null
+// ══════════════════════════════════════════════════════════════
+function seg(arr, start, end, phase) {
+  for (let i = start; i <= end; i++) arr[i] = phase;
+}
+function makeMonths(segments) {
+  const arr = Array(24).fill(null);
+  segments.forEach(([s,e,p]) => seg(arr,s,e,p));
+  return arr;
+}
+
+const PLANT_DATABASE = {
+  'Tomato': {
+    varieties: {
+      'Roma':            { dtm: '75–80 days', months: makeMonths([[0,6,'indoor'],[7,9,'transplant'],[14,19,'harvest']]) },
+      'Cherokee Purple': { dtm: '80–90 days', months: makeMonths([[0,6,'indoor'],[7,9,'transplant'],[14,19,'harvest']]) },
+      'Cherry':          { dtm: '60–70 days', months: makeMonths([[0,6,'indoor'],[7,9,'transplant'],[14,19,'harvest']]) },
+      'Beefsteak':       { dtm: '85–95 days', months: makeMonths([[0,6,'indoor'],[7,9,'transplant'],[14,19,'harvest']]) },
+    },
+    default: { dtm: '70–90 days', months: makeMonths([[0,6,'indoor'],[7,9,'transplant'],[14,19,'harvest']]) }
+  },
+  'Pepper': {
+    varieties: {
+      'Jalapeño':  { dtm: '70–85 days', months: makeMonths([[0,5,'indoor'],[7,9,'transplant'],[14,19,'harvest']]) },
+      'Shishito':  { dtm: '60–75 days', months: makeMonths([[0,5,'indoor'],[7,9,'transplant'],[14,19,'harvest']]) },
+      'Serrano':   { dtm: '75–90 days', months: makeMonths([[0,5,'indoor'],[7,9,'transplant'],[14,19,'harvest']]) },
+      'Bell':      { dtm: '70–85 days', months: makeMonths([[0,5,'indoor'],[7,9,'transplant'],[14,19,'harvest']]) },
+      'Habanero':  { dtm: '100–120 days', months: makeMonths([[0,5,'indoor'],[7,9,'transplant'],[14,19,'harvest']]) },
+    },
+    default: { dtm: '70–90 days', months: makeMonths([[0,5,'indoor'],[7,9,'transplant'],[14,19,'harvest']]) }
+  },
+  'Peas': {
+    varieties: {
+      'Sugar Snap': { dtm: '60–70 days', months: makeMonths([[2,5,'transplant'],[6,11,'harvest'],[14,15,'transplant'],[18,21,'harvest']]) },
+      'Snow Pea':   { dtm: '55–70 days', months: makeMonths([[2,5,'transplant'],[6,11,'harvest'],[14,15,'transplant'],[18,21,'harvest']]) },
+      'Shelling':   { dtm: '70–80 days', months: makeMonths([[2,5,'transplant'],[6,11,'harvest'],[14,15,'transplant'],[18,21,'harvest']]) },
+    },
+    default: { dtm: '60–80 days', months: makeMonths([[2,5,'transplant'],[6,11,'harvest'],[14,15,'transplant'],[18,21,'harvest']]) }
+  },
+  'Lettuce': {
+    varieties: {
+      'Mix':        { dtm: '45–60 days', months: makeMonths([[0,3,'indoor'],[4,7,'transplant'],[8,11,'harvest'],[14,17,'transplant'],[18,21,'harvest']]) },
+      'Butterhead': { dtm: '55–75 days', months: makeMonths([[0,3,'indoor'],[4,7,'transplant'],[8,11,'harvest'],[14,17,'transplant'],[18,21,'harvest']]) },
+      'Romaine':    { dtm: '70–75 days', months: makeMonths([[0,3,'indoor'],[4,7,'transplant'],[8,11,'harvest'],[14,17,'transplant'],[18,21,'harvest']]) },
+    },
+    default: { dtm: '45–75 days', months: makeMonths([[0,3,'indoor'],[4,7,'transplant'],[8,11,'harvest'],[14,17,'transplant'],[18,21,'harvest']]) }
+  },
+  'Carrots': {
+    varieties: {},
+    default: { dtm: '70–80 days', months: makeMonths([[4,7,'transplant'],[10,13,'harvest'],[14,15,'transplant'],[18,23,'harvest']]) }
+  },
+  'Beans': {
+    varieties: {
+      'Purple String': { dtm: '50–60 days', months: makeMonths([[7,9,'transplant'],[12,15,'harvest']]) },
+      'Green Bush':    { dtm: '50–60 days', months: makeMonths([[7,9,'transplant'],[12,15,'harvest']]) },
+      'Pole Bean':     { dtm: '60–70 days', months: makeMonths([[7,9,'transplant'],[12,15,'harvest']]) },
+    },
+    default: { dtm: '50–70 days', months: makeMonths([[7,9,'transplant'],[12,15,'harvest']]) }
+  },
+  'Cucumbers': {
+    varieties: {
+      'Slicing':  { dtm: '55–65 days', months: makeMonths([[6,6,'indoor'],[9,11,'transplant'],[12,17,'harvest']]) },
+      'Pickling': { dtm: '50–55 days', months: makeMonths([[6,6,'indoor'],[9,11,'transplant'],[12,17,'harvest']]) },
+    },
+    default: { dtm: '50–70 days', months: makeMonths([[6,6,'indoor'],[9,11,'transplant'],[12,17,'harvest']]) }
+  },
+  'Onions': {
+    varieties: {},
+    default: { dtm: '100–120 days', months: makeMonths([[0,3,'indoor'],[4,7,'transplant'],[12,15,'harvest']]) }
+  },
+  'Garlic': {
+    varieties: {
+      'Hardneck': { dtm: '240–270 days', months: makeMonths([[11,13,'harvest'],[19,21,'transplant']]) },
+      'Softneck': { dtm: '240–260 days', months: makeMonths([[11,13,'harvest'],[19,21,'transplant']]) },
+    },
+    default: { dtm: '240–270 days', months: makeMonths([[11,13,'harvest'],[19,21,'transplant']]) }
+  },
+  'Shallots': {
+    varieties: {},
+    default: { dtm: '90–120 days', months: makeMonths([[0,3,'indoor'],[4,7,'transplant'],[11,13,'harvest']]) }
+  },
+  'Basil': {
+    varieties: {
+      'Sweet':   { dtm: '24–30 days', months: makeMonths([[4,7,'indoor'],[8,9,'transplant'],[9,17,'harvest']]) },
+      'Thai':    { dtm: '30–45 days', months: makeMonths([[4,7,'indoor'],[8,9,'transplant'],[9,17,'harvest']]) },
+      'Purple':  { dtm: '30–45 days', months: makeMonths([[4,7,'indoor'],[8,9,'transplant'],[9,17,'harvest']]) },
+    },
+    default: { dtm: '24–45 days', months: makeMonths([[4,7,'indoor'],[8,9,'transplant'],[9,17,'harvest']]) }
+  },
+  'Marigolds': {
+    varieties: {
+      'French': { dtm: '50–60 days to bloom', months: makeMonths([[4,7,'indoor'],[8,9,'transplant'],[10,18,'marigold']]) },
+      'African':{ dtm: '60–70 days to bloom', months: makeMonths([[4,7,'indoor'],[8,9,'transplant'],[10,18,'marigold']]) },
+    },
+    default: { dtm: '50–70 days to bloom', months: makeMonths([[4,7,'indoor'],[8,9,'transplant'],[10,18,'marigold']]) }
+  },
+  'Kale': {
+    varieties: {},
+    default: { dtm: '55–75 days', months: makeMonths([[0,3,'indoor'],[4,7,'transplant'],[8,13,'harvest'],[14,17,'transplant'],[18,21,'harvest']]) }
+  },
+  'Zucchini': {
+    varieties: {},
+    default: { dtm: '50–65 days', months: makeMonths([[7,9,'transplant'],[12,17,'harvest']]) }
+  },
+  'Squash': {
+    varieties: {
+      'Butternut': { dtm: '100–110 days', months: makeMonths([[7,9,'transplant'],[14,19,'harvest']]) },
+      'Delicata':  { dtm: '95–100 days', months: makeMonths([[7,9,'transplant'],[14,19,'harvest']]) },
+      'Acorn':     { dtm: '80–90 days', months: makeMonths([[7,9,'transplant'],[14,19,'harvest']]) },
+    },
+    default: { dtm: '80–110 days', months: makeMonths([[7,9,'transplant'],[14,19,'harvest']]) }
+  },
+  'Radishes': {
+    varieties: {},
+    default: { dtm: '22–25 days', months: makeMonths([[4,11,'transplant'],[6,13,'harvest'],[14,17,'transplant'],[16,19,'harvest']]) }
+  },
+  'Beets': {
+    varieties: {},
+    default: { dtm: '55–70 days', months: makeMonths([[2,7,'transplant'],[8,13,'harvest'],[14,17,'transplant'],[18,21,'harvest']]) }
+  },
+  // ── NEW ADDITIONS ──
+  // Source: Portland Nursery Veggie Calendar (Willamette Valley)
+  'Green Onions': {
+    varieties: {
+      'Scallion': { dtm: '60–80 days', months: makeMonths([[2,9,'transplant'],[6,15,'harvest'],[16,19,'transplant'],[18,21,'harvest']]) },
+    },
+    default: { dtm: '60–80 days', months: makeMonths([[2,9,'transplant'],[6,15,'harvest'],[16,19,'transplant'],[18,21,'harvest']]) }
+  },
+  'Spinach': {
+    varieties: {
+      'Savoy':     { dtm: '40–50 days', months: makeMonths([[2,7,'transplant'],[6,11,'harvest'],[14,17,'transplant'],[18,21,'harvest']]) },
+      'Flat Leaf': { dtm: '38–45 days', months: makeMonths([[2,7,'transplant'],[6,11,'harvest'],[14,17,'transplant'],[18,21,'harvest']]) },
+    },
+    default: { dtm: '40–50 days', months: makeMonths([[2,7,'transplant'],[6,11,'harvest'],[14,17,'transplant'],[18,21,'harvest']]) }
+  },
+  'Cilantro': {
+    varieties: {},
+    // Direct sow Mar–May and Aug–Sep; bolts in heat so two short windows
+    default: { dtm: '45–70 days', months: makeMonths([[4,9,'transplant'],[8,13,'harvest'],[14,17,'transplant'],[16,19,'harvest']]) }
+  },
+  'Cabbage': {
+    varieties: {
+      'Green':    { dtm: '80–180 days', months: makeMonths([[0,3,'indoor'],[4,7,'transplant'],[10,13,'harvest'],[14,17,'transplant'],[18,21,'harvest']]) },
+      'Red':      { dtm: '80–180 days', months: makeMonths([[0,3,'indoor'],[4,7,'transplant'],[10,13,'harvest'],[14,17,'transplant'],[18,21,'harvest']]) },
+      'Savoy':    { dtm: '80–120 days', months: makeMonths([[0,3,'indoor'],[4,7,'transplant'],[10,13,'harvest'],[14,17,'transplant'],[18,21,'harvest']]) },
+      'Napa':     { dtm: '70–80 days',  months: makeMonths([[0,3,'indoor'],[4,7,'transplant'],[10,13,'harvest'],[14,17,'transplant'],[18,21,'harvest']]) },
+    },
+    default: { dtm: '80–180 days', months: makeMonths([[0,3,'indoor'],[4,7,'transplant'],[10,13,'harvest'],[14,17,'transplant'],[18,21,'harvest']]) }
+  },
+  'Cauliflower': {
+    varieties: {
+      'White':   { dtm: '55–100 days', months: makeMonths([[0,3,'indoor'],[4,7,'transplant'],[10,13,'harvest'],[14,17,'transplant'],[18,21,'harvest']]) },
+      'Purple':  { dtm: '70–80 days',  months: makeMonths([[0,3,'indoor'],[4,7,'transplant'],[10,13,'harvest'],[14,17,'transplant'],[18,21,'harvest']]) },
+      'Romanesco':{ dtm: '75–100 days',months: makeMonths([[0,3,'indoor'],[4,7,'transplant'],[10,13,'harvest'],[14,17,'transplant'],[18,21,'harvest']]) },
+    },
+    default: { dtm: '55–100 days', months: makeMonths([[0,3,'indoor'],[4,7,'transplant'],[10,13,'harvest'],[14,17,'transplant'],[18,21,'harvest']]) }
+  },
+  'Strawberries': {
+    varieties: {
+      'June-bearing':    { dtm: 'Year 2+ harvest', months: makeMonths([[2,5,'transplant'],[10,15,'harvest']]) },
+      'Ever-bearing':    { dtm: '60 days',          months: makeMonths([[2,5,'transplant'],[8,17,'harvest']]) },
+      'Day-neutral':     { dtm: '60 days',          months: makeMonths([[2,5,'transplant'],[8,17,'harvest']]) },
+    },
+    // Portland Nursery: plant bare root Feb–Apr; ever-bearing harvests Jun–Oct
+    default: { dtm: '60+ days', months: makeMonths([[2,5,'transplant'],[8,17,'harvest']]) }
+  },
+};
+
+// ══════════════════════════════════════════════════════════════
+// BEDS
+// ══════════════════════════════════════════════════════════════
+const DEFAULT_BEDS = [
+  { id: 'a',          label: 'Bed A',       color: '#4a7a9b' },
+  { id: 'b',          label: 'Bed B',       color: '#7a5e9b' },
+  { id: 'c',          label: 'Bed C',       color: '#9b7a3a' },
+  { id: 'd',          label: 'Bed D',       color: '#4a9b6a' },
+  { id: 'companion',  label: 'Companions',  color: '#9b4a6a' },
+  { id: 'unassigned', label: 'Unassigned',  color: '#888'    },
+];
+function getBeds() {
+  try { const s = localStorage.getItem('garden_beds'); return s ? JSON.parse(s) : DEFAULT_BEDS; }
+  catch(e) { return DEFAULT_BEDS; }
+}
+function saveBeds(beds) { localStorage.setItem('garden_beds', JSON.stringify(beds)); }
+
+// ══════════════════════════════════════════════════════════════
+// PLANTS (calendar entries)
+// ══════════════════════════════════════════════════════════════
+const STATUS_CONFIG = {
+  planted:   { label: '🪴 Planted',    cls: 'badge-planted'   },
+  willplant: { label: '🪏 Will Plant', cls: 'badge-willplant' },
+  undecided: { label: '? Undecided',  cls: 'badge-undecided' },
+};
+
+const DEFAULT_PLANTS = [
+  { id:'peas',           name:'Peas',      variety:'Sugar Snap',    dtm:'60–70 days',          bed:'a', status:'planted',   maybe:false, months: PLANT_DATABASE['Peas'].varieties['Sugar Snap'].months },
+  { id:'lettuce',        name:'Lettuce',   variety:'Mix',           dtm:'45–60 days',          bed:'a', status:'planted',   maybe:false, months: PLANT_DATABASE['Lettuce'].varieties['Mix'].months },
+  { id:'carrots',        name:'Carrots',   variety:null,            dtm:'70–80 days',          bed:'a', status:'planted',   maybe:false, months: PLANT_DATABASE['Carrots'].default.months },
+  { id:'cucumbers',      name:'Cucumbers', variety:null,            dtm:'50–70 days',          bed:'a', status:'undecided', maybe:true,  months: PLANT_DATABASE['Cucumbers'].default.months },
+  { id:'tomato-roma',    name:'Tomato',    variety:'Roma',          dtm:'75–80 days',          bed:'b', status:'willplant', maybe:false, months: PLANT_DATABASE['Tomato'].varieties['Roma'].months },
+  { id:'tomato-cherokee',name:'Tomato',    variety:'Cherokee Purple',dtm:'80–90 days',         bed:'b', status:'willplant', maybe:false, months: PLANT_DATABASE['Tomato'].varieties['Cherokee Purple'].months },
+  { id:'beans',          name:'Beans',     variety:'Purple String', dtm:'50–60 days',          bed:'b', status:'planted',   maybe:false, months: PLANT_DATABASE['Beans'].varieties['Purple String'].months },
+  { id:'onions',         name:'Onions',    variety:null,            dtm:'100–120 days',        bed:'c', status:'planted',   maybe:false, months: PLANT_DATABASE['Onions'].default.months },
+  { id:'garlic',         name:'Garlic',    variety:null,            dtm:'240–270 days',        bed:'c', status:'planted',   maybe:false, months: PLANT_DATABASE['Garlic'].default.months },
+  { id:'shallots',       name:'Shallots',  variety:null,            dtm:'90–120 days',         bed:'c', status:'planted',   maybe:false, months: PLANT_DATABASE['Shallots'].default.months },
+  { id:'jalapeno',       name:'Pepper',    variety:'Jalapeño',      dtm:'70–85 days',          bed:'d', status:'willplant', maybe:false, months: PLANT_DATABASE['Pepper'].varieties['Jalapeño'].months },
+  { id:'shishito',       name:'Pepper',    variety:'Shishito',      dtm:'60–75 days',          bed:'d', status:'willplant', maybe:false, months: PLANT_DATABASE['Pepper'].varieties['Shishito'].months },
+  { id:'serrano',        name:'Pepper',    variety:'Serrano',       dtm:'75–90 days',          bed:'d', status:'willplant', maybe:false, months: PLANT_DATABASE['Pepper'].varieties['Serrano'].months },
+  { id:'marigolds',      name:'Marigolds', variety:null,            dtm:'50–60 days to bloom', bed:'companion', status:'willplant', maybe:false, months: PLANT_DATABASE['Marigolds'].default.months },
+  { id:'basil',          name:'Basil',     variety:null,            dtm:'24–30 days',          bed:'companion', status:'willplant', maybe:false, months: PLANT_DATABASE['Basil'].default.months },
+];
+
+function getPlants() {
+  try { const s = localStorage.getItem('garden_plants'); return s ? JSON.parse(s) : DEFAULT_PLANTS; }
+  catch(e) { return DEFAULT_PLANTS; }
+}
+function savePlants(plants) { localStorage.setItem('garden_plants', JSON.stringify(plants)); }
+
+function getCustomVarieties() {
+  try { const s = localStorage.getItem('garden_custom_varieties'); return s ? JSON.parse(s) : {}; }
+  catch(e) { return {}; }
+}
+function saveCustomVarieties(cv) { localStorage.setItem('garden_custom_varieties', JSON.stringify(cv)); }
+
+// ══════════════════════════════════════════════════════════════
+// RENDER
+// ══════════════════════════════════════════════════════════════
+function render() {
+  const beds    = getBeds();
+  const plants  = getPlants();
+  const tbody   = document.getElementById('calendar-body');
+  tbody.innerHTML = '';
+
+  const bedOrder = beds.map(b => b.id);
+  const grouped  = {};
+  bedOrder.forEach(id => grouped[id] = []);
+  plants.forEach(p => {
+    const key = grouped[p.bed] ? p.bed : 'unassigned';
+    grouped[key].push(p);
+  });
+
+  beds.forEach(bed => {
+    const plantsInBed = grouped[bed.id] || [];
+
+    // Always show bed header (even if empty)
+    const bedTr = document.createElement('tr');
+    bedTr.className = 'bed-row';
+    bedTr.innerHTML = `<td colspan="25" style="background:${bed.color}">
+      <div class="bed-header">
+        <div class="bed-dot"></div>
+        <input class="bed-name-input" data-bed-id="${bed.id}" value="${bed.label}" title="Click to rename" />
+        <span class="bed-edit-hint">tap to rename</span>
+      </div></td>`;
+    tbody.appendChild(bedTr);
+
+    // If no plants yet, show placeholder
+    if (!plantsInBed.length) {
+      const placeholderTr = document.createElement('tr');
+      placeholderTr.innerHTML = `
+        <td colspan="25" style="padding:10px 16px;font-size:0.7rem;color:#aaa;font-style:italic;background:#faf7f2;border-top:1px solid #e5ddd0;">
+          Work in progress… add a plant and assign it to this bed 🌱
+        </td>`;
+      tbody.appendChild(placeholderTr);
+      return;
+    }
+
+    plantsInBed.forEach(plant => {
+      // Plant row
+      const plantTr = document.createElement('tr');
+      plantTr.className = `plant-bed-${bed.id}`;
+      plantTr.dataset.plantId = plant.id;
+
+      const status   = STATUS_CONFIG[plant.status] || STATUS_CONFIG.willplant;
+      const badgeHtml  = `<span class="plant-badge ${status.cls}">${status.label}</span>`;
+      const varietyHtml = plant.variety ? `<span class="plant-variety">(${plant.variety})</span>` : '';
+
+      let cellsHtml = '';
+      plant.months.forEach((phase, i) => {
+        const isMonthStart = i % 2 === 0;
+        const isCurrent    = i === 6;
+        let cls = 'hcol';
+        if (isMonthStart) cls += ' month-start';
+        if (isCurrent)    cls += ' current-half-col';
+
+        let barHtml = '';
+        if (phase) {
+          const prev = i > 0  ? plant.months[i-1] : null;
+          const next = i < 23 ? plant.months[i+1] : null;
+          let roundClass = 'bar-solo';
+          if (prev === phase && next === phase) roundClass = 'bar-mid';
+          else if (prev === phase) roundClass = 'bar-right';
+          else if (next === phase) roundClass = 'bar-left';
+          const maybeClass     = plant.status === 'undecided' ? ' bar-maybe' : '';
+          const willplantClass = plant.status === 'willplant' ? ' bar-willplant' : '';
+          barHtml = `<div class="bar bar-${phase} ${roundClass}${maybeClass}${willplantClass}"></div>`;
+        }
+        cellsHtml += `<td class="${cls}">${barHtml}</td>`;
+      });
+
+      plantTr.innerHTML = `
+        <td><div class="plant-info" onclick="toggleDetail('${plant.id}')">
+          <span class="plant-name">${plant.name}</span>
+          ${varietyHtml}
+          <span class="plant-dtm">${plant.dtm}</span>
+          ${badgeHtml}
+          <span class="expand-arrow">▾</span>
+        </div></td>${cellsHtml}`;
+      tbody.appendChild(plantTr);
+
+      // Detail panel
+      const detailTr = document.createElement('tr');
+      detailTr.className = 'detail-row';
+      detailTr.id = `detail-${plant.id}`;
+
+      const bedOptions = getBeds().map(b =>
+        `<option value="${b.id}" ${b.id === plant.bed ? 'selected' : ''}>${b.label}</option>`
+      ).join('');
+
+      const statusOptions = Object.entries(STATUS_CONFIG).map(([val, cfg]) =>
+        `<option value="${val}" ${val === plant.status ? 'selected' : ''}>${cfg.label}</option>`
+      ).join('');
+
+      detailTr.innerHTML = `<td colspan="25">
+        <div class="detail-panel" id="panel-${plant.id}">
+          <span class="detail-coming-soon">✦ Plant details coming soon — spacing, watering, companions, pests & notes will live here.</span>
+          <div class="panel-controls">
+            <label class="panel-label">Status:
+              <select class="panel-select" onchange="updateStatus('${plant.id}', this.value)">${statusOptions}</select>
+            </label>
+            <label class="panel-label">Bed:
+              <select class="panel-select" onchange="reassign('${plant.id}', this.value)">${bedOptions}</select>
+            </label>
+            <button class="panel-btn btn-remove" onclick="removePlant('${plant.id}')">✕ Remove</button>
+          </div>
+        </div></td>`;
+      tbody.appendChild(detailTr);
+    });
+  });
+
+  // Bind bed rename inputs
+  document.querySelectorAll('.bed-name-input').forEach(input => {
+    input.addEventListener('change', e => {
+      const beds = getBeds();
+      const bed = beds.find(b => b.id === e.target.dataset.bedId);
+      if (bed) { bed.label = e.target.value; saveBeds(beds); render(); }
+    });
+  });
+}
+
+function toggleDetail(plantId) {
+  const panel   = document.getElementById(`panel-${plantId}`);
+  const plantRow = document.querySelector(`tr[data-plant-id="${plantId}"]`);
+  const info    = plantRow ? plantRow.querySelector('.plant-info') : null;
+  if (!panel) return;
+  const isOpen  = panel.classList.contains('open');
+  document.querySelectorAll('.detail-panel').forEach(p => p.classList.remove('open'));
+  document.querySelectorAll('.plant-info').forEach(i => i.classList.remove('expanded'));
+  if (!isOpen) { panel.classList.add('open'); if (info) info.classList.add('expanded'); }
+}
+
+function updateStatus(plantId, status) {
+  const plants = getPlants();
+  const plant  = plants.find(p => p.id === plantId);
+  if (plant) { plant.status = status; savePlants(plants); render(); toggleDetail(plantId); }
+}
+
+function reassign(plantId, bedId) {
+  const plants = getPlants();
+  const plant  = plants.find(p => p.id === plantId);
+  if (plant) { plant.bed = bedId; savePlants(plants); render(); toggleDetail(plantId); }
+}
+
+function removePlant(plantId) {
+  if (!confirm('Remove this plant from your calendar?')) return;
+  const plants = getPlants().filter(p => p.id !== plantId);
+  savePlants(plants);
+  render();
+}
+
+// ══════════════════════════════════════════════════════════════
+// ADD PLANT MODAL
+// ══════════════════════════════════════════════════════════════
+function openAddPlant() {
+  // Populate plant name dropdown
+  const nameSelect = document.getElementById('form-plant-name');
+  nameSelect.innerHTML = '<option value="">— select —</option>';
+  Object.keys(PLANT_DATABASE).sort().forEach(name => {
+    nameSelect.innerHTML += `<option value="${name}">${name}</option>`;
+  });
+
+  // Populate bed dropdown
+  const bedSelect = document.getElementById('form-bed');
+  bedSelect.innerHTML = getBeds().map(b => `<option value="${b.id}">${b.label}</option>`).join('');
+
+  // Reset other fields
+  document.getElementById('form-variety').innerHTML = '<option value="">— none / enter custom —</option>';
+  document.getElementById('form-variety-custom').style.display = 'none';
+  document.getElementById('form-variety-custom').value = '';
+  document.getElementById('variety-save-note').style.display = 'none';
+  document.getElementById('form-dtm').value = '';
+  document.getElementById('form-status').value = 'willplant';
+
+  document.getElementById('modal-overlay').classList.add('open');
+}
+
+function closeAddPlant() {
+  document.getElementById('modal-overlay').classList.remove('open');
+}
+
+function handleOverlayClick(e) {
+  if (e.target === document.getElementById('modal-overlay')) closeAddPlant();
+  e.stopPropagation();
+}
+
+function onPlantNameChange() {
+  const name     = document.getElementById('form-plant-name').value;
+  const varSel   = document.getElementById('form-variety');
+  const dtmInput = document.getElementById('form-dtm');
+
+  if (!name || !PLANT_DATABASE[name]) {
+    varSel.innerHTML = '<option value="">— none / enter custom —</option>';
+    dtmInput.value   = '';
+    return;
+  }
+
+  const db = PLANT_DATABASE[name];
+  const customVars = getCustomVarieties()[name] || [];
+
+  varSel.innerHTML = '<option value="">— none —</option>';
+  // Known varieties
+  Object.keys(db.varieties).forEach(v => {
+    varSel.innerHTML += `<option value="${v}">${v}</option>`;
+  });
+  // Locally saved custom varieties
+  customVars.forEach(v => {
+    varSel.innerHTML += `<option value="${v}">⭐ ${v} (saved)</option>`;
+  });
+  // Always show custom entry option at bottom
+  varSel.innerHTML += `<option value="__custom__">✏ Enter custom variety…</option>`;
+
+  // Default dtm
+  dtmInput.value = db.default.dtm;
+}
+
+function onVarietyChange() {
+  const name    = document.getElementById('form-plant-name').value;
+  const variety = document.getElementById('form-variety').value;
+  const dtm     = document.getElementById('form-dtm');
+  const customInput = document.getElementById('form-variety-custom');
+  const saveNote    = document.getElementById('variety-save-note');
+
+  if (variety === '__custom__' || variety === '') {
+    // Show custom text input
+    customInput.style.display = 'block';
+    customInput.placeholder   = variety === '__custom__' ? 'Type your variety name…' : 'Optional — leave blank for none';
+    saveNote.style.display    = variety === '__custom__' ? 'block' : 'none';
+    dtm.value = name && PLANT_DATABASE[name] ? PLANT_DATABASE[name].default.dtm : '';
+    if (variety === '__custom__') customInput.focus();
+  } else {
+    customInput.style.display = 'none';
+    saveNote.style.display    = 'none';
+    customInput.value         = '';
+    if (name && PLANT_DATABASE[name] && PLANT_DATABASE[name].varieties[variety]) {
+      dtm.value = PLANT_DATABASE[name].varieties[variety].dtm;
+    }
+  }
+}
+
+function onCustomVarietyInput() {
+  const input = document.getElementById('form-variety-custom').value.trim();
+  document.getElementById('variety-save-note').style.display = input ? 'block' : 'none';
+}
+
+function submitAddPlant() {
+  const name     = document.getElementById('form-plant-name').value;
+  const varSel   = document.getElementById('form-variety').value;
+  const varCustom= document.getElementById('form-variety-custom').value.trim();
+  const variety = (varSel === '__custom__' || varSel === '') ? (varCustom || null) : varSel;
+  const dtm      = document.getElementById('form-dtm').value.trim() || '—';
+  const bed      = document.getElementById('form-bed').value;
+  const status   = document.getElementById('form-status').value;
+  const saveVar  = document.getElementById('save-custom-variety').checked;
+
+  if (!name) { alert('Please select a plant name.'); return; }
+
+  // Save custom variety locally if requested
+  if (varCustom && saveVar) {
+    const cv = getCustomVarieties();
+    if (!cv[name]) cv[name] = [];
+    if (!cv[name].includes(varCustom)) cv[name].push(varCustom);
+    saveCustomVarieties(cv);
+  }
+
+  // Get timing
+  let months;
+  const db = PLANT_DATABASE[name];
+  if (db) {
+    if (variety && db.varieties[variety]) {
+      months = db.varieties[variety].months;
+    } else {
+      months = db.default.months;
+    }
+  } else {
+    months = Array(24).fill(null);
+  }
+
+  // Unique ID
+  const id = `${name.toLowerCase().replace(/\s+/g,'-')}-${Date.now()}`;
+
+  const plants = getPlants();
+  plants.push({ id, name, variety, dtm, bed, status, maybe: status === 'undecided', months });
+  savePlants(plants);
+  closeAddPlant();
+  render();
+}
+
+// ══════════════════════════════════════════════════════════════
+// ADD BED MODAL
+// ══════════════════════════════════════════════════════════════
+let selectedBedColor = '#4a7a9b';
+
+function selectBedColor(el) {
+  document.querySelectorAll('.color-opt').forEach(e => e.classList.remove('selected'));
+  el.classList.add('selected');
+  selectedBedColor = el.dataset.color;
+}
+
+function openAddBed() {
+  selectedBedColor = '#4a7a9b';
+  document.querySelectorAll('.color-opt').forEach((e, i) => {
+    e.classList.toggle('selected', i === 0);
+  });
+  document.getElementById('form-bed-name').value = '';
+  document.getElementById('bed-modal-overlay').classList.add('open');
+}
+
+function closeAddBed() {
+  document.getElementById('bed-modal-overlay').classList.remove('open');
+}
+
+function handleBedOverlayClick(e) {
+  if (e.target === document.getElementById('bed-modal-overlay')) closeAddBed();
+  e.stopPropagation();
+}
+
+function submitAddBed() {
+  const beds = getBeds();
+  const usedLetters = beds.map(b => b.label.replace('Bed ', '').trim()).filter(l => l.length === 1);
+  const nextLetter  = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('').find(l => !usedLetters.includes(l)) || `${beds.length + 1}`;
+  const rawName     = document.getElementById('form-bed-name').value.trim();
+  const label       = rawName || `Bed ${nextLetter}`;
+  const id          = label.toLowerCase().replace(/\s+/g, '-') + '-' + Date.now();
+  beds.push({ id, label, color: selectedBedColor });
+  saveBeds(beds);
+  closeAddBed();
+  render();
+}
+
+render();
+</script>
+</body>
+</html>
