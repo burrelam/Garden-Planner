@@ -288,6 +288,33 @@
   .bottom-legend strong { color: var(--moss); }
   .tip { text-align: center; color: #8a7060; font-size: 0.67rem; margin-top: 10px; letter-spacing: 0.04em; }
 
+  /* ── DATA MANAGEMENT BAR ── */
+  .data-mgmt-bar {
+    background: var(--parchment);
+    border-top: 1px solid #ddd5c5;
+    padding: 8px 18px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .data-mgmt-label { font-size: 0.65rem; color: #7a6a58; letter-spacing: 0.03em; }
+  .data-btn {
+    font-size: 0.65rem;
+    padding: 4px 11px;
+    background: white;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    color: #5a4a38;
+    cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 500;
+    letter-spacing: 0.04em;
+    transition: background 0.15s;
+    display: inline-block;
+  }
+  .data-btn:hover { background: #ede6d6; }
+
   @keyframes fadeDown { from { opacity:0; transform:translateY(-14px); } to { opacity:1; transform:translateY(0); } }
   @keyframes fadeUp   { from { opacity:0; transform:translateY(14px);  } to { opacity:1; transform:translateY(0); } }
 </style>
@@ -322,8 +349,8 @@
           <tr class="half-row">
             <th class="corner">
               <div class="header-btn-group">
-                <button class="add-plant-btn" onclick="event.stopPropagation(); openAddPlant()">+ Plant</button>
-                <button class="add-plant-btn" onclick="event.stopPropagation(); openAddBed()">+ Bed</button>
+                <button class="add-plant-btn" onclick="event.stopPropagation(); openAddPlant()">🌿 Plant</button>
+                <button class="add-plant-btn" onclick="event.stopPropagation(); openAddBed()">🪴 Bed</button>
               </div>
             </th>
             <th>E</th><th>L</th><th>E</th><th>L</th><th>E</th><th>L</th>
@@ -356,6 +383,14 @@
       Timing: <em>Portland Nursery Veggie Calendar</em> ·
       <strong>Tap a plant</strong> to change status, reassign bed, or remove ·
       <strong>Tap a bed name</strong> to rename
+    </div>
+    <div class="data-mgmt-bar">
+      <span class="data-mgmt-label">💾 Garden data:</span>
+      <button class="data-btn" onclick="exportGardenData()">⬇ Export backup</button>
+      <label class="data-btn">
+        ⬆ Import backup
+        <input type="file" accept=".json" style="display:none;" onchange="importGardenData(event)" />
+      </label>
     </div>
   </div>
   <p class="tip">Scroll right to see all months · Headers stay fixed · Blue = current period</p>
@@ -758,7 +793,7 @@ function render() {
       detailTr.id = `detail-${plant.id}`;
 
       const bedOptions = getBeds().map(b =>
-        `<option value="${b.id}" ${b.id === plant.bed ? 'selected' : ''}>${b.label}</option>`
+        `<option value="${b.id}" ${b.id === plant.bed ? 'selected' : ''}>${b.label.toUpperCase()}</option>`
       ).join('');
 
       const statusOptions = Object.entries(STATUS_CONFIG).map(([val, cfg]) =>
@@ -835,7 +870,7 @@ function openAddPlant() {
 
   // Populate bed dropdown
   const bedSelect = document.getElementById('form-bed');
-  bedSelect.innerHTML = getBeds().map(b => `<option value="${b.id}">${b.label}</option>`).join('');
+  bedSelect.innerHTML = getBeds().map(b => `<option value="${b.id}">${b.label.toUpperCase()}</option>`).join('');
 
   // Reset other fields
   document.getElementById('form-variety').innerHTML = '<option value="">— none / enter custom —</option>';
@@ -999,6 +1034,51 @@ function submitAddBed() {
   saveBeds(beds);
   closeAddBed();
   render();
+}
+
+// ══════════════════════════════════════════════════════════════
+// EXPORT / IMPORT GARDEN DATA
+// ══════════════════════════════════════════════════════════════
+function exportGardenData() {
+  const data = {
+    version: 1,
+    exported: new Date().toISOString(),
+    plants: getPlants(),
+    beds: getBeds(),
+    customVarieties: getCustomVarieties()
+  };
+  const json = JSON.stringify(data, null, 2);
+  const blob = new Blob([json], { type: 'application/json' });
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href     = url;
+  a.download = `my-garden-${new Date().toISOString().slice(0, 10)}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function importGardenData(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(evt) {
+    try {
+      const data = JSON.parse(evt.target.result);
+      if (!data.plants || !data.beds) {
+        alert('Invalid garden file — missing plants or beds data.');
+        return;
+      }
+      if (!confirm('Import this backup? Your current garden data will be replaced.')) return;
+      savePlants(data.plants);
+      saveBeds(data.beds);
+      if (data.customVarieties) saveCustomVarieties(data.customVarieties);
+      render();
+    } catch(err) {
+      alert('Could not read file — make sure it\'s a valid garden JSON export.');
+    }
+  };
+  reader.readAsText(file);
+  e.target.value = ''; // reset so same file can be re-imported if needed
 }
 
 render();
