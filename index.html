@@ -145,8 +145,12 @@
     outline: none; width: 120px; cursor: pointer; padding: 1px 2px;
   }
   .bed-name-input:focus { border-bottom-color: white; background: rgba(255,255,255,0.1); border-radius: 2px; }
-  .bed-edit-hint { font-size: 0.52rem; opacity: 0.55; font-weight: 300; margin-left: auto; padding-right: 8px; color: white; }
-  tr.bed-row td:first-child { background: inherit; z-index: 2; }
+  .bed-edit-hint { font-size: 0.52rem; opacity: 0.55; font-weight: 300; color: white; }
+  tr.bed-row td:first-child {
+    position: sticky; left: 0; z-index: 4;
+    min-width: 140px; width: 140px;
+    background: inherit;
+  }
 
   /* ── BED ACCENT STRIPES ── */
   tr.plant-bed-a td:first-child         { border-left: 3px solid var(--bed-a); }
@@ -196,6 +200,37 @@
   .btn-assign:hover { background: #3a4e2c; }
   .btn-remove { background: #c0392b; color: white; }
   .btn-remove:hover { background: #a93226; }
+
+  /* ── CONFIRM DIALOG ── */
+  .confirm-overlay {
+    display: none; position: fixed; inset: 0;
+    background: rgba(40,25,15,0.65); z-index: 300;
+    align-items: center; justify-content: center; padding: 20px;
+  }
+  .confirm-overlay.open { display: flex; }
+  .confirm-box {
+    background: var(--cream); border-radius: 12px;
+    padding: 22px 24px; width: 100%; max-width: 340px;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.4);
+    animation: fadeUp 0.2s ease both;
+    text-align: center;
+  }
+  .confirm-box p { font-size: 0.82rem; color: var(--ink); line-height: 1.5; margin-bottom: 18px; }
+  .confirm-actions { display: flex; gap: 10px; justify-content: center; }
+  .btn-confirm-yes {
+    padding: 9px 20px; background: #c0392b; color: white;
+    border: none; border-radius: 6px; font-size: 0.75rem;
+    font-weight: 600; cursor: pointer; letter-spacing: 0.04em;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .btn-confirm-yes:hover { background: #a93226; }
+  .btn-confirm-no {
+    padding: 9px 20px; background: #e5ddd0; color: #5a4a38;
+    border: none; border-radius: 6px; font-size: 0.75rem;
+    font-weight: 500; cursor: pointer; letter-spacing: 0.04em;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .btn-confirm-no:hover { background: #d5cdc0; }
 
   /* ── MONTH CELLS ── */
   td.hcol { padding: 5px 1px; border-left: 1px solid #ede5d8; min-width: 22px; width: 22px; vertical-align: middle; }
@@ -315,6 +350,41 @@
   }
   .data-btn:hover { background: #ede6d6; }
 
+  /* ── SNAPSHOT / HISTORY PANEL ── */
+  .snapshot-wrap { position: relative; display: inline-block; }
+  .snapshot-panel {
+    display: none;
+    position: absolute;
+    bottom: calc(100% + 6px);
+    left: 0;
+    background: white;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+    min-width: 210px;
+    z-index: 200;
+    overflow: hidden;
+  }
+  .snapshot-panel.open { display: block; }
+  .snapshot-panel-title {
+    font-size: 0.62rem; font-weight: 600; letter-spacing: 0.06em;
+    text-transform: uppercase; color: #7a6a58;
+    padding: 8px 12px 5px; border-bottom: 1px solid #eee;
+  }
+  .snapshot-item {
+    display: block; width: 100%; text-align: left;
+    padding: 7px 12px; font-size: 0.68rem; color: #5a4a38;
+    background: none; border: none; cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+    border-bottom: 1px solid #f0ebe3;
+    transition: background 0.12s;
+  }
+  .snapshot-item:last-child { border-bottom: none; }
+  .snapshot-item:hover { background: #f5f0e8; }
+  .snapshot-item .snap-time { font-weight: 600; display: block; }
+  .snapshot-item .snap-detail { font-size: 0.61rem; color: #9a8a78; }
+  .snapshot-empty { padding: 10px 12px; font-size: 0.68rem; color: #aaa; font-style: italic; }
+
   @keyframes fadeDown { from { opacity:0; transform:translateY(-14px); } to { opacity:1; transform:translateY(0); } }
   @keyframes fadeUp   { from { opacity:0; transform:translateY(14px);  } to { opacity:1; transform:translateY(0); } }
 </style>
@@ -391,9 +461,27 @@
         ⬆ Import backup
         <input type="file" accept=".json" style="display:none;" onchange="importGardenData(event)" />
       </label>
+      <div class="snapshot-wrap">
+        <button class="data-btn" onclick="toggleSnapshotPanel()">🕐 History</button>
+        <div class="snapshot-panel" id="snapshot-panel">
+          <div class="snapshot-panel-title">Recent saves — click to restore</div>
+          <div id="snapshot-list"></div>
+        </div>
+      </div>
     </div>
   </div>
   <p class="tip">Scroll right to see all months · Headers stay fixed · Blue = current period</p>
+</div>
+
+<!-- CONFIRM DIALOG -->
+<div class="confirm-overlay" id="confirm-overlay">
+  <div class="confirm-box">
+    <p id="confirm-message">Are you sure?</p>
+    <div class="confirm-actions">
+      <button class="btn-confirm-yes" id="confirm-yes">✕ Yes, remove</button>
+      <button class="btn-confirm-no" onclick="closeConfirm()">↩ No, go back</button>
+    </div>
+  </div>
 </div>
 
 <!-- ADD PLANT MODAL -->
@@ -405,6 +493,7 @@
       <select id="form-plant-name" onchange="onPlantNameChange()">
         <option value="">— select —</option>
       </select>
+      <input type="text" id="form-plant-name-custom" placeholder="Type plant name…" style="margin-top:6px;display:none;" oninput="onCustomPlantNameInput()" />
     </div>
     <div class="form-group">
       <label>Variety <span style="font-weight:300;font-style:italic;">(optional)</span></label>
@@ -429,11 +518,7 @@
     </div>
     <div class="form-group">
       <label>Status</label>
-      <select id="form-status">
-        <option value="planted">✔ Planted</option>
-        <option value="willplant" selected>🌱 Will Plant</option>
-        <option value="undecided">? Undecided</option>
-      </select>
+      <select id="form-status"></select>
     </div>
     <div class="modal-actions">
       <button class="btn-cancel" onclick="closeAddPlant()">Cancel</button>
@@ -661,7 +746,7 @@ function getBeds() {
   try { const s = localStorage.getItem('garden_beds'); return s ? JSON.parse(s) : DEFAULT_BEDS; }
   catch(e) { return DEFAULT_BEDS; }
 }
-function saveBeds(beds) { localStorage.setItem('garden_beds', JSON.stringify(beds)); }
+function saveBeds(beds) { saveSnapshot(); localStorage.setItem('garden_beds', JSON.stringify(beds)); }
 
 // ══════════════════════════════════════════════════════════════
 // PLANTS (calendar entries)
@@ -694,7 +779,7 @@ function getPlants() {
   try { const s = localStorage.getItem('garden_plants'); return s ? JSON.parse(s) : DEFAULT_PLANTS; }
   catch(e) { return DEFAULT_PLANTS; }
 }
-function savePlants(plants) { localStorage.setItem('garden_plants', JSON.stringify(plants)); }
+function savePlants(plants) { saveSnapshot(); localStorage.setItem('garden_plants', JSON.stringify(plants)); }
 
 function getCustomVarieties() {
   try { const s = localStorage.getItem('garden_custom_varieties'); return s ? JSON.parse(s) : {}; }
@@ -725,12 +810,18 @@ function render() {
     // Always show bed header (even if empty)
     const bedTr = document.createElement('tr');
     bedTr.className = 'bed-row';
-    bedTr.innerHTML = `<td colspan="25" style="background:${bed.color}">
-      <div class="bed-header">
-        <div class="bed-dot"></div>
-        <input class="bed-name-input" data-bed-id="${bed.id}" value="${bed.label}" title="Click to rename" />
-        <span class="bed-edit-hint">tap to rename</span>
-      </div></td>`;
+    const canRemove = bed.id !== 'unassigned';
+    bedTr.innerHTML = `
+      <td style="background:${bed.color}">
+        <div class="bed-header">
+          <div class="bed-dot"></div>
+          <input class="bed-name-input" data-bed-id="${bed.id}" value="${bed.label}" title="Click to rename" />
+          ${canRemove ? `<button class="panel-btn btn-remove" style="font-size:0.55rem;padding:3px 8px;" onclick="removeBed('${bed.id}')">✕</button>` : ''}
+        </div>
+      </td>
+      <td colspan="24" style="background:${bed.color}">
+        <span class="bed-edit-hint" style="display:block;padding:0 10px;line-height:32px;">tap name to rename</span>
+      </td>`;
     tbody.appendChild(bedTr);
 
     // If no plants yet, show placeholder
@@ -851,10 +942,26 @@ function reassign(plantId, bedId) {
 }
 
 function removePlant(plantId) {
-  if (!confirm('Remove this plant from your calendar?')) return;
-  const plants = getPlants().filter(p => p.id !== plantId);
-  savePlants(plants);
-  render();
+  const plant = getPlants().find(p => p.id === plantId);
+  const label = plant ? `${plant.name}${plant.variety ? ' (' + plant.variety + ')' : ''}` : 'this plant';
+  showConfirm(`Remove ${label} from your calendar?`, () => {
+    const plants = getPlants().filter(p => p.id !== plantId);
+    savePlants(plants);
+    render();
+  });
+}
+
+function removeBed(bedId) {
+  const beds = getBeds();
+  const bed = beds.find(b => b.id === bedId);
+  if (!bed) return;
+  showConfirm(`Remove "${bed.label}"? Plants assigned to it will move to Unassigned.`, () => {
+    const updatedBeds = beds.filter(b => b.id !== bedId);
+    const plants = getPlants().map(p => p.bed === bedId ? { ...p, bed: 'unassigned' } : p);
+    saveBeds(updatedBeds);
+    savePlants(plants);
+    render();
+  });
 }
 
 // ══════════════════════════════════════════════════════════════
@@ -867,10 +974,19 @@ function openAddPlant() {
   Object.keys(PLANT_DATABASE).sort().forEach(name => {
     nameSelect.innerHTML += `<option value="${name}">${name}</option>`;
   });
+  nameSelect.innerHTML += `<option value="__custom__">✏ Type your own…</option>`;
+  document.getElementById('form-plant-name-custom').style.display = 'none';
+  document.getElementById('form-plant-name-custom').value = '';
 
   // Populate bed dropdown
   const bedSelect = document.getElementById('form-bed');
   bedSelect.innerHTML = getBeds().map(b => `<option value="${b.id}">${b.label.toUpperCase()}</option>`).join('');
+
+  // Populate status dropdown from STATUS_CONFIG
+  const statusSelect = document.getElementById('form-status');
+  statusSelect.innerHTML = Object.entries(STATUS_CONFIG).map(([val, cfg]) =>
+    `<option value="${val}" ${val === 'willplant' ? 'selected' : ''}>${cfg.label}</option>`
+  ).join('');
 
   // Reset other fields
   document.getElementById('form-variety').innerHTML = '<option value="">— none / enter custom —</option>';
@@ -892,10 +1008,26 @@ function handleOverlayClick(e) {
   e.stopPropagation();
 }
 
+function onCustomPlantNameInput() {
+  // Nothing extra needed — value is read in submitAddPlant
+}
+
 function onPlantNameChange() {
   const name     = document.getElementById('form-plant-name').value;
   const varSel   = document.getElementById('form-variety');
   const dtmInput = document.getElementById('form-dtm');
+  const customNameInput = document.getElementById('form-plant-name-custom');
+
+  // Show custom text input when "Type your own…" selected
+  if (name === '__custom__') {
+    customNameInput.style.display = 'block';
+    customNameInput.focus();
+    varSel.innerHTML = '<option value="">— none / enter custom —</option>';
+    dtmInput.value = '';
+    return;
+  }
+  customNameInput.style.display = 'none';
+  customNameInput.value = '';
 
   if (!name || !PLANT_DATABASE[name]) {
     varSel.innerHTML = '<option value="">— none / enter custom —</option>';
@@ -952,16 +1084,18 @@ function onCustomVarietyInput() {
 }
 
 function submitAddPlant() {
-  const name     = document.getElementById('form-plant-name').value;
-  const varSel   = document.getElementById('form-variety').value;
-  const varCustom= document.getElementById('form-variety-custom').value.trim();
-  const variety = (varSel === '__custom__' || varSel === '') ? (varCustom || null) : varSel;
-  const dtm      = document.getElementById('form-dtm').value.trim() || '—';
-  const bed      = document.getElementById('form-bed').value;
-  const status   = document.getElementById('form-status').value;
-  const saveVar  = document.getElementById('save-custom-variety').checked;
+  const nameSel    = document.getElementById('form-plant-name').value;
+  const nameCustom = document.getElementById('form-plant-name-custom').value.trim();
+  const name       = nameSel === '__custom__' ? nameCustom : nameSel;
+  const varSel     = document.getElementById('form-variety').value;
+  const varCustom  = document.getElementById('form-variety-custom').value.trim();
+  const variety    = (varSel === '__custom__' || varSel === '') ? (varCustom || null) : varSel;
+  const dtm        = document.getElementById('form-dtm').value.trim() || '—';
+  const bed        = document.getElementById('form-bed').value;
+  const status     = document.getElementById('form-status').value;
+  const saveVar    = document.getElementById('save-custom-variety').checked;
 
-  if (!name) { alert('Please select a plant name.'); return; }
+  if (!name) { alert('Please select or type a plant name.'); return; }
 
   // Save custom variety locally if requested
   if (varCustom && saveVar) {
@@ -1037,6 +1171,109 @@ function submitAddBed() {
 }
 
 // ══════════════════════════════════════════════════════════════
+// CONFIRM DIALOG
+// ══════════════════════════════════════════════════════════════
+let _confirmCallback = null;
+
+function showConfirm(message, onConfirm, yesLabel = '✕ Yes, remove') {
+  _confirmCallback = onConfirm;
+  document.getElementById('confirm-message').textContent = message;
+  document.getElementById('confirm-yes').textContent = yesLabel;
+  document.getElementById('confirm-yes').onclick = () => { closeConfirm(); if (_confirmCallback) _confirmCallback(); };
+  document.getElementById('confirm-overlay').classList.add('open');
+}
+
+function closeConfirm() {
+  document.getElementById('confirm-overlay').classList.remove('open');
+  _confirmCallback = null;
+}
+
+// ══════════════════════════════════════════════════════════════
+// SNAPSHOT / VERSION HISTORY (last 5 auto-saves)
+// ══════════════════════════════════════════════════════════════
+let _savingSnapshot = false; // prevent recursion
+
+function getSnapshots() {
+  try { const s = localStorage.getItem('garden_snapshots'); return s ? JSON.parse(s) : []; }
+  catch(e) { return []; }
+}
+
+function saveSnapshot() {
+  if (_savingSnapshot) return;
+  _savingSnapshot = true;
+  const snapshots = getSnapshots();
+  snapshots.unshift({
+    timestamp: new Date().toISOString(),
+    plants: getPlants(),
+    beds: getBeds(),
+    customVarieties: getCustomVarieties()
+  });
+  snapshots.splice(5); // keep only last 5
+  localStorage.setItem('garden_snapshots', JSON.stringify(snapshots));
+  _savingSnapshot = false;
+}
+
+function formatRelativeTime(iso) {
+  const diff = Date.now() - new Date(iso).getTime();
+  const mins  = Math.floor(diff / 60000);
+  const hours = Math.floor(diff / 3600000);
+  const days  = Math.floor(diff / 86400000);
+  if (mins < 1)   return 'Just now';
+  if (mins < 60)  return `${mins} minute${mins === 1 ? '' : 's'} ago`;
+  if (hours < 24) return `${hours} hour${hours === 1 ? '' : 's'} ago`;
+  return `${days} day${days === 1 ? '' : 's'} ago`;
+}
+
+function toggleSnapshotPanel() {
+  const panel = document.getElementById('snapshot-panel');
+  const isOpen = panel.classList.contains('open');
+  if (isOpen) { panel.classList.remove('open'); return; }
+  // Populate list
+  const snapshots = getSnapshots();
+  const list = document.getElementById('snapshot-list');
+  if (!snapshots.length) {
+    list.innerHTML = '<div class="snapshot-empty">No saves yet — changes auto-save here as you go.</div>';
+  } else {
+    list.innerHTML = snapshots.map((snap, i) => {
+      const d = new Date(snap.timestamp);
+      const timeStr = d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      const dateStr = d.toLocaleDateString([], { month: 'short', day: 'numeric' });
+      const plants  = snap.plants ? snap.plants.length : '?';
+      return `<button class="snapshot-item" onclick="restoreSnapshot(${i})">
+        <span class="snap-time">${formatRelativeTime(snap.timestamp)}</span>
+        <span class="snap-detail">${dateStr} at ${timeStr} · ${plants} plant${plants === 1 ? '' : 's'}</span>
+      </button>`;
+    }).join('');
+  }
+  panel.classList.add('open');
+  // Close panel when clicking outside
+  setTimeout(() => {
+    document.addEventListener('click', closeSnapshotPanel, { once: true });
+  }, 0);
+}
+
+function closeSnapshotPanel() {
+  document.getElementById('snapshot-panel').classList.remove('open');
+}
+
+function restoreSnapshot(index) {
+  closeSnapshotPanel();
+  const snapshots = getSnapshots();
+  const snap = snapshots[index];
+  if (!snap) return;
+  const d = new Date(snap.timestamp);
+  const label = `${d.toLocaleDateString([], { month: 'short', day: 'numeric' })} at ${d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
+  showConfirm(`Restore your garden to the save from ${label}? Your current state will be replaced.`, () => {
+    // Save current state as a snapshot before restoring
+    saveSnapshot();
+    localStorage.setItem('garden_plants', JSON.stringify(snap.plants));
+    localStorage.setItem('garden_beds', JSON.stringify(snap.beds));
+    if (snap.customVarieties) localStorage.setItem('garden_custom_varieties', JSON.stringify(snap.customVarieties));
+    render();
+  });
+}
+
+// ══════════════════════════════════════════════════════════════
 // EXPORT / IMPORT GARDEN DATA
 // ══════════════════════════════════════════════════════════════
 function exportGardenData() {
@@ -1068,11 +1305,12 @@ function importGardenData(e) {
         alert('Invalid garden file — missing plants or beds data.');
         return;
       }
-      if (!confirm('Import this backup? Your current garden data will be replaced.')) return;
-      savePlants(data.plants);
-      saveBeds(data.beds);
-      if (data.customVarieties) saveCustomVarieties(data.customVarieties);
-      render();
+      showConfirm('Import this backup? Your current garden data will be replaced.', () => {
+        savePlants(data.plants);
+        saveBeds(data.beds);
+        if (data.customVarieties) saveCustomVarieties(data.customVarieties);
+        render();
+      });
     } catch(err) {
       alert('Could not read file — make sure it\'s a valid garden JSON export.');
     }
