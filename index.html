@@ -1115,6 +1115,9 @@ function submitAddPlant() {
 
   if (!name) { alert('Please select or type a plant name.'); return; }
 
+  // Snapshot BEFORE any changes — must happen before new bed or plant is written
+  saveSnapshot(`Before: added ${name}${variety ? ' (' + variety + ')' : ''}`);
+
   // Create new bed inline if selected
   if (bed === '__new_bed__') {
     const beds = getBeds();
@@ -1155,7 +1158,6 @@ function submitAddPlant() {
   // Unique ID
   const id = `${name.toLowerCase().replace(/\s+/g,'-')}-${Date.now()}`;
 
-  saveSnapshot(`Before: added ${name}${variety ? ' (' + variety + ')' : ''}`);
   const plants = getPlants();
   plants.push({ id, name, variety, dtm, bed, status, maybe: status === 'undecided', months });
   savePlants(plants);
