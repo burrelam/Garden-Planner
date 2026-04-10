@@ -135,17 +135,31 @@
 
   /* ── BED HEADER ROWS ── */
   tr.bed-row td { padding: 0; border-top: 3px solid #bbb; }
-  .bed-header { display: flex; align-items: center; gap: 5px; padding: 5px 6px; }
+  .bed-header { display: flex; align-items: center; gap: 5px; padding: 5px 6px; cursor: pointer; }
+  .bed-header:hover { filter: brightness(1.1); }
   .bed-dot { width: 8px; height: 8px; border-radius: 50%; background: white; opacity: 0.7; flex-shrink: 0; }
   .bed-name-input {
     background: transparent; border: none;
-    border-bottom: 1px dashed rgba(255,255,255,0.4);
     color: white; font-family: 'DM Sans', sans-serif;
     font-size: 0.69rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase;
     outline: none; flex: 1; min-width: 0; cursor: pointer; padding: 1px 2px;
+    pointer-events: none;
   }
-  .bed-name-input:focus { border-bottom-color: white; background: rgba(255,255,255,0.1); border-radius: 2px; }
   .bed-edit-hint { font-size: 0.52rem; opacity: 0.55; font-weight: 300; color: white; }
+
+  /* ── BED EDIT POPOVER ── */
+  .bed-edit-popover {
+    display: none; position: fixed; z-index: 200;
+    background: var(--cream); border-radius: 10px;
+    padding: 14px 16px; width: 210px;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.35);
+    animation: fadeUp 0.15s ease both;
+  }
+  .bed-edit-popover.open { display: block; }
+  .bep-label { font-size: 0.65rem; font-weight: 500; color: #5a4a38; letter-spacing: 0.04em; margin-bottom: 5px; text-transform: uppercase; }
+  .bep-input { width: 100%; padding: 6px 8px; border: 1px solid #ccc; border-radius: 4px; font-size: 0.75rem; font-family: 'DM Sans', sans-serif; }
+  .bep-input:focus { outline: none; border-color: var(--moss); }
+  .bep-colors { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 4px; }
   tr.bed-row td:first-child {
     position: sticky; left: 0; z-index: 4;
     min-width: 140px; width: 140px;
@@ -484,6 +498,18 @@
   </div>
 </div>
 
+<!-- BED EDIT POPOVER -->
+<div class="bed-edit-popover" id="bed-edit-popover">
+  <div class="bep-label">Bed Name</div>
+  <input type="text" id="bep-name" class="bep-input" placeholder="Bed name…" />
+  <div class="bep-label" style="margin-top:10px;">Color</div>
+  <div class="bep-colors" id="bep-colors"></div>
+  <div style="display:flex;gap:8px;margin-top:12px;">
+    <button class="btn-cancel" style="flex:1;padding:7px;font-size:0.68rem;" onclick="closeBedEditPopover()">Cancel</button>
+    <button class="btn-primary" style="flex:1;padding:7px;font-size:0.68rem;" onclick="saveBedEdit()">Save</button>
+  </div>
+</div>
+
 <!-- ADD PLANT MODAL -->
 <div class="modal-overlay" id="modal-overlay" onclick="handleOverlayClick(event)">
   <div class="modal">
@@ -814,10 +840,10 @@ function render() {
     const canRemove = bed.id !== 'unassigned';
     bedTr.innerHTML = `
       <td style="background:${bed.color}">
-        <div class="bed-header">
+        <div class="bed-header" onclick="event.stopPropagation(); openBedEditPopover('${bed.id}', this)" title="Click to edit name or color">
           <div class="bed-dot"></div>
-          <input class="bed-name-input" data-bed-id="${bed.id}" value="${bed.label}" title="Click to rename" />
-          ${canRemove ? `<button class="panel-btn btn-remove" style="font-size:0.5rem;padding:2px 4px;flex-shrink:0;" onclick="removeBed('${bed.id}')">✕</button>` : ''}
+          <input class="bed-name-input" data-bed-id="${bed.id}" value="${bed.label}" readonly tabindex="-1" />
+          ${canRemove ? `<button class="panel-btn btn-remove" style="font-size:0.5rem;padding:2px 4px;flex-shrink:0;" onclick="event.stopPropagation(); removeBed('${bed.id}')">✕</button>` : ''}
         </div>
       </td>
       <td colspan="24" style="background:${bed.color}"></td>`;
@@ -907,14 +933,6 @@ function render() {
     });
   });
 
-  // Bind bed rename inputs
-  document.querySelectorAll('.bed-name-input').forEach(input => {
-    input.addEventListener('change', e => {
-      const beds = getBeds();
-      const bed = beds.find(b => b.id === e.target.dataset.bedId);
-      if (bed) { saveSnapshot(`Before: renamed "${bed.label}"`); bed.label = e.target.value; saveBeds(beds); render(); }
-    });
-  });
 }
 
 function toggleDetail(plantId) {
@@ -1166,19 +1184,74 @@ function submitAddPlant() {
 }
 
 // ══════════════════════════════════════════════════════════════
+// BED EDIT POPOVER
+// ══════════════════════════════════════════════════════════════
+const BEP_COLORS = ['#4a7a9b','#7a5e9b','#9b7a3a','#4a9b6a','#9b4a6a','#6a4a9b','#9b6a4a','#4a9b9b','#7a7a4a','#888'];
+let _editingBedId   = null;
+let _bepChosenColor = null;
+
+function openBedEditPopover(bedId, triggerEl) {
+  const bed = getBeds().find(b => b.id === bedId);
+  if (!bed) return;
+  _editingBedId   = bedId;
+  _bepChosenColor = bed.color;
+
+  document.getElementById('bep-name').value = bed.label;
+  document.getElementById('bep-colors').innerHTML = BEP_COLORS.map(c =>
+    `<div class="color-opt" data-color="${c}" style="background:${c};width:22px;height:22px;${c === bed.color ? 'border-color:var(--ink);transform:scale(1.15);' : ''}"
+      onclick="selectBepColor(this)"></div>`
+  ).join('');
+
+  const pop  = document.getElementById('bed-edit-popover');
+  const rect = triggerEl.getBoundingClientRect();
+  pop.style.top  = `${Math.min(rect.bottom + 6, window.innerHeight - 220)}px`;
+  pop.style.left = `${Math.min(rect.left, window.innerWidth - 226)}px`;
+  pop.classList.add('open');
+
+  setTimeout(() => document.addEventListener('click', closeBedEditPopover, { once: true }), 0);
+}
+
+function selectBepColor(el) {
+  document.querySelectorAll('#bep-colors .color-opt').forEach(e => {
+    e.style.borderColor = 'transparent'; e.style.transform = '';
+  });
+  el.style.borderColor = 'var(--ink)'; el.style.transform = 'scale(1.15)';
+  _bepChosenColor = el.dataset.color;
+}
+
+function saveBedEdit() {
+  if (!_editingBedId) return;
+  const beds = getBeds();
+  const bed  = beds.find(b => b.id === _editingBedId);
+  if (!bed) return;
+  const newName = document.getElementById('bep-name').value.trim() || bed.label;
+  saveSnapshot(`Before: edited bed "${bed.label}"`);
+  bed.label = newName;
+  bed.color = _bepChosenColor;
+  saveBeds(beds);
+  closeBedEditPopover();
+  render();
+}
+
+function closeBedEditPopover() {
+  document.getElementById('bed-edit-popover').classList.remove('open');
+  _editingBedId = null;
+}
+
+// ══════════════════════════════════════════════════════════════
 // ADD BED MODAL
 // ══════════════════════════════════════════════════════════════
 let selectedBedColor = '#4a7a9b';
 
 function selectBedColor(el) {
-  document.querySelectorAll('.color-opt').forEach(e => e.classList.remove('selected'));
+  document.querySelectorAll('#bed-color-picker .color-opt').forEach(e => e.classList.remove('selected'));
   el.classList.add('selected');
   selectedBedColor = el.dataset.color;
 }
 
 function openAddBed() {
   selectedBedColor = '#4a7a9b';
-  document.querySelectorAll('.color-opt').forEach((e, i) => {
+  document.querySelectorAll('#bed-color-picker .color-opt').forEach((e, i) => {
     e.classList.toggle('selected', i === 0);
   });
   document.getElementById('form-bed-name').value = '';
