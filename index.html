@@ -513,7 +513,8 @@
       </div>
       <div class="form-group">
         <label>Assign to Bed</label>
-        <select id="form-bed"></select>
+        <select id="form-bed" onchange="onBedSelectChange()"></select>
+        <input type="text" id="form-new-bed-name" placeholder="New bed name… (leave blank for next letter)" style="margin-top:6px;display:none;" />
       </div>
     </div>
     <div class="form-group">
@@ -988,7 +989,10 @@ function openAddPlant() {
 
   // Populate bed dropdown
   const bedSelect = document.getElementById('form-bed');
-  bedSelect.innerHTML = getBeds().map(b => `<option value="${b.id}">${b.label.toUpperCase()}</option>`).join('');
+  bedSelect.innerHTML = getBeds().map(b => `<option value="${b.id}">${b.label.toUpperCase()}</option>`).join('') +
+    '<option value="__new_bed__">＋ New bed…</option>';
+  document.getElementById('form-new-bed-name').style.display = 'none';
+  document.getElementById('form-new-bed-name').value = '';
 
   // Populate status dropdown from STATUS_CONFIG
   const statusSelect = document.getElementById('form-status');
@@ -1018,6 +1022,11 @@ function handleOverlayClick(e) {
 
 function onCustomPlantNameInput() {
   // Nothing extra needed — value is read in submitAddPlant
+}
+
+function onBedSelectChange() {
+  const isNew = document.getElementById('form-bed').value === '__new_bed__';
+  document.getElementById('form-new-bed-name').style.display = isNew ? 'block' : 'none';
 }
 
 function onPlantNameChange() {
@@ -1100,11 +1109,27 @@ function submitAddPlant() {
   const varCustom  = document.getElementById('form-variety-custom').value.trim();
   const variety    = (varSel === '__custom__' || varSel === '') ? (varCustom || null) : varSel;
   const dtm        = document.getElementById('form-dtm').value.trim() || '—';
-  const bed        = document.getElementById('form-bed').value;
+  let   bed        = document.getElementById('form-bed').value;
   const status     = document.getElementById('form-status').value;
   const saveVar    = document.getElementById('save-custom-variety').checked;
 
   if (!name) { alert('Please select or type a plant name.'); return; }
+
+  // Create new bed inline if selected
+  if (bed === '__new_bed__') {
+    const beds = getBeds();
+    const usedLetters = beds.map(b => b.label.replace('Bed ','').trim()).filter(l => l.length === 1);
+    const nextLetter  = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('').find(l => !usedLetters.includes(l)) || `${beds.length + 1}`;
+    const BED_COLORS  = ['#4a7a9b','#7a5e9b','#9b7a3a','#4a9b6a','#9b4a6a','#888'];
+    const usedColors  = beds.map(b => b.color);
+    const newColor    = BED_COLORS.find(c => !usedColors.includes(c)) || BED_COLORS[beds.length % BED_COLORS.length];
+    const rawName     = document.getElementById('form-new-bed-name').value.trim();
+    const newLabel    = rawName || `Bed ${nextLetter}`;
+    const newId       = newLabel.toLowerCase().replace(/\s+/g,'-') + '-' + Date.now();
+    beds.push({ id: newId, label: newLabel, color: newColor });
+    saveBeds(beds);
+    bed = newId;
+  }
 
   // Save custom variety locally if requested
   if (varCustom && saveVar) {
