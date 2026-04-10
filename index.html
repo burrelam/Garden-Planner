@@ -499,7 +499,7 @@
 </div>
 
 <!-- BED EDIT POPOVER -->
-<div class="bed-edit-popover" id="bed-edit-popover" onclick="event.stopPropagation()">
+<div class="bed-edit-popover" id="bed-edit-popover">
   <div class="bep-label">Bed Name</div>
   <input type="text" id="bep-name" class="bep-input" placeholder="Bed name…" />
   <div class="bep-label" style="margin-top:10px;">Color</div>
@@ -1208,7 +1208,12 @@ function openBedEditPopover(bedId, triggerEl) {
   pop.style.left = `${Math.min(rect.left, window.innerWidth - 226)}px`;
   pop.classList.add('open');
 
-  setTimeout(() => document.addEventListener('click', closeBedEditPopover, { once: true }), 0);
+  setTimeout(() => document.addEventListener('click', _bepOutsideClick), 0);
+}
+
+function _bepOutsideClick(e) {
+  const pop = document.getElementById('bed-edit-popover');
+  if (pop && !pop.contains(e.target)) closeBedEditPopover();
 }
 
 function selectBepColor(el) {
@@ -1235,6 +1240,7 @@ function saveBedEdit() {
 
 function closeBedEditPopover() {
   document.getElementById('bed-edit-popover').classList.remove('open');
+  document.removeEventListener('click', _bepOutsideClick);
   _editingBedId = null;
 }
 
