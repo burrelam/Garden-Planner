@@ -60,7 +60,7 @@
   .calendar-outer { background: var(--cream); border-radius: 16px; overflow: hidden; box-shadow: 0 20px 60px rgba(0,0,0,0.4); animation: fadeUp 0.7s 0.1s ease both; }
   .table-wrap { overflow: auto; max-height: 68vh; -webkit-overflow-scrolling: touch; }
 
-  table { border-collapse: collapse; width: 100%; min-width: 900px; }
+  table { border-collapse: collapse; width: 100%; min-width: 900px; table-layout: fixed; }
 
   /* ── MONTH HEADER ── */
   thead tr.month-row th {
@@ -161,9 +161,9 @@
   tr.plant-bed-unassigned td:first-child{ border-left: 3px solid var(--bed-unassigned); }
 
   /* ── PLANT INFO CELL ── */
-  .plant-info { padding: 7px 10px; display: flex; flex-direction: column; gap: 2px; cursor: pointer; user-select: none; }
+  .plant-info { padding: 7px 6px; display: flex; flex-direction: column; gap: 2px; cursor: pointer; user-select: none; overflow: hidden; }
   .plant-info:hover { background: rgba(0,0,0,0.03); }
-  .plant-name { font-family: 'Playfair Display', serif; font-size: 0.80rem; font-weight: 700; color: var(--ink); white-space: normal; line-height: 1.2; }
+  .plant-name { font-family: 'Playfair Display', serif; font-size: 0.80rem; font-weight: 700; color: var(--ink); white-space: normal; line-height: 1.2; word-break: break-word; overflow-wrap: break-word; }
   .plant-variety { font-size: 0.66rem; color: #7a6a58; font-weight: 400; font-style: italic; line-height: 1.2; }
   .plant-dtm { font-size: 0.64rem; color: #9a8a78; font-weight: 300; }
   .plant-badge { font-size: 0.59rem; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; }
