@@ -478,8 +478,8 @@
   <div class="confirm-box">
     <p id="confirm-message">Are you sure?</p>
     <div class="confirm-actions">
-      <button class="btn-confirm-yes" id="confirm-yes">✕ Yes, remove</button>
-      <button class="btn-confirm-no" onclick="closeConfirm()">↩ No, go back</button>
+      <button class="btn-confirm-yes" id="confirm-yes"></button>
+      <button class="btn-confirm-no" id="confirm-no" onclick="closeConfirm()"></button>
     </div>
   </div>
 </div>
@@ -1176,11 +1176,12 @@ function submitAddBed() {
 // ══════════════════════════════════════════════════════════════
 let _confirmCallback = null;
 
-function showConfirm(message, onConfirm, yesLabel = '✕ Yes, remove') {
+function showConfirm(message, onConfirm, yesLabel = '✕ Yes, remove', noLabel = '↩ No, go back') {
   _confirmCallback = onConfirm;
   document.getElementById('confirm-message').textContent = message;
   document.getElementById('confirm-yes').textContent = yesLabel;
-  document.getElementById('confirm-yes').onclick = () => { closeConfirm(); if (_confirmCallback) _confirmCallback(); };
+  document.getElementById('confirm-no').textContent = noLabel;
+  document.getElementById('confirm-yes').onclick = () => { const cb = _confirmCallback; closeConfirm(); if (cb) cb(); };
   document.getElementById('confirm-overlay').classList.add('open');
 }
 
@@ -1264,14 +1265,18 @@ function restoreSnapshot(index) {
   if (!snap) return;
   const d = new Date(snap.timestamp);
   const label = `${d.toLocaleDateString([], { month: 'short', day: 'numeric' })} at ${d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
-  showConfirm(`Restore your garden to the save from ${label}? Your current state will be replaced.`, () => {
-    // Save current state as a snapshot before restoring
-    saveSnapshot();
-    localStorage.setItem('garden_plants', JSON.stringify(snap.plants));
-    localStorage.setItem('garden_beds', JSON.stringify(snap.beds));
-    if (snap.customVarieties) localStorage.setItem('garden_custom_varieties', JSON.stringify(snap.customVarieties));
-    render();
-  });
+  showConfirm(
+    `Restore your garden to the save from ${label}? Your current state will be replaced.`,
+    () => {
+      saveSnapshot();
+      localStorage.setItem('garden_plants', JSON.stringify(snap.plants));
+      localStorage.setItem('garden_beds', JSON.stringify(snap.beds));
+      if (snap.customVarieties) localStorage.setItem('garden_custom_varieties', JSON.stringify(snap.customVarieties));
+      render();
+    },
+    '✓ Yes, restore',
+    '↩ No, return to planner'
+  );
 }
 
 // ══════════════════════════════════════════════════════════════
@@ -1306,12 +1311,17 @@ function importGardenData(e) {
         alert('Invalid garden file — missing plants or beds data.');
         return;
       }
-      showConfirm('Import this backup? Your current garden data will be replaced.', () => {
-        savePlants(data.plants);
-        saveBeds(data.beds);
-        if (data.customVarieties) saveCustomVarieties(data.customVarieties);
-        render();
-      });
+      showConfirm(
+        'Import this backup? Your current garden data will be replaced.',
+        () => {
+          savePlants(data.plants);
+          saveBeds(data.beds);
+          if (data.customVarieties) saveCustomVarieties(data.customVarieties);
+          render();
+        },
+        '✓ Yes, import',
+        '↩ No, return to planner'
+      );
     } catch(err) {
       alert('Could not read file — make sure it\'s a valid garden JSON export.');
     }
