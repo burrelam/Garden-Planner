@@ -746,7 +746,7 @@ function getBeds() {
   try { const s = localStorage.getItem('garden_beds'); return s ? JSON.parse(s) : DEFAULT_BEDS; }
   catch(e) { return DEFAULT_BEDS; }
 }
-function saveBeds(beds) { saveSnapshot(); localStorage.setItem('garden_beds', JSON.stringify(beds)); }
+function saveBeds(beds) { localStorage.setItem('garden_beds', JSON.stringify(beds)); }
 
 // ══════════════════════════════════════════════════════════════
 // PLANTS (calendar entries)
@@ -779,7 +779,7 @@ function getPlants() {
   try { const s = localStorage.getItem('garden_plants'); return s ? JSON.parse(s) : DEFAULT_PLANTS; }
   catch(e) { return DEFAULT_PLANTS; }
 }
-function savePlants(plants) { saveSnapshot(); localStorage.setItem('garden_plants', JSON.stringify(plants)); }
+function savePlants(plants) { localStorage.setItem('garden_plants', JSON.stringify(plants)); }
 
 function getCustomVarieties() {
   try { const s = localStorage.getItem('garden_custom_varieties'); return s ? JSON.parse(s) : {}; }
@@ -911,7 +911,7 @@ function render() {
     input.addEventListener('change', e => {
       const beds = getBeds();
       const bed = beds.find(b => b.id === e.target.dataset.bedId);
-      if (bed) { bed.label = e.target.value; saveBeds(beds); render(); }
+      if (bed) { saveSnapshot(`Renamed bed to ${e.target.value}`); bed.label = e.target.value; saveBeds(beds); render(); }
     });
   });
 }
@@ -930,19 +930,28 @@ function toggleDetail(plantId) {
 function updateStatus(plantId, status) {
   const plants = getPlants();
   const plant  = plants.find(p => p.id === plantId);
-  if (plant) { plant.status = status; savePlants(plants); render(); toggleDetail(plantId); }
+  if (plant) {
+    saveSnapshot(`Status changed: ${plant.name}`);
+    plant.status = status; savePlants(plants); render(); toggleDetail(plantId);
+  }
 }
 
 function reassign(plantId, bedId) {
   const plants = getPlants();
   const plant  = plants.find(p => p.id === plantId);
-  if (plant) { plant.bed = bedId; savePlants(plants); render(); toggleDetail(plantId); }
+  if (plant) {
+    const beds = getBeds();
+    const bedLabel = (beds.find(b => b.id === bedId) || {}).label || bedId;
+    saveSnapshot(`Moved ${plant.name} to ${bedLabel}`);
+    plant.bed = bedId; savePlants(plants); render(); toggleDetail(plantId);
+  }
 }
 
 function removePlant(plantId) {
   const plant = getPlants().find(p => p.id === plantId);
   const label = plant ? `${plant.name}${plant.variety ? ' (' + plant.variety + ')' : ''}` : 'this plant';
   showConfirm(`Remove ${label} from your calendar?`, () => {
+    saveSnapshot(`Removed ${label}`);
     const plants = getPlants().filter(p => p.id !== plantId);
     savePlants(plants);
     render();
@@ -954,6 +963,7 @@ function removeBed(bedId) {
   const bed = beds.find(b => b.id === bedId);
   if (!bed) return;
   showConfirm(`Remove "${bed.label}"? Plants assigned to it will move to Unassigned.`, () => {
+    saveSnapshot(`Removed bed: ${bed.label}`);
     const updatedBeds = beds.filter(b => b.id !== bedId);
     const plants = getPlants().map(p => p.bed === bedId ? { ...p, bed: 'unassigned' } : p);
     saveBeds(updatedBeds);
@@ -1122,6 +1132,7 @@ function submitAddPlant() {
 
   const plants = getPlants();
   plants.push({ id, name, variety, dtm, bed, status, maybe: status === 'undecided', months });
+  saveSnapshot(`Added ${name}${variety ? ' (' + variety + ')' : ''}`);
   savePlants(plants);
   closeAddPlant();
   render();
@@ -1164,6 +1175,7 @@ function submitAddBed() {
   const label       = rawName || `Bed ${nextLetter}`;
   const id          = label.toLowerCase().replace(/\s+/g, '-') + '-' + Date.now();
   beds.push({ id, label, color: selectedBedColor });
+  saveSnapshot(`Added bed: ${label}`);
   saveBeds(beds);
   closeAddBed();
   render();
@@ -1198,12 +1210,13 @@ function getSnapshots() {
   catch(e) { return []; }
 }
 
-function saveSnapshot() {
+function saveSnapshot(label = 'Change') {
   if (_savingSnapshot) return;
   _savingSnapshot = true;
   const snapshots = getSnapshots();
   snapshots.unshift({
     timestamp: new Date().toISOString(),
+    label,
     plants: getPlants(),
     beds: getBeds(),
     customVarieties: getCustomVarieties()
@@ -1240,8 +1253,8 @@ function toggleSnapshotPanel() {
       const dateStr = d.toLocaleDateString([], { month: 'short', day: 'numeric' });
       const plants  = snap.plants ? snap.plants.length : '?';
       return `<button class="snapshot-item" onclick="restoreSnapshot(${i})">
-        <span class="snap-time">${formatRelativeTime(snap.timestamp)}</span>
-        <span class="snap-detail">${dateStr} at ${timeStr} · ${plants} plant${plants === 1 ? '' : 's'}</span>
+        <span class="snap-time">${snap.label || 'Change'}</span>
+        <span class="snap-detail">${formatRelativeTime(snap.timestamp)} · ${dateStr} at ${timeStr} · ${plants} plant${plants === 1 ? '' : 's'}</span>
       </button>`;
     }).join('');
   }
@@ -1266,7 +1279,7 @@ function restoreSnapshot(index) {
   showConfirm(
     `Restore your garden to the save from ${label}? Your current state will be replaced.`,
     () => {
-      saveSnapshot();
+      saveSnapshot('Before restore');
       localStorage.setItem('garden_plants', JSON.stringify(snap.plants));
       localStorage.setItem('garden_beds', JSON.stringify(snap.beds));
       if (snap.customVarieties) localStorage.setItem('garden_custom_varieties', JSON.stringify(snap.customVarieties));
