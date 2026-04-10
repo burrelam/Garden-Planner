@@ -114,14 +114,14 @@
   thead tr.month-row th.corner {
     position: sticky; left: 0; z-index: 5;
     text-align: left; padding-left: 12px;
-    min-width: 95px; width: 95px;
+    min-width: 115px; width: 115px;
     background: var(--moss); border-left: none;
     vertical-align: bottom; padding-bottom: 2px;
   }
   thead tr.half-row th.corner {
     position: sticky; left: 0; z-index: 5;
     background: #3d5230;
-    min-width: 95px; width: 95px;
+    min-width: 115px; width: 115px;
     padding: 2px 4px;
   }
 
@@ -130,25 +130,25 @@
     position: sticky; left: 0; z-index: 2;
     background: var(--cream);
     border-right: 1px solid #ddd5c5;
-    min-width: 95px; width: 95px;
+    min-width: 115px; width: 115px;
   }
 
   /* ── BED HEADER ROWS ── */
   tr.bed-row td { padding: 0; border-top: 3px solid #bbb; }
-  .bed-header { display: flex; align-items: center; gap: 10px; padding: 7px 12px; }
-  .bed-dot { width: 10px; height: 10px; border-radius: 50%; background: white; opacity: 0.7; flex-shrink: 0; }
+  .bed-header { display: flex; align-items: center; gap: 5px; padding: 5px 6px; }
+  .bed-dot { width: 8px; height: 8px; border-radius: 50%; background: white; opacity: 0.7; flex-shrink: 0; }
   .bed-name-input {
     background: transparent; border: none;
     border-bottom: 1px dashed rgba(255,255,255,0.4);
     color: white; font-family: 'DM Sans', sans-serif;
     font-size: 0.69rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase;
-    outline: none; width: 80px; cursor: pointer; padding: 1px 2px;
+    outline: none; flex: 1; min-width: 0; cursor: pointer; padding: 1px 2px;
   }
   .bed-name-input:focus { border-bottom-color: white; background: rgba(255,255,255,0.1); border-radius: 2px; }
   .bed-edit-hint { font-size: 0.52rem; opacity: 0.55; font-weight: 300; color: white; }
   tr.bed-row td:first-child {
     position: sticky; left: 0; z-index: 4;
-    min-width: 95px; width: 95px;
+    min-width: 115px; width: 115px;
     background: inherit;
   }
 
@@ -419,8 +419,8 @@
           <tr class="half-row">
             <th class="corner">
               <div class="header-btn-group">
-                <button class="add-plant-btn" onclick="event.stopPropagation(); openAddPlant()">🌿 Plant</button>
-                <button class="add-plant-btn" onclick="event.stopPropagation(); openAddBed()">🪴 Bed</button>
+                <button class="add-plant-btn" onclick="event.stopPropagation(); openAddPlant()">🌿 + Plant</button>
+                <button class="add-plant-btn" onclick="event.stopPropagation(); openAddBed()">🪴 + Bed</button>
               </div>
             </th>
             <th>E</th><th>L</th><th>E</th><th>L</th><th>E</th><th>L</th>
@@ -816,12 +816,10 @@ function render() {
         <div class="bed-header">
           <div class="bed-dot"></div>
           <input class="bed-name-input" data-bed-id="${bed.id}" value="${bed.label}" title="Click to rename" />
-          ${canRemove ? `<button class="panel-btn btn-remove" style="font-size:0.55rem;padding:3px 8px;" onclick="removeBed('${bed.id}')">✕</button>` : ''}
+          ${canRemove ? `<button class="panel-btn btn-remove" style="font-size:0.5rem;padding:2px 4px;flex-shrink:0;" onclick="removeBed('${bed.id}')">✕</button>` : ''}
         </div>
       </td>
-      <td colspan="24" style="background:${bed.color}">
-        <span class="bed-edit-hint" style="display:block;padding:0 10px;line-height:32px;">tap name to rename</span>
-      </td>`;
+      <td colspan="24" style="background:${bed.color}"></td>`;
     tbody.appendChild(bedTr);
 
     // If no plants yet, show placeholder
