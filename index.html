@@ -1155,9 +1155,9 @@ function submitAddPlant() {
   // Unique ID
   const id = `${name.toLowerCase().replace(/\s+/g,'-')}-${Date.now()}`;
 
+  saveSnapshot(`Before: added ${name}${variety ? ' (' + variety + ')' : ''}`);
   const plants = getPlants();
   plants.push({ id, name, variety, dtm, bed, status, maybe: status === 'undecided', months });
-  saveSnapshot(`Before: added ${name}${variety ? ' (' + variety + ')' : ''}`);
   savePlants(plants);
   closeAddPlant();
   render();
@@ -1367,7 +1367,7 @@ function importGardenData(e) {
 }
 
 // Auto-save initial snapshot on first load if history is empty
-if (!getSnapshots().length) saveSnapshot('Initial state');
+if (!getSnapshots().length) saveSnapshot('Session start');
 
 render();
 </script>
