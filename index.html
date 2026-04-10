@@ -1281,7 +1281,7 @@ function restoreSnapshot(index) {
     () => {
       saveSnapshot('Before: restore');
       localStorage.setItem('garden_plants', JSON.stringify(snap.plants));
-      localStorage.setItem('garden_beds', JSON.stringify(snap.beds));
+      if (snap.beds) localStorage.setItem('garden_beds', JSON.stringify(snap.beds));
       if (snap.customVarieties) localStorage.setItem('garden_custom_varieties', JSON.stringify(snap.customVarieties));
       render();
     },
@@ -1340,6 +1340,9 @@ function importGardenData(e) {
   reader.readAsText(file);
   e.target.value = ''; // reset so same file can be re-imported if needed
 }
+
+// Auto-save initial snapshot on first load if history is empty
+if (!getSnapshots().length) saveSnapshot('Initial state');
 
 render();
 </script>
