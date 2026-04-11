@@ -847,6 +847,7 @@ function render() {
     // Always show bed header (even if empty)
     const bedTr = document.createElement('tr');
     bedTr.className = 'bed-row';
+    bedTr.dataset.bedId = bed.id;
     const canRemove  = bed.id !== 'unassigned';
     const movableIdx = movableBeds.findIndex(b => b.id === bed.id);
     const canMoveUp  = movableIdx > 0;
@@ -995,18 +996,41 @@ function removePlant(plantId) {
 }
 
 function reorderBed(bedId, dir) {
-  const beds     = getBeds();
-  const movable  = beds.filter(b => b.id !== 'unassigned');
+  const beds       = getBeds();
+  const movable    = beds.filter(b => b.id !== 'unassigned');
   const unassigned = beds.find(b => b.id === 'unassigned');
-  const idx      = movable.findIndex(b => b.id === bedId);
+  const idx        = movable.findIndex(b => b.id === bedId);
   if (idx < 0) return;
-  const newIdx   = idx + dir;
+  const newIdx = idx + dir;
   if (newIdx < 0 || newIdx >= movable.length) return;
+
+  const id1 = movable[idx].id;
+  const id2 = movable[newIdx].id;
+
+  // FLIP — step 1: record positions before re-render
+  const top1 = document.querySelector(`tr.bed-row[data-bed-id="${id1}"]`)?.getBoundingClientRect().top ?? 0;
+  const top2 = document.querySelector(`tr.bed-row[data-bed-id="${id2}"]`)?.getBoundingClientRect().top ?? 0;
+
+  // Swap, save, re-render
   [movable[idx], movable[newIdx]] = [movable[newIdx], movable[idx]];
-  const newBeds  = unassigned ? [...movable, unassigned] : movable;
+  const newBeds = unassigned ? [...movable, unassigned] : movable;
   saveSnapshot('Before: reordered beds');
   saveBeds(newBeds);
   render();
+
+  // FLIP — step 2: invert + play
+  [{ id: id1, oldTop: top1 }, { id: id2, oldTop: top2 }].forEach(({ id, oldTop }) => {
+    const el = document.querySelector(`tr.bed-row[data-bed-id="${id}"]`);
+    if (!el) return;
+    const dy = oldTop - el.getBoundingClientRect().top;
+    if (dy === 0) return;
+    el.style.transition = 'none';
+    el.style.transform  = `translateY(${dy}px)`;
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      el.style.transition = 'transform 0.28s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
+      el.style.transform  = 'translateY(0)';
+    }));
+  });
 }
 
 function removeBed(bedId) {
