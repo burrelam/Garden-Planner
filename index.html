@@ -155,6 +155,17 @@
   .bed-reorder-btn:hover:not(:disabled) { background: rgba(255,255,255,0.2); }
   .bed-reorder-btn:disabled { opacity: 0.25; cursor: default; }
 
+  /* ── PLANT REORDER BUTTONS ── */
+  .plant-reorder-btns { display: flex; flex-direction: column; gap: 1px; padding: 2px 3px; flex-shrink: 0; }
+  .plant-reorder-btn {
+    background: transparent; border: none; color: #bbb;
+    font-size: 0.6rem; cursor: pointer; padding: 1px 3px;
+    border-radius: 2px; line-height: 1;
+    transition: background 0.15s, color 0.15s;
+  }
+  .plant-reorder-btn:hover:not(:disabled) { background: rgba(0,0,0,0.06); color: var(--ink); }
+  .plant-reorder-btn:disabled { opacity: 0.2; cursor: default; }
+
   /* ── BED EDIT POPOVER ── */
   .bed-edit-popover {
     display: none; position: fixed; z-index: 200;
@@ -878,11 +889,14 @@ function render() {
       return;
     }
 
-    plantsInBed.forEach(plant => {
+    plantsInBed.forEach((plant, plantIdx) => {
       // Plant row
       const plantTr = document.createElement('tr');
       plantTr.className = `plant-bed-${bed.id}`;
       plantTr.dataset.plantId = plant.id;
+
+      const canPlantMoveUp   = plantIdx > 0;
+      const canPlantMoveDown = plantIdx < plantsInBed.length - 1;
 
       const status   = STATUS_CONFIG[plant.status] || STATUS_CONFIG.willplant;
       const badgeHtml  = `<span class="plant-badge ${status.cls}">${status.label}</span>`;
@@ -912,12 +926,18 @@ function render() {
       });
 
       plantTr.innerHTML = `
-        <td><div class="plant-info" onclick="toggleDetail('${plant.id}')">
-          <span class="plant-name">${plant.name}</span>
-          ${varietyHtml}
-          <span class="plant-dtm">${plant.dtm}</span>
-          ${badgeHtml}
-          <span class="expand-arrow">▾</span>
+        <td><div style="display:flex;align-items:center;">
+          <div class="plant-info" onclick="toggleDetail('${plant.id}')" style="flex:1;min-width:0;">
+            <span class="plant-name">${plant.name}</span>
+            ${varietyHtml}
+            <span class="plant-dtm">${plant.dtm}</span>
+            ${badgeHtml}
+            <span class="expand-arrow">▾</span>
+          </div>
+          <div class="plant-reorder-btns">
+            <button class="plant-reorder-btn" onclick="event.stopPropagation();reorderPlant('${plant.id}',-1)" ${!canPlantMoveUp ? 'disabled' : ''} title="Move up">↑</button>
+            <button class="plant-reorder-btn" onclick="event.stopPropagation();reorderPlant('${plant.id}',1)"  ${!canPlantMoveDown ? 'disabled' : ''} title="Move down">↓</button>
+          </div>
         </div></td>${cellsHtml}`;
       tbody.appendChild(plantTr);
 
@@ -992,6 +1012,43 @@ function removePlant(plantId) {
     const plants = getPlants().filter(p => p.id !== plantId);
     savePlants(plants);
     render();
+  });
+}
+
+function reorderPlant(plantId, dir) {
+  const plants   = getPlants();
+  const plant    = plants.find(p => p.id === plantId);
+  if (!plant) return;
+  const bedPlants = plants.filter(p => p.bed === plant.bed);
+  const idx       = bedPlants.findIndex(p => p.id === plantId);
+  const newIdx    = idx + dir;
+  if (newIdx < 0 || newIdx >= bedPlants.length) return;
+  const otherId   = bedPlants[newIdx].id;
+
+  // FLIP — step 1: record positions
+  const top1 = document.querySelector(`tr[data-plant-id="${plantId}"]`)?.getBoundingClientRect().top ?? 0;
+  const top2 = document.querySelector(`tr[data-plant-id="${otherId}"]`)?.getBoundingClientRect().top ?? 0;
+
+  // Swap in global array and save
+  const i1 = plants.findIndex(p => p.id === plantId);
+  const i2 = plants.findIndex(p => p.id === otherId);
+  [plants[i1], plants[i2]] = [plants[i2], plants[i1]];
+  saveSnapshot('Before: reordered plants');
+  savePlants(plants);
+  render();
+
+  // FLIP — step 2: invert + play
+  [{ id: plantId, oldTop: top1 }, { id: otherId, oldTop: top2 }].forEach(({ id, oldTop }) => {
+    const el = document.querySelector(`tr[data-plant-id="${id}"]`);
+    if (!el) return;
+    const dy = oldTop - el.getBoundingClientRect().top;
+    if (dy === 0) return;
+    el.style.transition = 'none';
+    el.style.transform  = `translateY(${dy}px)`;
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      el.style.transition = 'transform 0.28s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
+      el.style.transform  = 'translateY(0)';
+    }));
   });
 }
 
