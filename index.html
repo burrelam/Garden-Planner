@@ -146,6 +146,14 @@
     pointer-events: none;
   }
   .bed-edit-hint { font-size: 0.52rem; opacity: 0.55; font-weight: 300; color: white; }
+  .bed-reorder-btn {
+    background: transparent; border: none; color: white;
+    font-size: 0.65rem; cursor: pointer; padding: 1px 3px;
+    border-radius: 3px; line-height: 1; flex-shrink: 0;
+    transition: background 0.15s, opacity 0.15s;
+  }
+  .bed-reorder-btn:hover:not(:disabled) { background: rgba(255,255,255,0.2); }
+  .bed-reorder-btn:disabled { opacity: 0.25; cursor: default; }
 
   /* ── BED EDIT POPOVER ── */
   .bed-edit-popover {
@@ -831,19 +839,29 @@ function render() {
     grouped[key].push(p);
   });
 
+  const movableBeds = beds.filter(b => b.id !== 'unassigned');
+
   beds.forEach(bed => {
     const plantsInBed = grouped[bed.id] || [];
 
     // Always show bed header (even if empty)
     const bedTr = document.createElement('tr');
     bedTr.className = 'bed-row';
-    const canRemove = bed.id !== 'unassigned';
+    bedTr.dataset.bedId = bed.id;
+    const canRemove  = bed.id !== 'unassigned';
+    const movableIdx = movableBeds.findIndex(b => b.id === bed.id);
+    const canMoveUp  = movableIdx > 0;
+    const canMoveDown= movableIdx >= 0 && movableIdx < movableBeds.length - 1;
     bedTr.innerHTML = `
       <td style="background:${bed.color}">
         <div class="bed-header" onclick="event.stopPropagation(); openBedEditPopover('${bed.id}', this)" title="Click to edit name or color">
           <div class="bed-dot"></div>
           <input class="bed-name-input" data-bed-id="${bed.id}" value="${bed.label}" readonly tabindex="-1" />
-          ${canRemove ? `<button class="panel-btn btn-remove" style="font-size:0.5rem;padding:2px 4px;flex-shrink:0;" onclick="event.stopPropagation(); removeBed('${bed.id}')">✕</button>` : ''}
+          ${canRemove ? `
+            <button class="bed-reorder-btn" onclick="event.stopPropagation(); reorderBed('${bed.id}', -1)" ${!canMoveUp ? 'disabled' : ''} title="Move up">↑</button>
+            <button class="bed-reorder-btn" onclick="event.stopPropagation(); reorderBed('${bed.id}', 1)"  ${!canMoveDown ? 'disabled' : ''} title="Move down">↓</button>
+            <button class="panel-btn btn-remove" style="font-size:0.5rem;padding:2px 4px;flex-shrink:0;" onclick="event.stopPropagation(); removeBed('${bed.id}')">✕</button>
+          ` : ''}
         </div>
       </td>
       <td colspan="24" style="background:${bed.color}"></td>`;
@@ -974,6 +992,44 @@ function removePlant(plantId) {
     const plants = getPlants().filter(p => p.id !== plantId);
     savePlants(plants);
     render();
+  });
+}
+
+function reorderBed(bedId, dir) {
+  const beds       = getBeds();
+  const movable    = beds.filter(b => b.id !== 'unassigned');
+  const unassigned = beds.find(b => b.id === 'unassigned');
+  const idx        = movable.findIndex(b => b.id === bedId);
+  if (idx < 0) return;
+  const newIdx = idx + dir;
+  if (newIdx < 0 || newIdx >= movable.length) return;
+
+  const id1 = movable[idx].id;
+  const id2 = movable[newIdx].id;
+
+  // FLIP — step 1: record positions before re-render
+  const top1 = document.querySelector(`tr.bed-row[data-bed-id="${id1}"]`)?.getBoundingClientRect().top ?? 0;
+  const top2 = document.querySelector(`tr.bed-row[data-bed-id="${id2}"]`)?.getBoundingClientRect().top ?? 0;
+
+  // Swap, save, re-render
+  [movable[idx], movable[newIdx]] = [movable[newIdx], movable[idx]];
+  const newBeds = unassigned ? [...movable, unassigned] : movable;
+  saveSnapshot('Before: reordered beds');
+  saveBeds(newBeds);
+  render();
+
+  // FLIP — step 2: invert + play
+  [{ id: id1, oldTop: top1 }, { id: id2, oldTop: top2 }].forEach(({ id, oldTop }) => {
+    const el = document.querySelector(`tr.bed-row[data-bed-id="${id}"]`);
+    if (!el) return;
+    const dy = oldTop - el.getBoundingClientRect().top;
+    if (dy === 0) return;
+    el.style.transition = 'none';
+    el.style.transform  = `translateY(${dy}px)`;
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      el.style.transition = 'transform 0.28s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
+      el.style.transform  = 'translateY(0)';
+    }));
   });
 }
 
@@ -1147,7 +1203,9 @@ function submitAddPlant() {
     const rawName     = document.getElementById('form-new-bed-name').value.trim();
     const newLabel    = rawName || `Bed ${nextLetter}`;
     const newId       = newLabel.toLowerCase().replace(/\s+/g,'-') + '-' + Date.now();
-    beds.push({ id: newId, label: newLabel, color: newColor });
+    const unassignedIdx = beds.findIndex(b => b.id === 'unassigned');
+    if (unassignedIdx >= 0) beds.splice(unassignedIdx, 0, { id: newId, label: newLabel, color: newColor });
+    else beds.push({ id: newId, label: newLabel, color: newColor });
     saveBeds(beds);
     bed = newId;
   }
@@ -1303,7 +1361,9 @@ function submitAddBed() {
   const rawName     = document.getElementById('form-bed-name').value.trim();
   const label       = rawName || `Bed ${nextLetter}`;
   const id          = label.toLowerCase().replace(/\s+/g, '-') + '-' + Date.now();
-  beds.push({ id, label, color: selectedBedColor });
+  const unassignedIdx = beds.findIndex(b => b.id === 'unassigned');
+  if (unassignedIdx >= 0) beds.splice(unassignedIdx, 0, { id, label, color: selectedBedColor });
+  else beds.push({ id, label, color: selectedBedColor });
   saveSnapshot(`Before: added bed "${label}"`);
   saveBeds(beds);
   closeAddBed();
