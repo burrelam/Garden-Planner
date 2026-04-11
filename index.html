@@ -1189,12 +1189,26 @@ function submitAddPlant() {
 const BEP_COLORS = ['#4a7a9b','#7a5e9b','#9b7a3a','#4a9b6a','#9b4a6a','#6a4a9b','#9b6a4a','#4a9b9b','#7a7a4a','#888'];
 let _editingBedId   = null;
 let _bepChosenColor = null;
+let _bepTriggerEl   = null;
+
+function _repositionBep() {
+  if (!_bepTriggerEl) return;
+  const rect = _bepTriggerEl.getBoundingClientRect();
+  const pop  = document.getElementById('bed-edit-popover');
+  const vw   = window.visualViewport ? window.visualViewport.width  : window.innerWidth;
+  const vh   = window.visualViewport ? window.visualViewport.height : window.innerHeight;
+  const vTop = window.visualViewport ? window.visualViewport.offsetTop  : 0;
+  const vLeft= window.visualViewport ? window.visualViewport.offsetLeft : 0;
+  pop.style.top  = `${Math.min(rect.bottom + vTop  + 6, vh + vTop  - 220)}px`;
+  pop.style.left = `${Math.min(rect.left  + vLeft,     vw + vLeft  - 226)}px`;
+}
 
 function openBedEditPopover(bedId, triggerEl) {
   const bed = getBeds().find(b => b.id === bedId);
   if (!bed) return;
   _editingBedId   = bedId;
   _bepChosenColor = bed.color;
+  _bepTriggerEl   = triggerEl;
 
   document.getElementById('bep-name').value = bed.label;
   document.getElementById('bep-colors').innerHTML = BEP_COLORS.map(c =>
@@ -1202,11 +1216,15 @@ function openBedEditPopover(bedId, triggerEl) {
       onclick="selectBepColor(this)"></div>`
   ).join('');
 
-  const pop  = document.getElementById('bed-edit-popover');
-  const rect = triggerEl.getBoundingClientRect();
-  pop.style.top  = `${Math.min(rect.bottom + 6, window.innerHeight - 220)}px`;
-  pop.style.left = `${Math.min(rect.left, window.innerWidth - 226)}px`;
+  const pop = document.getElementById('bed-edit-popover');
   pop.classList.add('open');
+  _repositionBep();
+
+  // Close if table scrolls; reposition on page scroll or mobile zoom
+  document.querySelector('.table-wrap')?.addEventListener('scroll', closeBedEditPopover, { once: true });
+  window.addEventListener('scroll', _repositionBep);
+  window.visualViewport?.addEventListener('scroll', _repositionBep);
+  window.visualViewport?.addEventListener('resize', _repositionBep);
 
   setTimeout(() => document.addEventListener('click', _bepOutsideClick), 0);
 }
@@ -1241,7 +1259,12 @@ function saveBedEdit() {
 function closeBedEditPopover() {
   document.getElementById('bed-edit-popover').classList.remove('open');
   document.removeEventListener('click', _bepOutsideClick);
+  document.querySelector('.table-wrap')?.removeEventListener('scroll', closeBedEditPopover);
+  window.removeEventListener('scroll', _repositionBep);
+  window.visualViewport?.removeEventListener('scroll', _repositionBep);
+  window.visualViewport?.removeEventListener('resize', _repositionBep);
   _editingBedId = null;
+  _bepTriggerEl = null;
 }
 
 // ══════════════════════════════════════════════════════════════
