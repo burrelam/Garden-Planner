@@ -199,6 +199,7 @@
   .plant-name { font-family: 'Playfair Display', serif; font-size: 0.80rem; font-weight: 700; color: var(--ink); white-space: normal; line-height: 1.2; word-break: break-word; overflow-wrap: break-word; }
   .plant-variety { font-size: 0.66rem; color: #7a6a58; font-weight: 400; font-style: italic; line-height: 1.2; }
   .plant-dtm { font-size: 0.64rem; color: #9a8a78; font-weight: 300; }
+  .plant-qty { font-size: 0.72rem; color: var(--moss); font-weight: 600; }
   .plant-badge { font-size: 0.59rem; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; }
   .badge-planted    { color: #4a7a3a; }
   .badge-willplant  { color: #4a7a9b; }
@@ -556,15 +557,21 @@
         <input type="text" id="form-dtm" placeholder="e.g. 70–80 days" />
         <div class="custom-note">Auto-filled from data · override if needed</div>
       </div>
+      <div class="form-group" style="max-width:80px;">
+        <label>Quantity</label>
+        <input type="number" id="form-qty" value="1" min="1" style="width:100%;" />
+      </div>
+    </div>
+    <div class="form-row">
       <div class="form-group">
         <label>Assign to Bed</label>
         <select id="form-bed" onchange="onBedSelectChange()"></select>
         <input type="text" id="form-new-bed-name" placeholder="New bed name… (leave blank for next letter)" style="margin-top:6px;display:none;" />
       </div>
-    </div>
-    <div class="form-group">
-      <label>Status</label>
-      <select id="form-status"></select>
+      <div class="form-group">
+        <label>Status</label>
+        <select id="form-status"></select>
+      </div>
     </div>
     <div class="modal-actions">
       <button class="btn-cancel" onclick="closeAddPlant()">Cancel</button>
@@ -868,14 +875,17 @@ function render() {
         <div class="bed-header" onclick="event.stopPropagation(); openBedEditPopover('${bed.id}', this)" title="Click to edit name or color">
           <div class="bed-dot"></div>
           <input class="bed-name-input" data-bed-id="${bed.id}" value="${bed.label}" readonly tabindex="-1" />
-          ${canRemove ? `
-            <button class="bed-reorder-btn" onclick="event.stopPropagation(); reorderBed('${bed.id}', -1)" ${!canMoveUp ? 'disabled' : ''} title="Move up">↑</button>
-            <button class="bed-reorder-btn" onclick="event.stopPropagation(); reorderBed('${bed.id}', 1)"  ${!canMoveDown ? 'disabled' : ''} title="Move down">↓</button>
-            <button class="panel-btn btn-remove" style="font-size:0.5rem;padding:2px 4px;flex-shrink:0;" onclick="event.stopPropagation(); removeBed('${bed.id}')">✕</button>
-          ` : ''}
         </div>
       </td>
-      <td colspan="24" style="background:${bed.color}"></td>`;
+      <td colspan="24" style="background:${bed.color};vertical-align:middle;">
+        ${canRemove ? `
+          <div style="display:flex;align-items:center;gap:4px;padding:0 8px;">
+            <button class="bed-reorder-btn" onclick="reorderBed('${bed.id}', -1)" ${!canMoveUp ? 'disabled' : ''} title="Move up">↑</button>
+            <button class="bed-reorder-btn" onclick="reorderBed('${bed.id}', 1)"  ${!canMoveDown ? 'disabled' : ''} title="Move down">↓</button>
+            <button class="panel-btn btn-remove" style="font-size:0.5rem;padding:2px 6px;" onclick="removeBed('${bed.id}')">✕ Remove bed</button>
+          </div>
+        ` : ''}
+      </td>`;
     tbody.appendChild(bedTr);
 
     // If no plants yet, show placeholder
@@ -925,10 +935,11 @@ function render() {
         cellsHtml += `<td class="${cls}">${barHtml}</td>`;
       });
 
+      const qtyHtml = (plant.qty && plant.qty > 1) ? `<span class="plant-qty">×${plant.qty}</span>` : '';
       plantTr.innerHTML = `
         <td><div style="display:flex;align-items:center;">
           <div class="plant-info" onclick="toggleDetail('${plant.id}')" style="flex:1;min-width:0;">
-            <span class="plant-name">${plant.name}</span>
+            <span class="plant-name">${plant.name} ${qtyHtml}</span>
             ${varietyHtml}
             <span class="plant-dtm">${plant.dtm}</span>
             ${badgeHtml}
@@ -964,6 +975,9 @@ function render() {
             <label class="panel-label">Bed:
               <select class="panel-select" onchange="reassign('${plant.id}', this.value)">${bedOptions}</select>
             </label>
+            <label class="panel-label">Qty:
+              <input type="number" class="panel-select" min="1" value="${plant.qty || 1}" style="width:54px;" onchange="updateQty('${plant.id}', this.value)" />
+            </label>
             <button class="panel-btn btn-remove" onclick="removePlant('${plant.id}')">✕ Remove</button>
           </div>
         </div></td>`;
@@ -982,6 +996,16 @@ function toggleDetail(plantId) {
   document.querySelectorAll('.detail-panel').forEach(p => p.classList.remove('open'));
   document.querySelectorAll('.plant-info').forEach(i => i.classList.remove('expanded'));
   if (!isOpen) { panel.classList.add('open'); if (info) info.classList.add('expanded'); }
+}
+
+function updateQty(plantId, val) {
+  const plants = getPlants();
+  const plant  = plants.find(p => p.id === plantId);
+  if (plant) {
+    saveSnapshot(`Before: qty changed (${plant.name})`);
+    plant.qty = Math.max(1, parseInt(val) || 1);
+    savePlants(plants); render(); toggleDetail(plantId);
+  }
 }
 
 function updateStatus(plantId, status) {
@@ -1137,6 +1161,7 @@ function openAddPlant() {
   document.getElementById('form-variety-custom').value = '';
   document.getElementById('variety-save-note').style.display = 'none';
   document.getElementById('form-dtm').value = '';
+  document.getElementById('form-qty').value = '1';
   document.getElementById('form-status').value = 'willplant';
 
   document.getElementById('modal-overlay').classList.add('open');
@@ -1240,6 +1265,7 @@ function submitAddPlant() {
   const varCustom  = document.getElementById('form-variety-custom').value.trim();
   const variety    = (varSel === '__custom__' || varSel === '') ? (varCustom || null) : varSel;
   const dtm        = document.getElementById('form-dtm').value.trim() || '—';
+  const qty        = Math.max(1, parseInt(document.getElementById('form-qty').value) || 1);
   let   bed        = document.getElementById('form-bed').value;
   const status     = document.getElementById('form-status').value;
   const saveVar    = document.getElementById('save-custom-variety').checked;
@@ -1292,7 +1318,7 @@ function submitAddPlant() {
   const id = `${name.toLowerCase().replace(/\s+/g,'-')}-${Date.now()}`;
 
   const plants = getPlants();
-  plants.push({ id, name, variety, dtm, bed, status, maybe: status === 'undecided', months });
+  plants.push({ id, name, variety, dtm, qty, bed, status, maybe: status === 'undecided', months });
   savePlants(plants);
   closeAddPlant();
   render();
