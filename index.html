@@ -1220,9 +1220,9 @@ function openBedEditPopover(bedId, triggerEl) {
   pop.classList.add('open');
   _repositionBep();
 
-  // Reposition on any scroll or mobile zoom
+  // Close if table scrolls; reposition on page scroll or mobile zoom
+  document.querySelector('.table-wrap')?.addEventListener('scroll', closeBedEditPopover, { once: true });
   window.addEventListener('scroll', _repositionBep);
-  document.querySelector('.table-wrap')?.addEventListener('scroll', _repositionBep);
   window.visualViewport?.addEventListener('scroll', _repositionBep);
   window.visualViewport?.addEventListener('resize', _repositionBep);
 
@@ -1259,8 +1259,8 @@ function saveBedEdit() {
 function closeBedEditPopover() {
   document.getElementById('bed-edit-popover').classList.remove('open');
   document.removeEventListener('click', _bepOutsideClick);
+  document.querySelector('.table-wrap')?.removeEventListener('scroll', closeBedEditPopover);
   window.removeEventListener('scroll', _repositionBep);
-  document.querySelector('.table-wrap')?.removeEventListener('scroll', _repositionBep);
   window.visualViewport?.removeEventListener('scroll', _repositionBep);
   window.visualViewport?.removeEventListener('resize', _repositionBep);
   _editingBedId = null;
