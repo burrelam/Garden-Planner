@@ -13,6 +13,7 @@
   */
 
   :root {
+    --thead-h: 52px;
     --soil: #3d2b1f;
     --moss: #4a5e3a;
     --sprout: #b5cc8e;
@@ -134,7 +135,7 @@
   }
 
   /* ── BED HEADER ROWS ── */
-  tr.bed-row td { padding: 0; border-top: 3px solid #bbb; }
+  tr.bed-row td { padding: 0; border-top: 3px solid #bbb; position: sticky; top: var(--thead-h); z-index: 2; }
   .bed-header { display: flex; align-items: center; gap: 5px; padding: 5px 6px; cursor: pointer; }
   .bed-header:hover { filter: brightness(1.1); }
   .bed-dot { width: 8px; height: 8px; border-radius: 50%; background: white; opacity: 0.7; flex-shrink: 0; }
@@ -154,6 +155,24 @@
   }
   .bed-reorder-btn:hover:not(:disabled) { background: rgba(255,255,255,0.2); }
   .bed-reorder-btn:disabled { opacity: 0.25; cursor: default; }
+  .bed-collapse-btn {
+    border: none; border-radius: 4px; cursor: pointer;
+    font-size: 0.58rem; font-weight: 700; letter-spacing: 0.07em;
+    text-transform: uppercase; padding: 3px 8px;
+    transition: opacity 0.15s;
+  }
+  .bed-collapse-btn:hover { opacity: 0.8; }
+
+  /* ── PLANT REORDER BUTTONS ── */
+  .plant-reorder-btns { display: flex; flex-direction: column; gap: 1px; padding: 2px 3px; flex-shrink: 0; }
+  .plant-reorder-btn {
+    background: transparent; border: none; color: #bbb;
+    font-size: 0.6rem; cursor: pointer; padding: 1px 3px;
+    border-radius: 2px; line-height: 1;
+    transition: background 0.15s, color 0.15s;
+  }
+  .plant-reorder-btn:hover:not(:disabled) { background: rgba(0,0,0,0.06); color: var(--ink); }
+  .plant-reorder-btn:disabled { opacity: 0.2; cursor: default; }
 
   /* ── BED EDIT POPOVER ── */
   .bed-edit-popover {
@@ -169,7 +188,7 @@
   .bep-input:focus { outline: none; border-color: var(--moss); }
   .bep-colors { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 4px; }
   tr.bed-row td:first-child {
-    position: sticky; left: 0; z-index: 4;
+    position: sticky; left: 0; top: var(--thead-h); z-index: 5;
     min-width: 140px; width: 140px;
     background: inherit;
   }
@@ -188,6 +207,7 @@
   .plant-name { font-family: 'Playfair Display', serif; font-size: 0.80rem; font-weight: 700; color: var(--ink); white-space: normal; line-height: 1.2; word-break: break-word; overflow-wrap: break-word; }
   .plant-variety { font-size: 0.66rem; color: #7a6a58; font-weight: 400; font-style: italic; line-height: 1.2; }
   .plant-dtm { font-size: 0.64rem; color: #9a8a78; font-weight: 300; }
+  .plant-qty { font-size: 0.72rem; color: var(--moss); font-weight: 600; }
   .plant-badge { font-size: 0.59rem; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; }
   .badge-planted    { color: #4a7a3a; }
   .badge-willplant  { color: #4a7a9b; }
@@ -545,15 +565,21 @@
         <input type="text" id="form-dtm" placeholder="e.g. 70–80 days" />
         <div class="custom-note">Auto-filled from data · override if needed</div>
       </div>
+      <div class="form-group" style="max-width:80px;">
+        <label>Quantity</label>
+        <input type="number" id="form-qty" value="1" min="1" style="width:100%;" />
+      </div>
+    </div>
+    <div class="form-row">
       <div class="form-group">
         <label>Assign to Bed</label>
         <select id="form-bed" onchange="onBedSelectChange()"></select>
         <input type="text" id="form-new-bed-name" placeholder="New bed name… (leave blank for next letter)" style="margin-top:6px;display:none;" />
       </div>
-    </div>
-    <div class="form-group">
-      <label>Status</label>
-      <select id="form-status"></select>
+      <div class="form-group">
+        <label>Status</label>
+        <select id="form-status"></select>
+      </div>
     </div>
     <div class="modal-actions">
       <button class="btn-cancel" onclick="closeAddPlant()">Cancel</button>
@@ -823,13 +849,45 @@ function getCustomVarieties() {
 function saveCustomVarieties(cv) { localStorage.setItem('garden_custom_varieties', JSON.stringify(cv)); }
 
 // ══════════════════════════════════════════════════════════════
+// HELPERS
+// ══════════════════════════════════════════════════════════════
+function lightenColor(hex, amount) {
+  // amount: 0 = original color, 1 = white
+  const clamp = v => Math.min(255, Math.max(0, v));
+  const r = parseInt(hex.slice(1, 3), 16);
+  const g = parseInt(hex.slice(3, 5), 16);
+  const b = parseInt(hex.slice(5, 7), 16);
+  const nr = Math.round(clamp(r + (255 - r) * amount));
+  const ng = Math.round(clamp(g + (255 - g) * amount));
+  const nb = Math.round(clamp(b + (255 - b) * amount));
+  return `#${nr.toString(16).padStart(2,'0')}${ng.toString(16).padStart(2,'0')}${nb.toString(16).padStart(2,'0')}`;
+}
+
+// ══════════════════════════════════════════════════════════════
+// COLLAPSE STATE
+// ══════════════════════════════════════════════════════════════
+let _collapsedBeds = {};
+
+function toggleBedCollapse(bedId) {
+  _collapsedBeds[bedId] = !_collapsedBeds[bedId];
+  render();
+}
+
+// ══════════════════════════════════════════════════════════════
 // RENDER
 // ══════════════════════════════════════════════════════════════
 function render() {
   const beds    = getBeds();
   const plants  = getPlants();
-  const tbody   = document.getElementById('calendar-body');
-  tbody.innerHTML = '';
+  // Replace all tbodies with one per bed for sticky headers
+  const table = document.getElementById('main-table');
+  table.querySelectorAll('tbody').forEach(tb => tb.remove());
+
+  // Set --thead-h so sticky top offsets correctly
+  requestAnimationFrame(() => {
+    const h = table.querySelector('thead')?.offsetHeight || 52;
+    document.documentElement.style.setProperty('--thead-h', `${h}px`);
+  });
 
   const bedOrder = beds.map(b => b.id);
   const grouped  = {};
@@ -843,8 +901,14 @@ function render() {
 
   beds.forEach(bed => {
     const plantsInBed = grouped[bed.id] || [];
+    const isCollapsed = !!_collapsedBeds[bed.id];
 
-    // Always show bed header (even if empty)
+    // Each bed gets its own tbody so sticky headers work independently
+    const tbody = document.createElement('tbody');
+    tbody.dataset.bedId = bed.id;
+    table.appendChild(tbody);
+
+    // Bed header row
     const bedTr = document.createElement('tr');
     bedTr.className = 'bed-row';
     bedTr.dataset.bedId = bed.id;
@@ -852,20 +916,33 @@ function render() {
     const movableIdx = movableBeds.findIndex(b => b.id === bed.id);
     const canMoveUp  = movableIdx > 0;
     const canMoveDown= movableIdx >= 0 && movableIdx < movableBeds.length - 1;
+    const lightColor = lightenColor(bed.color, 0.55);
     bedTr.innerHTML = `
       <td style="background:${bed.color}">
         <div class="bed-header" onclick="event.stopPropagation(); openBedEditPopover('${bed.id}', this)" title="Click to edit name or color">
           <div class="bed-dot"></div>
           <input class="bed-name-input" data-bed-id="${bed.id}" value="${bed.label}" readonly tabindex="-1" />
-          ${canRemove ? `
-            <button class="bed-reorder-btn" onclick="event.stopPropagation(); reorderBed('${bed.id}', -1)" ${!canMoveUp ? 'disabled' : ''} title="Move up">↑</button>
-            <button class="bed-reorder-btn" onclick="event.stopPropagation(); reorderBed('${bed.id}', 1)"  ${!canMoveDown ? 'disabled' : ''} title="Move down">↓</button>
-            <button class="panel-btn btn-remove" style="font-size:0.5rem;padding:2px 4px;flex-shrink:0;" onclick="event.stopPropagation(); removeBed('${bed.id}')">✕</button>
-          ` : ''}
         </div>
       </td>
-      <td colspan="24" style="background:${bed.color}"></td>`;
+      <td colspan="24" style="background:${bed.color};vertical-align:middle;">
+        <div style="display:flex;align-items:center;gap:6px;padding:0 8px;">
+          ${canRemove ? `
+            <button class="bed-reorder-btn" onclick="reorderBed('${bed.id}', -1)" ${!canMoveUp ? 'disabled' : ''} title="Move up">↑</button>
+            <button class="bed-reorder-btn" onclick="reorderBed('${bed.id}', 1)"  ${!canMoveDown ? 'disabled' : ''} title="Move down">↓</button>
+          ` : ''}
+          <button class="bed-collapse-btn" style="background:${lightColor};color:${bed.color};"
+            onclick="toggleBedCollapse('${bed.id}')">
+            ${isCollapsed ? `Expand <span style="display:inline-block;transform:rotate(180deg);">▾</span>` : 'Collapse ▾'}
+          </button>
+          ${canRemove ? `
+            <button class="panel-btn btn-remove" style="font-size:0.6rem;padding:2px 6px;min-width:0;line-height:1;" onclick="removeBed('${bed.id}')" title="Remove bed">✕</button>
+          ` : ''}
+        </div>
+      </td>`;
     tbody.appendChild(bedTr);
+
+    // If collapsed, skip all plant rows
+    if (isCollapsed) return;
 
     // If no plants yet, show placeholder
     if (!plantsInBed.length) {
@@ -878,11 +955,14 @@ function render() {
       return;
     }
 
-    plantsInBed.forEach(plant => {
+    plantsInBed.forEach((plant, plantIdx) => {
       // Plant row
       const plantTr = document.createElement('tr');
       plantTr.className = `plant-bed-${bed.id}`;
       plantTr.dataset.plantId = plant.id;
+
+      const canPlantMoveUp   = plantIdx > 0;
+      const canPlantMoveDown = plantIdx < plantsInBed.length - 1;
 
       const status   = STATUS_CONFIG[plant.status] || STATUS_CONFIG.willplant;
       const badgeHtml  = `<span class="plant-badge ${status.cls}">${status.label}</span>`;
@@ -911,13 +991,20 @@ function render() {
         cellsHtml += `<td class="${cls}">${barHtml}</td>`;
       });
 
+      const qtyHtml = (plant.qty && plant.qty > 1) ? `<span class="plant-qty">×${plant.qty}</span>` : '';
       plantTr.innerHTML = `
-        <td><div class="plant-info" onclick="toggleDetail('${plant.id}')">
-          <span class="plant-name">${plant.name}</span>
-          ${varietyHtml}
-          <span class="plant-dtm">${plant.dtm}</span>
-          ${badgeHtml}
-          <span class="expand-arrow">▾</span>
+        <td><div style="display:flex;align-items:center;">
+          <div class="plant-info" onclick="toggleDetail('${plant.id}')" style="flex:1;min-width:0;">
+            <span class="plant-name">${plant.name} ${qtyHtml}</span>
+            ${varietyHtml}
+            <span class="plant-dtm">${plant.dtm}</span>
+            ${badgeHtml}
+            <span class="expand-arrow">▾</span>
+          </div>
+          <div class="plant-reorder-btns">
+            <button class="plant-reorder-btn" onclick="event.stopPropagation();reorderPlant('${plant.id}',-1)" ${!canPlantMoveUp ? 'disabled' : ''} title="Move up">↑</button>
+            <button class="plant-reorder-btn" onclick="event.stopPropagation();reorderPlant('${plant.id}',1)"  ${!canPlantMoveDown ? 'disabled' : ''} title="Move down">↓</button>
+          </div>
         </div></td>${cellsHtml}`;
       tbody.appendChild(plantTr);
 
@@ -944,6 +1031,9 @@ function render() {
             <label class="panel-label">Bed:
               <select class="panel-select" onchange="reassign('${plant.id}', this.value)">${bedOptions}</select>
             </label>
+            <label class="panel-label">Qty:
+              <input type="number" class="panel-select" min="1" value="${plant.qty || 1}" style="width:54px;" onchange="updateQty('${plant.id}', this.value)" />
+            </label>
             <button class="panel-btn btn-remove" onclick="removePlant('${plant.id}')">✕ Remove</button>
           </div>
         </div></td>`;
@@ -962,6 +1052,16 @@ function toggleDetail(plantId) {
   document.querySelectorAll('.detail-panel').forEach(p => p.classList.remove('open'));
   document.querySelectorAll('.plant-info').forEach(i => i.classList.remove('expanded'));
   if (!isOpen) { panel.classList.add('open'); if (info) info.classList.add('expanded'); }
+}
+
+function updateQty(plantId, val) {
+  const plants = getPlants();
+  const plant  = plants.find(p => p.id === plantId);
+  if (plant) {
+    saveSnapshot(`Before: qty changed (${plant.name})`);
+    plant.qty = Math.max(1, parseInt(val) || 1);
+    savePlants(plants); render(); toggleDetail(plantId);
+  }
 }
 
 function updateStatus(plantId, status) {
@@ -992,6 +1092,43 @@ function removePlant(plantId) {
     const plants = getPlants().filter(p => p.id !== plantId);
     savePlants(plants);
     render();
+  });
+}
+
+function reorderPlant(plantId, dir) {
+  const plants   = getPlants();
+  const plant    = plants.find(p => p.id === plantId);
+  if (!plant) return;
+  const bedPlants = plants.filter(p => p.bed === plant.bed);
+  const idx       = bedPlants.findIndex(p => p.id === plantId);
+  const newIdx    = idx + dir;
+  if (newIdx < 0 || newIdx >= bedPlants.length) return;
+  const otherId   = bedPlants[newIdx].id;
+
+  // FLIP — step 1: record positions
+  const top1 = document.querySelector(`tr[data-plant-id="${plantId}"]`)?.getBoundingClientRect().top ?? 0;
+  const top2 = document.querySelector(`tr[data-plant-id="${otherId}"]`)?.getBoundingClientRect().top ?? 0;
+
+  // Swap in global array and save
+  const i1 = plants.findIndex(p => p.id === plantId);
+  const i2 = plants.findIndex(p => p.id === otherId);
+  [plants[i1], plants[i2]] = [plants[i2], plants[i1]];
+  saveSnapshot('Before: reordered plants');
+  savePlants(plants);
+  render();
+
+  // FLIP — step 2: invert + play
+  [{ id: plantId, oldTop: top1 }, { id: otherId, oldTop: top2 }].forEach(({ id, oldTop }) => {
+    const el = document.querySelector(`tr[data-plant-id="${id}"]`);
+    if (!el) return;
+    const dy = oldTop - el.getBoundingClientRect().top;
+    if (dy === 0) return;
+    el.style.transition = 'none';
+    el.style.transform  = `translateY(${dy}px)`;
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      el.style.transition = 'transform 0.28s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
+      el.style.transform  = 'translateY(0)';
+    }));
   });
 }
 
@@ -1080,6 +1217,7 @@ function openAddPlant() {
   document.getElementById('form-variety-custom').value = '';
   document.getElementById('variety-save-note').style.display = 'none';
   document.getElementById('form-dtm').value = '';
+  document.getElementById('form-qty').value = '1';
   document.getElementById('form-status').value = 'willplant';
 
   document.getElementById('modal-overlay').classList.add('open');
@@ -1183,6 +1321,7 @@ function submitAddPlant() {
   const varCustom  = document.getElementById('form-variety-custom').value.trim();
   const variety    = (varSel === '__custom__' || varSel === '') ? (varCustom || null) : varSel;
   const dtm        = document.getElementById('form-dtm').value.trim() || '—';
+  const qty        = Math.max(1, parseInt(document.getElementById('form-qty').value) || 1);
   let   bed        = document.getElementById('form-bed').value;
   const status     = document.getElementById('form-status').value;
   const saveVar    = document.getElementById('save-custom-variety').checked;
@@ -1235,7 +1374,7 @@ function submitAddPlant() {
   const id = `${name.toLowerCase().replace(/\s+/g,'-')}-${Date.now()}`;
 
   const plants = getPlants();
-  plants.push({ id, name, variety, dtm, bed, status, maybe: status === 'undecided', months });
+  plants.push({ id, name, variety, dtm, qty, bed, status, maybe: status === 'undecided', months });
   savePlants(plants);
   closeAddPlant();
   render();
