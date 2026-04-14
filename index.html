@@ -223,6 +223,38 @@
   .detail-panel.open { display: block; }
   .detail-coming-soon { font-style: italic; color: #aaa; font-size: 0.7rem; }
 
+  /* ── FROST INDICATORS ── */
+  th.frost-l { position: relative; border-left: 2px solid rgba(160,215,255,0.65) !important; }
+  .frost-snowflake {
+    display: block; font-size: 0.58rem; line-height: 1.1; cursor: pointer;
+    color: rgba(190,235,255,0.9); margin-bottom: 1px; text-align: center;
+  }
+  .frost-snowflake:hover { color: #fff; transform: scale(1.2); }
+  #frost-tooltip {
+    position: fixed; background: #1a2a3a; color: #b8daf0;
+    border: 1px solid rgba(160,220,255,0.35); border-radius: 6px;
+    padding: 7px 12px; font-size: 0.71rem; z-index: 9999;
+    pointer-events: none; line-height: 1.6; white-space: nowrap; display: none;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.4);
+  }
+
+  /* ── CARE PANEL ── */
+  .care-panel { padding: 4px 0 6px; }
+  .care-meta { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 8px; }
+  .care-tag {
+    background: rgba(90,120,70,0.1); border: 1px solid rgba(90,120,70,0.22);
+    border-radius: 4px; padding: 2px 8px; font-size: 0.67rem; color: #5a4a38;
+  }
+  .care-cols { display: flex; gap: 24px; flex-wrap: wrap; }
+  .care-col  { flex: 1; min-width: 170px; }
+  .care-col strong {
+    display: block; font-size: 0.67rem; font-weight: 600; color: #4a3a28;
+    margin: 6px 0 3px; letter-spacing: 0.05em; text-transform: uppercase;
+  }
+  .care-col ul { margin: 0 0 6px; padding-left: 14px; }
+  .care-col li { font-size: 0.69rem; color: #6a5a48; margin-bottom: 2px; line-height: 1.45; }
+  .care-safe  { font-size: 0.67rem; color: #7a9a6a; margin-top: 6px; }
+
   .panel-controls {
     display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-top: 10px;
   }
@@ -465,11 +497,11 @@
                 <button class="add-plant-btn" onclick="event.stopPropagation(); openAddBed()">🪴 + Bed</button>
               </div>
             </th>
-            <th>E</th><th>L</th><th>E</th><th>L</th><th>E</th><th>L</th>
+            <th>E</th><th>L</th><th>E</th><th>L</th><th>E</th><th class="frost-l" id="frost-spring"><span class="frost-snowflake" onclick="showFrostTip(event,'spring')">❄</span>L</th>
             <th class="current-half">E</th><th>L</th>
             <th>E</th><th>L</th><th>E</th><th>L</th><th>E</th><th>L</th>
             <th>E</th><th>L</th><th>E</th><th>L</th><th>E</th><th>L</th>
-            <th>E</th><th>L</th><th>E</th><th>L</th>
+            <th>E</th><th class="frost-l" id="frost-fall"><span class="frost-snowflake" onclick="showFrostTip(event,'fall')">❄</span>L</th><th>E</th><th>L</th>
           </tr>
         </thead>
         <tbody id="calendar-body"></tbody>
@@ -538,10 +570,23 @@
   </div>
 </div>
 
+<!-- FROST TOOLTIP -->
+<div id="frost-tooltip"></div>
+
 <!-- ADD PLANT MODAL -->
 <div class="modal-overlay" id="modal-overlay" onclick="handleOverlayClick(event)">
   <div class="modal">
     <h2>🌿 Add a Plant</h2>
+    <div class="form-group">
+      <label>Category</label>
+      <select id="form-category" onchange="onCategoryChange()">
+        <option value="">All Plants</option>
+        <option value="vegetable">🥕 Vegetable</option>
+        <option value="herb">🌿 Herb</option>
+        <option value="flower">🌸 Flower</option>
+        <option value="fruit">🍓 Fruit</option>
+      </select>
+    </div>
     <div class="form-group">
       <label>Plant Name</label>
       <select id="form-plant-name" onchange="onPlantNameChange()">
@@ -685,8 +730,12 @@ const PLANT_DATABASE = {
   },
   'Cucumbers': {
     varieties: {
-      'Slicing':  { dtm: '55–65 days', months: makeMonths([[6,6,'indoor'],[9,11,'transplant'],[12,17,'harvest']]) },
-      'Pickling': { dtm: '50–55 days', months: makeMonths([[6,6,'indoor'],[9,11,'transplant'],[12,17,'harvest']]) },
+      'Slicing':              { dtm: '55–65 days', months: makeMonths([[6,6,'indoor'],[9,11,'transplant'],[12,17,'harvest']]) },
+      'Pickling':             { dtm: '50–55 days', months: makeMonths([[6,6,'indoor'],[9,11,'transplant'],[12,17,'harvest']]) },
+      'Arkansas Little Leaf': { dtm: '50–59 days', months: makeMonths([[6,6,'indoor'],[9,11,'transplant'],[12,17,'harvest']]) },
+      'Armenian':             { dtm: '60–69 days', months: makeMonths([[6,6,'indoor'],[9,11,'transplant'],[12,17,'harvest']]) },
+      'Beit Alpha':           { dtm: '55–65 days', months: makeMonths([[6,6,'indoor'],[9,11,'transplant'],[12,17,'harvest']]) },
+      'Boston Pickling':      { dtm: '50–59 days', months: makeMonths([[6,6,'indoor'],[9,11,'transplant'],[12,17,'harvest']]) },
     },
     default: { dtm: '50–70 days', months: makeMonths([[6,6,'indoor'],[9,11,'transplant'],[12,17,'harvest']]) }
   },
@@ -789,6 +838,55 @@ const PLANT_DATABASE = {
     },
     // Portland Nursery: plant bare root Feb–Apr; ever-bearing harvests Jun–Oct
     default: { dtm: '60+ days', months: makeMonths([[2,5,'transplant'],[8,17,'harvest']]) }
+  },
+};
+
+// ══════════════════════════════════════════════════════════════
+// PLANT CATEGORIES  (used by Add Plant modal filter)
+// ══════════════════════════════════════════════════════════════
+const PLANT_CATEGORIES = {
+  'Tomato': 'vegetable', 'Pepper': 'vegetable', 'Peas': 'vegetable',
+  'Lettuce': 'vegetable', 'Carrots': 'vegetable', 'Beans': 'vegetable',
+  'Cucumbers': 'vegetable', 'Onions': 'vegetable', 'Zucchini': 'vegetable',
+  'Squash': 'vegetable', 'Radishes': 'vegetable', 'Beets': 'vegetable',
+  'Kale': 'vegetable', 'Spinach': 'vegetable', 'Cabbage': 'vegetable',
+  'Cauliflower': 'vegetable',
+  'Garlic': 'herb', 'Shallots': 'herb', 'Basil': 'herb',
+  'Green Onions': 'herb', 'Cilantro': 'herb',
+  'Marigolds': 'flower',
+  'Strawberries': 'fruit',
+};
+
+// ══════════════════════════════════════════════════════════════
+// VERDANTLY CARE DATA  (detail panel — filled in per plant)
+// ══════════════════════════════════════════════════════════════
+const VERDANTLY_CARE = {
+  'Cucumbers': {
+    sun:     'Full sun (6–8 hrs/day)',
+    water:   'Moderate — keep soil evenly moist',
+    soil:    'Well-drained, fertile loam · pH 6.0–7.0',
+    spacing: '12–24 inches apart (variety dependent)',
+    height:  '12–48 inches depending on variety',
+    frost:   'Frost-tender — plant after last frost only',
+    tips: [
+      'Start indoors 3–4 weeks before last frost (early–mid March, Zone 8b)',
+      'Transplant when soil consistently reaches 65 °F — usually late April/May',
+      'Trellis vines to save ground space and improve airflow',
+      'Pick every 2–3 days once fruiting — frequent harvest boosts total yield',
+      'Water at the base; wet foliage encourages powdery mildew',
+      'Feed every 2–3 weeks with balanced organic fertilizer after flowering begins',
+    ],
+    harvest: [
+      'Slicing & specialty types: harvest at 6–8 inches long',
+      'Pickling types: harvest at 3–6 inches long',
+      'Check daily at peak season — overripe fruit slows new production',
+    ],
+    pests: [
+      'Most modern varieties resist Powdery Mildew & Cucumber Mosaic Virus',
+      'Watch for cucumber beetles and spider mites',
+      'Good airflow from trellising greatly reduces disease pressure',
+    ],
+    safe: '🐱 🐶 🐴 Non-toxic to cats, dogs & horses (ASPCA)',
   },
 };
 
@@ -1023,7 +1121,7 @@ function render() {
 
       detailTr.innerHTML = `<td colspan="25">
         <div class="detail-panel" id="panel-${plant.id}">
-          <span class="detail-coming-soon">✦ Plant details coming soon — spacing, watering, companions, pests & notes will live here.</span>
+          ${buildCarePanel(plant.name)}
           <div class="panel-controls">
             <label class="panel-label">Status:
               <select class="panel-select" onchange="updateStatus('${plant.id}', this.value)">${statusOptions}</select>
@@ -1185,16 +1283,82 @@ function removeBed(bedId) {
 }
 
 // ══════════════════════════════════════════════════════════════
+// FROST TOOLTIP
+// ══════════════════════════════════════════════════════════════
+function showFrostTip(e, type) {
+  e.stopPropagation();
+  const tip = document.getElementById('frost-tooltip');
+  tip.innerHTML = type === 'spring'
+    ? '❄ <strong>Last Spring Frost</strong> &nbsp;·&nbsp; ~March 15 &nbsp;·&nbsp; Zone 8b · Portland, OR'
+    : '❄ <strong>First Fall Frost</strong> &nbsp;·&nbsp; ~November 15 &nbsp;·&nbsp; Zone 8b · Portland, OR';
+  tip.style.left    = (e.clientX + 10) + 'px';
+  tip.style.top     = (e.clientY + 10) + 'px';
+  tip.style.display = 'block';
+  document.addEventListener('click', () => { tip.style.display = 'none'; }, { once: true });
+}
+
+// ══════════════════════════════════════════════════════════════
+// CARE DETAIL PANEL BUILDER
+// ══════════════════════════════════════════════════════════════
+function buildCarePanel(plantName) {
+  const c = VERDANTLY_CARE[plantName];
+  if (!c) return `<span class="detail-coming-soon">✦ Plant details coming soon — spacing, watering, companions, pests &amp; notes will live here.</span>`;
+  return `<div class="care-panel">
+    <div class="care-meta">
+      <span class="care-tag">☀️ ${c.sun}</span>
+      <span class="care-tag">💧 ${c.water}</span>
+      <span class="care-tag">📏 ${c.spacing}</span>
+      <span class="care-tag">📐 ${c.height}</span>
+      <span class="care-tag">❄ ${c.frost}</span>
+    </div>
+    <div class="care-cols">
+      <div class="care-col">
+        <strong>Growing Tips</strong>
+        <ul>${c.tips.map(t => `<li>${t}</li>`).join('')}</ul>
+      </div>
+      <div class="care-col">
+        <strong>Harvest</strong>
+        <ul>${c.harvest.map(h => `<li>${h}</li>`).join('')}</ul>
+        <strong>Pests &amp; Disease</strong>
+        <ul>${c.pests.map(p => `<li>${p}</li>`).join('')}</ul>
+      </div>
+    </div>
+    <div class="care-safe">${c.safe}</div>
+  </div>`;
+}
+
+// ══════════════════════════════════════════════════════════════
+// ADD PLANT MODAL — CATEGORY FILTER HELPERS
+// ══════════════════════════════════════════════════════════════
+function populatePlantsByCategory(cat) {
+  const sel = document.getElementById('form-plant-name');
+  sel.innerHTML = '<option value="">— select —</option>';
+  Object.keys(PLANT_DATABASE).sort().forEach(name => {
+    if (!cat || (PLANT_CATEGORIES[name] || '') === cat) {
+      sel.innerHTML += `<option value="${name}">${name}</option>`;
+    }
+  });
+  sel.innerHTML += `<option value="__custom__">✏ Type your own…</option>`;
+}
+
+function onCategoryChange() {
+  const cat = document.getElementById('form-category').value;
+  populatePlantsByCategory(cat);
+  document.getElementById('form-plant-name').value = '';
+  document.getElementById('form-plant-name-custom').style.display = 'none';
+  document.getElementById('form-variety').innerHTML = '<option value="">— none / enter custom —</option>';
+  document.getElementById('form-variety-custom').style.display = 'none';
+  document.getElementById('variety-save-note').style.display = 'none';
+  document.getElementById('form-dtm').value = '';
+}
+
+// ══════════════════════════════════════════════════════════════
 // ADD PLANT MODAL
 // ══════════════════════════════════════════════════════════════
 function openAddPlant() {
-  // Populate plant name dropdown
-  const nameSelect = document.getElementById('form-plant-name');
-  nameSelect.innerHTML = '<option value="">— select —</option>';
-  Object.keys(PLANT_DATABASE).sort().forEach(name => {
-    nameSelect.innerHTML += `<option value="${name}">${name}</option>`;
-  });
-  nameSelect.innerHTML += `<option value="__custom__">✏ Type your own…</option>`;
+  // Reset category filter and populate all plants
+  document.getElementById('form-category').value = '';
+  populatePlantsByCategory('');
   document.getElementById('form-plant-name-custom').style.display = 'none';
   document.getElementById('form-plant-name-custom').value = '';
 
