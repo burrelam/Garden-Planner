@@ -217,7 +217,7 @@
   .expanded .expand-arrow { transform: rotate(180deg); }
 
   /* ── DETAIL PANEL ── */
-  tr.detail-row td { padding: 0; background: #f9f5ee; border-top: 1px solid #e5ddd0; }
+  tr.detail-row td { padding: 0; background: #f9f5ee; border-top: 1px solid #e5ddd0; position: relative; z-index: 6; }
   tr.detail-row td:first-child { background: #f9f5ee; }
   .detail-panel { padding: 12px 14px; font-size: 0.72rem; color: #6a5a48; line-height: 1.7; display: none; }
   .detail-panel.open { display: block; }
@@ -252,7 +252,7 @@
     margin: 6px 0 3px; letter-spacing: 0.05em; text-transform: uppercase;
   }
   .care-col ul { margin: 0 0 6px; padding-left: 14px; }
-  .care-col li { font-size: 0.64rem; color: #6a5a48; margin-bottom: 2px; line-height: 1.45; }
+  .care-col li { font-size: 0.60rem; color: #6a5a48; margin-bottom: 2px; line-height: 1.45; }
   .care-safe  { font-size: 0.67rem; color: #7a9a6a; margin-top: 6px; }
 
   .panel-controls {
@@ -848,31 +848,81 @@ const PLANT_CATEGORIES = {
 // ══════════════════════════════════════════════════════════════
 const VERDANTLY_CARE = {
   'Cucumbers': {
-    sun:     'Full sun (6–8 hrs/day)',
-    water:   'Moderate — keep soil evenly moist',
-    soil:    'Well-drained, fertile loam · pH 6.0–7.0',
-    spacing: '12–24 inches apart (variety dependent)',
-    height:  '12–48 inches depending on variety',
-    frost:   'Frost-tender — plant after last frost only',
-    tips: [
-      'Start indoors in early April (cucumbers need warm soil — don\'t rush it)',
-      'Transplant when soil consistently reaches 65 °F — usually late April/May',
-      'Trellis vines to save ground space and improve airflow',
-      'Pick every 2–3 days once fruiting — frequent harvest boosts total yield',
-      'Water at the base; wet foliage encourages powdery mildew',
-      'Feed every 2–3 weeks with balanced organic fertilizer after flowering begins',
-    ],
-    harvest: [
-      'Slicing & specialty types: harvest at 6–8 inches long',
-      'Pickling types: harvest at 3–6 inches long',
-      'Check daily at peak season — overripe fruit slows new production',
-    ],
-    pests: [
-      'Most modern varieties resist Powdery Mildew & Cucumber Mosaic Virus',
-      'Watch for cucumber beetles and spider mites',
-      'Good airflow from trellising greatly reduces disease pressure',
-    ],
-    safe: '🐱 🐶 🐴 Non-toxic to cats, dogs & horses (ASPCA)',
+    default: {
+      sun:   'Full sun (6–8 hrs/day)',
+      water: 'Moderate — keep soil evenly moist',
+      soil:  'Well-drained, fertile loam · pH 6.0–7.0',
+      frost: 'Frost-tender — plant after last frost only',
+      tips: [
+        'Start indoors in early April (cucumbers need warm soil — don\'t rush it)',
+        'Transplant when soil consistently reaches 65°F — usually late April/May in Zone 8b',
+        'Trellis vines to save ground space and improve airflow',
+        'Water at the base; wet foliage encourages powdery mildew',
+        'Feed every 2–3 weeks with balanced organic fertilizer after flowering begins',
+      ],
+      pests: [
+        'Most modern varieties resist Powdery Mildew & Cucumber Mosaic Virus',
+        'Watch for cucumber beetles and spider mites',
+        'Good airflow from trellising greatly reduces disease pressure',
+      ],
+      safe: '🐱 🐶 🐴 Non-toxic to cats, dogs & horses (ASPCA)',
+    },
+    varieties: {
+      'Slicing': {
+        spacing: '18–24 inches apart',
+        height:  'Vines to 4–5 feet with support',
+        harvest: [
+          'Harvest when 6–8 inches long and dark green',
+          'Pick every 2–3 days — frequent harvest keeps plant productive',
+          'Avoid letting fruits yellow; signals the plant to stop producing',
+        ],
+      },
+      'Pickling': {
+        spacing: '12–18 inches apart',
+        height:  'Compact vines to 3–4 feet',
+        harvest: [
+          'Harvest at 3–6 inches for best pickling texture',
+          'Pick every 1–2 days at peak season — these set fruit fast',
+          'Smaller fruits (3 in) = crunchier whole pickles; larger (5–6 in) = spears',
+        ],
+      },
+      'Arkansas Little Leaf': {
+        spacing: '12 inches apart (container-friendly)',
+        height:  'Very compact — 12–24 inches',
+        harvest: [
+          'Harvest at 3–6 inches for pickling size',
+          'Sets fruit without pollination — expect prolific yields',
+          'Check every 2–3 days; small vines fruit heavily',
+        ],
+      },
+      'Armenian': {
+        spacing: '18–24 inches apart with trellis',
+        height:  'Vigorous vine to 4 feet — trellis recommended',
+        harvest: [
+          'Harvest at 6–8 inches for best flavor and texture',
+          'Can grow to 10+ inches — still edible but gets seedy',
+          'Thin skin — no peeling needed; great fresh or in salads',
+        ],
+      },
+      'Beit Alpha': {
+        spacing: '12–18 inches apart',
+        height:  'Compact vine — 5–8 inches tall',
+        harvest: [
+          'Harvest at 5–6 inches for peak eating quality',
+          'Thin, spineless skin — no peeling needed',
+          'Pick every 1–2 days; parthenocarpic variety sets fruit prolifically',
+        ],
+      },
+      'Boston Pickling': {
+        spacing: '12–18 inches apart',
+        height:  'Vines to 4 feet — support recommended',
+        harvest: [
+          'Harvest at 3–6 inches depending on pickle style',
+          'Pick daily or every other day to extend season through late summer',
+          'Thin skin absorbs pickling brine exceptionally well',
+        ],
+      },
+    },
   },
 };
 
@@ -1107,7 +1157,7 @@ function render() {
 
       detailTr.innerHTML = `<td colspan="25">
         <div class="detail-panel" id="panel-${plant.id}">
-          ${buildCarePanel(plant.name)}
+          ${buildCarePanel(plant.name, plant.variety)}
           <div class="panel-controls">
             <label class="panel-label">Status:
               <select class="panel-select" onchange="updateStatus('${plant.id}', this.value)">${statusOptions}</select>
@@ -1286,15 +1336,21 @@ function showFrostTip(e, type) {
 // ══════════════════════════════════════════════════════════════
 // CARE DETAIL PANEL BUILDER
 // ══════════════════════════════════════════════════════════════
-function buildCarePanel(plantName) {
-  const c = VERDANTLY_CARE[plantName];
-  if (!c) return `<span class="detail-coming-soon">✦ Plant details coming soon — spacing, watering, companions, pests &amp; notes will live here.</span>`;
+function buildCarePanel(plantName, variety) {
+  const entry = VERDANTLY_CARE[plantName];
+  if (!entry) return `<span class="detail-coming-soon">✦ Plant details coming soon — spacing, watering, companions, pests &amp; notes will live here.</span>`;
+
+  // Merge default + variety-specific overrides
+  const base = entry.default || entry; // support future flat entries too
+  const varData = (entry.varieties && variety && entry.varieties[variety]) || {};
+  const c = Object.assign({}, base, varData);
+
   return `<div class="care-panel">
     <div class="care-meta">
       <span class="care-tag">☀️ ${c.sun}</span>
       <span class="care-tag">💧 ${c.water}</span>
-      <span class="care-tag">📏 ${c.spacing}</span>
-      <span class="care-tag">📐 ${c.height}</span>
+      ${c.spacing ? `<span class="care-tag">📏 ${c.spacing}</span>` : ''}
+      ${c.height  ? `<span class="care-tag">📐 ${c.height}</span>`  : ''}
       <span class="care-tag">❄ ${c.frost}</span>
     </div>
     <div class="care-cols">
@@ -1304,7 +1360,7 @@ function buildCarePanel(plantName) {
       </div>
       <div class="care-col">
         <strong>Harvest</strong>
-        <ul>${c.harvest.map(h => `<li>${h}</li>`).join('')}</ul>
+        <ul>${(c.harvest || []).map(h => `<li>${h}</li>`).join('')}</ul>
         <strong>Pests &amp; Disease</strong>
         <ul>${c.pests.map(p => `<li>${p}</li>`).join('')}</ul>
       </div>
