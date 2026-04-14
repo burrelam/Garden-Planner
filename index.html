@@ -217,7 +217,8 @@
   .expanded .expand-arrow { transform: rotate(180deg); }
 
   /* ── DETAIL PANEL ── */
-  tr.detail-row td { padding: 0; background: #f9f5ee; border-top: 1px solid #e5ddd0; position: relative; z-index: 6; }
+  tr.detail-row td { padding: 0; background: #f9f5ee; border-top: 1px solid #e5ddd0; }
+  #main-table tbody.has-open-panel { position: relative; z-index: 10; }
   tr.detail-row td:first-child { background: #f9f5ee; }
   .detail-panel { padding: 12px 14px; font-size: 0.72rem; color: #6a5a48; line-height: 1.7; display: none; }
   .detail-panel.open { display: block; }
@@ -228,6 +229,7 @@
   .frost-snowflake {
     display: block; font-size: 0.58rem; line-height: 1.1; cursor: pointer;
     color: rgba(190,235,255,0.9); margin-bottom: 1px; text-align: center;
+    touch-action: manipulation; -webkit-tap-highlight-color: transparent;
   }
   .frost-snowflake:hover { color: #fff; transform: scale(1.2); }
   #frost-tooltip {
@@ -252,7 +254,7 @@
     margin: 6px 0 3px; letter-spacing: 0.05em; text-transform: uppercase;
   }
   .care-col ul { margin: 0 0 6px; padding-left: 14px; }
-  .care-col li { font-size: 0.60rem; color: #6a5a48; margin-bottom: 2px; line-height: 1.45; }
+  .care-col li { font-size: 0.56rem; color: #6a5a48; margin-bottom: 2px; line-height: 1.45; }
   .care-safe  { font-size: 0.67rem; color: #7a9a6a; margin-top: 6px; }
 
   .panel-controls {
@@ -1178,14 +1180,25 @@ function render() {
 }
 
 function toggleDetail(plantId) {
-  const panel   = document.getElementById(`panel-${plantId}`);
-  const plantRow = document.querySelector(`tr[data-plant-id="${plantId}"]`);
-  const info    = plantRow ? plantRow.querySelector('.plant-info') : null;
+  const panel     = document.getElementById(`panel-${plantId}`);
+  const detailRow = document.getElementById(`detail-${plantId}`);
+  const plantRow  = document.querySelector(`tr[data-plant-id="${plantId}"]`);
+  const info      = plantRow ? plantRow.querySelector('.plant-info') : null;
   if (!panel) return;
-  const isOpen  = panel.classList.contains('open');
+  const isOpen = panel.classList.contains('open');
+
+  // Close all panels and reset tbody stacking
   document.querySelectorAll('.detail-panel').forEach(p => p.classList.remove('open'));
   document.querySelectorAll('.plant-info').forEach(i => i.classList.remove('expanded'));
-  if (!isOpen) { panel.classList.add('open'); if (info) info.classList.add('expanded'); }
+  document.querySelectorAll('#main-table tbody').forEach(tb => tb.classList.remove('has-open-panel'));
+
+  if (!isOpen) {
+    panel.classList.add('open');
+    if (info) info.classList.add('expanded');
+    // Lift this tbody above subsequent ones so sticky bed headers don't overlay the panel
+    const tbody = detailRow?.closest('tbody');
+    if (tbody) tbody.classList.add('has-open-panel');
+  }
 }
 
 function updateQty(plantId, val) {
@@ -1325,11 +1338,34 @@ function showFrostTip(e, type) {
   e.stopPropagation();
   const tip = document.getElementById('frost-tooltip');
   tip.innerHTML = type === 'spring'
-    ? '❄ <strong>Last Spring Frost</strong> &nbsp;·&nbsp; ~March 15 &nbsp;·&nbsp; Zone 8b · Portland, OR'
-    : '❄ <strong>First Fall Frost</strong> &nbsp;·&nbsp; ~November 15 &nbsp;·&nbsp; Zone 8b · Portland, OR';
-  tip.style.left    = (e.clientX + 10) + 'px';
-  tip.style.top     = (e.clientY + 10) + 'px';
+    ? '❄ <strong>Last Spring Frost</strong><br>~March 15 · Zone 8b · Portland, OR'
+    : '❄ <strong>First Fall Frost</strong><br>~November 15 · Zone 8b · Portland, OR';
+
+  // Render offscreen first so we can measure actual size
+  tip.style.left    = '-9999px';
+  tip.style.top     = '-9999px';
   tip.style.display = 'block';
+
+  const tw = tip.offsetWidth;
+  const th = tip.offsetHeight;
+  const vw = window.innerWidth;
+  const vh = window.innerHeight;
+  const margin = 10;
+
+  let x = e.clientX + margin;
+  let y = e.clientY + margin;
+
+  // Clamp right edge
+  if (x + tw > vw - margin) x = vw - tw - margin;
+  // Clamp bottom edge — flip above tap if needed
+  if (y + th > vh - margin) y = e.clientY - th - margin;
+  // Clamp left/top to never go negative
+  if (x < margin) x = margin;
+  if (y < margin) y = margin;
+
+  tip.style.left = x + 'px';
+  tip.style.top  = y + 'px';
+
   document.addEventListener('click', () => { tip.style.display = 'none'; }, { once: true });
 }
 
