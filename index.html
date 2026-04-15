@@ -225,13 +225,15 @@
   .detail-coming-soon { font-style: italic; color: #aaa; font-size: 0.7rem; }
 
   /* ── FROST INDICATORS ── */
-  th.frost-l { position: relative; border-left: 2px solid rgba(160,215,255,0.65) !important; }
+  th.frost-l { position: relative; border-left: 2px solid rgba(160,215,255,0.65) !important; overflow: visible; }
   .frost-snowflake {
-    display: block; font-size: 0.58rem; line-height: 1.1; cursor: pointer;
-    color: rgba(190,235,255,0.9); margin-bottom: 1px; text-align: center;
+    position: absolute; left: -1px; top: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 0.65rem; line-height: 1; cursor: pointer; z-index: 2;
+    color: rgba(190,235,255,0.95);
     touch-action: manipulation; -webkit-tap-highlight-color: transparent;
   }
-  .frost-snowflake:hover { color: #fff; transform: scale(1.2); }
+  .frost-snowflake:hover { color: #fff; }
   #frost-tooltip {
     position: fixed; background: #1a2a3a; color: #b8daf0;
     border: 1px solid rgba(160,220,255,0.35); border-radius: 6px;
@@ -254,7 +256,7 @@
     margin: 6px 0 3px; letter-spacing: 0.05em; text-transform: uppercase;
   }
   .care-col ul { margin: 0 0 6px; padding-left: 14px; }
-  .care-col li { font-size: 0.56rem; color: #6a5a48; margin-bottom: 2px; line-height: 1.45; }
+  .care-col li { font-size: 0.49rem; color: #6a5a48; margin-bottom: 2px; line-height: 1.45; }
   .care-safe  { font-size: 0.67rem; color: #7a9a6a; margin-top: 6px; }
 
   .panel-controls {
@@ -1013,6 +1015,11 @@ function toggleBedCollapse(bedId) {
 // RENDER
 // ══════════════════════════════════════════════════════════════
 function render() {
+  // Save scroll position before rebuilding DOM
+  const wrap = document.querySelector('.table-wrap');
+  const savedScrollTop  = wrap ? wrap.scrollTop  : 0;
+  const savedScrollLeft = wrap ? wrap.scrollLeft : 0;
+
   const beds    = getBeds();
   const plants  = getPlants();
   // Replace all tbodies with one per bed for sticky headers
@@ -1177,6 +1184,11 @@ function render() {
     });
   });
 
+  // Restore scroll position (prevents jump when qty/status/bed changes trigger re-render)
+  if (wrap) {
+    wrap.scrollTop  = savedScrollTop;
+    wrap.scrollLeft = savedScrollLeft;
+  }
 }
 
 function toggleDetail(plantId) {
