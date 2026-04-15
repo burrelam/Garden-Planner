@@ -65,7 +65,7 @@
 
   /* ── MONTH HEADER ── */
   thead tr.month-row th {
-    position: sticky; top: 0; z-index: 3;
+    position: sticky; top: 0; z-index: 15;
     background: var(--moss);
     padding: 8px 2px 2px;
     font-size: 0.7rem; font-weight: 600; letter-spacing: 0.07em; text-transform: uppercase;
@@ -77,7 +77,7 @@
 
   /* ── HALF-MONTH SUBHEADER ── */
   thead tr.half-row th {
-    position: sticky; top: 26px; z-index: 3;
+    position: sticky; top: 26px; z-index: 15;
     background: #3d5230;
     padding: 2px 2px 6px;
     font-size: 0.55rem; font-weight: 400; letter-spacing: 0.05em; text-transform: uppercase;
@@ -113,14 +113,14 @@
 
   /* ── TOP-LEFT CORNER ── */
   thead tr.month-row th.corner {
-    position: sticky; left: 0; z-index: 5;
+    position: sticky; left: 0; z-index: 25;
     text-align: left; padding-left: 12px;
     min-width: 140px; width: 140px;
     background: var(--moss); border-left: none;
     vertical-align: bottom; padding-bottom: 2px;
   }
   thead tr.half-row th.corner {
-    position: sticky; left: 0; z-index: 5;
+    position: sticky; left: 0; z-index: 25;
     background: #3d5230;
     min-width: 140px; width: 140px;
     padding: 2px 4px;
@@ -204,9 +204,9 @@
   /* ── PLANT INFO CELL ── */
   .plant-info { padding: 7px 6px; display: flex; flex-direction: column; gap: 2px; cursor: pointer; user-select: none; overflow: hidden; }
   .plant-info:hover { background: rgba(0,0,0,0.03); }
-  .plant-name { font-family: 'Playfair Display', serif; font-size: 0.80rem; font-weight: 700; color: var(--ink); white-space: normal; line-height: 1.2; word-break: break-word; overflow-wrap: break-word; }
-  .plant-variety { font-size: 0.66rem; color: #7a6a58; font-weight: 400; font-style: italic; line-height: 1.2; }
-  .plant-dtm { font-size: 0.64rem; color: #9a8a78; font-weight: 300; }
+  .plant-name { font-family: 'Playfair Display', serif; font-size: 0.86rem; font-weight: 700; color: var(--ink); white-space: normal; line-height: 1.2; word-break: break-word; overflow-wrap: break-word; }
+  .plant-variety { font-size: 0.70rem; color: #7a6a58; font-weight: 400; font-style: italic; line-height: 1.2; }
+  .plant-dtm { font-size: 0.67rem; color: #9a8a78; font-weight: 300; }
   .plant-qty { font-size: 0.72rem; color: var(--moss); font-weight: 600; }
   .plant-badge { font-size: 0.59rem; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; }
   .badge-planted    { color: #4a7a3a; }
@@ -218,10 +218,54 @@
 
   /* ── DETAIL PANEL ── */
   tr.detail-row td { padding: 0; background: #f9f5ee; border-top: 1px solid #e5ddd0; }
+  #main-table tbody.has-open-panel { position: relative; z-index: 10; }
+  /* Raise detail panel above the bed header row within the same tbody stacking context */
+  #main-table tbody.has-open-panel tr.detail-row td {
+    position: relative; z-index: 6;
+    left: auto; min-width: 0; width: auto;
+  }
   tr.detail-row td:first-child { background: #f9f5ee; }
   .detail-panel { padding: 12px 14px; font-size: 0.72rem; color: #6a5a48; line-height: 1.7; display: none; }
   .detail-panel.open { display: block; }
   .detail-coming-soon { font-style: italic; color: #aaa; font-size: 0.7rem; }
+
+  /* ── FROST INDICATORS ── */
+  th.frost-l { position: relative; border-left: 2px solid rgba(160,215,255,0.65) !important; overflow: visible; }
+  .frost-snowflake {
+    position: absolute; left: -1px; top: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 0.65rem; line-height: 1; cursor: pointer; z-index: 2;
+    color: rgba(190,235,255,0.95);
+    touch-action: manipulation; -webkit-tap-highlight-color: transparent;
+  }
+  .frost-snowflake:hover { color: #fff; }
+  #frost-tooltip {
+    position: fixed; background: #1a2a3a; color: #b8daf0;
+    border: 1px solid rgba(160,220,255,0.35); border-radius: 6px;
+    padding: 7px 12px; font-size: 0.71rem; z-index: 9999;
+    pointer-events: none; line-height: 1.6; white-space: nowrap; display: none;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.4);
+  }
+
+  /* ── CARE PANEL ── */
+  .care-panel { padding: 4px 0 6px; }
+  .care-meta { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 8px; }
+  .care-tag {
+    background: rgba(90,120,70,0.1); border: 1px solid rgba(90,120,70,0.22);
+    border-radius: 4px; padding: 2px 8px; font-size: 0.67rem; color: #5a4a38;
+  }
+  .care-cols { display: flex; gap: 24px; flex-wrap: wrap; }
+  .care-col  { flex: 1; min-width: 170px; }
+  .care-col strong {
+    display: block; font-size: 0.67rem; font-weight: 600; color: #4a3a28;
+    margin: 6px 0 3px; letter-spacing: 0.05em; text-transform: uppercase;
+  }
+  .care-col ul { margin: 0 0 6px; padding-left: 14px; }
+  .care-col li { font-size: 0.49rem; color: #6a5a48; margin-bottom: 2px; line-height: 1.45; }
+  @media (min-width: 768px) {
+    .care-col li { font-size: 0.60rem; }
+  }
+  .care-safe  { font-size: 0.67rem; color: #7a9a6a; margin-top: 6px; }
 
   .panel-controls {
     display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-top: 10px;
@@ -465,31 +509,17 @@
                 <button class="add-plant-btn" onclick="event.stopPropagation(); openAddBed()">🪴 + Bed</button>
               </div>
             </th>
-            <th>E</th><th>L</th><th>E</th><th>L</th><th>E</th><th>L</th>
+            <th>E</th><th>L</th><th>E</th><th>L</th><th>E</th><th class="frost-l" id="frost-spring"><span class="frost-snowflake" onclick="showFrostTip(event,'spring')">❄</span>L</th>
             <th class="current-half">E</th><th>L</th>
             <th>E</th><th>L</th><th>E</th><th>L</th><th>E</th><th>L</th>
             <th>E</th><th>L</th><th>E</th><th>L</th><th>E</th><th>L</th>
-            <th>E</th><th>L</th><th>E</th><th>L</th>
+            <th>E</th><th class="frost-l" id="frost-fall"><span class="frost-snowflake" onclick="showFrostTip(event,'fall')">❄</span>L</th><th>E</th><th>L</th>
           </tr>
         </thead>
         <tbody id="calendar-body"></tbody>
       </table>
     </div>
 
-    <div class="companion-section">
-      <div class="companion-box">
-        <h3>🌼 Companion Notes</h3>
-        <p><strong>Basil + Tomatoes:</strong> Plant within 18" — repels aphids and whiteflies.<br><br><strong>Marigolds:</strong> Border beds to deter nematodes and whiteflies.</p>
-      </div>
-      <div class="companion-box">
-        <h3>⚡ Right Now (Early April)</h3>
-        <p>Last window to start tomatoes from seed indoors. Peppers go out late April. Lettuce and peas on schedule. Garlic and shallots harvest late June.</p>
-      </div>
-      <div class="companion-box">
-        <h3>🥒 Cucumber Tip</h3>
-        <p>Start one seed indoors now. Train up your trellis arch to save ground space alongside the beans.</p>
-      </div>
-    </div>
     <div class="bottom-legend">
       <strong>Column guide:</strong> <strong>E</strong> = Early (1st–15th) · <strong>L</strong> = Late (16th–end) ·
       Timing: <em>Portland Nursery Veggie Calendar</em> ·
@@ -538,10 +568,23 @@
   </div>
 </div>
 
+<!-- FROST TOOLTIP -->
+<div id="frost-tooltip"></div>
+
 <!-- ADD PLANT MODAL -->
 <div class="modal-overlay" id="modal-overlay" onclick="handleOverlayClick(event)">
   <div class="modal">
     <h2>🌿 Add a Plant</h2>
+    <div class="form-group">
+      <label>Category</label>
+      <select id="form-category" onchange="onCategoryChange()">
+        <option value="">All Plants</option>
+        <option value="vegetable">🥕 Vegetable</option>
+        <option value="herb">🌿 Herb</option>
+        <option value="flower">🌸 Flower</option>
+        <option value="fruit">🍓 Fruit</option>
+      </select>
+    </div>
     <div class="form-group">
       <label>Plant Name</label>
       <select id="form-plant-name" onchange="onPlantNameChange()">
@@ -685,8 +728,12 @@ const PLANT_DATABASE = {
   },
   'Cucumbers': {
     varieties: {
-      'Slicing':  { dtm: '55–65 days', months: makeMonths([[6,6,'indoor'],[9,11,'transplant'],[12,17,'harvest']]) },
-      'Pickling': { dtm: '50–55 days', months: makeMonths([[6,6,'indoor'],[9,11,'transplant'],[12,17,'harvest']]) },
+      'Slicing':              { dtm: '55–65 days', months: makeMonths([[6,6,'indoor'],[9,11,'transplant'],[12,17,'harvest']]) },
+      'Pickling':             { dtm: '50–55 days', months: makeMonths([[6,6,'indoor'],[9,11,'transplant'],[12,17,'harvest']]) },
+      'Arkansas Little Leaf': { dtm: '50–59 days', months: makeMonths([[6,6,'indoor'],[9,11,'transplant'],[12,17,'harvest']]) },
+      'Armenian':             { dtm: '60–69 days', months: makeMonths([[6,6,'indoor'],[9,11,'transplant'],[12,17,'harvest']]) },
+      'Beit Alpha':           { dtm: '55–65 days', months: makeMonths([[6,6,'indoor'],[9,11,'transplant'],[12,17,'harvest']]) },
+      'Boston Pickling':      { dtm: '50–59 days', months: makeMonths([[6,6,'indoor'],[9,11,'transplant'],[12,17,'harvest']]) },
     },
     default: { dtm: '50–70 days', months: makeMonths([[6,6,'indoor'],[9,11,'transplant'],[12,17,'harvest']]) }
   },
@@ -793,6 +840,105 @@ const PLANT_DATABASE = {
 };
 
 // ══════════════════════════════════════════════════════════════
+// PLANT CATEGORIES  (used by Add Plant modal filter)
+// ══════════════════════════════════════════════════════════════
+const PLANT_CATEGORIES = {
+  'Tomato': 'vegetable', 'Pepper': 'vegetable', 'Peas': 'vegetable',
+  'Lettuce': 'vegetable', 'Carrots': 'vegetable', 'Beans': 'vegetable',
+  'Cucumbers': 'vegetable', 'Onions': 'vegetable', 'Zucchini': 'vegetable',
+  'Squash': 'vegetable', 'Radishes': 'vegetable', 'Beets': 'vegetable',
+  'Kale': 'vegetable', 'Spinach': 'vegetable', 'Cabbage': 'vegetable',
+  'Cauliflower': 'vegetable',
+  'Garlic': 'herb', 'Shallots': 'herb', 'Basil': 'herb',
+  'Green Onions': 'herb', 'Cilantro': 'herb',
+  'Marigolds': 'flower',
+  'Strawberries': 'fruit',
+};
+
+// ══════════════════════════════════════════════════════════════
+// VERDANTLY CARE DATA  (detail panel — filled in per plant)
+// ══════════════════════════════════════════════════════════════
+const VERDANTLY_CARE = {
+  'Cucumbers': {
+    default: {
+      sun:   'Full sun (6–8 hrs/day)',
+      water: 'Moderate — keep soil evenly moist',
+      soil:  'Well-drained, fertile loam · pH 6.0–7.0',
+      frost: 'Frost-tender — plant after last frost only',
+      tips: [
+        'Start indoors in early April (cucumbers need warm soil — don\'t rush it)',
+        'Transplant when soil consistently reaches 65°F — usually late April/May in Zone 8b',
+        'Trellis vines to save ground space and improve airflow',
+        'Water at the base; wet foliage encourages powdery mildew',
+        'Feed every 2–3 weeks with balanced organic fertilizer after flowering begins',
+      ],
+      pests: [
+        'Most modern varieties resist Powdery Mildew & Cucumber Mosaic Virus',
+        'Watch for cucumber beetles and spider mites',
+        'Good airflow from trellising greatly reduces disease pressure',
+      ],
+      safe: '🐱 🐶 🐴 Non-toxic to cats, dogs & horses (ASPCA)',
+    },
+    varieties: {
+      'Slicing': {
+        spacing: '18–24 inches apart',
+        height:  'Vines to 4–5 feet with support',
+        harvest: [
+          'Harvest when 6–8 inches long and dark green',
+          'Pick every 2–3 days — frequent harvest keeps plant productive',
+          'Avoid letting fruits yellow; signals the plant to stop producing',
+        ],
+      },
+      'Pickling': {
+        spacing: '12–18 inches apart',
+        height:  'Compact vines to 3–4 feet',
+        harvest: [
+          'Harvest at 3–6 inches for best pickling texture',
+          'Pick every 1–2 days at peak season — these set fruit fast',
+          'Smaller fruits (3 in) = crunchier whole pickles; larger (5–6 in) = spears',
+        ],
+      },
+      'Arkansas Little Leaf': {
+        spacing: '12 inches apart (container-friendly)',
+        height:  'Very compact — 12–24 inches',
+        harvest: [
+          'Harvest at 3–6 inches for pickling size',
+          'Sets fruit without pollination — expect prolific yields',
+          'Check every 2–3 days; small vines fruit heavily',
+        ],
+      },
+      'Armenian': {
+        spacing: '18–24 inches apart with trellis',
+        height:  'Vigorous vine to 4 feet — trellis recommended',
+        harvest: [
+          'Harvest at 6–8 inches for best flavor and texture',
+          'Can grow to 10+ inches — still edible but gets seedy',
+          'Thin skin — no peeling needed; great fresh or in salads',
+        ],
+      },
+      'Beit Alpha': {
+        spacing: '12–18 inches apart',
+        height:  'Compact vine — 5–8 inches tall',
+        harvest: [
+          'Harvest at 5–6 inches for peak eating quality',
+          'Thin, spineless skin — no peeling needed',
+          'Pick every 1–2 days; parthenocarpic variety sets fruit prolifically',
+        ],
+      },
+      'Boston Pickling': {
+        spacing: '12–18 inches apart',
+        height:  'Vines to 4 feet — support recommended',
+        harvest: [
+          'Harvest at 3–6 inches depending on pickle style',
+          'Pick daily or every other day to extend season through late summer',
+          'Thin skin absorbs pickling brine exceptionally well',
+        ],
+      },
+    },
+  },
+};
+
+// ══════════════════════════════════════════════════════════════
 // BEDS
 // ══════════════════════════════════════════════════════════════
 const DEFAULT_BEDS = [
@@ -877,6 +1023,11 @@ function toggleBedCollapse(bedId) {
 // RENDER
 // ══════════════════════════════════════════════════════════════
 function render() {
+  // Save scroll position before rebuilding DOM
+  const wrap = document.querySelector('.table-wrap');
+  const savedScrollTop  = wrap ? wrap.scrollTop  : 0;
+  const savedScrollLeft = wrap ? wrap.scrollLeft : 0;
+
   const beds    = getBeds();
   const plants  = getPlants();
   // Replace all tbodies with one per bed for sticky headers
@@ -1023,7 +1174,7 @@ function render() {
 
       detailTr.innerHTML = `<td colspan="25">
         <div class="detail-panel" id="panel-${plant.id}">
-          <span class="detail-coming-soon">✦ Plant details coming soon — spacing, watering, companions, pests & notes will live here.</span>
+          ${buildCarePanel(plant.name, plant.variety)}
           <div class="panel-controls">
             <label class="panel-label">Status:
               <select class="panel-select" onchange="updateStatus('${plant.id}', this.value)">${statusOptions}</select>
@@ -1041,17 +1192,33 @@ function render() {
     });
   });
 
+  // Restore scroll position (prevents jump when qty/status/bed changes trigger re-render)
+  if (wrap) {
+    wrap.scrollTop  = savedScrollTop;
+    wrap.scrollLeft = savedScrollLeft;
+  }
 }
 
 function toggleDetail(plantId) {
-  const panel   = document.getElementById(`panel-${plantId}`);
-  const plantRow = document.querySelector(`tr[data-plant-id="${plantId}"]`);
-  const info    = plantRow ? plantRow.querySelector('.plant-info') : null;
+  const panel     = document.getElementById(`panel-${plantId}`);
+  const detailRow = document.getElementById(`detail-${plantId}`);
+  const plantRow  = document.querySelector(`tr[data-plant-id="${plantId}"]`);
+  const info      = plantRow ? plantRow.querySelector('.plant-info') : null;
   if (!panel) return;
-  const isOpen  = panel.classList.contains('open');
+  const isOpen = panel.classList.contains('open');
+
+  // Close all panels and reset tbody stacking
   document.querySelectorAll('.detail-panel').forEach(p => p.classList.remove('open'));
   document.querySelectorAll('.plant-info').forEach(i => i.classList.remove('expanded'));
-  if (!isOpen) { panel.classList.add('open'); if (info) info.classList.add('expanded'); }
+  document.querySelectorAll('#main-table tbody').forEach(tb => tb.classList.remove('has-open-panel'));
+
+  if (!isOpen) {
+    panel.classList.add('open');
+    if (info) info.classList.add('expanded');
+    // Lift this tbody above subsequent ones so sticky bed headers don't overlay the panel
+    const tbody = detailRow?.closest('tbody');
+    if (tbody) tbody.classList.add('has-open-panel');
+  }
 }
 
 function updateQty(plantId, val) {
@@ -1185,16 +1352,111 @@ function removeBed(bedId) {
 }
 
 // ══════════════════════════════════════════════════════════════
+// FROST TOOLTIP
+// ══════════════════════════════════════════════════════════════
+function showFrostTip(e, type) {
+  e.stopPropagation();
+  const tip = document.getElementById('frost-tooltip');
+  tip.innerHTML = type === 'spring'
+    ? '❄ <strong>Last Spring Frost</strong><br>~March 15 · Zone 8b · Portland, OR'
+    : '❄ <strong>First Fall Frost</strong><br>~November 15 · Zone 8b · Portland, OR';
+
+  // Render offscreen first so we can measure actual size
+  tip.style.left    = '-9999px';
+  tip.style.top     = '-9999px';
+  tip.style.display = 'block';
+
+  const tw = tip.offsetWidth;
+  const th = tip.offsetHeight;
+  const vw = window.innerWidth;
+  const vh = window.innerHeight;
+  const margin = 10;
+
+  let x = e.clientX + margin;
+  let y = e.clientY + margin;
+
+  // Clamp right edge
+  if (x + tw > vw - margin) x = vw - tw - margin;
+  // Clamp bottom edge — flip above tap if needed
+  if (y + th > vh - margin) y = e.clientY - th - margin;
+  // Clamp left/top to never go negative
+  if (x < margin) x = margin;
+  if (y < margin) y = margin;
+
+  tip.style.left = x + 'px';
+  tip.style.top  = y + 'px';
+
+  document.addEventListener('click', () => { tip.style.display = 'none'; }, { once: true });
+}
+
+// ══════════════════════════════════════════════════════════════
+// CARE DETAIL PANEL BUILDER
+// ══════════════════════════════════════════════════════════════
+function buildCarePanel(plantName, variety) {
+  const entry = VERDANTLY_CARE[plantName];
+  if (!entry) return `<span class="detail-coming-soon">✦ Plant details coming soon — spacing, watering, companions, pests &amp; notes will live here.</span>`;
+
+  // Merge default + variety-specific overrides
+  const base = entry.default || entry; // support future flat entries too
+  const varData = (entry.varieties && variety && entry.varieties[variety]) || {};
+  const c = Object.assign({}, base, varData);
+
+  return `<div class="care-panel">
+    <div class="care-meta">
+      <span class="care-tag">☀️ ${c.sun}</span>
+      <span class="care-tag">💧 ${c.water}</span>
+      ${c.spacing ? `<span class="care-tag">📏 ${c.spacing}</span>` : ''}
+      ${c.height  ? `<span class="care-tag">📐 ${c.height}</span>`  : ''}
+      <span class="care-tag">❄ ${c.frost}</span>
+    </div>
+    <div class="care-cols">
+      <div class="care-col">
+        <strong>Growing Tips</strong>
+        <ul>${c.tips.map(t => `<li>${t}</li>`).join('')}</ul>
+      </div>
+      <div class="care-col">
+        <strong>Harvest</strong>
+        <ul>${(c.harvest || []).map(h => `<li>${h}</li>`).join('')}</ul>
+        <strong>Pests &amp; Disease</strong>
+        <ul>${c.pests.map(p => `<li>${p}</li>`).join('')}</ul>
+      </div>
+    </div>
+    <div class="care-safe">${c.safe}</div>
+  </div>`;
+}
+
+// ══════════════════════════════════════════════════════════════
+// ADD PLANT MODAL — CATEGORY FILTER HELPERS
+// ══════════════════════════════════════════════════════════════
+function populatePlantsByCategory(cat) {
+  const sel = document.getElementById('form-plant-name');
+  sel.innerHTML = '<option value="">— select —</option>';
+  Object.keys(PLANT_DATABASE).sort().forEach(name => {
+    if (!cat || (PLANT_CATEGORIES[name] || '') === cat) {
+      sel.innerHTML += `<option value="${name}">${name}</option>`;
+    }
+  });
+  sel.innerHTML += `<option value="__custom__">✏ Type your own…</option>`;
+}
+
+function onCategoryChange() {
+  const cat = document.getElementById('form-category').value;
+  populatePlantsByCategory(cat);
+  document.getElementById('form-plant-name').value = '';
+  document.getElementById('form-plant-name-custom').style.display = 'none';
+  document.getElementById('form-variety').innerHTML = '<option value="">— none / enter custom —</option>';
+  document.getElementById('form-variety-custom').style.display = 'none';
+  document.getElementById('variety-save-note').style.display = 'none';
+  document.getElementById('form-dtm').value = '';
+}
+
+// ══════════════════════════════════════════════════════════════
 // ADD PLANT MODAL
 // ══════════════════════════════════════════════════════════════
 function openAddPlant() {
-  // Populate plant name dropdown
-  const nameSelect = document.getElementById('form-plant-name');
-  nameSelect.innerHTML = '<option value="">— select —</option>';
-  Object.keys(PLANT_DATABASE).sort().forEach(name => {
-    nameSelect.innerHTML += `<option value="${name}">${name}</option>`;
-  });
-  nameSelect.innerHTML += `<option value="__custom__">✏ Type your own…</option>`;
+  // Reset category filter and populate all plants
+  document.getElementById('form-category').value = '';
+  populatePlantsByCategory('');
   document.getElementById('form-plant-name-custom').style.display = 'none';
   document.getElementById('form-plant-name-custom').value = '';
 
