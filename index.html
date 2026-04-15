@@ -228,6 +228,15 @@
   .detail-panel { padding: 12px 14px; font-size: 0.72rem; color: #6a5a48; line-height: 1.7; display: none; }
   .detail-panel.open { display: block; }
   .detail-coming-soon { font-style: italic; color: #aaa; font-size: 0.7rem; }
+  .detail-grid        { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 8px; }
+  .detail-stat        { display: flex; flex-direction: column; gap: 1px; min-width: 90px; }
+  .ds-label           { font-size: 0.58rem; text-transform: uppercase; letter-spacing: 0.07em; color: #9a8a78; font-weight: 600; }
+  .ds-val             { font-size: 0.72rem; color: var(--ink); font-weight: 500; }
+  .detail-note        { font-size: 0.7rem; color: #6a5a48; line-height: 1.6; margin-bottom: 4px; }
+  .detail-companions  { font-size: 0.68rem; margin-top: 4px; line-height: 1.8; }
+  .companion-good     { color: #4a7a3a; font-weight: 500; cursor: default; }
+  .companion-bad      { color: #c0392b; font-weight: 500; cursor: default; }
+  .detail-loading     { font-size: 0.68rem; color: #aaa; font-style: italic; }
 
   /* ── FROST INDICATORS ── */
   th.frost-l { position: relative; border-left: 2px solid rgba(160,215,255,0.65) !important; overflow: visible; }
@@ -490,7 +499,8 @@
     <div class="legend-item"><div class="legend-swatch" style="background:var(--harvest-color)"></div>Harvest Window</div>
   </div>
 
-  <div class="calendar-outer">
+  <div class="calendar-outer" style="position:relative;">
+    <div id="today-marker" style="display:none;position:absolute;top:0;bottom:0;width:2px;background:rgba(100,180,230,0.75);z-index:6;pointer-events:none;box-shadow:0 0 6px rgba(100,180,230,0.45);"></div>
     <div class="table-wrap">
       <table id="main-table">
         <thead>
@@ -520,6 +530,11 @@
       </table>
     </div>
 
+    <div class="companion-section" id="companion-section">
+      <div class="companion-box" style="padding:4px 0;">
+        <p style="font-size:0.7rem;color:#aaa;font-style:italic;">Loading garden tips…</p>
+      </div>
+    </div>
     <div class="bottom-legend">
       <strong>Column guide:</strong> <strong>E</strong> = Early (1st–15th) · <strong>L</strong> = Late (16th–end) ·
       Timing: <em>Portland Nursery Veggie Calendar</em> ·
@@ -678,7 +693,7 @@ function makeMonths(segments) {
   return arr;
 }
 
-const PLANT_DATABASE = {
+const PLANT_DATABASE_FALLBACK = {
   'Tomato': {
     varieties: {
       'Roma':            { dtm: '75–80 days', months: makeMonths([[0,6,'indoor'],[7,9,'transplant'],[14,19,'harvest']]) },
@@ -837,7 +852,179 @@ const PLANT_DATABASE = {
     // Portland Nursery: plant bare root Feb–Apr; ever-bearing harvests Jun–Oct
     default: { dtm: '60+ days', months: makeMonths([[2,5,'transplant'],[8,17,'harvest']]) }
   },
+  // ── New 22 plants (Zone 8b, Willamette Valley timing) ──
+  'Dill': {
+    varieties: {},
+    default: { dtm: '40–60 days (fronds); 90 days (seed)', months: makeMonths([[4,9,'transplant'],[6,15,'harvest'],[16,17,'transplant'],[16,19,'harvest']]) }
+  },
+  'Parsley': {
+    varieties: {
+      'Flat Leaf': { dtm: '70–90 days', months: makeMonths([[0,3,'indoor'],[4,9,'transplant'],[8,21,'harvest']]) },
+      'Curly':     { dtm: '70–85 days', months: makeMonths([[0,3,'indoor'],[4,9,'transplant'],[8,21,'harvest']]) },
+    },
+    default: { dtm: '70–90 days', months: makeMonths([[0,3,'indoor'],[4,9,'transplant'],[8,21,'harvest']]) }
+  },
+  'Thyme': {
+    varieties: {
+      'Common': { dtm: '75–90 days from seed', months: makeMonths([[4,9,'transplant'],[8,21,'harvest']]) },
+      'Lemon':  { dtm: '75–90 days from seed', months: makeMonths([[4,9,'transplant'],[8,21,'harvest']]) },
+    },
+    default: { dtm: '75–90 days from seed', months: makeMonths([[4,9,'transplant'],[8,21,'harvest']]) }
+  },
+  'Oregano': {
+    varieties: {
+      'Greek':   { dtm: '80–90 days from seed', months: makeMonths([[2,5,'indoor'],[6,9,'transplant'],[8,19,'harvest']]) },
+      'Italian': { dtm: '80–90 days from seed', months: makeMonths([[2,5,'indoor'],[6,9,'transplant'],[8,19,'harvest']]) },
+    },
+    default: { dtm: '80–90 days from seed', months: makeMonths([[2,5,'indoor'],[6,9,'transplant'],[8,19,'harvest']]) }
+  },
+  'Mint': {
+    varieties: {
+      'Spearmint':  { dtm: '90 days from seed', months: makeMonths([[4,9,'transplant'],[8,21,'harvest']]) },
+      'Peppermint': { dtm: '90 days from seed', months: makeMonths([[4,9,'transplant'],[8,21,'harvest']]) },
+    },
+    default: { dtm: '90 days from seed (buy transplants)', months: makeMonths([[4,9,'transplant'],[8,21,'harvest']]) }
+  },
+  'Chives': {
+    varieties: {
+      'Common':       { dtm: '60 days from seed',    months: makeMonths([[2,7,'transplant'],[6,21,'harvest']]) },
+      'Garlic Chives':{ dtm: '60–80 days from seed', months: makeMonths([[2,7,'transplant'],[6,21,'harvest']]) },
+    },
+    default: { dtm: '60 days from seed', months: makeMonths([[2,7,'transplant'],[6,21,'harvest']]) }
+  },
+  'Rosemary': {
+    varieties: {
+      'Upright':  { dtm: 'Buy as transplant', months: makeMonths([[4,9,'transplant'],[8,21,'harvest']]) },
+      'Creeping': { dtm: 'Buy as transplant', months: makeMonths([[4,9,'transplant'],[8,21,'harvest']]) },
+    },
+    default: { dtm: '2–3 years from seed (buy transplants)', months: makeMonths([[4,9,'transplant'],[8,21,'harvest']]) }
+  },
+  'Sage': {
+    varieties: {
+      'Common':    { dtm: '75 days from seed',   months: makeMonths([[2,5,'indoor'],[6,9,'transplant'],[8,21,'harvest']]) },
+      'Purple':    { dtm: '75 days from seed',   months: makeMonths([[2,5,'indoor'],[6,9,'transplant'],[8,21,'harvest']]) },
+      'Pineapple': { dtm: 'Buy as transplant',   months: makeMonths([[2,5,'indoor'],[6,9,'transplant'],[8,21,'harvest']]) },
+    },
+    default: { dtm: '75 days from seed', months: makeMonths([[2,5,'indoor'],[6,9,'transplant'],[8,21,'harvest']]) }
+  },
+  'Lavender': {
+    varieties: {
+      'Hidcote':  { dtm: 'Buy as transplant', months: makeMonths([[4,9,'transplant'],[10,15,'harvest']]) },
+      'Munstead': { dtm: 'Buy as transplant', months: makeMonths([[4,9,'transplant'],[10,15,'harvest']]) },
+    },
+    default: { dtm: '90 days from seed (buy transplants)', months: makeMonths([[4,9,'transplant'],[10,15,'harvest']]) }
+  },
+  'Broccoli': {
+    varieties: {
+      'Calabrese':  { dtm: '60–80 days',  months: makeMonths([[0,3,'indoor'],[4,7,'transplant'],[8,13,'harvest'],[12,15,'indoor'],[14,17,'transplant'],[18,23,'harvest']]) },
+      'Sprouting':  { dtm: '90–120 days', months: makeMonths([[0,3,'indoor'],[4,7,'transplant'],[8,13,'harvest'],[12,15,'indoor'],[14,17,'transplant'],[18,23,'harvest']]) },
+    },
+    default: { dtm: '60–80 days', months: makeMonths([[0,3,'indoor'],[4,7,'transplant'],[8,13,'harvest'],[12,15,'indoor'],[14,17,'transplant'],[18,23,'harvest']]) }
+  },
+  'Brussels Sprouts': {
+    varieties: {
+      'Long Island Improved': { dtm: '90 days from transplant', months: makeMonths([[6,9,'indoor'],[10,13,'transplant'],[18,23,'harvest']]) },
+      'Jade Cross':           { dtm: '90 days from transplant', months: makeMonths([[6,9,'indoor'],[10,13,'transplant'],[18,23,'harvest']]) },
+    },
+    default: { dtm: '90–110 days from transplant', months: makeMonths([[6,9,'indoor'],[10,13,'transplant'],[18,23,'harvest']]) }
+  },
+  'Bok Choy': {
+    varieties: {
+      'Baby':     { dtm: '30–45 days', months: makeMonths([[2,5,'indoor'],[4,7,'transplant'],[6,11,'harvest'],[14,17,'transplant'],[18,21,'harvest']]) },
+      'Shanghai': { dtm: '45–60 days', months: makeMonths([[2,5,'indoor'],[4,7,'transplant'],[6,11,'harvest'],[14,17,'transplant'],[18,21,'harvest']]) },
+    },
+    default: { dtm: '45–60 days', months: makeMonths([[2,5,'indoor'],[4,7,'transplant'],[6,11,'harvest'],[14,17,'transplant'],[18,21,'harvest']]) }
+  },
+  'Arugula': {
+    varieties: {},
+    default: { dtm: '35–45 days', months: makeMonths([[4,7,'transplant'],[6,11,'harvest'],[14,17,'transplant'],[16,21,'harvest']]) }
+  },
+  'Kohlrabi': {
+    varieties: {
+      'White Vienna':  { dtm: '45–60 days', months: makeMonths([[2,5,'indoor'],[4,9,'transplant'],[8,13,'harvest'],[14,17,'transplant'],[18,21,'harvest']]) },
+      'Purple Vienna': { dtm: '45–60 days', months: makeMonths([[2,5,'indoor'],[4,9,'transplant'],[8,13,'harvest'],[14,17,'transplant'],[18,21,'harvest']]) },
+    },
+    default: { dtm: '45–60 days', months: makeMonths([[2,5,'indoor'],[4,9,'transplant'],[8,13,'harvest'],[14,17,'transplant'],[18,21,'harvest']]) }
+  },
+  'Parsnips': {
+    varieties: {
+      'Hollow Crown': { dtm: '120 days', months: makeMonths([[4,7,'transplant'],[18,23,'harvest']]) },
+      'Harris Model': { dtm: '120 days', months: makeMonths([[4,7,'transplant'],[18,23,'harvest']]) },
+    },
+    default: { dtm: '120–180 days', months: makeMonths([[4,7,'transplant'],[18,23,'harvest']]) }
+  },
+  'Turnips': {
+    varieties: {
+      'Purple Top': { dtm: '57 days', months: makeMonths([[4,9,'transplant'],[8,13,'harvest'],[12,17,'transplant'],[16,21,'harvest']]) },
+      'Tokyo Cross': { dtm: '35 days', months: makeMonths([[4,9,'transplant'],[8,13,'harvest'],[12,17,'transplant'],[16,21,'harvest']]) },
+    },
+    default: { dtm: '35–60 days', months: makeMonths([[4,9,'transplant'],[8,13,'harvest'],[12,17,'transplant'],[16,21,'harvest']]) }
+  },
+  'Fennel': {
+    varieties: {
+      'Florence (Bulb)': { dtm: '65–90 days', months: makeMonths([[4,9,'transplant'],[10,17,'harvest']]) },
+      'Herb Common':     { dtm: 'Perennial',  months: makeMonths([[4,9,'transplant'],[10,17,'harvest']]) },
+    },
+    default: { dtm: '65–90 days (bulb)', months: makeMonths([[4,9,'transplant'],[10,17,'harvest']]) }
+  },
+  'Celeriac': {
+    varieties: {},
+    default: { dtm: '100–120 days from transplant', months: makeMonths([[0,3,'indoor'],[6,9,'transplant'],[16,21,'harvest']]) }
+  },
+  'Leeks': {
+    varieties: {
+      'King Richard': { dtm: '75 days (summer)',   months: makeMonths([[0,3,'indoor'],[6,9,'transplant'],[14,23,'harvest']]) },
+      'American Flag': { dtm: '120 days (winter)', months: makeMonths([[0,3,'indoor'],[6,9,'transplant'],[14,23,'harvest']]) },
+    },
+    default: { dtm: '100–120 days from transplant', months: makeMonths([[0,3,'indoor'],[6,9,'transplant'],[14,23,'harvest']]) }
+  },
+  'Swiss Chard': {
+    varieties: {
+      'Rainbow':       { dtm: '50–60 days', months: makeMonths([[2,5,'indoor'],[4,9,'transplant'],[8,21,'harvest']]) },
+      'Fordhook Giant':{ dtm: '60 days',    months: makeMonths([[2,5,'indoor'],[4,9,'transplant'],[8,21,'harvest']]) },
+    },
+    default: { dtm: '50–60 days', months: makeMonths([[2,5,'indoor'],[4,9,'transplant'],[8,21,'harvest']]) }
+  },
+  'Celery': {
+    varieties: {
+      'Utah':      { dtm: '100 days from transplant', months: makeMonths([[0,3,'indoor'],[6,9,'transplant'],[14,21,'harvest']]) },
+      'Giant Red': { dtm: '110 days from transplant', months: makeMonths([[0,3,'indoor'],[6,9,'transplant'],[14,21,'harvest']]) },
+    },
+    default: { dtm: '100–130 days from transplant', months: makeMonths([[0,3,'indoor'],[6,9,'transplant'],[14,21,'harvest']]) }
+  },
+  'Pumpkin': {
+    varieties: {
+      'Sugar Pie':     { dtm: '90 days',  months: makeMonths([[8,9,'transplant'],[16,21,'harvest']]) },
+      'Jack-o-lantern':{ dtm: '100 days', months: makeMonths([[8,9,'transplant'],[16,21,'harvest']]) },
+      'Cinderella':    { dtm: '100 days', months: makeMonths([[8,9,'transplant'],[16,21,'harvest']]) },
+    },
+    default: { dtm: '90–120 days', months: makeMonths([[8,9,'transplant'],[16,21,'harvest']]) }
+  },
 };
+
+// Live PLANT_DATABASE: starts as the fallback, upgraded on load if the API is reachable.
+let PLANT_DATABASE = PLANT_DATABASE_FALLBACK;
+
+// Per-plant detail cache (populated lazily when a detail panel is opened).
+const PLANT_DETAIL_CACHE = {};
+
+async function loadPlantDatabase() {
+  try {
+    const res = await fetch('http://localhost:3001/api/plants', {
+      signal: AbortSignal.timeout(3000),
+    });
+    if (!res.ok) throw new Error(`API ${res.status}`);
+    const data = await res.json();
+    // Basic shape validation before trusting the response
+    if (data && data['Tomato'] && Array.isArray(data['Tomato'].default?.months) && data['Tomato'].default.months.length === 24) {
+      PLANT_DATABASE = data;
+    }
+  } catch (e) {
+    console.info('[Garden] Local API unreachable -- using built-in plant data');
+  }
+  render();
+  updateCompanionSection();
+}
 
 // ══════════════════════════════════════════════════════════════
 // PLANT CATEGORIES  (used by Add Plant modal filter)
@@ -1040,6 +1227,10 @@ function render() {
     document.documentElement.style.setProperty('--thead-h', `${h}px`);
   });
 
+  // Compute current half-month index dynamically (0=Jan-E … 23=Dec-L)
+  const _now = new Date();
+  const CURRENT_HALF = _now.getMonth() * 2 + (_now.getDate() >= 16 ? 1 : 0);
+
   const bedOrder = beds.map(b => b.id);
   const grouped  = {};
   bedOrder.forEach(id => grouped[id] = []);
@@ -1122,7 +1313,7 @@ function render() {
       let cellsHtml = '';
       plant.months.forEach((phase, i) => {
         const isMonthStart = i % 2 === 0;
-        const isCurrent    = i === 6;
+        const isCurrent    = i === CURRENT_HALF;
         let cls = 'hcol';
         if (isMonthStart) cls += ' month-start';
         if (isCurrent)    cls += ' current-half-col';
@@ -1174,7 +1365,9 @@ function render() {
 
       detailTr.innerHTML = `<td colspan="25">
         <div class="detail-panel" id="panel-${plant.id}">
-          ${buildCarePanel(plant.name, plant.variety)}
+          <div class="detail-info" id="detail-info-${plant.id}">
+            <div class="detail-loading">Loading plant details…</div>
+          </div>
           <div class="panel-controls">
             <label class="panel-label">Status:
               <select class="panel-select" onchange="updateStatus('${plant.id}', this.value)">${statusOptions}</select>
@@ -1197,9 +1390,41 @@ function render() {
     wrap.scrollTop  = savedScrollTop;
     wrap.scrollLeft = savedScrollLeft;
   }
+  // Position the today marker after DOM is ready
+  requestAnimationFrame(positionTodayMarker);
 }
 
-function toggleDetail(plantId) {
+function positionTodayMarker() {
+  const marker    = document.getElementById('today-marker');
+  const tableWrap = document.querySelector('.table-wrap');
+  if (!marker || !tableWrap) return;
+
+  // The half-row <th> cells: first cell is the plant-name corner, then 24 half-month cells
+  const halfCells = document.querySelectorAll('thead tr.half-row th');
+  if (!halfCells.length) return;
+
+  const _now = new Date();
+  const currentHalf = _now.getMonth() * 2 + (_now.getDate() >= 16 ? 1 : 0);
+  const targetTh = halfCells[currentHalf + 1]; // +1 to skip corner cell
+  if (!targetTh) return;
+
+  const wrapRect = tableWrap.getBoundingClientRect();
+  const cellRect = targetTh.getBoundingClientRect();
+  const leftPos  = cellRect.left - wrapRect.left + tableWrap.scrollLeft + Math.round(cellRect.width / 2);
+
+  // Start marker below the sticky thead, stop at bottom of table area
+  const theadEl  = document.querySelector('thead');
+  const topOffset = theadEl ? theadEl.getBoundingClientRect().height : 0;
+
+  marker.style.left    = leftPos + 'px';
+  marker.style.top     = topOffset + 'px';
+  marker.style.height  = (tableWrap.offsetHeight - topOffset) + 'px';
+  marker.style.display = 'block';
+}
+
+window.addEventListener('resize', positionTodayMarker);
+
+async function toggleDetail(plantId) {
   const panel     = document.getElementById(`panel-${plantId}`);
   const detailRow = document.getElementById(`detail-${plantId}`);
   const plantRow  = document.querySelector(`tr[data-plant-id="${plantId}"]`);
@@ -1218,7 +1443,73 @@ function toggleDetail(plantId) {
     // Lift this tbody above subsequent ones so sticky bed headers don't overlay the panel
     const tbody = detailRow?.closest('tbody');
     if (tbody) tbody.classList.add('has-open-panel');
+    await loadDetailPanel(plantId);
   }
+}
+
+async function loadDetailPanel(plantId) {
+  const infoEl = document.getElementById(`detail-info-${plantId}`);
+  if (!infoEl) return;
+
+  // Already fetched this session?
+  if (PLANT_DETAIL_CACHE[plantId]) {
+    renderDetailInfo(infoEl, PLANT_DETAIL_CACHE[plantId]);
+    return;
+  }
+
+  const plant   = getPlants().find(p => p.id === plantId);
+  if (!plant) return;
+  const dbEntry = PLANT_DATABASE[plant.name];
+
+  if (dbEntry?.spacing_in || dbEntry?.water_needs || dbEntry?.companions) {
+    // Full data came from the API on page load
+    PLANT_DETAIL_CACHE[plantId] = dbEntry;
+    renderDetailInfo(infoEl, dbEntry);
+    return;
+  }
+
+  // Try fetching the individual plant detail
+  try {
+    const slug = plant.name.toLowerCase().replace(/\s+/g, '-');
+    const res  = await fetch(`http://localhost:3001/api/plants/${slug}`, {
+      signal: AbortSignal.timeout(2000),
+    });
+    if (res.ok) {
+      const detail = await res.json();
+      PLANT_DETAIL_CACHE[plantId] = detail;
+      renderDetailInfo(infoEl, detail);
+      return;
+    }
+  } catch (e) { /* fall through */ }
+
+  // Graceful fallback
+  infoEl.innerHTML = `<span class="detail-coming-soon">✦ Start the local API (<code>cd api && npm run dev</code>) to see spacing, watering, and companion details.</span>`;
+}
+
+function renderDetailInfo(el, data) {
+  const stats = [
+    data.spacing_in  ? `<div class="detail-stat"><span class="ds-label">Spacing</span><span class="ds-val">${data.spacing_in}</span></div>`  : '',
+    data.water_needs ? `<div class="detail-stat"><span class="ds-label">Water</span><span class="ds-val">${data.water_needs}</span></div>`    : '',
+    data.sun_needs   ? `<div class="detail-stat"><span class="ds-label">Sun</span><span class="ds-val">${data.sun_needs}</span></div>`        : '',
+    data.soil_pref   ? `<div class="detail-stat"><span class="ds-label">Soil</span><span class="ds-val">${data.soil_pref}</span></div>`      : '',
+  ].filter(Boolean).join('');
+
+  const goodC = (data.companions?.good ?? []).map(c => `<span class="companion-good" title="${c.tip ?? ''}">✓ ${c.name}</span>`).join(' · ');
+  const badC  = (data.companions?.bad  ?? []).map(c => `<span class="companion-bad"  title="${c.tip ?? ''}">✕ ${c.name}</span>`).join(' · ');
+
+  const hasData = stats || data.pest_notes || data.care_notes || goodC || badC;
+  if (!hasData) {
+    el.innerHTML = `<span class="detail-coming-soon">✦ Start the local API to see care details for ${data.name ?? 'this plant'}.</span>`;
+    return;
+  }
+
+  el.innerHTML = `
+    ${stats ? `<div class="detail-grid">${stats}</div>` : ''}
+    ${data.pest_notes  ? `<p class="detail-note"><strong>Pests:</strong> ${data.pest_notes}</p>`     : ''}
+    ${data.care_notes  ? `<p class="detail-note"><strong>Harvest:</strong> ${data.care_notes}</p>`  : ''}
+    ${goodC ? `<p class="detail-companions">Good neighbors: ${goodC}</p>` : ''}
+    ${badC  ? `<p class="detail-companions">Keep away from: ${badC}</p>`  : ''}
+  `.trim();
 }
 
 function updateQty(plantId, val) {
@@ -1258,7 +1549,7 @@ function removePlant(plantId) {
     saveSnapshot(`Before: deleted ${label}`);
     const plants = getPlants().filter(p => p.id !== plantId);
     savePlants(plants);
-    render();
+    render(); updateCompanionSection();
   });
 }
 
@@ -1639,7 +1930,7 @@ function submitAddPlant() {
   plants.push({ id, name, variety, dtm, qty, bed, status, maybe: status === 'undecided', months });
   savePlants(plants);
   closeAddPlant();
-  render();
+  render(); updateCompanionSection();
 }
 
 // ══════════════════════════════════════════════════════════════
@@ -1873,7 +2164,7 @@ function restoreSnapshot(index) {
       localStorage.setItem('garden_plants', JSON.stringify(snap.plants));
       if (snap.beds) localStorage.setItem('garden_beds', JSON.stringify(snap.beds));
       if (snap.customVarieties) localStorage.setItem('garden_custom_varieties', JSON.stringify(snap.customVarieties));
-      render();
+      render(); updateCompanionSection();
     },
     '✓ Yes, restore',
     '↩ No, return to planner'
@@ -1918,7 +2209,7 @@ function importGardenData(e) {
           savePlants(data.plants);
           saveBeds(data.beds);
           if (data.customVarieties) saveCustomVarieties(data.customVarieties);
-          render();
+          render(); updateCompanionSection();
         },
         '✓ Yes, import',
         '↩ No, return to planner'
@@ -1931,10 +2222,103 @@ function importGardenData(e) {
   e.target.value = ''; // reset so same file can be re-imported if needed
 }
 
+// ══════════════════════════════════════════════════════════════
+// DYNAMIC COMPANION SECTION
+// ══════════════════════════════════════════════════════════════
+const HALF_LABELS = [
+  'Jan (Early)','Jan (Late)','Feb (Early)','Feb (Late)',
+  'Mar (Early)','Mar (Late)','Apr (Early)','Apr (Late)',
+  'May (Early)','May (Late)','Jun (Early)','Jun (Late)',
+  'Jul (Early)','Jul (Late)','Aug (Early)','Aug (Late)',
+  'Sep (Early)','Sep (Late)','Oct (Early)','Oct (Late)',
+  'Nov (Early)','Nov (Late)','Dec (Early)','Dec (Late)',
+];
+
+async function updateCompanionSection() {
+  const section = document.getElementById('companion-section');
+  if (!section) return;
+
+  const plants = getPlants();
+  if (!plants.length) {
+    section.innerHTML = `<div class="companion-box"><p style="font-size:0.7rem;color:#aaa;font-style:italic;">Add plants to see companion planting tips.</p></div>`;
+    return;
+  }
+
+  // Build slug list from plant names
+  const ids = [...new Set(plants.map(p => p.name.toLowerCase().replace(/\s+/g, '-')))];
+
+  let tips = [];
+  try {
+    const res = await fetch(
+      `http://localhost:3001/api/plants/companions/active?ids=${ids.join(',')}`,
+      { signal: AbortSignal.timeout(2000) }
+    );
+    if (res.ok) tips = await res.json();
+  } catch (e) {
+    tips = getLocalCompanionTips(plants);
+  }
+
+  const boxes = tips.slice(0, 3).map(t => {
+    const icon = t.type === 'warning' ? '⚠️' : '🌿';
+    return `<div class="companion-box">
+      <h3>${icon} ${t.plants.join(' + ')}</h3>
+      <p>${t.tip}</p>
+    </div>`;
+  });
+
+  // "Right Now" box: what's in season today
+  const _now  = new Date();
+  const half  = _now.getMonth() * 2 + (_now.getDate() >= 16 ? 1 : 0);
+  const rightNow = buildRightNowTip(plants, half);
+  if (rightNow) {
+    boxes.push(`<div class="companion-box">
+      <h3>📅 Right Now (${HALF_LABELS[half]})</h3>
+      <p>${rightNow}</p>
+    </div>`);
+  }
+
+  section.innerHTML = boxes.length
+    ? boxes.join('')
+    : `<div class="companion-box"><p style="font-size:0.7rem;color:#aaa;font-style:italic;">No companion tips yet — add more plants to see recommendations.</p></div>`;
+}
+
+function buildRightNowTip(plants, halfIdx) {
+  const inPhase = phase => plants
+    .filter(p => p.months[halfIdx] === phase)
+    .map(p => p.name + (p.variety ? ` (${p.variety})` : ''))
+    .slice(0, 3);
+
+  const indoor     = inPhase('indoor');
+  const transplant = inPhase('transplant');
+  const harvest    = inPhase('harvest');
+
+  const parts = [];
+  if (indoor.length)     parts.push(`Start indoors: ${indoor.join(', ')}.`);
+  if (transplant.length) parts.push(`Transplant out: ${transplant.join(', ')}.`);
+  if (harvest.length)    parts.push(`Harvesting: ${harvest.join(', ')}.`);
+  return parts.join(' ') || null;
+}
+
+// Minimal fallback companion tips used when the API is offline
+function getLocalCompanionTips(plants) {
+  const names = new Set(plants.map(p => p.name));
+  const tips  = [];
+  if (names.has('Basil') && names.has('Tomato'))
+    tips.push({ type: 'good', plants: ['Basil', 'Tomato'], tip: 'Plant Basil within 18" of Tomatoes — repels aphids and whiteflies.' });
+  if (names.has('Marigolds'))
+    tips.push({ type: 'good', plants: ['Marigolds'], tip: 'Border beds with Marigolds — deters nematodes and whiteflies.' });
+  if (names.has('Carrots') && names.has('Onions'))
+    tips.push({ type: 'good', plants: ['Carrots', 'Onions'], tip: 'Onions repel carrot fly; carrots repel onion fly. A classic pairing.' });
+  if (names.has('Peas') && names.has('Onions'))
+    tips.push({ type: 'warning', plants: ['Peas', 'Onions'], tip: 'Onions inhibit pea growth — keep them in separate beds.' });
+  return tips;
+}
+
+// ── Init ──────────────────────────────────────────────────────────────────────
 // Auto-save initial snapshot on first load if history is empty
 if (!getSnapshots().length) saveSnapshot('Session start');
 
-render();
+loadPlantDatabase();
 </script>
 </body>
 </html>

@@ -1,0 +1,976 @@
+[
+  {
+    "id": "tomato",
+    "name": "Tomato",
+    "category": "vegetable",
+    "scientific_name": "Solanum lycopersicum",
+    "spacing_in": "18–24 inches",
+    "water_needs": "Regular — 1–2 inches/week; increase during fruiting",
+    "sun_needs": "Full Sun (8+ hrs)",
+    "soil_pref": "Well-drained, fertile, pH 6.0–6.8",
+    "pest_notes": "Hornworm, aphids, early/late blight. Stake and remove suckers to improve airflow.",
+    "care_notes": "Harvest when fully colored and yields to gentle pressure. Pick regularly to promote more fruit.",
+    "zone_min": 8,
+    "zone_max": 10,
+    "default": {
+      "dtm": "70–90 days",
+      "timing": [[0,6,"indoor"],[7,9,"transplant"],[14,19,"harvest"]]
+    },
+    "varieties": [
+      { "name": "Roma",            "dtm": "75–80 days" },
+      { "name": "Cherokee Purple", "dtm": "80–90 days" },
+      { "name": "Cherry",          "dtm": "60–70 days" },
+      { "name": "Beefsteak",       "dtm": "85–95 days" }
+    ]
+  },
+  {
+    "id": "pepper",
+    "name": "Pepper",
+    "category": "vegetable",
+    "scientific_name": "Capsicum annuum",
+    "spacing_in": "12–18 inches",
+    "water_needs": "Moderate — 1 inch/week; consistent moisture prevents blossom drop",
+    "sun_needs": "Full Sun (8+ hrs)",
+    "soil_pref": "Well-drained, fertile, pH 6.0–6.8",
+    "pest_notes": "Aphids, flea beetles. Susceptible to bacterial spot in wet weather.",
+    "care_notes": "Harvest green for crunch, or wait for full color change for sweeter flavor. Leave a short stem when cutting.",
+    "zone_min": 8,
+    "zone_max": 10,
+    "default": {
+      "dtm": "70–90 days",
+      "timing": [[0,5,"indoor"],[7,9,"transplant"],[14,19,"harvest"]]
+    },
+    "varieties": [
+      { "name": "Jalapeño",  "dtm": "70–85 days" },
+      { "name": "Shishito",  "dtm": "60–75 days" },
+      { "name": "Serrano",   "dtm": "75–90 days" },
+      { "name": "Bell",      "dtm": "70–85 days" },
+      { "name": "Habanero",  "dtm": "100–120 days" }
+    ]
+  },
+  {
+    "id": "peas",
+    "name": "Peas",
+    "category": "vegetable",
+    "scientific_name": "Pisum sativum",
+    "spacing_in": "2–3 inches (rows 18 inches apart)",
+    "water_needs": "Moderate — 1 inch/week; avoid overhead watering",
+    "sun_needs": "Full Sun to Part Shade (4–6 hrs)",
+    "soil_pref": "Well-drained, cool, pH 6.0–7.0",
+    "pest_notes": "Aphids, powdery mildew in humid weather. Provide trellis support.",
+    "care_notes": "Harvest Sugar Snap when pods are plump and round; Snow Peas when flat and bright green.",
+    "zone_min": 7,
+    "zone_max": 9,
+    "default": {
+      "dtm": "60–80 days",
+      "timing": [[2,5,"transplant"],[6,11,"harvest"],[14,15,"transplant"],[18,21,"harvest"]]
+    },
+    "varieties": [
+      { "name": "Sugar Snap", "dtm": "60–70 days" },
+      { "name": "Snow Pea",   "dtm": "55–70 days" },
+      { "name": "Shelling",   "dtm": "70–80 days" }
+    ]
+  },
+  {
+    "id": "lettuce",
+    "name": "Lettuce",
+    "category": "vegetable",
+    "scientific_name": "Lactuca sativa",
+    "spacing_in": "8–12 inches (4–6 inches for cut-and-come-again)",
+    "water_needs": "Consistent moisture — shallow roots; bolts without regular watering",
+    "sun_needs": "Part Shade to Full Sun (4–6 hrs; afternoon shade extends season)",
+    "soil_pref": "Fertile, moisture-retentive, pH 6.0–7.0",
+    "pest_notes": "Slugs, aphids, leaf miners. Row cover helps in early spring.",
+    "care_notes": "Harvest outer leaves or cut whole head at base. Bolt-resistant varieties extend the summer window.",
+    "zone_min": 7,
+    "zone_max": 10,
+    "default": {
+      "dtm": "45–75 days",
+      "timing": [[0,3,"indoor"],[4,7,"transplant"],[8,11,"harvest"],[14,17,"transplant"],[18,21,"harvest"]]
+    },
+    "varieties": [
+      { "name": "Mix",        "dtm": "45–60 days" },
+      { "name": "Butterhead", "dtm": "55–75 days" },
+      { "name": "Romaine",    "dtm": "70–75 days" }
+    ]
+  },
+  {
+    "id": "carrots",
+    "name": "Carrots",
+    "category": "vegetable",
+    "scientific_name": "Daucus carota",
+    "spacing_in": "2–3 inches (thin seedlings after germination)",
+    "water_needs": "Deep, infrequent — 1 inch/week encourages deep root growth",
+    "sun_needs": "Full Sun (6+ hrs)",
+    "soil_pref": "Loose, deep, sandy loam, pH 6.0–6.8. Avoid fresh manure — causes forking.",
+    "pest_notes": "Carrot fly (companion plant with onions to deter). Root knot nematode in heavy soils.",
+    "care_notes": "Harvest when shoulders are ¾–1 inch diameter. A light frost improves sweetness.",
+    "zone_min": 7,
+    "zone_max": 10,
+    "default": {
+      "dtm": "70–80 days",
+      "timing": [[4,7,"transplant"],[10,13,"harvest"],[14,15,"transplant"],[18,23,"harvest"]]
+    },
+    "varieties": []
+  },
+  {
+    "id": "beans",
+    "name": "Beans",
+    "category": "vegetable",
+    "scientific_name": "Phaseolus vulgaris",
+    "spacing_in": "4–6 inches bush; 6 inches pole (trellis at 6 ft)",
+    "water_needs": "Moderate — 1 inch/week; drought stress at flowering reduces yield significantly",
+    "sun_needs": "Full Sun (6+ hrs)",
+    "soil_pref": "Well-drained, pH 6.0–6.8. Don't over-fertilize nitrogen — they fix their own.",
+    "pest_notes": "Mexican bean beetle, aphids, spider mites in hot/dry weather.",
+    "care_notes": "Pick while pods are firm and snap cleanly. Leaving mature pods on the vine stops production.",
+    "zone_min": 7,
+    "zone_max": 10,
+    "default": {
+      "dtm": "50–70 days",
+      "timing": [[7,9,"transplant"],[12,15,"harvest"]]
+    },
+    "varieties": [
+      { "name": "Purple String", "dtm": "50–60 days" },
+      { "name": "Green Bush",    "dtm": "50–60 days" },
+      { "name": "Pole Bean",     "dtm": "60–70 days" }
+    ]
+  },
+  {
+    "id": "cucumbers",
+    "name": "Cucumbers",
+    "category": "vegetable",
+    "scientific_name": "Cucumis sativus",
+    "spacing_in": "12 inches trellised; 36 inches ground",
+    "water_needs": "Consistent moisture — 1–2 inches/week; bitter fruit results from water stress",
+    "sun_needs": "Full Sun (6–8 hrs)",
+    "soil_pref": "Fertile, well-drained, pH 6.0–6.8",
+    "pest_notes": "Cucumber beetles, aphids, powdery mildew. Train up trellis for airflow.",
+    "care_notes": "Harvest slicing types at 6–8 inches; pickling types at 2–4 inches. Don't let over-ripen on vine.",
+    "zone_min": 7,
+    "zone_max": 10,
+    "default": {
+      "dtm": "50–70 days",
+      "timing": [[6,6,"indoor"],[9,11,"transplant"],[12,17,"harvest"]]
+    },
+    "varieties": [
+      { "name": "Slicing",  "dtm": "55–65 days" },
+      { "name": "Pickling", "dtm": "50–55 days" }
+    ]
+  },
+  {
+    "id": "onions",
+    "name": "Onions",
+    "category": "vegetable",
+    "scientific_name": "Allium cepa",
+    "spacing_in": "4–6 inches",
+    "water_needs": "Regular — 1 inch/week until bulbing; reduce once tops yellow",
+    "sun_needs": "Full Sun (6+ hrs)",
+    "soil_pref": "Fertile, well-drained, pH 6.0–6.8",
+    "pest_notes": "Onion fly, thrips. Companion plant with carrots.",
+    "care_notes": "Harvest when tops fall over and yellow. Cure in warm dry location 2–3 weeks before storage.",
+    "zone_min": 7,
+    "zone_max": 10,
+    "default": {
+      "dtm": "100–120 days",
+      "timing": [[0,3,"indoor"],[4,7,"transplant"],[12,15,"harvest"]]
+    },
+    "varieties": []
+  },
+  {
+    "id": "garlic",
+    "name": "Garlic",
+    "category": "vegetable",
+    "scientific_name": "Allium sativum",
+    "spacing_in": "6 inches",
+    "water_needs": "Moderate — 1 inch/week during spring growth; stop watering when leaves yellow",
+    "sun_needs": "Full Sun (6+ hrs)",
+    "soil_pref": "Well-drained, fertile, pH 6.0–7.0. Add compost at planting.",
+    "pest_notes": "Onion fly, white rot. Avoid wet soils over winter.",
+    "care_notes": "Harvest hardneck when 4–6 green leaves remain — each leaf = one papery wrapper. Cure 3–4 weeks in a warm, ventilated spot.",
+    "zone_min": 7,
+    "zone_max": 10,
+    "default": {
+      "dtm": "240–270 days",
+      "timing": [[11,13,"harvest"],[19,21,"transplant"]]
+    },
+    "varieties": [
+      { "name": "Hardneck", "dtm": "240–270 days" },
+      { "name": "Softneck", "dtm": "240–260 days" }
+    ]
+  },
+  {
+    "id": "shallots",
+    "name": "Shallots",
+    "category": "vegetable",
+    "scientific_name": "Allium cepa var. aggregatum",
+    "spacing_in": "6–8 inches",
+    "water_needs": "Moderate — 1 inch/week; reduce as tops yellow",
+    "sun_needs": "Full Sun (6+ hrs)",
+    "soil_pref": "Well-drained, fertile, pH 6.0–7.0",
+    "pest_notes": "Thrips, white rot. Same care as onions.",
+    "care_notes": "Harvest when tops fall over. Cure in warm dry location before storage. Each bulb planted produces a cluster of 4–8.",
+    "zone_min": 7,
+    "zone_max": 10,
+    "default": {
+      "dtm": "90–120 days",
+      "timing": [[0,3,"indoor"],[4,7,"transplant"],[11,13,"harvest"]]
+    },
+    "varieties": []
+  },
+  {
+    "id": "basil",
+    "name": "Basil",
+    "category": "herb",
+    "scientific_name": "Ocimum basilicum",
+    "spacing_in": "12–18 inches",
+    "water_needs": "Moderate — 1 inch/week; water at base to prevent fungal disease",
+    "sun_needs": "Full Sun (6–8 hrs)",
+    "soil_pref": "Fertile, well-drained, pH 6.0–7.0",
+    "pest_notes": "Aphids, Japanese beetles, fusarium wilt. Pinch flowers to extend harvest.",
+    "care_notes": "Harvest by pinching stem tips above a leaf pair. Pinch flowers immediately to prevent bolting and bitterness.",
+    "zone_min": 8,
+    "zone_max": 11,
+    "default": {
+      "dtm": "24–45 days",
+      "timing": [[4,7,"indoor"],[8,9,"transplant"],[9,17,"harvest"]]
+    },
+    "varieties": [
+      { "name": "Sweet",  "dtm": "24–30 days" },
+      { "name": "Thai",   "dtm": "30–45 days" },
+      { "name": "Purple", "dtm": "30–45 days" }
+    ]
+  },
+  {
+    "id": "marigolds",
+    "name": "Marigolds",
+    "category": "flower",
+    "scientific_name": "Tagetes spp.",
+    "spacing_in": "8–12 inches (French); 12–18 inches (African)",
+    "water_needs": "Low to moderate — drought tolerant once established",
+    "sun_needs": "Full Sun (6+ hrs)",
+    "soil_pref": "Average to poor, well-drained. Tolerates low fertility.",
+    "pest_notes": "Spider mites in drought conditions. Otherwise very pest-resistant.",
+    "care_notes": "Deadhead spent blooms for continuous flowering. Border vegetable beds with French types for best nematode suppression.",
+    "zone_min": 7,
+    "zone_max": 11,
+    "default": {
+      "dtm": "50–70 days to bloom",
+      "timing": [[4,7,"indoor"],[8,9,"transplant"],[10,18,"marigold"]]
+    },
+    "varieties": [
+      { "name": "French", "dtm": "50–60 days to bloom" },
+      { "name": "African","dtm": "60–70 days to bloom" }
+    ]
+  },
+  {
+    "id": "kale",
+    "name": "Kale",
+    "category": "vegetable",
+    "scientific_name": "Brassica oleracea var. sabellica",
+    "spacing_in": "12–18 inches",
+    "water_needs": "Moderate — 1–1.5 inches/week",
+    "sun_needs": "Full Sun to Part Shade (4–6 hrs okay)",
+    "soil_pref": "Fertile, well-drained, pH 6.0–7.5",
+    "pest_notes": "Cabbage worms, aphids, flea beetles. Row cover early season is highly effective.",
+    "care_notes": "Harvest outer leaves first; leave center growing. Flavor improves markedly after a light frost.",
+    "zone_min": 7,
+    "zone_max": 10,
+    "default": {
+      "dtm": "55–75 days",
+      "timing": [[0,3,"indoor"],[4,7,"transplant"],[8,13,"harvest"],[14,17,"transplant"],[18,21,"harvest"]]
+    },
+    "varieties": []
+  },
+  {
+    "id": "zucchini",
+    "name": "Zucchini",
+    "category": "vegetable",
+    "scientific_name": "Cucurbita pepo",
+    "spacing_in": "24–36 inches",
+    "water_needs": "Deep watering — 1–2 inches/week; avoid wetting foliage to prevent powdery mildew",
+    "sun_needs": "Full Sun (6–8 hrs)",
+    "soil_pref": "Rich, well-drained, pH 6.0–7.0. Heavy feeder — amend with compost.",
+    "pest_notes": "Squash vine borer, aphids, powdery mildew. Check stems weekly for borer entry holes.",
+    "care_notes": "Harvest at 6–8 inches for best flavor. Overgrown fruit drains the plant — check every 2 days.",
+    "zone_min": 7,
+    "zone_max": 10,
+    "default": {
+      "dtm": "50–65 days",
+      "timing": [[7,9,"transplant"],[12,17,"harvest"]]
+    },
+    "varieties": []
+  },
+  {
+    "id": "squash",
+    "name": "Squash",
+    "category": "vegetable",
+    "scientific_name": "Cucurbita spp.",
+    "spacing_in": "24–48 inches bush; 6–8 ft for vining types",
+    "water_needs": "Deep, infrequent — 1–2 inches/week",
+    "sun_needs": "Full Sun (6–8 hrs)",
+    "soil_pref": "Rich, well-drained, pH 6.0–6.8. Heavy feeder.",
+    "pest_notes": "Squash vine borer, cucumber beetles, powdery mildew.",
+    "care_notes": "Harvest winter squash when rind is hard and can't be scratched with a fingernail. Cure butternut 10 days at 80°F.",
+    "zone_min": 7,
+    "zone_max": 10,
+    "default": {
+      "dtm": "80–110 days",
+      "timing": [[7,9,"transplant"],[14,19,"harvest"]]
+    },
+    "varieties": [
+      { "name": "Butternut", "dtm": "100–110 days" },
+      { "name": "Delicata",  "dtm": "95–100 days" },
+      { "name": "Acorn",     "dtm": "80–90 days" }
+    ]
+  },
+  {
+    "id": "radishes",
+    "name": "Radishes",
+    "category": "vegetable",
+    "scientific_name": "Raphanus sativus",
+    "spacing_in": "2 inches (thin after germination)",
+    "water_needs": "Consistent moisture — drought causes woody, hot-tasting roots",
+    "sun_needs": "Full Sun to Part Shade (4–6 hrs)",
+    "soil_pref": "Loose, well-drained, pH 6.0–7.0",
+    "pest_notes": "Flea beetles, cabbage maggot. Fast growth rate reduces vulnerability.",
+    "care_notes": "Harvest spring types at 1 inch diameter (21–28 days). Don't delay — they split and get pithy fast.",
+    "zone_min": 7,
+    "zone_max": 10,
+    "default": {
+      "dtm": "22–25 days",
+      "timing": [[4,11,"transplant"],[6,13,"harvest"],[14,17,"transplant"],[16,19,"harvest"]]
+    },
+    "varieties": []
+  },
+  {
+    "id": "beets",
+    "name": "Beets",
+    "category": "vegetable",
+    "scientific_name": "Beta vulgaris",
+    "spacing_in": "3–4 inches (each seed is a cluster — thin after germination)",
+    "water_needs": "Regular — 1 inch/week",
+    "sun_needs": "Full Sun to Part Shade (4+ hrs)",
+    "soil_pref": "Loose, deep, pH 6.0–7.0. Avoid compacted soil.",
+    "pest_notes": "Leaf miners, aphids. Relatively pest-resistant compared to other root veg.",
+    "care_notes": "Harvest roots at 1.5–3 inches for best texture. Greens are edible at any size — thin seedlings and eat them.",
+    "zone_min": 7,
+    "zone_max": 10,
+    "default": {
+      "dtm": "55–70 days",
+      "timing": [[2,7,"transplant"],[8,13,"harvest"],[14,17,"transplant"],[18,21,"harvest"]]
+    },
+    "varieties": []
+  },
+  {
+    "id": "green-onions",
+    "name": "Green Onions",
+    "category": "vegetable",
+    "scientific_name": "Allium fistulosum",
+    "spacing_in": "1 inch",
+    "water_needs": "Regular — keep consistently moist",
+    "sun_needs": "Full Sun to Part Shade (4+ hrs)",
+    "soil_pref": "Fertile, well-drained, pH 6.0–7.0",
+    "pest_notes": "Thrips, onion fly. Very low-maintenance.",
+    "care_notes": "Harvest when ¼ inch diameter. Cut at soil level — they regrow. Succession sow every 3 weeks for continuous supply.",
+    "zone_min": 7,
+    "zone_max": 10,
+    "default": {
+      "dtm": "60–80 days",
+      "timing": [[2,9,"transplant"],[6,15,"harvest"],[16,19,"transplant"],[18,21,"harvest"]]
+    },
+    "varieties": [
+      { "name": "Scallion", "dtm": "60–80 days" }
+    ]
+  },
+  {
+    "id": "spinach",
+    "name": "Spinach",
+    "category": "vegetable",
+    "scientific_name": "Spinacia oleracea",
+    "spacing_in": "3–6 inches",
+    "water_needs": "Consistent moisture — bolts in drought or heat",
+    "sun_needs": "Full Sun to Part Shade (4–6 hrs; afternoon shade extends season)",
+    "soil_pref": "Fertile, moisture-retentive, pH 6.5–7.5",
+    "pest_notes": "Leaf miners, aphids, downy mildew.",
+    "care_notes": "Harvest outer leaves when 3–4 inches. Bolt-resistant varieties extend the spring window. Direct sow again in late summer for fall harvest.",
+    "zone_min": 7,
+    "zone_max": 9,
+    "default": {
+      "dtm": "40–50 days",
+      "timing": [[2,7,"transplant"],[6,11,"harvest"],[14,17,"transplant"],[18,21,"harvest"]]
+    },
+    "varieties": [
+      { "name": "Savoy",     "dtm": "40–50 days" },
+      { "name": "Flat Leaf", "dtm": "38–45 days" }
+    ]
+  },
+  {
+    "id": "cilantro",
+    "name": "Cilantro",
+    "category": "herb",
+    "scientific_name": "Coriandrum sativum",
+    "spacing_in": "6–8 inches",
+    "water_needs": "Moderate — 1 inch/week; bolts quickly in heat and drought",
+    "sun_needs": "Full Sun to Part Shade (4–6 hrs; afternoon shade in summer)",
+    "soil_pref": "Well-drained, pH 6.2–6.8",
+    "pest_notes": "Aphids, whiteflies. Short-lived by nature — succession-sow every 3 weeks.",
+    "care_notes": "Harvest leaves before flowering. Let some bolt for coriander seed. Two windows in Zone 8b: Mar–May and Aug–Sep.",
+    "zone_min": 7,
+    "zone_max": 10,
+    "default": {
+      "dtm": "45–70 days",
+      "timing": [[4,9,"transplant"],[8,13,"harvest"],[14,17,"transplant"],[16,19,"harvest"]]
+    },
+    "varieties": []
+  },
+  {
+    "id": "cabbage",
+    "name": "Cabbage",
+    "category": "vegetable",
+    "scientific_name": "Brassica oleracea var. capitata",
+    "spacing_in": "12–18 inches",
+    "water_needs": "Regular — 1.5 inches/week; inconsistent moisture causes heads to split",
+    "sun_needs": "Full Sun (6+ hrs)",
+    "soil_pref": "Fertile, well-drained, pH 6.0–7.5",
+    "pest_notes": "Cabbage worms, aphids, clubroot. Rotate brassica beds every 3 years.",
+    "care_notes": "Harvest when heads are firm and full-sized. Cut at base. Spring types ~80 days; storage types up to 180 days.",
+    "zone_min": 7,
+    "zone_max": 10,
+    "default": {
+      "dtm": "80–180 days",
+      "timing": [[0,3,"indoor"],[4,7,"transplant"],[10,13,"harvest"],[14,17,"transplant"],[18,21,"harvest"]]
+    },
+    "varieties": [
+      { "name": "Green", "dtm": "80–180 days" },
+      { "name": "Red",   "dtm": "80–180 days" },
+      { "name": "Savoy", "dtm": "80–120 days" },
+      { "name": "Napa",  "dtm": "70–80 days" }
+    ]
+  },
+  {
+    "id": "cauliflower",
+    "name": "Cauliflower",
+    "category": "vegetable",
+    "scientific_name": "Brassica oleracea var. botrytis",
+    "spacing_in": "18–24 inches",
+    "water_needs": "Regular — 1.5–2 inches/week; critical during head development",
+    "sun_needs": "Full Sun (6+ hrs)",
+    "soil_pref": "Fertile, well-drained, pH 6.0–7.0",
+    "pest_notes": "Cabbage worms, aphids, clubroot. Rotate brassica beds annually.",
+    "care_notes": "Blanch white varieties by tying outer leaves over the curd when golf-ball sized. Harvest before curds loosen or yellow.",
+    "zone_min": 7,
+    "zone_max": 10,
+    "default": {
+      "dtm": "55–100 days",
+      "timing": [[0,3,"indoor"],[4,7,"transplant"],[10,13,"harvest"],[14,17,"transplant"],[18,21,"harvest"]]
+    },
+    "varieties": [
+      { "name": "White",      "dtm": "55–100 days" },
+      { "name": "Purple",     "dtm": "70–80 days" },
+      { "name": "Romanesco",  "dtm": "75–100 days" }
+    ]
+  },
+  {
+    "id": "strawberries",
+    "name": "Strawberries",
+    "category": "fruit",
+    "scientific_name": "Fragaria × ananassa",
+    "spacing_in": "12–18 inches",
+    "water_needs": "Regular — 1–2 inches/week; drip irrigation preferred to avoid crown rot",
+    "sun_needs": "Full Sun (6–8 hrs)",
+    "soil_pref": "Fertile, well-drained, slightly acidic pH 5.5–6.5",
+    "pest_notes": "Slugs, birds, gray mold (botrytis). Straw mulch reduces slug pressure and keeps fruit clean.",
+    "care_notes": "Harvest when fully red all over. Keep crowns at soil level when planting. Remove runners first year to focus energy on root establishment.",
+    "zone_min": 7,
+    "zone_max": 10,
+    "default": {
+      "dtm": "60+ days",
+      "timing": [[2,5,"transplant"],[8,17,"harvest"]]
+    },
+    "varieties": [
+      { "name": "June-bearing", "dtm": "Year 2+ harvest",
+        "timing": [[2,5,"transplant"],[10,15,"harvest"]] },
+      { "name": "Ever-bearing", "dtm": "60 days" },
+      { "name": "Day-neutral",  "dtm": "60 days" }
+    ]
+  },
+
+  {
+    "id": "dill",
+    "name": "Dill",
+    "category": "herb",
+    "scientific_name": "Anethum graveolens",
+    "spacing_in": "12–15 inches (thin direct-sown seedlings)",
+    "water_needs": "Low — drought tolerant; well-drained soil",
+    "sun_needs": "Full Sun (6+ hrs)",
+    "soil_pref": "Average, well-drained, pH 5.5–6.5",
+    "pest_notes": "Aphids, tomato hornworm. Attracts beneficial insects — plant near brassicas.",
+    "care_notes": "Harvest young feathery fronds anytime. Harvest seed heads when 2/3 of seeds have turned brown. Succession sow every 3 weeks. Do not plant near fennel — they cross-pollinate.",
+    "zone_min": 7,
+    "zone_max": 11,
+    "default": {
+      "dtm": "40–60 days (fronds); 90 days (seed)",
+      "timing": [[4,9,"transplant"],[6,15,"harvest"],[16,17,"transplant"],[16,19,"harvest"]]
+    },
+    "varieties": []
+  },
+  {
+    "id": "parsley",
+    "name": "Parsley",
+    "category": "herb",
+    "scientific_name": "Petroselinum crispum",
+    "spacing_in": "6–8 inches",
+    "water_needs": "Moderate — consistent moisture; tolerates brief dry spells once established",
+    "sun_needs": "Full Sun to Part Shade (4–6 hrs)",
+    "soil_pref": "Fertile, moist, pH 6.0–7.0",
+    "pest_notes": "Parsley worm (swallowtail butterfly larva — relocate, don't kill). Aphids.",
+    "care_notes": "Harvest outer stems first. Biennial in Zone 8b — overwinters and bolts in year 2. Slow to germinate (3 weeks); soak seeds overnight to speed it up.",
+    "zone_min": 7,
+    "zone_max": 10,
+    "default": {
+      "dtm": "70–90 days",
+      "timing": [[0,3,"indoor"],[4,9,"transplant"],[8,21,"harvest"]]
+    },
+    "varieties": [
+      { "name": "Flat Leaf", "dtm": "70–90 days" },
+      { "name": "Curly",     "dtm": "70–85 days" }
+    ]
+  },
+  {
+    "id": "thyme",
+    "name": "Thyme",
+    "category": "herb",
+    "scientific_name": "Thymus vulgaris",
+    "spacing_in": "9–12 inches",
+    "water_needs": "Low — drought tolerant; overwatering causes root rot",
+    "sun_needs": "Full Sun (6+ hrs)",
+    "soil_pref": "Average to poor, well-drained, pH 6.0–8.0",
+    "pest_notes": "Spider mites in hot/dry conditions. Very few pests overall.",
+    "care_notes": "Harvest stems before flowering for best flavor. Cut back by ⅓ after flowering to maintain shape. Perennial in Zone 8b.",
+    "zone_min": 7,
+    "zone_max": 10,
+    "default": {
+      "dtm": "75–90 days from seed",
+      "timing": [[4,9,"transplant"],[8,21,"harvest"]]
+    },
+    "varieties": [
+      { "name": "Common", "dtm": "75–90 days from seed" },
+      { "name": "Lemon",  "dtm": "75–90 days from seed" }
+    ]
+  },
+  {
+    "id": "oregano",
+    "name": "Oregano",
+    "category": "herb",
+    "scientific_name": "Origanum vulgare",
+    "spacing_in": "8–10 inches",
+    "water_needs": "Low — very drought tolerant; avoid overwatering",
+    "sun_needs": "Full Sun (6+ hrs)",
+    "soil_pref": "Average to poor, well-drained, pH 6.0–8.0",
+    "pest_notes": "Virtually pest-free. Spider mites occasionally in hot conditions.",
+    "care_notes": "Harvest before flowering for peak flavor. Cut to 3 inches from ground in spring. Perennial in Zone 8b; spreads over time — divide every 2–3 years.",
+    "zone_min": 7,
+    "zone_max": 10,
+    "default": {
+      "dtm": "80–90 days from seed",
+      "timing": [[2,5,"indoor"],[6,9,"transplant"],[8,19,"harvest"]]
+    },
+    "varieties": [
+      { "name": "Greek",   "dtm": "80–90 days from seed" },
+      { "name": "Italian", "dtm": "80–90 days from seed" }
+    ]
+  },
+  {
+    "id": "mint",
+    "name": "Mint",
+    "category": "herb",
+    "scientific_name": "Mentha spp.",
+    "spacing_in": "18–24 inches (grow in containers — spreads aggressively by runners)",
+    "water_needs": "Moderate to high — prefers consistently moist conditions",
+    "sun_needs": "Full Sun to Part Shade (4–6 hrs)",
+    "soil_pref": "Rich, moist, pH 6.0–7.0",
+    "pest_notes": "Aphids, spider mites. Generally vigorous and outcompetes most pests.",
+    "care_notes": "Harvest stems before flowering. Cut to 1 inch from ground to rejuvenate. Strongly recommended to grow in buried containers — rhizomes will take over a bed within a season.",
+    "zone_min": 5,
+    "zone_max": 11,
+    "default": {
+      "dtm": "90 days from seed (buy transplants)",
+      "timing": [[4,9,"transplant"],[8,21,"harvest"]]
+    },
+    "varieties": [
+      { "name": "Spearmint",  "dtm": "90 days from seed" },
+      { "name": "Peppermint", "dtm": "90 days from seed" }
+    ]
+  },
+  {
+    "id": "chives",
+    "name": "Chives",
+    "category": "herb",
+    "scientific_name": "Allium schoenoprasum",
+    "spacing_in": "6 inches",
+    "water_needs": "Moderate — regular moisture, tolerates some drought",
+    "sun_needs": "Full Sun to Part Shade (4+ hrs)",
+    "soil_pref": "Fertile, well-drained, pH 6.0–7.0",
+    "pest_notes": "Some thrips. Generally pest-resistant. Edible purple flowers attract pollinators.",
+    "care_notes": "Snip leaves to 1 inch from soil — they regrow quickly. Perennial; divide clumps every 3 years. Great container herb.",
+    "zone_min": 4,
+    "zone_max": 10,
+    "default": {
+      "dtm": "60 days from seed",
+      "timing": [[2,7,"transplant"],[6,21,"harvest"]]
+    },
+    "varieties": [
+      { "name": "Common",       "dtm": "60 days from seed" },
+      { "name": "Garlic Chives","dtm": "60–80 days from seed" }
+    ]
+  },
+  {
+    "id": "rosemary",
+    "name": "Rosemary",
+    "category": "herb",
+    "scientific_name": "Salvia rosmarinus",
+    "spacing_in": "24–36 inches",
+    "water_needs": "Low — drought tolerant once established; excellent drainage essential",
+    "sun_needs": "Full Sun (6–8 hrs)",
+    "soil_pref": "Sandy, well-drained, pH 6.0–8.0. Poor fertility is fine.",
+    "pest_notes": "Spider mites and aphids in dry conditions. Root rot in wet or clay soils.",
+    "care_notes": "Harvest stems before flowering. Trim lightly after bloom. Hardy perennial in Zone 8b — provide shelter or mulch in hard freezes.",
+    "zone_min": 8,
+    "zone_max": 11,
+    "default": {
+      "dtm": "2–3 years to full size from seed (buy transplants)",
+      "timing": [[4,9,"transplant"],[8,21,"harvest"]]
+    },
+    "varieties": [
+      { "name": "Upright",  "dtm": "Buy as transplant" },
+      { "name": "Creeping", "dtm": "Buy as transplant" }
+    ]
+  },
+  {
+    "id": "sage",
+    "name": "Sage",
+    "category": "herb",
+    "scientific_name": "Salvia officinalis",
+    "spacing_in": "18–24 inches",
+    "water_needs": "Low to moderate — drought tolerant; avoid overwatering",
+    "sun_needs": "Full Sun (6+ hrs)",
+    "soil_pref": "Average, well-drained, pH 6.0–7.0",
+    "pest_notes": "Slugs on young plants; spider mites in hot weather. Generally very tough.",
+    "care_notes": "Harvest leaves before flowering for peak flavor. Cut back by half in spring to prevent woodiness. Perennial in Zone 8b.",
+    "zone_min": 5,
+    "zone_max": 10,
+    "default": {
+      "dtm": "75 days from seed",
+      "timing": [[2,5,"indoor"],[6,9,"transplant"],[8,21,"harvest"]]
+    },
+    "varieties": [
+      { "name": "Common",   "dtm": "75 days from seed" },
+      { "name": "Purple",   "dtm": "75 days from seed" },
+      { "name": "Pineapple","dtm": "Buy as transplant" }
+    ]
+  },
+  {
+    "id": "lavender",
+    "name": "Lavender",
+    "category": "flower",
+    "scientific_name": "Lavandula angustifolia",
+    "spacing_in": "18–24 inches",
+    "water_needs": "Low — drought tolerant; excellent drainage is critical (root rot in wet soil)",
+    "sun_needs": "Full Sun (6+ hrs)",
+    "soil_pref": "Sandy, well-drained, pH 6.5–7.5. Poor fertility preferred.",
+    "pest_notes": "Very few pests. Attracts bees and beneficial insects — great pollinator plant.",
+    "care_notes": "Harvest flower stems when ½ of flowers are open for best fragrance. Trim by ⅓ after bloom. Do not cut into old wood. Perennial in Zone 8b.",
+    "zone_min": 7,
+    "zone_max": 10,
+    "default": {
+      "dtm": "90 days from seed (buy transplants for best results)",
+      "timing": [[4,9,"transplant"],[10,15,"harvest"]]
+    },
+    "varieties": [
+      { "name": "Hidcote",  "dtm": "Buy as transplant" },
+      { "name": "Munstead", "dtm": "Buy as transplant" }
+    ]
+  },
+  {
+    "id": "broccoli",
+    "name": "Broccoli",
+    "category": "vegetable",
+    "scientific_name": "Brassica oleracea var. italica",
+    "spacing_in": "18–24 inches",
+    "water_needs": "Regular — 1–1.5 inches/week",
+    "sun_needs": "Full Sun (6+ hrs)",
+    "soil_pref": "Fertile, well-drained, pH 6.0–7.0",
+    "pest_notes": "Cabbage worms, aphids, clubroot, flea beetles. Row cover early season is highly effective.",
+    "care_notes": "Harvest central head when tight, dark green, and before any flowers open. Side shoots follow — keep cutting for weeks of harvest.",
+    "zone_min": 7,
+    "zone_max": 10,
+    "default": {
+      "dtm": "60–80 days",
+      "timing": [[0,3,"indoor"],[4,7,"transplant"],[8,13,"harvest"],[12,15,"indoor"],[14,17,"transplant"],[18,23,"harvest"]]
+    },
+    "varieties": [
+      { "name": "Calabrese",   "dtm": "60–80 days" },
+      { "name": "Sprouting",   "dtm": "90–120 days" }
+    ]
+  },
+  {
+    "id": "brussels-sprouts",
+    "name": "Brussels Sprouts",
+    "category": "vegetable",
+    "scientific_name": "Brassica oleracea var. gemmifera",
+    "spacing_in": "18–24 inches",
+    "water_needs": "Regular — 1–1.5 inches/week",
+    "sun_needs": "Full Sun (6+ hrs)",
+    "soil_pref": "Fertile, well-drained, pH 6.0–7.0. Add lime if pH is below 6.5.",
+    "pest_notes": "Cabbage worms, aphids, clubroot. Longest growing brassica — protect early with row cover.",
+    "care_notes": "Harvest sprouts from bottom up when firm and marble-sized. Remove yellowing leaves. Flavor improves after frost. Pinch the growing tip in August to speed maturation.",
+    "zone_min": 7,
+    "zone_max": 10,
+    "default": {
+      "dtm": "90–110 days from transplant",
+      "timing": [[6,9,"indoor"],[10,13,"transplant"],[18,23,"harvest"]]
+    },
+    "varieties": [
+      { "name": "Long Island Improved", "dtm": "90 days from transplant" },
+      { "name": "Jade Cross",           "dtm": "90 days from transplant" }
+    ]
+  },
+  {
+    "id": "bok-choy",
+    "name": "Bok Choy",
+    "category": "vegetable",
+    "scientific_name": "Brassica rapa subsp. chinensis",
+    "spacing_in": "6–12 inches",
+    "water_needs": "Regular — keep consistently moist; bolts in drought or heat",
+    "sun_needs": "Full Sun to Part Shade (4–6 hrs)",
+    "soil_pref": "Fertile, moist, pH 6.0–7.0",
+    "pest_notes": "Aphids, flea beetles, slugs. Same pest pressures as cabbage.",
+    "care_notes": "Harvest baby bok choy at 4–6 inches tall, or full heads at 12–14 inches. Cut at base.",
+    "zone_min": 7,
+    "zone_max": 10,
+    "default": {
+      "dtm": "45–60 days",
+      "timing": [[2,5,"indoor"],[4,7,"transplant"],[6,11,"harvest"],[14,17,"transplant"],[18,21,"harvest"]]
+    },
+    "varieties": [
+      { "name": "Baby",     "dtm": "30–45 days" },
+      { "name": "Shanghai", "dtm": "45–60 days" }
+    ]
+  },
+  {
+    "id": "arugula",
+    "name": "Arugula",
+    "category": "vegetable",
+    "scientific_name": "Eruca vesicaria subsp. sativa",
+    "spacing_in": "6 inches (direct sow, thin after germination)",
+    "water_needs": "Moderate — consistent moisture; bolts quickly in heat",
+    "sun_needs": "Part Shade to Full Sun (4–6 hrs; shade cloth extends summer season)",
+    "soil_pref": "Average to fertile, well-drained, pH 6.0–7.0",
+    "pest_notes": "Flea beetles (row cover helps). Fast growth means a short pest vulnerability window.",
+    "care_notes": "Harvest outer leaves at 3–4 inches. Younger leaves are milder; larger leaves are peppery. Succession sow every 2 weeks in spring and fall.",
+    "zone_min": 7,
+    "zone_max": 10,
+    "default": {
+      "dtm": "35–45 days",
+      "timing": [[4,7,"transplant"],[6,11,"harvest"],[14,17,"transplant"],[16,21,"harvest"]]
+    },
+    "varieties": []
+  },
+  {
+    "id": "kohlrabi",
+    "name": "Kohlrabi",
+    "category": "vegetable",
+    "scientific_name": "Brassica oleracea var. gongylodes",
+    "spacing_in": "5–8 inches",
+    "water_needs": "Regular — 1 inch/week; consistent moisture prevents cracking",
+    "sun_needs": "Full Sun (6+ hrs)",
+    "soil_pref": "Fertile, well-drained, pH 6.0–7.5",
+    "pest_notes": "Cabbage worms, flea beetles.",
+    "care_notes": "Harvest when bulb is 2–3 inches diameter. Larger sizes become woody and tough. Both spring and fall crops work well in Zone 8b.",
+    "zone_min": 7,
+    "zone_max": 10,
+    "default": {
+      "dtm": "45–60 days",
+      "timing": [[2,5,"indoor"],[4,9,"transplant"],[8,13,"harvest"],[14,17,"transplant"],[18,21,"harvest"]]
+    },
+    "varieties": [
+      { "name": "White Vienna",  "dtm": "45–60 days" },
+      { "name": "Purple Vienna", "dtm": "45–60 days" }
+    ]
+  },
+  {
+    "id": "parsnips",
+    "name": "Parsnips",
+    "category": "vegetable",
+    "scientific_name": "Pastinaca sativa",
+    "spacing_in": "3–4 inches (thin direct-sown seedlings)",
+    "water_needs": "Deep, infrequent — 1 inch/week; like carrots",
+    "sun_needs": "Full Sun (6+ hrs)",
+    "soil_pref": "Deep, loose, well-drained, pH 6.0–7.0. Avoid fresh manure.",
+    "pest_notes": "Carrot fly, parsnip canker. Slow to germinate — mark rows clearly.",
+    "care_notes": "Can leave in ground through winter — frost converts starch to sugar, dramatically improving flavor. Harvest before ground freezes hard or dig in early spring.",
+    "zone_min": 7,
+    "zone_max": 9,
+    "default": {
+      "dtm": "120–180 days",
+      "timing": [[4,7,"transplant"],[18,23,"harvest"]]
+    },
+    "varieties": [
+      { "name": "Hollow Crown", "dtm": "120 days" },
+      { "name": "Harris Model", "dtm": "120 days" }
+    ]
+  },
+  {
+    "id": "turnips",
+    "name": "Turnips",
+    "category": "vegetable",
+    "scientific_name": "Brassica rapa subsp. rapa",
+    "spacing_in": "4–6 inches (thin after germination)",
+    "water_needs": "Regular — 1 inch/week; drought causes bitter, cracked roots",
+    "sun_needs": "Full Sun (6+ hrs)",
+    "soil_pref": "Fertile, loose, well-drained, pH 6.0–7.0",
+    "pest_notes": "Flea beetles, cabbage root fly.",
+    "care_notes": "Harvest spring types at 2–3 inches diameter — they get pithy when large. Harvest greens at any size. Fall types are more forgiving of size.",
+    "zone_min": 7,
+    "zone_max": 10,
+    "default": {
+      "dtm": "35–60 days",
+      "timing": [[4,9,"transplant"],[8,13,"harvest"],[12,17,"transplant"],[16,21,"harvest"]]
+    },
+    "varieties": [
+      { "name": "Purple Top",   "dtm": "57 days" },
+      { "name": "Tokyo Cross", "dtm": "35 days" }
+    ]
+  },
+  {
+    "id": "fennel",
+    "name": "Fennel",
+    "category": "vegetable",
+    "scientific_name": "Foeniculum vulgare",
+    "spacing_in": "12 inches bulb types; 18 inches herb types",
+    "water_needs": "Moderate — 1–2 inches/week; tolerates dry spells once established",
+    "sun_needs": "Full Sun (6+ hrs)",
+    "soil_pref": "Well-drained, pH 5.5–6.8",
+    "pest_notes": "Aphids, parsley worm. Important: allelopathic — plant away from most vegetables.",
+    "care_notes": "Harvest bulb when tennis ball sized. Harvest fronds anytime. Collect seeds when turning brown. Keep isolated from tomatoes, peppers, and beans — stunts their growth.",
+    "zone_min": 7,
+    "zone_max": 11,
+    "default": {
+      "dtm": "65–90 days (bulb)",
+      "timing": [[4,9,"transplant"],[10,17,"harvest"]]
+    },
+    "varieties": [
+      { "name": "Florence (Bulb)", "dtm": "65–90 days" },
+      { "name": "Herb Common",     "dtm": "Perennial" }
+    ]
+  },
+  {
+    "id": "celeriac",
+    "name": "Celeriac",
+    "category": "vegetable",
+    "scientific_name": "Apium graveolens var. rapaceum",
+    "spacing_in": "8–12 inches",
+    "water_needs": "High — regular deep watering 1.5–2 inches/week; mulch to retain moisture",
+    "sun_needs": "Full Sun (6+ hrs)",
+    "soil_pref": "Rich, moist, fertile, pH 6.0–7.0. Heavily amend with compost.",
+    "pest_notes": "Aphids, celery leaf tier, leaf blight.",
+    "care_notes": "Harvest when 3–4 inches diameter. Flavor improves with light frost. Trim outer stalks as the plant grows to direct energy to the bulb. Very long season — start early.",
+    "zone_min": 7,
+    "zone_max": 9,
+    "default": {
+      "dtm": "100–120 days from transplant",
+      "timing": [[0,3,"indoor"],[6,9,"transplant"],[16,21,"harvest"]]
+    },
+    "varieties": []
+  },
+  {
+    "id": "leeks",
+    "name": "Leeks",
+    "category": "vegetable",
+    "scientific_name": "Allium porrum",
+    "spacing_in": "6 inches",
+    "water_needs": "Regular — 1 inch/week; consistent moisture needed for tender shanks",
+    "sun_needs": "Full Sun (6+ hrs)",
+    "soil_pref": "Fertile, well-drained, pH 6.0–7.0",
+    "pest_notes": "Onion fly, thrips, white rot. Rotate allium beds annually.",
+    "care_notes": "Hill soil around stalks as they grow to blanch (whiten) the shank. Harvest at 1 inch diameter or larger. Cold-hardy — can leave in ground into winter in Zone 8b.",
+    "zone_min": 7,
+    "zone_max": 10,
+    "default": {
+      "dtm": "100–120 days from transplant",
+      "timing": [[0,3,"indoor"],[6,9,"transplant"],[14,23,"harvest"]]
+    },
+    "varieties": [
+      { "name": "King Richard",   "dtm": "75 days (summer)" },
+      { "name": "American Flag",  "dtm": "120 days (winter)" }
+    ]
+  },
+  {
+    "id": "swiss-chard",
+    "name": "Swiss Chard",
+    "category": "vegetable",
+    "scientific_name": "Beta vulgaris subsp. cicla",
+    "spacing_in": "6–12 inches",
+    "water_needs": "Regular — 1 inch/week; tolerates some drought once established",
+    "sun_needs": "Full Sun to Part Shade (4–6 hrs)",
+    "soil_pref": "Fertile, well-drained, pH 6.0–7.0",
+    "pest_notes": "Leaf miners, aphids, slugs. Generally tough and productive.",
+    "care_notes": "Harvest outer leaves when 8–10 inches. Cut and come again — center keeps producing. Tolerates light frost and is productive from spring through fall in Zone 8b.",
+    "zone_min": 7,
+    "zone_max": 10,
+    "default": {
+      "dtm": "50–60 days",
+      "timing": [[2,5,"indoor"],[4,9,"transplant"],[8,21,"harvest"]]
+    },
+    "varieties": [
+      { "name": "Rainbow",        "dtm": "50–60 days" },
+      { "name": "Fordhook Giant", "dtm": "60 days" }
+    ]
+  },
+  {
+    "id": "celery",
+    "name": "Celery",
+    "category": "vegetable",
+    "scientific_name": "Apium graveolens",
+    "spacing_in": "6–8 inches",
+    "water_needs": "High — consistently moist 1.5–2 inches/week. Most water-demanding vegetable in the garden.",
+    "sun_needs": "Full Sun to Part Shade (6+ hrs)",
+    "soil_pref": "Rich, moisture-retentive, pH 6.0–7.0. Heavily amend with compost.",
+    "pest_notes": "Aphids, celery leaf tier, early blight.",
+    "care_notes": "Harvest outer stalks as needed or cut entire plant at base. Mound soil around stalks to blanch for milder flavor. Slow to mature — start very early indoors.",
+    "zone_min": 7,
+    "zone_max": 10,
+    "default": {
+      "dtm": "100–130 days from transplant",
+      "timing": [[0,3,"indoor"],[6,9,"transplant"],[14,21,"harvest"]]
+    },
+    "varieties": [
+      { "name": "Utah",     "dtm": "100 days from transplant" },
+      { "name": "Giant Red","dtm": "110 days from transplant" }
+    ]
+  },
+  {
+    "id": "pumpkin",
+    "name": "Pumpkin",
+    "category": "vegetable",
+    "scientific_name": "Cucurbita pepo / maxima",
+    "spacing_in": "36–48 inches; allow 8–12 ft for vines",
+    "water_needs": "Deep watering — 1–2 inches/week; critical during fruit set",
+    "sun_needs": "Full Sun (6–8 hrs)",
+    "soil_pref": "Rich, well-drained, pH 6.0–6.8. Heavy feeder — amend deeply with compost.",
+    "pest_notes": "Squash vine borer, cucumber beetles, powdery mildew. Check stems for borer entry holes.",
+    "care_notes": "Harvest when rind is hard, stem is dry and corky, and color is fully developed. Cure at 80°F for 10 days. Always leave 3–4 inches of stem — don't use the stem as a carrying handle.",
+    "zone_min": 7,
+    "zone_max": 10,
+    "default": {
+      "dtm": "90–120 days",
+      "timing": [[8,9,"transplant"],[16,21,"harvest"]]
+    },
+    "varieties": [
+      { "name": "Sugar Pie",        "dtm": "90 days" },
+      { "name": "Jack-o-lantern",   "dtm": "100 days" },
+      { "name": "Cinderella",       "dtm": "100 days" }
+    ]
+  }
+]
