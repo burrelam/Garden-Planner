@@ -65,7 +65,7 @@
 
   /* ── MONTH HEADER ── */
   thead tr.month-row th {
-    position: sticky; top: 0; z-index: 3;
+    position: sticky; top: 0; z-index: 15;
     background: var(--moss);
     padding: 8px 2px 2px;
     font-size: 0.7rem; font-weight: 600; letter-spacing: 0.07em; text-transform: uppercase;
@@ -77,7 +77,7 @@
 
   /* ── HALF-MONTH SUBHEADER ── */
   thead tr.half-row th {
-    position: sticky; top: 26px; z-index: 3;
+    position: sticky; top: 26px; z-index: 15;
     background: #3d5230;
     padding: 2px 2px 6px;
     font-size: 0.55rem; font-weight: 400; letter-spacing: 0.05em; text-transform: uppercase;
@@ -113,14 +113,14 @@
 
   /* ── TOP-LEFT CORNER ── */
   thead tr.month-row th.corner {
-    position: sticky; left: 0; z-index: 5;
+    position: sticky; left: 0; z-index: 25;
     text-align: left; padding-left: 12px;
     min-width: 140px; width: 140px;
     background: var(--moss); border-left: none;
     vertical-align: bottom; padding-bottom: 2px;
   }
   thead tr.half-row th.corner {
-    position: sticky; left: 0; z-index: 5;
+    position: sticky; left: 0; z-index: 25;
     background: #3d5230;
     min-width: 140px; width: 140px;
     padding: 2px 4px;
@@ -204,9 +204,9 @@
   /* ── PLANT INFO CELL ── */
   .plant-info { padding: 7px 6px; display: flex; flex-direction: column; gap: 2px; cursor: pointer; user-select: none; overflow: hidden; }
   .plant-info:hover { background: rgba(0,0,0,0.03); }
-  .plant-name { font-family: 'Playfair Display', serif; font-size: 0.80rem; font-weight: 700; color: var(--ink); white-space: normal; line-height: 1.2; word-break: break-word; overflow-wrap: break-word; }
-  .plant-variety { font-size: 0.66rem; color: #7a6a58; font-weight: 400; font-style: italic; line-height: 1.2; }
-  .plant-dtm { font-size: 0.64rem; color: #9a8a78; font-weight: 300; }
+  .plant-name { font-family: 'Playfair Display', serif; font-size: 0.86rem; font-weight: 700; color: var(--ink); white-space: normal; line-height: 1.2; word-break: break-word; overflow-wrap: break-word; }
+  .plant-variety { font-size: 0.70rem; color: #7a6a58; font-weight: 400; font-style: italic; line-height: 1.2; }
+  .plant-dtm { font-size: 0.67rem; color: #9a8a78; font-weight: 300; }
   .plant-qty { font-size: 0.72rem; color: var(--moss); font-weight: 600; }
   .plant-badge { font-size: 0.59rem; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; }
   .badge-planted    { color: #4a7a3a; }
@@ -219,6 +219,11 @@
   /* ── DETAIL PANEL ── */
   tr.detail-row td { padding: 0; background: #f9f5ee; border-top: 1px solid #e5ddd0; }
   #main-table tbody.has-open-panel { position: relative; z-index: 10; }
+  /* Raise detail panel above the bed header row within the same tbody stacking context */
+  #main-table tbody.has-open-panel tr.detail-row td {
+    position: relative; z-index: 6;
+    left: auto; min-width: 0; width: auto;
+  }
   tr.detail-row td:first-child { background: #f9f5ee; }
   .detail-panel { padding: 12px 14px; font-size: 0.72rem; color: #6a5a48; line-height: 1.7; display: none; }
   .detail-panel.open { display: block; }
@@ -257,6 +262,9 @@
   }
   .care-col ul { margin: 0 0 6px; padding-left: 14px; }
   .care-col li { font-size: 0.49rem; color: #6a5a48; margin-bottom: 2px; line-height: 1.45; }
+  @media (min-width: 768px) {
+    .care-col li { font-size: 0.60rem; }
+  }
   .care-safe  { font-size: 0.67rem; color: #7a9a6a; margin-top: 6px; }
 
   .panel-controls {
