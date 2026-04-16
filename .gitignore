@@ -1,0 +1,5 @@
+api/node_modules/
+api/.env
+api/db/garden.db
+api/db/garden.db-shm
+api/db/garden.db-wal
