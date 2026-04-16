@@ -14,6 +14,8 @@ CREATE TABLE IF NOT EXISTS plants (
   soil_pref       TEXT,
   pest_notes      TEXT,
   care_notes      TEXT,
+  tips            TEXT,                   -- JSON array of growing tip strings
+  safe            TEXT,                   -- ASPCA pet safety note
   zone_min        INTEGER,
   zone_max        INTEGER,
   seeded_at       TEXT DEFAULT (datetime('now'))

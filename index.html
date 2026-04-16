@@ -1487,28 +1487,51 @@ async function loadDetailPanel(plantId) {
 }
 
 function renderDetailInfo(el, data) {
-  const stats = [
-    data.spacing_in  ? `<div class="detail-stat"><span class="ds-label">Spacing</span><span class="ds-val">${data.spacing_in}</span></div>`  : '',
-    data.water_needs ? `<div class="detail-stat"><span class="ds-label">Water</span><span class="ds-val">${data.water_needs}</span></div>`    : '',
-    data.sun_needs   ? `<div class="detail-stat"><span class="ds-label">Sun</span><span class="ds-val">${data.sun_needs}</span></div>`        : '',
-    data.soil_pref   ? `<div class="detail-stat"><span class="ds-label">Soil</span><span class="ds-val">${data.soil_pref}</span></div>`      : '',
+  // Icon tag pills
+  const tags = [
+    data.sun_needs   ? `<span class="care-tag">☀️ ${data.sun_needs}</span>`   : '',
+    data.water_needs ? `<span class="care-tag">💧 ${data.water_needs}</span>` : '',
+    data.spacing_in  ? `<span class="care-tag">📏 ${data.spacing_in}</span>`  : '',
+    data.soil_pref   ? `<span class="care-tag">🌱 ${data.soil_pref}</span>`   : '',
   ].filter(Boolean).join('');
 
-  const goodC = (data.companions?.good ?? []).map(c => `<span class="companion-good" title="${c.tip ?? ''}">✓ ${c.name}</span>`).join(' · ');
-  const badC  = (data.companions?.bad  ?? []).map(c => `<span class="companion-bad"  title="${c.tip ?? ''}">✕ ${c.name}</span>`).join(' · ');
+  // Growing tips
+  const tipItems = (data.tips ?? []).map(t => `<li>${t}</li>`).join('');
 
-  const hasData = stats || data.pest_notes || data.care_notes || goodC || badC;
-  if (!hasData) {
+  // Harvest + pests split into bullets from prose
+  const toBullets = str => str
+    ? str.split(/\.\s+/).filter(Boolean).map(s => `<li>${s.endsWith('.') ? s : s + '.'}</li>`).join('')
+    : '';
+  const harvestBullets = toBullets(data.care_notes);
+  const pestBullets    = toBullets(data.pest_notes);
+
+  // Companion badges
+  const goodC = (data.companions?.good ?? []).map(c =>
+    `<span class="companion-good" title="${c.tip ?? ''}">✓ ${c.name}</span>`).join(' · ');
+  const badC  = (data.companions?.bad  ?? []).map(c =>
+    `<span class="companion-bad" title="${c.tip ?? ''}">✕ ${c.name}</span>`).join(' · ');
+
+  if (!tags && !tipItems && !harvestBullets && !pestBullets) {
     el.innerHTML = `<span class="detail-coming-soon">✦ Start the local API to see care details for ${data.name ?? 'this plant'}.</span>`;
     return;
   }
 
   el.innerHTML = `
-    ${stats ? `<div class="detail-grid">${stats}</div>` : ''}
-    ${data.pest_notes  ? `<p class="detail-note"><strong>Pests:</strong> ${data.pest_notes}</p>`     : ''}
-    ${data.care_notes  ? `<p class="detail-note"><strong>Harvest:</strong> ${data.care_notes}</p>`  : ''}
-    ${goodC ? `<p class="detail-companions">Good neighbors: ${goodC}</p>` : ''}
-    ${badC  ? `<p class="detail-companions">Keep away from: ${badC}</p>`  : ''}
+    <div class="care-panel">
+      ${tags ? `<div class="care-meta">${tags}</div>` : ''}
+      <div class="care-cols">
+        ${tipItems      ? `<div class="care-col"><strong>Growing Tips</strong><ul>${tipItems}</ul></div>`             : ''}
+        ${harvestBullets || pestBullets ? `<div class="care-col">
+          ${harvestBullets ? `<strong>Harvest</strong><ul>${harvestBullets}</ul>` : ''}
+          ${pestBullets    ? `<strong>Pests &amp; Disease</strong><ul>${pestBullets}</ul>` : ''}
+        </div>` : ''}
+      </div>
+      ${goodC || badC ? `<div class="detail-companions">
+        ${goodC ? `<p>Good neighbors: ${goodC}</p>` : ''}
+        ${badC  ? `<p>Keep away from: ${badC}</p>`  : ''}
+      </div>` : ''}
+      ${data.safe ? `<div class="care-safe">${data.safe}</div>` : ''}
+    </div>
   `.trim();
 }
 

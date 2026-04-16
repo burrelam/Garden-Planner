@@ -14,14 +14,50 @@
     "zone_max": 10,
     "default": {
       "dtm": "70–90 days",
-      "timing": [[0,6,"indoor"],[7,9,"transplant"],[14,19,"harvest"]]
+      "timing": [
+        [
+          0,
+          6,
+          "indoor"
+        ],
+        [
+          7,
+          9,
+          "transplant"
+        ],
+        [
+          14,
+          19,
+          "harvest"
+        ]
+      ]
     },
     "varieties": [
-      { "name": "Roma",            "dtm": "75–80 days" },
-      { "name": "Cherokee Purple", "dtm": "80–90 days" },
-      { "name": "Cherry",          "dtm": "60–70 days" },
-      { "name": "Beefsteak",       "dtm": "85–95 days" }
-    ]
+      {
+        "name": "Roma",
+        "dtm": "75–80 days"
+      },
+      {
+        "name": "Cherokee Purple",
+        "dtm": "80–90 days"
+      },
+      {
+        "name": "Cherry",
+        "dtm": "60–70 days"
+      },
+      {
+        "name": "Beefsteak",
+        "dtm": "85–95 days"
+      }
+    ],
+    "tips": [
+      "Start seeds indoors 6–8 weeks before last frost (early Feb in Zone 8b); transplant out mid-May when soil hits 60°F.",
+      "Bury stems deep when transplanting — roots form all along the buried stem, creating a stronger, drought-resistant plant.",
+      "Pinch suckers weekly on indeterminate varieties to direct energy into fruit rather than foliage.",
+      "Water deeply and consistently — irregular watering causes blossom-end rot and cracking.",
+      "Side-dress with compost or balanced fertilizer once fruits set; switch to low-nitrogen after flowering begins."
+    ],
+    "safe": "⚠️ Foliage & unripe fruit toxic to cats & dogs (solanine) — ripe fruit generally safe in small amounts (ASPCA)."
   },
   {
     "id": "pepper",
@@ -38,15 +74,54 @@
     "zone_max": 10,
     "default": {
       "dtm": "70–90 days",
-      "timing": [[0,5,"indoor"],[7,9,"transplant"],[14,19,"harvest"]]
+      "timing": [
+        [
+          0,
+          5,
+          "indoor"
+        ],
+        [
+          7,
+          9,
+          "transplant"
+        ],
+        [
+          14,
+          19,
+          "harvest"
+        ]
+      ]
     },
     "varieties": [
-      { "name": "Jalapeño",  "dtm": "70–85 days" },
-      { "name": "Shishito",  "dtm": "60–75 days" },
-      { "name": "Serrano",   "dtm": "75–90 days" },
-      { "name": "Bell",      "dtm": "70–85 days" },
-      { "name": "Habanero",  "dtm": "100–120 days" }
-    ]
+      {
+        "name": "Jalapeño",
+        "dtm": "70–85 days"
+      },
+      {
+        "name": "Shishito",
+        "dtm": "60–75 days"
+      },
+      {
+        "name": "Serrano",
+        "dtm": "75–90 days"
+      },
+      {
+        "name": "Bell",
+        "dtm": "70–85 days"
+      },
+      {
+        "name": "Habanero",
+        "dtm": "100–120 days"
+      }
+    ],
+    "tips": [
+      "Start indoors 8–10 weeks before last frost — peppers need the longest indoor head start of any Zone 8b crop.",
+      "Don't rush transplanting; soil must be consistently above 65°F or peppers will sulk and stall.",
+      "Stake or cage plants before they need it — laden branches snap easily in Willamette Valley wind.",
+      "In cool summers, black plastic mulch warms soil and dramatically improves yield.",
+      "Leave a short stub of stem when harvesting to reduce disease entry points."
+    ],
+    "safe": "✅ Non-toxic to cats, dogs & horses — capsaicin is an irritant but not toxic (ASPCA)."
   },
   {
     "id": "peas",
@@ -63,13 +138,51 @@
     "zone_max": 9,
     "default": {
       "dtm": "60–80 days",
-      "timing": [[2,5,"transplant"],[6,11,"harvest"],[14,15,"transplant"],[18,21,"harvest"]]
+      "timing": [
+        [
+          2,
+          5,
+          "transplant"
+        ],
+        [
+          6,
+          11,
+          "harvest"
+        ],
+        [
+          14,
+          15,
+          "transplant"
+        ],
+        [
+          18,
+          21,
+          "harvest"
+        ]
+      ]
     },
     "varieties": [
-      { "name": "Sugar Snap", "dtm": "60–70 days" },
-      { "name": "Snow Pea",   "dtm": "55–70 days" },
-      { "name": "Shelling",   "dtm": "70–80 days" }
-    ]
+      {
+        "name": "Sugar Snap",
+        "dtm": "60–70 days"
+      },
+      {
+        "name": "Snow Pea",
+        "dtm": "55–70 days"
+      },
+      {
+        "name": "Shelling",
+        "dtm": "70–80 days"
+      }
+    ],
+    "tips": [
+      "Direct sow as soon as soil can be worked — Feb or early March in Zone 8b. Peas prefer cool, wet conditions.",
+      "Inoculate seeds with rhizobium bacteria powder before sowing to maximize nitrogen fixation.",
+      "Provide trellis or netting before vines are 4 inches tall; they climb fast and are hard to untangle once sprawling.",
+      "Harvest Sugar Snaps daily once pods fill out — picking triggers more production. Missing even one day means tough pods.",
+      "Pull plants once temps consistently hit 80°F; sow a fall crop in late August for a second harvest."
+    ],
+    "safe": "✅ Non-toxic to cats, dogs & horses (ASPCA)."
   },
   {
     "id": "lettuce",
@@ -86,13 +199,56 @@
     "zone_max": 10,
     "default": {
       "dtm": "45–75 days",
-      "timing": [[0,3,"indoor"],[4,7,"transplant"],[8,11,"harvest"],[14,17,"transplant"],[18,21,"harvest"]]
+      "timing": [
+        [
+          0,
+          3,
+          "indoor"
+        ],
+        [
+          4,
+          7,
+          "transplant"
+        ],
+        [
+          8,
+          11,
+          "harvest"
+        ],
+        [
+          14,
+          17,
+          "transplant"
+        ],
+        [
+          18,
+          21,
+          "harvest"
+        ]
+      ]
     },
     "varieties": [
-      { "name": "Mix",        "dtm": "45–60 days" },
-      { "name": "Butterhead", "dtm": "55–75 days" },
-      { "name": "Romaine",    "dtm": "70–75 days" }
-    ]
+      {
+        "name": "Mix",
+        "dtm": "45–60 days"
+      },
+      {
+        "name": "Butterhead",
+        "dtm": "55–75 days"
+      },
+      {
+        "name": "Romaine",
+        "dtm": "70–75 days"
+      }
+    ],
+    "tips": [
+      "Sow every 2–3 weeks from March through May for continuous harvest — lettuce bolts fast once summer heat arrives.",
+      "Plant in part shade behind taller crops in June to extend the season by 3–4 weeks.",
+      "Cut-and-come-again: harvest outer leaves only, leaving the center to keep producing.",
+      "Scatter seeds thinly and thin to 6–8 inches — crowded lettuce bolts faster and is more prone to disease.",
+      "Fall sowing (Aug–Sep) often yields the best heads — cooler temps and less pest pressure."
+    ],
+    "safe": "✅ Non-toxic to cats, dogs & horses (ASPCA)."
   },
   {
     "id": "carrots",
@@ -109,9 +265,38 @@
     "zone_max": 10,
     "default": {
       "dtm": "70–80 days",
-      "timing": [[4,7,"transplant"],[10,13,"harvest"],[14,15,"transplant"],[18,23,"harvest"]]
+      "timing": [
+        [
+          4,
+          7,
+          "transplant"
+        ],
+        [
+          10,
+          13,
+          "harvest"
+        ],
+        [
+          14,
+          15,
+          "transplant"
+        ],
+        [
+          18,
+          23,
+          "harvest"
+        ]
+      ]
     },
-    "varieties": []
+    "varieties": [],
+    "tips": [
+      "Loosen soil to at least 12 inches — carrots fork and stunt in compacted ground. Raised beds are ideal.",
+      "Direct sow only; carrots resent transplanting. Mix seeds with sand for even spacing.",
+      "Keep soil consistently moist until germination (10–21 days) — a dry crust stops sprouts dead.",
+      "Thin ruthlessly to 2–3 inches once seedlings are 2 inches tall; crowded carrots produce only small fingers.",
+      "Leave fall-sown carrots in the ground after frost — cold sweetens them dramatically."
+    ],
+    "safe": "✅ Non-toxic to cats, dogs & horses (ASPCA)."
   },
   {
     "id": "beans",
@@ -128,13 +313,41 @@
     "zone_max": 10,
     "default": {
       "dtm": "50–70 days",
-      "timing": [[7,9,"transplant"],[12,15,"harvest"]]
+      "timing": [
+        [
+          7,
+          9,
+          "transplant"
+        ],
+        [
+          12,
+          15,
+          "harvest"
+        ]
+      ]
     },
     "varieties": [
-      { "name": "Purple String", "dtm": "50–60 days" },
-      { "name": "Green Bush",    "dtm": "50–60 days" },
-      { "name": "Pole Bean",     "dtm": "60–70 days" }
-    ]
+      {
+        "name": "Purple String",
+        "dtm": "50–60 days"
+      },
+      {
+        "name": "Green Bush",
+        "dtm": "50–60 days"
+      },
+      {
+        "name": "Pole Bean",
+        "dtm": "60–70 days"
+      }
+    ],
+    "tips": [
+      "Direct sow after last frost when soil is above 60°F — beans rot in cold, wet soil.",
+      "No fertilizer needed at planting; beans fix their own nitrogen. Too much nitrogen = lush leaves, few pods.",
+      "Sow a second batch 3 weeks after the first for a staggered harvest through summer.",
+      "Pick beans when pods are finger-length and snap cleanly — let them go and the plant stops producing.",
+      "Avoid working around bean plants when foliage is wet to prevent spreading rust and anthracnose."
+    ],
+    "safe": "✅ Non-toxic to cats, dogs & horses — raw kidney beans are toxic but common garden beans are safe (ASPCA)."
   },
   {
     "id": "cucumbers",
@@ -151,12 +364,42 @@
     "zone_max": 10,
     "default": {
       "dtm": "50–70 days",
-      "timing": [[6,6,"indoor"],[9,11,"transplant"],[12,17,"harvest"]]
+      "timing": [
+        [
+          6,
+          6,
+          "indoor"
+        ],
+        [
+          9,
+          11,
+          "transplant"
+        ],
+        [
+          12,
+          17,
+          "harvest"
+        ]
+      ]
     },
     "varieties": [
-      { "name": "Slicing",  "dtm": "55–65 days" },
-      { "name": "Pickling", "dtm": "50–55 days" }
-    ]
+      {
+        "name": "Slicing",
+        "dtm": "55–65 days"
+      },
+      {
+        "name": "Pickling",
+        "dtm": "50–55 days"
+      }
+    ],
+    "tips": [
+      "Start indoors in early April — cucumbers need warm soil, don't rush transplanting before late April/May.",
+      "Transplant when soil consistently reaches 65°F in Zone 8b.",
+      "Trellis vines to save ground space and improve airflow.",
+      "Water at the base; wet foliage encourages powdery mildew.",
+      "Feed every 2–3 weeks with balanced organic fertilizer after flowering begins."
+    ],
+    "safe": "🐱 🐶 🐴 Non-toxic to cats, dogs & horses (ASPCA)."
   },
   {
     "id": "onions",
@@ -173,9 +416,33 @@
     "zone_max": 10,
     "default": {
       "dtm": "100–120 days",
-      "timing": [[0,3,"indoor"],[4,7,"transplant"],[12,15,"harvest"]]
+      "timing": [
+        [
+          0,
+          3,
+          "indoor"
+        ],
+        [
+          4,
+          7,
+          "transplant"
+        ],
+        [
+          12,
+          15,
+          "harvest"
+        ]
+      ]
     },
-    "varieties": []
+    "varieties": [],
+    "tips": [
+      "Start from sets or transplants in Zone 8b — seed-grown onions need a very long season; sets give a reliable head start.",
+      "Plant sets 1 inch deep, pointed end up, 4–6 inches apart in early spring.",
+      "Stop watering when tops begin to flop and yellow — this signals bulb maturation and prevents rot.",
+      "Cure harvested bulbs in a dry, shaded spot with good airflow for 2–3 weeks before storage.",
+      "Long-day varieties (like Walla Walla) are best for the Pacific Northwest."
+    ],
+    "safe": "⚠️ Toxic to cats & dogs (all alliums) — can cause hemolytic anemia even in small amounts (ASPCA)."
   },
   {
     "id": "garlic",
@@ -192,12 +459,37 @@
     "zone_max": 10,
     "default": {
       "dtm": "240–270 days",
-      "timing": [[11,13,"harvest"],[19,21,"transplant"]]
+      "timing": [
+        [
+          11,
+          13,
+          "harvest"
+        ],
+        [
+          19,
+          21,
+          "transplant"
+        ]
+      ]
     },
     "varieties": [
-      { "name": "Hardneck", "dtm": "240–270 days" },
-      { "name": "Softneck", "dtm": "240–260 days" }
-    ]
+      {
+        "name": "Hardneck",
+        "dtm": "240–270 days"
+      },
+      {
+        "name": "Softneck",
+        "dtm": "240–260 days"
+      }
+    ],
+    "tips": [
+      "Plant individual cloves in Oct–Nov, pointed end up, 2 inches deep and 6 inches apart.",
+      "Mulch heavily after planting to protect from freeze-thaw cycles over winter.",
+      "Remove flower scapes (curling green shoots) on hardneck varieties in June — this redirects energy to the bulb.",
+      "Stop watering when lower leaves start browning (typically late June). Harvest when 5–6 green leaves remain.",
+      "Cure in a dry, shaded, well-ventilated spot for 3–4 weeks. Hardnecks store 6 months; softnecks up to a year."
+    ],
+    "safe": "⚠️ Toxic to cats & dogs — one of the most toxic alliums by weight; causes oxidative damage to red blood cells (ASPCA)."
   },
   {
     "id": "shallots",
@@ -214,9 +506,33 @@
     "zone_max": 10,
     "default": {
       "dtm": "90–120 days",
-      "timing": [[0,3,"indoor"],[4,7,"transplant"],[11,13,"harvest"]]
+      "timing": [
+        [
+          0,
+          3,
+          "indoor"
+        ],
+        [
+          4,
+          7,
+          "transplant"
+        ],
+        [
+          11,
+          13,
+          "harvest"
+        ]
+      ]
     },
-    "varieties": []
+    "varieties": [],
+    "tips": [
+      "Plant sets in early spring or fall — fall planting gives larger bulbs in Zone 8b.",
+      "Space 6 inches apart; each bulb will multiply into a cluster of 4–8.",
+      "Like onions, stop watering when tops begin to yellow and fall over.",
+      "Lift the whole cluster and separate bulbs before curing.",
+      "Excellent keepers — properly cured shallots last 6–8 months in a cool, dry spot."
+    ],
+    "safe": "⚠️ Toxic to cats & dogs (allium family) — causes hemolytic anemia (ASPCA)."
   },
   {
     "id": "basil",
@@ -233,13 +549,46 @@
     "zone_max": 11,
     "default": {
       "dtm": "24–45 days",
-      "timing": [[4,7,"indoor"],[8,9,"transplant"],[9,17,"harvest"]]
+      "timing": [
+        [
+          4,
+          7,
+          "indoor"
+        ],
+        [
+          8,
+          9,
+          "transplant"
+        ],
+        [
+          9,
+          17,
+          "harvest"
+        ]
+      ]
     },
     "varieties": [
-      { "name": "Sweet",  "dtm": "24–30 days" },
-      { "name": "Thai",   "dtm": "30–45 days" },
-      { "name": "Purple", "dtm": "30–45 days" }
-    ]
+      {
+        "name": "Sweet",
+        "dtm": "24–30 days"
+      },
+      {
+        "name": "Thai",
+        "dtm": "30–45 days"
+      },
+      {
+        "name": "Purple",
+        "dtm": "30–45 days"
+      }
+    ],
+    "tips": [
+      "Don't plant out until night temps stay above 50°F — basil turns black in the cold.",
+      "Pinch flower buds the moment they appear to keep leaves coming for months.",
+      "Harvest from the top down, cutting just above a leaf pair to trigger two new shoots.",
+      "Water at the base in the morning; wet leaves in afternoon sun causes scorch and fungal issues.",
+      "Grow near tomatoes and peppers — it's a good companion and they share the same heat requirements."
+    ],
+    "safe": "✅ Non-toxic to cats, dogs & horses (ASPCA)."
   },
   {
     "id": "marigolds",
@@ -256,12 +605,42 @@
     "zone_max": 11,
     "default": {
       "dtm": "50–70 days to bloom",
-      "timing": [[4,7,"indoor"],[8,9,"transplant"],[10,18,"marigold"]]
+      "timing": [
+        [
+          4,
+          7,
+          "indoor"
+        ],
+        [
+          8,
+          9,
+          "transplant"
+        ],
+        [
+          10,
+          18,
+          "marigold"
+        ]
+      ]
     },
     "varieties": [
-      { "name": "French", "dtm": "50–60 days to bloom" },
-      { "name": "African","dtm": "60–70 days to bloom" }
-    ]
+      {
+        "name": "French",
+        "dtm": "50–60 days to bloom"
+      },
+      {
+        "name": "African",
+        "dtm": "60–70 days to bloom"
+      }
+    ],
+    "tips": [
+      "Start indoors 6–8 weeks before last frost or direct sow in May for summer blooms.",
+      "Deadhead spent flowers regularly to extend bloom season through frost.",
+      "Plant as a border around vegetable beds — French marigolds (T. patula) are most effective against nematodes.",
+      "Allow a few plants to go to seed at season's end to self-sow next year.",
+      "African marigolds need staking in windy sites; French types are compact and self-supporting."
+    ],
+    "safe": "⚠️ Mild GI upset possible in cats & dogs if eaten in quantity — not considered severely toxic (ASPCA)."
   },
   {
     "id": "kale",
@@ -278,9 +657,43 @@
     "zone_max": 10,
     "default": {
       "dtm": "55–75 days",
-      "timing": [[0,3,"indoor"],[4,7,"transplant"],[8,13,"harvest"],[14,17,"transplant"],[18,21,"harvest"]]
+      "timing": [
+        [
+          0,
+          3,
+          "indoor"
+        ],
+        [
+          4,
+          7,
+          "transplant"
+        ],
+        [
+          8,
+          13,
+          "harvest"
+        ],
+        [
+          14,
+          17,
+          "transplant"
+        ],
+        [
+          18,
+          21,
+          "harvest"
+        ]
+      ]
     },
-    "varieties": []
+    "varieties": [],
+    "tips": [
+      "Sow indoors Feb–Mar for spring crop; direct sow Jul–Aug for a fall/winter harvest (kale sweetens after frost).",
+      "Harvest outer leaves from the bottom up, leaving the growing crown intact.",
+      "In Zone 8b, kale often overwinters without protection — harvest through February.",
+      "Provide consistent moisture; irregular watering makes leaves tough and bitter.",
+      "Succession-plant every 3–4 weeks for a continuous supply rather than a single big planting."
+    ],
+    "safe": "✅ Non-toxic to cats, dogs & horses — high in oxalates but not considered toxic (ASPCA)."
   },
   {
     "id": "zucchini",
@@ -297,9 +710,28 @@
     "zone_max": 10,
     "default": {
       "dtm": "50–65 days",
-      "timing": [[7,9,"transplant"],[12,17,"harvest"]]
+      "timing": [
+        [
+          7,
+          9,
+          "transplant"
+        ],
+        [
+          12,
+          17,
+          "harvest"
+        ]
+      ]
     },
-    "varieties": []
+    "varieties": [],
+    "tips": [
+      "Direct sow 2–3 seeds per hill after last frost; thin to the strongest plant.",
+      "Check plants daily at peak season — zucchini goes from harvest-size to marrow overnight.",
+      "Hand-pollinate if fruit shrivels: use a small brush to transfer pollen from male (thin stem) to female (tiny fruit behind bloom).",
+      "Remove old, yellowing leaves to improve airflow and reduce powdery mildew pressure.",
+      "One or two plants feeds most families — zucchini is prolific. Three is a gift to neighbors."
+    ],
+    "safe": "✅ Non-toxic to cats, dogs & horses (ASPCA)."
   },
   {
     "id": "squash",
@@ -316,13 +748,41 @@
     "zone_max": 10,
     "default": {
       "dtm": "80–110 days",
-      "timing": [[7,9,"transplant"],[14,19,"harvest"]]
+      "timing": [
+        [
+          7,
+          9,
+          "transplant"
+        ],
+        [
+          14,
+          19,
+          "harvest"
+        ]
+      ]
     },
     "varieties": [
-      { "name": "Butternut", "dtm": "100–110 days" },
-      { "name": "Delicata",  "dtm": "95–100 days" },
-      { "name": "Acorn",     "dtm": "80–90 days" }
-    ]
+      {
+        "name": "Butternut",
+        "dtm": "100–110 days"
+      },
+      {
+        "name": "Delicata",
+        "dtm": "95–100 days"
+      },
+      {
+        "name": "Acorn",
+        "dtm": "80–90 days"
+      }
+    ],
+    "tips": [
+      "Start indoors 3–4 weeks before last frost or direct sow in May when soil is warm.",
+      "Winter squash needs a long season — plant early and let vines run; pinch tips in late August to hasten maturation.",
+      "Cure harvested squash at room temp for 10–14 days to harden the skin before cold storage.",
+      "Leave 2 inches of stem when harvesting — it acts as a natural seal against rot.",
+      "In Zone 8b, Butternut and Delicata reliably ripen even in cool summers; Hubbard types need a warm year."
+    ],
+    "safe": "✅ Non-toxic to cats, dogs & horses (ASPCA)."
   },
   {
     "id": "radishes",
@@ -339,9 +799,38 @@
     "zone_max": 10,
     "default": {
       "dtm": "22–25 days",
-      "timing": [[4,11,"transplant"],[6,13,"harvest"],[14,17,"transplant"],[16,19,"harvest"]]
+      "timing": [
+        [
+          4,
+          11,
+          "transplant"
+        ],
+        [
+          6,
+          13,
+          "harvest"
+        ],
+        [
+          14,
+          17,
+          "transplant"
+        ],
+        [
+          16,
+          19,
+          "harvest"
+        ]
+      ]
     },
-    "varieties": []
+    "varieties": [],
+    "tips": [
+      "Fastest crop in the garden — from seed to table in 22–30 days. Great for marking slow-germinating rows.",
+      "Direct sow every 10–14 days from March through May and again Aug–Sep for continuous harvest.",
+      "Don't let radishes stay in the ground too long — they bolt, turn pithy, and get hot.",
+      "Thin to 2–3 inches; crowded radishes make no roots.",
+      "Daikon and winter radishes (sow Aug) need 60+ days and can stay in the ground through winter in Zone 8b."
+    ],
+    "safe": "✅ Non-toxic to cats, dogs & horses (ASPCA)."
   },
   {
     "id": "beets",
@@ -358,9 +847,38 @@
     "zone_max": 10,
     "default": {
       "dtm": "55–70 days",
-      "timing": [[2,7,"transplant"],[8,13,"harvest"],[14,17,"transplant"],[18,21,"harvest"]]
+      "timing": [
+        [
+          2,
+          7,
+          "transplant"
+        ],
+        [
+          8,
+          13,
+          "harvest"
+        ],
+        [
+          14,
+          17,
+          "transplant"
+        ],
+        [
+          18,
+          21,
+          "harvest"
+        ]
+      ]
     },
-    "varieties": []
+    "varieties": [],
+    "tips": [
+      "Soak seeds overnight before sowing — each \"seed\" is actually a cluster of 2–4 seeds, so thinning is essential.",
+      "Thin to 3–4 inches once seedlings are 2 inches tall; eat the thinnings as micro-greens.",
+      "Both roots and greens are edible — harvest greens early and roots when 2–3 inches in diameter.",
+      "Beets tolerate light frost; in Zone 8b, fall-sown beets can be harvested through November.",
+      "Avoid high-nitrogen fertilizer — it produces lush tops at the expense of root development."
+    ],
+    "safe": "✅ Non-toxic to cats, dogs & horses (ASPCA)."
   },
   {
     "id": "green-onions",
@@ -377,11 +895,43 @@
     "zone_max": 10,
     "default": {
       "dtm": "60–80 days",
-      "timing": [[2,9,"transplant"],[6,15,"harvest"],[16,19,"transplant"],[18,21,"harvest"]]
+      "timing": [
+        [
+          2,
+          9,
+          "transplant"
+        ],
+        [
+          6,
+          15,
+          "harvest"
+        ],
+        [
+          16,
+          19,
+          "transplant"
+        ],
+        [
+          18,
+          21,
+          "harvest"
+        ]
+      ]
     },
     "varieties": [
-      { "name": "Scallion", "dtm": "60–80 days" }
-    ]
+      {
+        "name": "Scallion",
+        "dtm": "60–80 days"
+      }
+    ],
+    "tips": [
+      "Direct sow thickly from February onward; harvest by pulling whole plants or snipping tops to 2 inches.",
+      "Can also grow from saved grocery store green onion bases — stick the root end in soil and it regrows.",
+      "Succession-sow every 3 weeks for continuous harvest through fall.",
+      "Tolerates light frost well; Zone 8b gardeners can harvest nearly year-round.",
+      "Interplant between slower crops like carrots — they repel carrot fly and use space efficiently."
+    ],
+    "safe": "⚠️ Toxic to cats & dogs (allium family) — causes hemolytic anemia (ASPCA)."
   },
   {
     "id": "spinach",
@@ -398,12 +948,47 @@
     "zone_max": 9,
     "default": {
       "dtm": "40–50 days",
-      "timing": [[2,7,"transplant"],[6,11,"harvest"],[14,17,"transplant"],[18,21,"harvest"]]
+      "timing": [
+        [
+          2,
+          7,
+          "transplant"
+        ],
+        [
+          6,
+          11,
+          "harvest"
+        ],
+        [
+          14,
+          17,
+          "transplant"
+        ],
+        [
+          18,
+          21,
+          "harvest"
+        ]
+      ]
     },
     "varieties": [
-      { "name": "Savoy",     "dtm": "40–50 days" },
-      { "name": "Flat Leaf", "dtm": "38–45 days" }
-    ]
+      {
+        "name": "Savoy",
+        "dtm": "40–50 days"
+      },
+      {
+        "name": "Flat Leaf",
+        "dtm": "38–45 days"
+      }
+    ],
+    "tips": [
+      "Sow directly as early as Feb in Zone 8b — spinach germinates in cold soil and bolts in heat.",
+      "Provide afternoon shade in May to extend harvest; once temps hit 75°F consistently, it's done for spring.",
+      "Fall sowing (Aug–Sep) often outperforms spring — cooler temps and fewer pests.",
+      "Harvest outer leaves or cut the whole plant 1 inch above soil — it will regrow 1–2 times.",
+      "Ensure adequate nitrogen (compost or blood meal) — nitrogen deficiency causes yellowing and small leaves."
+    ],
+    "safe": "✅ Non-toxic to cats, dogs & horses — high oxalates but not toxic (ASPCA)."
   },
   {
     "id": "cilantro",
@@ -420,9 +1005,38 @@
     "zone_max": 10,
     "default": {
       "dtm": "45–70 days",
-      "timing": [[4,9,"transplant"],[8,13,"harvest"],[14,17,"transplant"],[16,19,"harvest"]]
+      "timing": [
+        [
+          4,
+          9,
+          "transplant"
+        ],
+        [
+          8,
+          13,
+          "harvest"
+        ],
+        [
+          14,
+          17,
+          "transplant"
+        ],
+        [
+          16,
+          19,
+          "harvest"
+        ]
+      ]
     },
-    "varieties": []
+    "varieties": [],
+    "tips": [
+      "Direct sow only — cilantro's taproot resents transplanting.",
+      "Sow every 2–3 weeks March through May and again Aug–Sep; it bolts fast in heat.",
+      "For seed (coriander), let a late planting go to flower — harvest seed heads when they turn tan.",
+      "Thin to 4–6 inches; good airflow slows bolting.",
+      "Plant in a spot that gets afternoon shade in Zone 8b summers to squeeze an extra week out of each planting."
+    ],
+    "safe": "✅ Non-toxic to cats, dogs & horses (ASPCA)."
   },
   {
     "id": "cabbage",
@@ -439,14 +1053,60 @@
     "zone_max": 10,
     "default": {
       "dtm": "80–180 days",
-      "timing": [[0,3,"indoor"],[4,7,"transplant"],[10,13,"harvest"],[14,17,"transplant"],[18,21,"harvest"]]
+      "timing": [
+        [
+          0,
+          3,
+          "indoor"
+        ],
+        [
+          4,
+          7,
+          "transplant"
+        ],
+        [
+          10,
+          13,
+          "harvest"
+        ],
+        [
+          14,
+          17,
+          "transplant"
+        ],
+        [
+          18,
+          21,
+          "harvest"
+        ]
+      ]
     },
     "varieties": [
-      { "name": "Green", "dtm": "80–180 days" },
-      { "name": "Red",   "dtm": "80–180 days" },
-      { "name": "Savoy", "dtm": "80–120 days" },
-      { "name": "Napa",  "dtm": "70–80 days" }
-    ]
+      {
+        "name": "Green",
+        "dtm": "80–180 days"
+      },
+      {
+        "name": "Red",
+        "dtm": "80–180 days"
+      },
+      {
+        "name": "Savoy",
+        "dtm": "80–120 days"
+      },
+      {
+        "name": "Napa",
+        "dtm": "70–80 days"
+      }
+    ],
+    "tips": [
+      "Start transplants indoors 6–8 weeks before setting out; harden off for a week before planting.",
+      "Space generously — crowded cabbages form small, loose heads.",
+      "Use row covers at transplant time to block cabbage maggot flies, which peak in April–May in Zone 8b.",
+      "Consistent moisture prevents split heads — mulch heavily to even out soil moisture.",
+      "Fall plantings (start Jul, transplant Aug) often produce the best heads in the Pacific Northwest."
+    ],
+    "safe": "✅ Non-toxic to cats, dogs & horses (ASPCA)."
   },
   {
     "id": "cauliflower",
@@ -463,13 +1123,56 @@
     "zone_max": 10,
     "default": {
       "dtm": "55–100 days",
-      "timing": [[0,3,"indoor"],[4,7,"transplant"],[10,13,"harvest"],[14,17,"transplant"],[18,21,"harvest"]]
+      "timing": [
+        [
+          0,
+          3,
+          "indoor"
+        ],
+        [
+          4,
+          7,
+          "transplant"
+        ],
+        [
+          10,
+          13,
+          "harvest"
+        ],
+        [
+          14,
+          17,
+          "transplant"
+        ],
+        [
+          18,
+          21,
+          "harvest"
+        ]
+      ]
     },
     "varieties": [
-      { "name": "White",      "dtm": "55–100 days" },
-      { "name": "Purple",     "dtm": "70–80 days" },
-      { "name": "Romanesco",  "dtm": "75–100 days" }
-    ]
+      {
+        "name": "White",
+        "dtm": "55–100 days"
+      },
+      {
+        "name": "Purple",
+        "dtm": "70–80 days"
+      },
+      {
+        "name": "Romanesco",
+        "dtm": "75–100 days"
+      }
+    ],
+    "tips": [
+      "The most demanding brassica — consistent moisture, fertility, and cool temps are non-negotiable.",
+      "Blanch white varieties by tying outer leaves over the developing head when it's the size of a golf ball.",
+      "Fall plantings (transplant Aug) almost always outperform spring in Zone 8b.",
+      "Cover with row cloth to protect from cabbage worm and aphids, which devastate cauliflower quickly.",
+      "Harvest promptly — heads go from perfect to overblown in a few warm days."
+    ],
+    "safe": "✅ Non-toxic to cats, dogs & horses (ASPCA)."
   },
   {
     "id": "strawberries",
@@ -486,16 +1189,54 @@
     "zone_max": 10,
     "default": {
       "dtm": "60+ days",
-      "timing": [[2,5,"transplant"],[8,17,"harvest"]]
+      "timing": [
+        [
+          2,
+          5,
+          "transplant"
+        ],
+        [
+          8,
+          17,
+          "harvest"
+        ]
+      ]
     },
     "varieties": [
-      { "name": "June-bearing", "dtm": "Year 2+ harvest",
-        "timing": [[2,5,"transplant"],[10,15,"harvest"]] },
-      { "name": "Ever-bearing", "dtm": "60 days" },
-      { "name": "Day-neutral",  "dtm": "60 days" }
-    ]
+      {
+        "name": "June-bearing",
+        "dtm": "Year 2+ harvest",
+        "timing": [
+          [
+            2,
+            5,
+            "transplant"
+          ],
+          [
+            10,
+            15,
+            "harvest"
+          ]
+        ]
+      },
+      {
+        "name": "Ever-bearing",
+        "dtm": "60 days"
+      },
+      {
+        "name": "Day-neutral",
+        "dtm": "60 days"
+      }
+    ],
+    "tips": [
+      "Plant bare-root crowns in Feb–Apr with the crown at soil level — too deep rots it, too shallow dries it out.",
+      "Pinch all flowers the first year on June-bearing types to build root strength for a heavier Year 2 crop.",
+      "Renovate beds after harvest: mow foliage to 3 inches, thin runners, and fertilize.",
+      "Mulch with straw in Nov to protect crowns from hard freezes.",
+      "Replace beds every 3–4 years as yields decline; replant from the strongest runners."
+    ],
+    "safe": "✅ Non-toxic to cats, dogs & horses (ASPCA)."
   },
-
   {
     "id": "dill",
     "name": "Dill",
@@ -511,9 +1252,38 @@
     "zone_max": 11,
     "default": {
       "dtm": "40–60 days (fronds); 90 days (seed)",
-      "timing": [[4,9,"transplant"],[6,15,"harvest"],[16,17,"transplant"],[16,19,"harvest"]]
+      "timing": [
+        [
+          4,
+          9,
+          "transplant"
+        ],
+        [
+          6,
+          15,
+          "harvest"
+        ],
+        [
+          16,
+          17,
+          "transplant"
+        ],
+        [
+          16,
+          19,
+          "harvest"
+        ]
+      ]
     },
-    "varieties": []
+    "varieties": [],
+    "tips": [
+      "Direct sow only — taproot resents transplanting. Sow from March onward in full sun.",
+      "Succession-sow every 3 weeks to maintain a steady supply of fronds.",
+      "For pickling dill, let one planting bolt and harvest seed heads when half the seeds turn tan.",
+      "Keep away from fennel — they cross-pollinate and produce inferior seed.",
+      "Allow one plant to self-sow each year; volunteers appear reliably in the same spot."
+    ],
+    "safe": "✅ Non-toxic to cats, dogs & horses (ASPCA)."
   },
   {
     "id": "parsley",
@@ -530,12 +1300,42 @@
     "zone_max": 10,
     "default": {
       "dtm": "70–90 days",
-      "timing": [[0,3,"indoor"],[4,9,"transplant"],[8,21,"harvest"]]
+      "timing": [
+        [
+          0,
+          3,
+          "indoor"
+        ],
+        [
+          4,
+          9,
+          "transplant"
+        ],
+        [
+          8,
+          21,
+          "harvest"
+        ]
+      ]
     },
     "varieties": [
-      { "name": "Flat Leaf", "dtm": "70–90 days" },
-      { "name": "Curly",     "dtm": "70–85 days" }
-    ]
+      {
+        "name": "Flat Leaf",
+        "dtm": "70–90 days"
+      },
+      {
+        "name": "Curly",
+        "dtm": "70–85 days"
+      }
+    ],
+    "tips": [
+      "Soak seeds 24 hours before sowing — germination is notoriously slow (2–4 weeks) without pre-soaking.",
+      "Parsley is biennial; it flowers in Year 2. Treat as an annual and replant each spring.",
+      "Harvest outer stems at the base, leaving the center crown to keep producing.",
+      "Direct sow outdoors in early March or start indoors in January for transplants.",
+      "Tolerates light frost; Zone 8b plants often survive winter and provide early spring harvest."
+    ],
+    "safe": "✅ Non-toxic in culinary amounts — very large quantities contain furanocoumarins; safe for pets at normal garden exposure (ASPCA)."
   },
   {
     "id": "thyme",
@@ -552,12 +1352,37 @@
     "zone_max": 10,
     "default": {
       "dtm": "75–90 days from seed",
-      "timing": [[4,9,"transplant"],[8,21,"harvest"]]
+      "timing": [
+        [
+          4,
+          9,
+          "transplant"
+        ],
+        [
+          8,
+          21,
+          "harvest"
+        ]
+      ]
     },
     "varieties": [
-      { "name": "Common", "dtm": "75–90 days from seed" },
-      { "name": "Lemon",  "dtm": "75–90 days from seed" }
-    ]
+      {
+        "name": "Common",
+        "dtm": "75–90 days from seed"
+      },
+      {
+        "name": "Lemon",
+        "dtm": "75–90 days from seed"
+      }
+    ],
+    "tips": [
+      "Buy transplants or start from cuttings — seed-grown thyme is slow and variable in flavor.",
+      "Cut back by one-third after flowering to keep plants bushy and prevent woodiness.",
+      "Drought-tolerant once established; overwatering is the most common cause of death.",
+      "In Zone 8b, thyme is borderline hardy — plant in well-drained soil against a south-facing wall for best survival.",
+      "Harvest just before flowering for peak essential oil content."
+    ],
+    "safe": "✅ Non-toxic to cats, dogs & horses (ASPCA)."
   },
   {
     "id": "oregano",
@@ -574,12 +1399,42 @@
     "zone_max": 10,
     "default": {
       "dtm": "80–90 days from seed",
-      "timing": [[2,5,"indoor"],[6,9,"transplant"],[8,19,"harvest"]]
+      "timing": [
+        [
+          2,
+          5,
+          "indoor"
+        ],
+        [
+          6,
+          9,
+          "transplant"
+        ],
+        [
+          8,
+          19,
+          "harvest"
+        ]
+      ]
     },
     "varieties": [
-      { "name": "Greek",   "dtm": "80–90 days from seed" },
-      { "name": "Italian", "dtm": "80–90 days from seed" }
-    ]
+      {
+        "name": "Greek",
+        "dtm": "80–90 days from seed"
+      },
+      {
+        "name": "Italian",
+        "dtm": "80–90 days from seed"
+      }
+    ],
+    "tips": [
+      "Buy transplants of named varieties (Greek, Italian) — flavor quality varies enormously from seed.",
+      "Cut back to 3–4 inches after first flush of growth to encourage bushy habit.",
+      "Harvest before and during flowering for strongest flavor.",
+      "Oregano is drought-tolerant once established — water deeply but infrequently.",
+      "Divide clumps every 2–3 years to rejuvenate; old woody centers lose flavor."
+    ],
+    "safe": "✅ Non-toxic to cats, dogs & horses (ASPCA)."
   },
   {
     "id": "mint",
@@ -596,12 +1451,37 @@
     "zone_max": 11,
     "default": {
       "dtm": "90 days from seed (buy transplants)",
-      "timing": [[4,9,"transplant"],[8,21,"harvest"]]
+      "timing": [
+        [
+          4,
+          9,
+          "transplant"
+        ],
+        [
+          8,
+          21,
+          "harvest"
+        ]
+      ]
     },
     "varieties": [
-      { "name": "Spearmint",  "dtm": "90 days from seed" },
-      { "name": "Peppermint", "dtm": "90 days from seed" }
-    ]
+      {
+        "name": "Spearmint",
+        "dtm": "90 days from seed"
+      },
+      {
+        "name": "Peppermint",
+        "dtm": "90 days from seed"
+      }
+    ],
+    "tips": [
+      "Plant in a buried container (or a pot sunk to its rim) — mint spreads aggressively by underground runners.",
+      "Cut back hard to 2–3 inches in midsummer to encourage fresh, tender growth.",
+      "Partial shade is fine; mint tolerates more shade than most herbs.",
+      "Harvest regularly — frequent cutting keeps mint from going woody.",
+      "Spearmint and peppermint are the most useful culinary mints; avoid common \"garden mint\" which has little flavor."
+    ],
+    "safe": "⚠️ Mild GI upset possible in cats & dogs if eaten in large amounts — not severely toxic; pennyroyal mint (a different species) IS toxic (ASPCA)."
   },
   {
     "id": "chives",
@@ -618,12 +1498,37 @@
     "zone_max": 10,
     "default": {
       "dtm": "60 days from seed",
-      "timing": [[2,7,"transplant"],[6,21,"harvest"]]
+      "timing": [
+        [
+          2,
+          7,
+          "transplant"
+        ],
+        [
+          6,
+          21,
+          "harvest"
+        ]
+      ]
     },
     "varieties": [
-      { "name": "Common",       "dtm": "60 days from seed" },
-      { "name": "Garlic Chives","dtm": "60–80 days from seed" }
-    ]
+      {
+        "name": "Common",
+        "dtm": "60 days from seed"
+      },
+      {
+        "name": "Garlic Chives",
+        "dtm": "60–80 days from seed"
+      }
+    ],
+    "tips": [
+      "One of the easiest herbs — direct sow or plant divisions in early spring.",
+      "Cut leaves to 1–2 inches above soil and the plant regrows repeatedly through the season.",
+      "Allow a few flowers to develop — they're edible and beautiful; then deadhead to prevent heavy self-seeding.",
+      "Divide clumps every 2–3 years in fall or spring to maintain vigor.",
+      "Garlic chives (flat leaves) have a milder garlic flavor — grow them alongside regular chives."
+    ],
+    "safe": "⚠️ Toxic to cats & dogs (allium family) — even dried chives can cause hemolytic anemia (ASPCA)."
   },
   {
     "id": "rosemary",
@@ -640,12 +1545,37 @@
     "zone_max": 11,
     "default": {
       "dtm": "2–3 years to full size from seed (buy transplants)",
-      "timing": [[4,9,"transplant"],[8,21,"harvest"]]
+      "timing": [
+        [
+          4,
+          9,
+          "transplant"
+        ],
+        [
+          8,
+          21,
+          "harvest"
+        ]
+      ]
     },
     "varieties": [
-      { "name": "Upright",  "dtm": "Buy as transplant" },
-      { "name": "Creeping", "dtm": "Buy as transplant" }
-    ]
+      {
+        "name": "Upright",
+        "dtm": "Buy as transplant"
+      },
+      {
+        "name": "Creeping",
+        "dtm": "Buy as transplant"
+      }
+    ],
+    "tips": [
+      "Buy transplants — rosemary from seed is slow and the first year barely establishes.",
+      "Plant in the best-draining spot available; rosemary is killed more often by wet roots than by cold.",
+      "In Zone 8b, rosemary is mostly hardy but a severe freeze can kill it. Pot up one plant as insurance.",
+      "Prune after flowering — never cut back into bare wood as it rarely regrows from there.",
+      "Harvest stem tips regularly to keep the plant compact and productive."
+    ],
+    "safe": "✅ Non-toxic to cats, dogs & horses (ASPCA)."
   },
   {
     "id": "sage",
@@ -662,13 +1592,46 @@
     "zone_max": 10,
     "default": {
       "dtm": "75 days from seed",
-      "timing": [[2,5,"indoor"],[6,9,"transplant"],[8,21,"harvest"]]
+      "timing": [
+        [
+          2,
+          5,
+          "indoor"
+        ],
+        [
+          6,
+          9,
+          "transplant"
+        ],
+        [
+          8,
+          21,
+          "harvest"
+        ]
+      ]
     },
     "varieties": [
-      { "name": "Common",   "dtm": "75 days from seed" },
-      { "name": "Purple",   "dtm": "75 days from seed" },
-      { "name": "Pineapple","dtm": "Buy as transplant" }
-    ]
+      {
+        "name": "Common",
+        "dtm": "75 days from seed"
+      },
+      {
+        "name": "Purple",
+        "dtm": "75 days from seed"
+      },
+      {
+        "name": "Pineapple",
+        "dtm": "Buy as transplant"
+      }
+    ],
+    "tips": [
+      "Buy transplants of named culinary varieties — decorative sages often lack the flavor of common garden sage.",
+      "Cut back by one-third after flowering; remove woody stems every 2 years to rejuvenate.",
+      "Excellent in containers — good drainage is essential and pots dry out faster, which sage prefers.",
+      "Harvest leaves before flowering for best flavor; young leaves are milder, older ones more intense.",
+      "In Zone 8b, sage is reliably hardy but can look ragged in wet winters — cut it back hard in spring."
+    ],
+    "safe": "✅ Non-toxic to cats, dogs & horses (ASPCA)."
   },
   {
     "id": "lavender",
@@ -685,12 +1648,37 @@
     "zone_max": 10,
     "default": {
       "dtm": "90 days from seed (buy transplants for best results)",
-      "timing": [[4,9,"transplant"],[10,15,"harvest"]]
+      "timing": [
+        [
+          4,
+          9,
+          "transplant"
+        ],
+        [
+          10,
+          15,
+          "harvest"
+        ]
+      ]
     },
     "varieties": [
-      { "name": "Hidcote",  "dtm": "Buy as transplant" },
-      { "name": "Munstead", "dtm": "Buy as transplant" }
-    ]
+      {
+        "name": "Hidcote",
+        "dtm": "Buy as transplant"
+      },
+      {
+        "name": "Munstead",
+        "dtm": "Buy as transplant"
+      }
+    ],
+    "tips": [
+      "Drainage is everything — lavender dies in wet, heavy soil. Amend with grit or grow in raised beds.",
+      "Cut back by one-third immediately after flowering; never cut into bare, brown wood.",
+      "In Zone 8b, English lavender (L. angustifolia) is hardiest. Spanish types are tender and need winter protection.",
+      "Buy named varieties — flavor and hardiness vary enormously by cultivar.",
+      "Harvest flower spikes when about half the buds have opened for the longest-lasting fragrance."
+    ],
+    "safe": "⚠️ Mild toxicity to cats & dogs — linalool and linalyl acetate can cause nausea and lethargy if ingested in quantity (ASPCA)."
   },
   {
     "id": "broccoli",
@@ -707,12 +1695,57 @@
     "zone_max": 10,
     "default": {
       "dtm": "60–80 days",
-      "timing": [[0,3,"indoor"],[4,7,"transplant"],[8,13,"harvest"],[12,15,"indoor"],[14,17,"transplant"],[18,23,"harvest"]]
+      "timing": [
+        [
+          0,
+          3,
+          "indoor"
+        ],
+        [
+          4,
+          7,
+          "transplant"
+        ],
+        [
+          8,
+          13,
+          "harvest"
+        ],
+        [
+          12,
+          15,
+          "indoor"
+        ],
+        [
+          14,
+          17,
+          "transplant"
+        ],
+        [
+          18,
+          23,
+          "harvest"
+        ]
+      ]
     },
     "varieties": [
-      { "name": "Calabrese",   "dtm": "60–80 days" },
-      { "name": "Sprouting",   "dtm": "90–120 days" }
-    ]
+      {
+        "name": "Calabrese",
+        "dtm": "60–80 days"
+      },
+      {
+        "name": "Sprouting",
+        "dtm": "90–120 days"
+      }
+    ],
+    "tips": [
+      "Start indoors 6–8 weeks before transplanting; set out in early April in Zone 8b for summer crop.",
+      "Space 18–24 inches apart — crowded plants produce only small, loose side shoots.",
+      "Harvest the central head while florets are still tightly closed; once yellow flowers open, flavor drops fast.",
+      "After removing the central head, side shoots continue producing for weeks — keep harvesting regularly.",
+      "Use row cover from transplant through June to block imported cabbageworm, which devastates broccoli in Zone 8b."
+    ],
+    "safe": "✅ Non-toxic to cats, dogs & horses — GI upset possible in large amounts but not toxic (ASPCA)."
   },
   {
     "id": "brussels-sprouts",
@@ -729,12 +1762,42 @@
     "zone_max": 10,
     "default": {
       "dtm": "90–110 days from transplant",
-      "timing": [[6,9,"indoor"],[10,13,"transplant"],[18,23,"harvest"]]
+      "timing": [
+        [
+          6,
+          9,
+          "indoor"
+        ],
+        [
+          10,
+          13,
+          "transplant"
+        ],
+        [
+          18,
+          23,
+          "harvest"
+        ]
+      ]
     },
     "varieties": [
-      { "name": "Long Island Improved", "dtm": "90 days from transplant" },
-      { "name": "Jade Cross",           "dtm": "90 days from transplant" }
-    ]
+      {
+        "name": "Long Island Improved",
+        "dtm": "90 days from transplant"
+      },
+      {
+        "name": "Jade Cross",
+        "dtm": "90 days from transplant"
+      }
+    ],
+    "tips": [
+      "Start seeds in June for a Nov–Feb harvest — Brussels sprouts need a long season and improve with frost.",
+      "Remove lower yellowing leaves as the season progresses to direct energy upward.",
+      "Pinch the growing tip in mid-September to help all sprouts mature simultaneously.",
+      "Stake plants in fall — tall stems become top-heavy and blow over in Willamette Valley storms.",
+      "Harvest from the bottom up when sprouts are 1–1.5 inches and tight. Loose, open sprouts are overdue."
+    ],
+    "safe": "✅ Non-toxic to cats, dogs & horses — GI upset in large amounts (ASPCA)."
   },
   {
     "id": "bok-choy",
@@ -751,12 +1814,52 @@
     "zone_max": 10,
     "default": {
       "dtm": "45–60 days",
-      "timing": [[2,5,"indoor"],[4,7,"transplant"],[6,11,"harvest"],[14,17,"transplant"],[18,21,"harvest"]]
+      "timing": [
+        [
+          2,
+          5,
+          "indoor"
+        ],
+        [
+          4,
+          7,
+          "transplant"
+        ],
+        [
+          6,
+          11,
+          "harvest"
+        ],
+        [
+          14,
+          17,
+          "transplant"
+        ],
+        [
+          18,
+          21,
+          "harvest"
+        ]
+      ]
     },
     "varieties": [
-      { "name": "Baby",     "dtm": "30–45 days" },
-      { "name": "Shanghai", "dtm": "45–60 days" }
-    ]
+      {
+        "name": "Baby",
+        "dtm": "30–45 days"
+      },
+      {
+        "name": "Shanghai",
+        "dtm": "45–60 days"
+      }
+    ],
+    "tips": [
+      "Direct sow or transplant in early spring and again in late summer — bolts quickly in long days and heat.",
+      "Baby bok choy varieties (45 days) are much easier than full-size types in Zone 8b's variable springs.",
+      "Harvest whole plants by cutting at the base, or harvest outer leaves individually.",
+      "Use row cover against flea beetles, which riddle leaves with holes in spring.",
+      "Fall crops (start Aug, harvest Oct–Nov) are often superior — less pest pressure and slower bolting."
+    ],
+    "safe": "✅ Non-toxic to cats, dogs & horses (ASPCA)."
   },
   {
     "id": "arugula",
@@ -773,9 +1876,38 @@
     "zone_max": 10,
     "default": {
       "dtm": "35–45 days",
-      "timing": [[4,7,"transplant"],[6,11,"harvest"],[14,17,"transplant"],[16,21,"harvest"]]
+      "timing": [
+        [
+          4,
+          7,
+          "transplant"
+        ],
+        [
+          6,
+          11,
+          "harvest"
+        ],
+        [
+          14,
+          17,
+          "transplant"
+        ],
+        [
+          16,
+          21,
+          "harvest"
+        ]
+      ]
     },
-    "varieties": []
+    "varieties": [],
+    "tips": [
+      "Direct sow as early as March — arugula germinates readily in cool soil.",
+      "Harvest young leaves (3–4 inches) for mild flavor; older leaves develop intense, peppery heat.",
+      "Succession-sow every 2–3 weeks March through May and Aug–Sep. It bolts fast in summer heat.",
+      "Thin to 4–5 inches; crowded plants bolt faster and have less airflow.",
+      "Allow one late-summer plant to flower and set seed — arugula self-sows reliably and volunteers appear every spring."
+    ],
+    "safe": "✅ Non-toxic to cats, dogs & horses (ASPCA)."
   },
   {
     "id": "kohlrabi",
@@ -792,12 +1924,52 @@
     "zone_max": 10,
     "default": {
       "dtm": "45–60 days",
-      "timing": [[2,5,"indoor"],[4,9,"transplant"],[8,13,"harvest"],[14,17,"transplant"],[18,21,"harvest"]]
+      "timing": [
+        [
+          2,
+          5,
+          "indoor"
+        ],
+        [
+          4,
+          9,
+          "transplant"
+        ],
+        [
+          8,
+          13,
+          "harvest"
+        ],
+        [
+          14,
+          17,
+          "transplant"
+        ],
+        [
+          18,
+          21,
+          "harvest"
+        ]
+      ]
     },
     "varieties": [
-      { "name": "White Vienna",  "dtm": "45–60 days" },
-      { "name": "Purple Vienna", "dtm": "45–60 days" }
-    ]
+      {
+        "name": "White Vienna",
+        "dtm": "45–60 days"
+      },
+      {
+        "name": "Purple Vienna",
+        "dtm": "45–60 days"
+      }
+    ],
+    "tips": [
+      "Start indoors 4–5 weeks before transplanting, or direct sow in April and again in July.",
+      "Harvest when bulbs are 2–3 inches in diameter — larger kohlrabi gets woody and loses sweetness.",
+      "Peel before eating; skin on large kohlrabi is fibrous even after cooking.",
+      "Use row cover to prevent cabbage maggot damage, especially in spring.",
+      "Interplant with lettuce — kohlrabi uses vertical space and shades lettuce roots in warm spells."
+    ],
+    "safe": "✅ Non-toxic to cats, dogs & horses (ASPCA)."
   },
   {
     "id": "parsnips",
@@ -814,12 +1986,37 @@
     "zone_max": 9,
     "default": {
       "dtm": "120–180 days",
-      "timing": [[4,7,"transplant"],[18,23,"harvest"]]
+      "timing": [
+        [
+          4,
+          7,
+          "transplant"
+        ],
+        [
+          18,
+          23,
+          "harvest"
+        ]
+      ]
     },
     "varieties": [
-      { "name": "Hollow Crown", "dtm": "120 days" },
-      { "name": "Harris Model", "dtm": "120 days" }
-    ]
+      {
+        "name": "Hollow Crown",
+        "dtm": "120 days"
+      },
+      {
+        "name": "Harris Model",
+        "dtm": "120 days"
+      }
+    ],
+    "tips": [
+      "Sow fresh seed in April — parsnip seed loses viability rapidly. Buy new seed each year.",
+      "Germination is slow (3–4 weeks); keep soil consistently moist and mark the row with fast-germinating radishes.",
+      "Thin to 4–6 inches for full-size roots; parsnips rarely fork in loose, deep soil.",
+      "Leave roots in the ground until after several frosts — cold converts starches to sugar for superb flavor.",
+      "Harvest through winter in Zone 8b; mulch the row to keep soil workable during hard freezes."
+    ],
+    "safe": "✅ Non-toxic to cats, dogs & horses — wild parsnip sap causes skin irritation in sunlight but garden parsnips are safe (ASPCA)."
   },
   {
     "id": "turnips",
@@ -836,12 +2033,47 @@
     "zone_max": 10,
     "default": {
       "dtm": "35–60 days",
-      "timing": [[4,9,"transplant"],[8,13,"harvest"],[12,17,"transplant"],[16,21,"harvest"]]
+      "timing": [
+        [
+          4,
+          9,
+          "transplant"
+        ],
+        [
+          8,
+          13,
+          "harvest"
+        ],
+        [
+          12,
+          17,
+          "transplant"
+        ],
+        [
+          16,
+          21,
+          "harvest"
+        ]
+      ]
     },
     "varieties": [
-      { "name": "Purple Top",   "dtm": "57 days" },
-      { "name": "Tokyo Cross", "dtm": "35 days" }
-    ]
+      {
+        "name": "Purple Top",
+        "dtm": "57 days"
+      },
+      {
+        "name": "Tokyo Cross",
+        "dtm": "35 days"
+      }
+    ],
+    "tips": [
+      "Direct sow in April for summer crop; sow again in late July for a fall/winter harvest.",
+      "Harvest young, golf-ball-sized turnips for sweetest flavor; over-mature roots get pithy and sharp.",
+      "Turnip greens are edible and nutritious — harvest outer leaves as the root develops.",
+      "Fall sowings tolerate hard frost; roots sweeten after cold exposure just like parsnips.",
+      "Thin to 4–5 inches — crowded plants produce only small, stressed roots."
+    ],
+    "safe": "✅ Non-toxic to cats, dogs & horses (ASPCA)."
   },
   {
     "id": "fennel",
@@ -858,12 +2090,37 @@
     "zone_max": 11,
     "default": {
       "dtm": "65–90 days (bulb)",
-      "timing": [[4,9,"transplant"],[10,17,"harvest"]]
+      "timing": [
+        [
+          4,
+          9,
+          "transplant"
+        ],
+        [
+          10,
+          17,
+          "harvest"
+        ]
+      ]
     },
     "varieties": [
-      { "name": "Florence (Bulb)", "dtm": "65–90 days" },
-      { "name": "Herb Common",     "dtm": "Perennial" }
-    ]
+      {
+        "name": "Florence (Bulb)",
+        "dtm": "65–90 days"
+      },
+      {
+        "name": "Herb Common",
+        "dtm": "Perennial"
+      }
+    ],
+    "tips": [
+      "Plant fennel away from most vegetables — it's allelopathic and stunts growth of tomatoes, peppers, and beans nearby.",
+      "For bulbing (Florence) fennel, direct sow in July for a fall harvest — spring-sown plants bolt before bulbing.",
+      "Hill soil up around the developing bulb (blanching) for a sweeter, more tender result.",
+      "Harvest bulbs when they are tennis-ball to softball size; larger ones get stringy.",
+      "Herb fennel can stay in the garden as a perennial in Zone 8b — its flowers attract beneficial insects."
+    ],
+    "safe": "✅ Non-toxic to cats, dogs & horses (ASPCA)."
   },
   {
     "id": "celeriac",
@@ -880,9 +2137,33 @@
     "zone_max": 9,
     "default": {
       "dtm": "100–120 days from transplant",
-      "timing": [[0,3,"indoor"],[6,9,"transplant"],[16,21,"harvest"]]
+      "timing": [
+        [
+          0,
+          3,
+          "indoor"
+        ],
+        [
+          6,
+          9,
+          "transplant"
+        ],
+        [
+          16,
+          21,
+          "harvest"
+        ]
+      ]
     },
-    "varieties": []
+    "varieties": [],
+    "tips": [
+      "Start seeds indoors in late January — celeriac needs the longest indoor period of any vegetable.",
+      "Transplant out in May; don't rush — it's cold-sensitive when young.",
+      "Keep consistently moist; drought stress causes cracked, pithy roots.",
+      "Remove side shoots and lower leaves through summer to expose and size up the root crown.",
+      "Harvest after first frosts sweeten the roots; stores in root cellar or fridge for months."
+    ],
+    "safe": "✅ Non-toxic to cats, dogs & horses (ASPCA)."
   },
   {
     "id": "leeks",
@@ -899,12 +2180,42 @@
     "zone_max": 10,
     "default": {
       "dtm": "100–120 days from transplant",
-      "timing": [[0,3,"indoor"],[6,9,"transplant"],[14,23,"harvest"]]
+      "timing": [
+        [
+          0,
+          3,
+          "indoor"
+        ],
+        [
+          6,
+          9,
+          "transplant"
+        ],
+        [
+          14,
+          23,
+          "harvest"
+        ]
+      ]
     },
     "varieties": [
-      { "name": "King Richard",   "dtm": "75 days (summer)" },
-      { "name": "American Flag",  "dtm": "120 days (winter)" }
-    ]
+      {
+        "name": "King Richard",
+        "dtm": "75 days (summer)"
+      },
+      {
+        "name": "American Flag",
+        "dtm": "120 days (winter)"
+      }
+    ],
+    "tips": [
+      "Start indoors in January — sow thickly in a flat and thin to pencil-width before transplanting.",
+      "Transplant into deep holes (6–8 inches), dropping the seedling in without backfilling — soil settles around it, blanching the stem naturally.",
+      "Hill soil up around stems through the season for longer white shanks.",
+      "Leeks tolerate hard frost; in Zone 8b they can often be harvested through January.",
+      "King Richard types mature faster (summer); American Flag types are hardier (fall/winter harvest)."
+    ],
+    "safe": "⚠️ Toxic to cats & dogs (allium family) — causes hemolytic anemia (ASPCA)."
   },
   {
     "id": "swiss-chard",
@@ -921,12 +2232,42 @@
     "zone_max": 10,
     "default": {
       "dtm": "50–60 days",
-      "timing": [[2,5,"indoor"],[4,9,"transplant"],[8,21,"harvest"]]
+      "timing": [
+        [
+          2,
+          5,
+          "indoor"
+        ],
+        [
+          4,
+          9,
+          "transplant"
+        ],
+        [
+          8,
+          21,
+          "harvest"
+        ]
+      ]
     },
     "varieties": [
-      { "name": "Rainbow",        "dtm": "50–60 days" },
-      { "name": "Fordhook Giant", "dtm": "60 days" }
-    ]
+      {
+        "name": "Rainbow",
+        "dtm": "50–60 days"
+      },
+      {
+        "name": "Fordhook Giant",
+        "dtm": "60 days"
+      }
+    ],
+    "tips": [
+      "Direct sow from March onward; chard tolerates both light frost and summer heat better than most greens.",
+      "Each \"seed\" is a cluster — thin to 6 inches and eat the thinnings.",
+      "Harvest outer leaves from the bottom, leaving the center growing point intact for continuous production.",
+      "In Zone 8b, chard planted in spring often produces all the way to November or beyond.",
+      "Rainbow chard varieties (Bright Lights) are equally flavorful but more ornamental in the garden."
+    ],
+    "safe": "✅ Non-toxic to cats, dogs & horses — high oxalates but not considered toxic (ASPCA)."
   },
   {
     "id": "celery",
@@ -943,12 +2284,42 @@
     "zone_max": 10,
     "default": {
       "dtm": "100–130 days from transplant",
-      "timing": [[0,3,"indoor"],[6,9,"transplant"],[14,21,"harvest"]]
+      "timing": [
+        [
+          0,
+          3,
+          "indoor"
+        ],
+        [
+          6,
+          9,
+          "transplant"
+        ],
+        [
+          14,
+          21,
+          "harvest"
+        ]
+      ]
     },
     "varieties": [
-      { "name": "Utah",     "dtm": "100 days from transplant" },
-      { "name": "Giant Red","dtm": "110 days from transplant" }
-    ]
+      {
+        "name": "Utah",
+        "dtm": "100 days from transplant"
+      },
+      {
+        "name": "Giant Red",
+        "dtm": "110 days from transplant"
+      }
+    ],
+    "tips": [
+      "Start indoors in late January — celery needs 10–12 weeks before transplanting and is slow to germinate.",
+      "Surface-sow seeds; they need light to germinate — do not cover.",
+      "Consistent, abundant moisture is critical; drought stress causes stringy, hollow stalks.",
+      "Blanch stalks by wrapping newspaper or cardboard around the plant two weeks before harvest for milder flavor.",
+      "Celery is the most demanding vegetable in the garden — a rich, moisture-retentive soil is non-negotiable."
+    ],
+    "safe": "✅ Non-toxic to cats, dogs & horses — seeds and leaves are safe at normal culinary exposure (ASPCA)."
   },
   {
     "id": "pumpkin",
@@ -965,12 +2336,40 @@
     "zone_max": 10,
     "default": {
       "dtm": "90–120 days",
-      "timing": [[8,9,"transplant"],[16,21,"harvest"]]
+      "timing": [
+        [
+          8,
+          9,
+          "transplant"
+        ],
+        [
+          16,
+          21,
+          "harvest"
+        ]
+      ]
     },
     "varieties": [
-      { "name": "Sugar Pie",        "dtm": "90 days" },
-      { "name": "Jack-o-lantern",   "dtm": "100 days" },
-      { "name": "Cinderella",       "dtm": "100 days" }
-    ]
+      {
+        "name": "Sugar Pie",
+        "dtm": "90 days"
+      },
+      {
+        "name": "Jack-o-lantern",
+        "dtm": "100 days"
+      },
+      {
+        "name": "Cinderella",
+        "dtm": "100 days"
+      }
+    ],
+    "tips": [
+      "Direct sow 2–3 seeds per hill in late May when soil is warm; thin to the strongest plant.",
+      "Allow 6–8 feet per plant minimum — pumpkin vines are large and will take over a bed.",
+      "Pollinate by hand in cool or rainy weather by brushing a male flower (thin stem) against a female (tiny fruit behind bloom).",
+      "Leave 2 inches of stem when cutting — a short stub dramatically slows rot in storage.",
+      "Cure harvested pumpkins at 80–85°F for 10 days to harden the skin; then store in a cool, dry spot."
+    ],
+    "safe": "✅ Non-toxic to cats, dogs & horses — plain pumpkin is actually beneficial for pet digestion (ASPCA)."
   }
 ]

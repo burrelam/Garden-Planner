@@ -38,11 +38,11 @@ function insertPlant(plant) {
     INSERT OR REPLACE INTO plants
       (id, name, scientific_name, category,
        spacing_in, water_needs, sun_needs, soil_pref,
-       pest_notes, care_notes, zone_min, zone_max)
+       pest_notes, care_notes, tips, safe, zone_min, zone_max)
     VALUES
       (@id, @name, @scientific_name, @category,
        @spacing_in, @water_needs, @sun_needs, @soil_pref,
-       @pest_notes, @care_notes, @zone_min, @zone_max)
+       @pest_notes, @care_notes, @tips, @safe, @zone_min, @zone_max)
   `).run(plant);
 }
 
@@ -179,6 +179,8 @@ function seedAllPlants() {
         soil_pref:       entry.soil_pref ?? null,
         pest_notes:      entry.pest_notes ?? null,
         care_notes:      entry.care_notes ?? null,
+        tips:            entry.tips ? JSON.stringify(entry.tips) : null,
+        safe:            entry.safe ?? null,
         zone_min:        entry.zone_min ?? 8,
         zone_max:        entry.zone_max ?? 10,
       });

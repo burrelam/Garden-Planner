@@ -84,6 +84,8 @@ router.get('/', (req, res) => {
       soil_pref:   plant.soil_pref,
       pest_notes:  plant.pest_notes,
       care_notes:  plant.care_notes,
+      tips:        plant.tips ? JSON.parse(plant.tips) : [],
+      safe:        plant.safe,
       default:     { dtm: defaultDtm, months: defaultMonths },
       varieties,
     };
@@ -189,6 +191,8 @@ router.get('/:id', (req, res) => {
     soil_pref:      plant.soil_pref,
     pest_notes:     plant.pest_notes,
     care_notes:     plant.care_notes,
+    tips:           plant.tips ? JSON.parse(plant.tips) : [],
+    safe:           plant.safe,
     default:        { dtm: varRows[0]?.dtm ?? '—', months: defaultMonths },
     varieties,
     companions,
