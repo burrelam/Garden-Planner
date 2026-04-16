@@ -231,10 +231,15 @@
 
   /* ── FROST INDICATORS ── */
   th.frost-l { position: relative; border-left: 2px solid rgba(90,165,220,0.85) !important; overflow: visible; }
+  /* Frost tick line extends down through all plant rows */
+  #main-table tbody td:nth-child(7),
+  #main-table tbody td:nth-child(23) {
+    border-left: 2px solid rgba(90,165,220,0.85) !important;
+  }
   .frost-snowflake {
     position: absolute; left: -1px; top: 50%;
     transform: translate(-50%, -50%);
-    font-size: 0.65rem; line-height: 1; cursor: pointer; z-index: 2;
+    font-size: 0.80rem; line-height: 1; cursor: pointer; z-index: 2;
     color: rgba(100,185,235,0.95);
     touch-action: manipulation; -webkit-tap-highlight-color: transparent;
   }
