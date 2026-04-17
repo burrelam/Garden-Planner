@@ -270,9 +270,7 @@
   .detail-coming-soon { font-style: italic; color: #aaa; font-size: 0.7rem; }
 
   /* ── FROST INDICATORS ── */
-  /* Frost tick — dark green behind the snowflake icon in the header */
-  th.frost-l { position: relative; border-left: 3px solid var(--moss) !important; overflow: visible; }
-  /* Frost tick — light blue through all calendar body rows */
+  th.frost-l { position: relative; border-left: 3px solid rgba(0,200,255,0.70) !important; overflow: visible; }
   #main-table tbody td:nth-child(7),
   #main-table tbody td:nth-child(23) {
     border-left: 3px solid rgba(0,200,255,0.70) !important;
@@ -284,6 +282,9 @@
     cursor: pointer; z-index: 20;
     touch-action: manipulation; -webkit-tap-highlight-color: transparent;
     display: flex; align-items: center; justify-content: center;
+    background: var(--moss);
+    border-radius: 50%;
+    padding: 2px;
   }
   .frost-snowflake img {
     width: 100%; height: 100%; object-fit: contain; opacity: 0.9;
