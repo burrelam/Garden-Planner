@@ -68,7 +68,7 @@
 
   /* ── MONTH HEADER ── */
   thead tr.month-row th {
-    position: sticky; top: 0; z-index: 15;
+    position: sticky; top: 0; z-index: 20;
     background: var(--moss);
     padding: 8px 2px 2px;
     font-size: 0.7rem; font-weight: 600; letter-spacing: 0.07em; text-transform: uppercase;
@@ -80,7 +80,7 @@
 
   /* ── HALF-MONTH SUBHEADER ── */
   thead tr.half-row th {
-    position: sticky; top: 26px; z-index: 15;
+    position: sticky; top: 26px; z-index: 20;
     background: #3d5230;
     padding: 2px 2px 6px;
     font-size: 0.55rem; font-weight: 400; letter-spacing: 0.05em; text-transform: uppercase;
@@ -116,14 +116,14 @@
 
   /* ── TOP-LEFT CORNER ── */
   thead tr.month-row th.corner {
-    position: sticky; left: 0; z-index: 25;
+    position: sticky; left: 0; z-index: 35;
     text-align: left; padding-left: 12px;
     min-width: 140px; width: 140px;
     background: var(--moss); border-left: none;
     vertical-align: bottom; padding-bottom: 2px;
   }
   thead tr.half-row th.corner {
-    position: sticky; left: 0; z-index: 25;
+    position: sticky; left: 0; z-index: 35;
     background: #3d5230;
     min-width: 140px; width: 140px;
     padding: 2px 4px;
@@ -196,13 +196,7 @@
     background: inherit;
   }
 
-  /* ── BED ACCENT STRIPES ── */
-  tr.plant-bed-a td:first-child         { border-left: 3px solid var(--bed-a); }
-  tr.plant-bed-b td:first-child         { border-left: 3px solid var(--bed-b); }
-  tr.plant-bed-c td:first-child         { border-left: 3px solid var(--bed-c); }
-  tr.plant-bed-d td:first-child         { border-left: 3px solid var(--bed-d); }
-  tr.plant-bed-companion td:first-child { border-left: 3px solid var(--bed-companion); }
-  tr.plant-bed-unassigned td:first-child{ border-left: 3px solid var(--bed-unassigned); }
+  /* ── BED ACCENT STRIPES — applied inline via JS so custom beds work too ── */
 
   /* ── PLANT INFO CELL ── */
   .plant-info { padding: 7px 6px; display: flex; flex-direction: column; gap: 2px; cursor: pointer; user-select: none; overflow: hidden; }
@@ -275,8 +269,9 @@
   .detail-coming-soon { font-style: italic; color: #aaa; font-size: 0.7rem; }
 
   /* ── FROST INDICATORS ── */
-  th.frost-l { position: relative; border-left: 3px solid rgba(0,200,255,0.70) !important; overflow: visible; }
-  /* Frost tick line extends down through all plant rows */
+  /* Frost tick — dark green behind the snowflake icon in the header */
+  th.frost-l { position: relative; border-left: 3px solid var(--moss) !important; overflow: visible; }
+  /* Frost tick — light blue through all calendar body rows */
   #main-table tbody td:nth-child(7),
   #main-table tbody td:nth-child(23) {
     border-left: 3px solid rgba(0,200,255,0.70) !important;
@@ -1484,10 +1479,8 @@ function render() {
     const badgeHtml   = `<span class="plant-badge ${statusCfg.cls}">${statusCfg.label}</span>`;
     const bedPillHtml = `<span class="bed-pill" style="background:${bed.color}">${bed.label}</span>`;
 
-    // Line 3: dtm in bed/status views; bed pill in alpha view
-    const line3 = viewMode === 'alpha'
-      ? bedPillHtml
-      : `<span class="plant-dtm">${plant.dtm}</span>`;
+    // Line 3: bed pill in alpha view; nothing in bed/status (DTM moved to panel)
+    const line3 = viewMode === 'alpha' ? bedPillHtml : '';
 
     // Bottom row left: status badge (bed + alpha views); bed pill (status view)
     const line4left = viewMode === 'status' ? bedPillHtml : badgeHtml;
@@ -1499,7 +1492,7 @@ function render() {
       </div>` : '';
 
     plantTr.innerHTML = `
-      <td><div style="display:flex;align-items:center;">
+      <td style="border-left:3px solid ${bed.color}"><div style="display:flex;align-items:center;">
         <div class="plant-info" onclick="toggleDetail('${plant.id}')" style="flex:1;min-width:0;">
           <span class="plant-name">${plant.name} ${qtyHtml}</span>
           ${varietyHtml}
@@ -1522,6 +1515,7 @@ function render() {
     detailTr.innerHTML = `<td colspan="25">
       <div class="detail-panel" id="panel-${plant.id}">
         <div class="panel-controls">
+          <span class="panel-label" style="color:#9a8a78;font-weight:300;font-size:0.65rem;">⏱ ${plant.dtm}</span>
           <label class="panel-label">Status:
             <select class="panel-select" onchange="updateStatus('${plant.id}', this.value)">${statusOptions}</select>
           </label>
