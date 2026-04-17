@@ -214,8 +214,49 @@
   .badge-willplant  { color: #4a7a9b; }
   .badge-undecided  { color: #9b7a3a; }
   .badge-maybe      { color: var(--terra); }
-  .expand-arrow { font-size: 0.75rem; color: #888; margin-top: 2px; transition: transform 0.2s; display: inline-block; }
+  .expand-arrow { font-size: 0.75rem; color: #888; transition: transform 0.2s; display: inline-block; flex-shrink: 0; }
   .expanded .expand-arrow { transform: rotate(180deg); }
+
+  /* ── PLANT INFO BOTTOM ROW (status+arrow on one line) ── */
+  .plant-info-bottom { display: flex; align-items: center; justify-content: space-between; gap: 4px; }
+
+  /* ── BED PILL (status/alpha views) ── */
+  .bed-pill {
+    display: inline-block; font-size: 0.56rem; font-weight: 700;
+    letter-spacing: 0.06em; text-transform: uppercase;
+    padding: 1px 6px; border-radius: 3px; color: white; line-height: 1.6; flex-shrink: 0;
+  }
+
+  /* ── VIEW CORNER DROPDOWN ── */
+  .view-corner-wrap { position: relative; width: 100%; }
+  .view-corner-btn {
+    width: 100%; background: transparent; border: none;
+    color: var(--cream); font-size: 0.62rem; font-weight: 600;
+    letter-spacing: 0.08em; text-transform: uppercase;
+    cursor: pointer; padding: 5px 6px;
+    display: flex; align-items: center; justify-content: space-between; gap: 3px;
+    border-radius: 3px;
+  }
+  .view-corner-btn:hover { background: rgba(255,255,255,0.12); }
+  .view-corner-dropdown {
+    display: none; position: absolute; top: calc(100% + 2px); left: 0; z-index: 200;
+    background: var(--cream); border-radius: 7px; overflow: hidden;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.3); min-width: 150px;
+  }
+  .view-corner-dropdown.open { display: block; }
+  .view-corner-option {
+    padding: 8px 12px; font-size: 0.64rem; font-weight: 500;
+    letter-spacing: 0.05em; text-transform: uppercase; color: #5a4a38;
+    cursor: pointer; white-space: nowrap;
+    display: flex; align-items: center; gap: 7px;
+  }
+  .view-corner-option:hover { background: rgba(74,94,58,0.1); }
+  .view-corner-option.active { background: rgba(74,94,58,0.14); color: var(--moss); font-weight: 700; }
+
+  /* ── STATUS GROUP HEADERS (status view) ── */
+  tr.status-group-row td { padding: 0; border-top: 2px solid rgba(0,0,0,0.08); position: sticky; top: var(--thead-h); z-index: 2; }
+  tr.status-group-row td:first-child { position: sticky; left: 0; top: var(--thead-h); z-index: 5; background: inherit; min-width: 140px; width: 140px; }
+  .status-group-header { display: flex; align-items: center; gap: 6px; padding: 5px 8px; font-size: 0.68rem; font-weight: 700; letter-spacing: 0.09em; text-transform: uppercase; color: white; }
 
   /* ── DETAIL PANEL ── */
   tr.detail-row td { padding: 0; background: #f9f5ee; border-top: 1px solid #e5ddd0; }
@@ -525,7 +566,18 @@
       <table id="main-table">
         <thead>
           <tr class="month-row">
-            <th class="corner">Plant</th>
+            <th class="corner" style="padding:0;">
+              <div class="view-corner-wrap">
+                <button class="view-corner-btn" onclick="event.stopPropagation();toggleViewDropdown()">
+                  <span id="view-label">Bed View</span><span>▾</span>
+                </button>
+                <div class="view-corner-dropdown" id="view-dropdown">
+                  <div class="view-corner-option active" data-view="bed"    onclick="setViewMode('bed')">🪴 Bed View</div>
+                  <div class="view-corner-option"        data-view="status" onclick="setViewMode('status')">🏷 Status View</div>
+                  <div class="view-corner-option"        data-view="alpha"  onclick="setViewMode('alpha')">🔤 A–Z View</div>
+                </div>
+              </div>
+            </th>
             <th colspan="2">Jan</th><th colspan="2">Feb</th><th colspan="2">Mar</th>
             <th colspan="2" class="current-month-header">Apr ▾</th>
             <th colspan="2">May</th><th colspan="2">Jun</th><th colspan="2">Jul</th>
@@ -1313,6 +1365,24 @@ function lightenColor(hex, amount) {
 // COLLAPSE STATE
 // ══════════════════════════════════════════════════════════════
 let _collapsedBeds = {};
+let _viewMode = 'bed';
+
+function toggleViewDropdown() {
+  const dd = document.getElementById('view-dropdown');
+  if (dd) dd.classList.toggle('open');
+}
+function setViewMode(mode) {
+  _viewMode = mode;
+  const dd = document.getElementById('view-dropdown');
+  if (dd) dd.classList.remove('open');
+  const LABELS = { bed: 'Bed View', status: 'Status View', alpha: 'A–Z View' };
+  const lbl = document.getElementById('view-label');
+  if (lbl) lbl.textContent = LABELS[mode] || 'View';
+  document.querySelectorAll('.view-corner-option').forEach(o =>
+    o.classList.toggle('active', o.dataset.view === mode)
+  );
+  render();
+}
 
 function toggleBedCollapse(bedId) {
   _collapsedBeds[bedId] = !_collapsedBeds[bedId];
@@ -1358,168 +1428,225 @@ function render() {
     document.documentElement.style.setProperty('--thead-h', `${h}px`);
   });
 
-  const bedOrder = beds.map(b => b.id);
-  const grouped  = {};
-  bedOrder.forEach(id => grouped[id] = []);
-  plants.forEach(p => {
-    const key = grouped[p.bed] ? p.bed : 'unassigned';
-    grouped[key].push(p);
-  });
+  // ── Shared helper: build 24 bar-cell columns for a plant ──
+  function buildCellsHtml(plant) {
+    let html = '';
+    plant.months.forEach((phase, i) => {
+      const isMonthStart = i % 2 === 0;
+      const isCurrent    = i === _currentColIdx;
+      let cls = 'hcol';
+      if (isMonthStart) cls += ' month-start';
+      if (isCurrent)    cls += ' current-half-col';
+      let barHtml = '';
+      if (phase) {
+        const isDual   = Array.isArray(phase);
+        const phaseKey = isDual ? phase.join('|') : phase;
+        const prevKey  = i > 0  ? (Array.isArray(plant.months[i-1]) ? plant.months[i-1].join('|') : plant.months[i-1]) : null;
+        const nextKey  = i < 23 ? (Array.isArray(plant.months[i+1]) ? plant.months[i+1].join('|') : plant.months[i+1]) : null;
+        let roundClass = 'bar-solo';
+        if (prevKey === phaseKey && nextKey === phaseKey) roundClass = 'bar-mid';
+        else if (prevKey === phaseKey) roundClass = 'bar-right';
+        else if (nextKey === phaseKey) roundClass = 'bar-left';
+        const maybeClass     = plant.status === 'undecided' ? ' bar-maybe' : '';
+        const willplantClass = plant.status === 'willplant' ? ' bar-willplant' : '';
+        if (isDual) {
+          const PHASE_COLORS = { indoor:'var(--indoor)', transplant:'var(--transplant)', direct:'var(--direct-sow)', harvest:'var(--harvest-color)', marigold:'#f0b03a' };
+          const c1 = PHASE_COLORS[phase[0]] || '#ccc';
+          const c2 = PHASE_COLORS[phase[1]] || '#999';
+          barHtml = `<div class="bar bar-split ${roundClass}${maybeClass}${willplantClass}" style="background:linear-gradient(135deg,${c1} 50%,${c2} 50%)"></div>`;
+        } else {
+          barHtml = `<div class="bar bar-${phase} ${roundClass}${maybeClass}${willplantClass}"></div>`;
+        }
+      }
+      html += `<td class="${cls}">${barHtml}</td>`;
+    });
+    return html;
+  }
 
+  // ── Shared helper: build plant row + detail row pair ──
+  function buildPlantRowPair(plant, canUp, canDown, viewMode, bed) {
+    const plantTr = document.createElement('tr');
+    plantTr.className = `plant-bed-${bed.id}`;
+    plantTr.dataset.plantId = plant.id;
+
+    const statusCfg   = STATUS_CONFIG[plant.status] || STATUS_CONFIG.willplant;
+    const qtyHtml     = (plant.qty && plant.qty > 1) ? `<span class="plant-qty">×${plant.qty}</span>` : '';
+    const varietyHtml = plant.variety ? `<span class="plant-variety">(${plant.variety})</span>` : '';
+    const badgeHtml   = `<span class="plant-badge ${statusCfg.cls}">${statusCfg.label}</span>`;
+    const bedPillHtml = `<span class="bed-pill" style="background:${bed.color}">${bed.label}</span>`;
+
+    // Line 3: dtm in bed/status views; bed pill in alpha view
+    const line3 = viewMode === 'alpha'
+      ? bedPillHtml
+      : `<span class="plant-dtm">${plant.dtm}</span>`;
+
+    // Bottom row left: status badge (bed + alpha views); bed pill (status view)
+    const line4left = viewMode === 'status' ? bedPillHtml : badgeHtml;
+
+    const reorderBtns = viewMode !== 'alpha' ? `
+      <div class="plant-reorder-btns">
+        <button class="plant-reorder-btn" onclick="event.stopPropagation();reorderPlant('${plant.id}',-1)" ${!canUp   ? 'disabled' : ''} title="Move up">↑</button>
+        <button class="plant-reorder-btn" onclick="event.stopPropagation();reorderPlant('${plant.id}',1)"  ${!canDown ? 'disabled' : ''} title="Move down">↓</button>
+      </div>` : '';
+
+    plantTr.innerHTML = `
+      <td><div style="display:flex;align-items:center;">
+        <div class="plant-info" onclick="toggleDetail('${plant.id}')" style="flex:1;min-width:0;">
+          <span class="plant-name">${plant.name} ${qtyHtml}</span>
+          ${varietyHtml}
+          ${line3}
+          <div class="plant-info-bottom">${line4left}<span class="expand-arrow">▾</span></div>
+        </div>
+        ${reorderBtns}
+      </div></td>${buildCellsHtml(plant)}`;
+
+    // Detail row (same for all view modes)
+    const detailTr = document.createElement('tr');
+    detailTr.className = 'detail-row';
+    detailTr.id = `detail-${plant.id}`;
+    const bedOptions = getBeds().map(b =>
+      `<option value="${b.id}" ${b.id === plant.bed ? 'selected' : ''}>${b.label.toUpperCase()}</option>`
+    ).join('');
+    const statusOptions = Object.entries(STATUS_CONFIG).map(([val, cfg]) =>
+      `<option value="${val}" ${val === plant.status ? 'selected' : ''}>${cfg.label}</option>`
+    ).join('');
+    detailTr.innerHTML = `<td colspan="25">
+      <div class="detail-panel" id="panel-${plant.id}">
+        <div class="panel-controls">
+          <label class="panel-label">Status:
+            <select class="panel-select" onchange="updateStatus('${plant.id}', this.value)">${statusOptions}</select>
+          </label>
+          <label class="panel-label">Bed:
+            <select class="panel-select" onchange="reassign('${plant.id}', this.value)">${bedOptions}</select>
+          </label>
+          <label class="panel-label">Qty:
+            <input type="number" class="panel-select" min="1" value="${plant.qty || 1}" style="width:54px;" onchange="updateQty('${plant.id}', this.value)" />
+          </label>
+          <button class="panel-btn btn-remove" onclick="removePlant('${plant.id}')">✕ Remove</button>
+        </div>
+        <hr class="panel-divider">
+        ${buildCarePanel(plant.name, plant.variety)}
+      </div></td>`;
+
+    return { plantTr, detailTr };
+  }
+
+  const bedMap = {};
+  beds.forEach(b => bedMap[b.id] = b);
   const movableBeds = beds.filter(b => b.id !== 'unassigned');
 
-  beds.forEach(bed => {
-    const plantsInBed = grouped[bed.id] || [];
-    const isCollapsed = !!_collapsedBeds[bed.id];
+  // ══ BED VIEW (default) ══════════════════════════════════════
+  if (_viewMode === 'bed') {
+    const bedOrder = beds.map(b => b.id);
+    const grouped  = {};
+    bedOrder.forEach(id => grouped[id] = []);
+    plants.forEach(p => { const key = grouped[p.bed] ? p.bed : 'unassigned'; grouped[key].push(p); });
 
-    // Each bed gets its own tbody so sticky headers work independently
-    const tbody = document.createElement('tbody');
-    tbody.dataset.bedId = bed.id;
-    table.appendChild(tbody);
+    beds.forEach(bed => {
+      const plantsInBed = grouped[bed.id] || [];
+      const isCollapsed = !!_collapsedBeds[bed.id];
+      const tbody = document.createElement('tbody');
+      tbody.dataset.bedId = bed.id;
+      table.appendChild(tbody);
 
-    // Bed header row
-    const bedTr = document.createElement('tr');
-    bedTr.className = 'bed-row';
-    bedTr.dataset.bedId = bed.id;
-    const canRemove  = bed.id !== 'unassigned';
-    const movableIdx = movableBeds.findIndex(b => b.id === bed.id);
-    const canMoveUp  = movableIdx > 0;
-    const canMoveDown= movableIdx >= 0 && movableIdx < movableBeds.length - 1;
-    const lightColor = lightenColor(bed.color, 0.55);
-    bedTr.innerHTML = `
-      <td style="background:${bed.color}">
-        <div class="bed-header" onclick="event.stopPropagation(); openBedEditPopover('${bed.id}', this)" title="Click to edit name or color">
-          <div class="bed-dot"></div>
-          <input class="bed-name-input" data-bed-id="${bed.id}" value="${bed.label}" readonly tabindex="-1" />
-        </div>
-      </td>
-      <td colspan="24" style="background:${bed.color};vertical-align:middle;">
-        <div style="display:flex;align-items:center;gap:6px;padding:0 8px;">
-          ${canRemove ? `
-            <button class="bed-reorder-btn" onclick="reorderBed('${bed.id}', -1)" ${!canMoveUp ? 'disabled' : ''} title="Move up">↑</button>
-            <button class="bed-reorder-btn" onclick="reorderBed('${bed.id}', 1)"  ${!canMoveDown ? 'disabled' : ''} title="Move down">↓</button>
-          ` : ''}
-          <button class="bed-collapse-btn" style="background:${lightColor};color:${bed.color};"
-            onclick="toggleBedCollapse('${bed.id}')">
-            ${isCollapsed ? `Expand <span style="display:inline-block;transform:rotate(180deg);">▾</span>` : 'Collapse ▾'}
-          </button>
-          ${canRemove ? `
-            <button class="panel-btn btn-remove" style="font-size:0.6rem;padding:2px 6px;min-width:0;line-height:1;" onclick="removeBed('${bed.id}')" title="Remove bed">✕</button>
-          ` : ''}
-        </div>
-      </td>`;
-    tbody.appendChild(bedTr);
-
-    // If collapsed, skip all plant rows
-    if (isCollapsed) return;
-
-    // If no plants yet, show placeholder
-    if (!plantsInBed.length) {
-      const placeholderTr = document.createElement('tr');
-      placeholderTr.className = 'placeholder-row';
-      placeholderTr.innerHTML = `
-        <td colspan="25" style="padding:10px 16px;font-size:0.7rem;color:#aaa;font-style:italic;background:#faf7f2;border-top:1px solid #e5ddd0;">
-          Work in progress… add a plant and assign it to this bed 🌱
+      const bedTr = document.createElement('tr');
+      bedTr.className = 'bed-row';
+      bedTr.dataset.bedId = bed.id;
+      const canRemove   = bed.id !== 'unassigned';
+      const movableIdx  = movableBeds.findIndex(b => b.id === bed.id);
+      const canMoveUp   = movableIdx > 0;
+      const canMoveDown = movableIdx >= 0 && movableIdx < movableBeds.length - 1;
+      const lightColor  = lightenColor(bed.color, 0.55);
+      bedTr.innerHTML = `
+        <td style="background:${bed.color}">
+          <div class="bed-header" onclick="event.stopPropagation(); openBedEditPopover('${bed.id}', this)" title="Click to edit name or color">
+            <div class="bed-dot"></div>
+            <input class="bed-name-input" data-bed-id="${bed.id}" value="${bed.label}" readonly tabindex="-1" />
+          </div>
+        </td>
+        <td colspan="24" style="background:${bed.color};vertical-align:middle;">
+          <div style="display:flex;align-items:center;gap:6px;padding:0 8px;">
+            ${canRemove ? `
+              <button class="bed-reorder-btn" onclick="reorderBed('${bed.id}', -1)" ${!canMoveUp ? 'disabled' : ''} title="Move up">↑</button>
+              <button class="bed-reorder-btn" onclick="reorderBed('${bed.id}', 1)"  ${!canMoveDown ? 'disabled' : ''} title="Move down">↓</button>
+            ` : ''}
+            <button class="bed-collapse-btn" style="background:${lightColor};color:${bed.color};"
+              onclick="toggleBedCollapse('${bed.id}')">
+              ${isCollapsed ? `Expand <span style="display:inline-block;transform:rotate(180deg);">▾</span>` : 'Collapse ▾'}
+            </button>
+            ${canRemove ? `
+              <button class="panel-btn btn-remove" style="font-size:0.6rem;padding:2px 6px;min-width:0;line-height:1;" onclick="removeBed('${bed.id}')" title="Remove bed">✕</button>
+            ` : ''}
+          </div>
         </td>`;
-      tbody.appendChild(placeholderTr);
-      return;
-    }
+      tbody.appendChild(bedTr);
 
-    plantsInBed.forEach((plant, plantIdx) => {
-      // Plant row
-      const plantTr = document.createElement('tr');
-      plantTr.className = `plant-bed-${bed.id}`;
-      plantTr.dataset.plantId = plant.id;
+      if (isCollapsed) return;
 
-      const canPlantMoveUp   = plantIdx > 0;
-      const canPlantMoveDown = plantIdx < plantsInBed.length - 1;
+      if (!plantsInBed.length) {
+        const placeholderTr = document.createElement('tr');
+        placeholderTr.className = 'placeholder-row';
+        placeholderTr.innerHTML = `
+          <td colspan="25" style="padding:10px 16px;font-size:0.7rem;color:#aaa;font-style:italic;background:#faf7f2;border-top:1px solid #e5ddd0;">
+            Work in progress… add a plant and assign it to this bed 🌱
+          </td>`;
+        tbody.appendChild(placeholderTr);
+        return;
+      }
 
-      const status   = STATUS_CONFIG[plant.status] || STATUS_CONFIG.willplant;
-      const badgeHtml  = `<span class="plant-badge ${status.cls}">${status.label}</span>`;
-      const varietyHtml = plant.variety ? `<span class="plant-variety">(${plant.variety})</span>` : '';
-
-      let cellsHtml = '';
-      plant.months.forEach((phase, i) => {
-        const isMonthStart = i % 2 === 0;
-        const isCurrent    = i === _currentColIdx;
-        let cls = 'hcol';
-        if (isMonthStart) cls += ' month-start';
-        if (isCurrent)    cls += ' current-half-col';
-
-        let barHtml = '';
-        if (phase) {
-          const isDual   = Array.isArray(phase);
-          const phaseKey = isDual ? phase.join('|') : phase;
-          const prevKey  = i > 0  ? (Array.isArray(plant.months[i-1]) ? plant.months[i-1].join('|') : plant.months[i-1]) : null;
-          const nextKey  = i < 23 ? (Array.isArray(plant.months[i+1]) ? plant.months[i+1].join('|') : plant.months[i+1]) : null;
-          let roundClass = 'bar-solo';
-          if (prevKey === phaseKey && nextKey === phaseKey) roundClass = 'bar-mid';
-          else if (prevKey === phaseKey) roundClass = 'bar-right';
-          else if (nextKey === phaseKey) roundClass = 'bar-left';
-          const maybeClass     = plant.status === 'undecided' ? ' bar-maybe' : '';
-          const willplantClass = plant.status === 'willplant' ? ' bar-willplant' : '';
-          if (isDual) {
-            const PHASE_COLORS = { indoor:'var(--indoor)', transplant:'var(--transplant)', direct:'var(--direct-sow)', harvest:'var(--harvest-color)', marigold:'#f0b03a' };
-            const c1 = PHASE_COLORS[phase[0]] || '#ccc';
-            const c2 = PHASE_COLORS[phase[1]] || '#999';
-            barHtml = `<div class="bar bar-split ${roundClass}${maybeClass}${willplantClass}" style="background:linear-gradient(135deg,${c1} 50%,${c2} 50%)"></div>`;
-          } else {
-            barHtml = `<div class="bar bar-${phase} ${roundClass}${maybeClass}${willplantClass}"></div>`;
-          }
-        }
-        cellsHtml += `<td class="${cls}">${barHtml}</td>`;
+      plantsInBed.forEach((plant, plantIdx) => {
+        const { plantTr, detailTr } = buildPlantRowPair(plant, plantIdx > 0, plantIdx < plantsInBed.length - 1, 'bed', bed);
+        tbody.appendChild(plantTr);
+        tbody.appendChild(detailTr);
       });
+    });
 
-      const qtyHtml = (plant.qty && plant.qty > 1) ? `<span class="plant-qty">×${plant.qty}</span>` : '';
-      plantTr.innerHTML = `
-        <td><div style="display:flex;align-items:center;">
-          <div class="plant-info" onclick="toggleDetail('${plant.id}')" style="flex:1;min-width:0;">
-            <span class="plant-name">${plant.name} ${qtyHtml}</span>
-            ${varietyHtml}
-            <span class="plant-dtm">${plant.dtm}</span>
-            ${badgeHtml}
-            <span class="expand-arrow">▾</span>
-          </div>
-          <div class="plant-reorder-btns">
-            <button class="plant-reorder-btn" onclick="event.stopPropagation();reorderPlant('${plant.id}',-1)" ${!canPlantMoveUp ? 'disabled' : ''} title="Move up">↑</button>
-            <button class="plant-reorder-btn" onclick="event.stopPropagation();reorderPlant('${plant.id}',1)"  ${!canPlantMoveDown ? 'disabled' : ''} title="Move down">↓</button>
-          </div>
-        </div></td>${cellsHtml}`;
+  // ══ STATUS VIEW ══════════════════════════════════════════════
+  } else if (_viewMode === 'status') {
+    const STATUS_ORDER  = ['planted', 'willplant', 'undecided'];
+    const STATUS_LABELS = { planted: '🪴 Planted', willplant: '🪏 Will Plant', undecided: '? Undecided' };
+    const STATUS_COLORS = { planted: '#4a7a3a', willplant: '#4a7a9b', undecided: '#9b7a3a' };
+
+    STATUS_ORDER.forEach(statusKey => {
+      const groupPlants = plants.filter(p => p.status === statusKey);
+      if (!groupPlants.length) return;
+      const tbody = document.createElement('tbody');
+      tbody.dataset.statusGroup = statusKey;
+      table.appendChild(tbody);
+
+      const color     = STATUS_COLORS[statusKey];
+      const headerTr  = document.createElement('tr');
+      headerTr.className = 'status-group-row';
+      headerTr.innerHTML = `
+        <td style="background:${color}">
+          <div class="status-group-header">${STATUS_LABELS[statusKey]}</div>
+        </td>
+        <td colspan="24" style="background:${color}"></td>`;
+      tbody.appendChild(headerTr);
+
+      groupPlants.forEach((plant, idx) => {
+        const bed = bedMap[plant.bed] || bedMap['unassigned'];
+        const { plantTr, detailTr } = buildPlantRowPair(plant, idx > 0, idx < groupPlants.length - 1, 'status', bed);
+        tbody.appendChild(plantTr);
+        tbody.appendChild(detailTr);
+      });
+    });
+
+  // ══ ALPHABETICAL VIEW ════════════════════════════════════════
+  } else if (_viewMode === 'alpha') {
+    const sorted = [...plants].sort((a, b) => {
+      const n = a.name.localeCompare(b.name);
+      return n !== 0 ? n : (a.variety || '').localeCompare(b.variety || '');
+    });
+    const tbody = document.createElement('tbody');
+    table.appendChild(tbody);
+    sorted.forEach(plant => {
+      const bed = bedMap[plant.bed] || bedMap['unassigned'];
+      const { plantTr, detailTr } = buildPlantRowPair(plant, false, false, 'alpha', bed);
       tbody.appendChild(plantTr);
-
-      // Detail panel
-      const detailTr = document.createElement('tr');
-      detailTr.className = 'detail-row';
-      detailTr.id = `detail-${plant.id}`;
-
-      const bedOptions = getBeds().map(b =>
-        `<option value="${b.id}" ${b.id === plant.bed ? 'selected' : ''}>${b.label.toUpperCase()}</option>`
-      ).join('');
-
-      const statusOptions = Object.entries(STATUS_CONFIG).map(([val, cfg]) =>
-        `<option value="${val}" ${val === plant.status ? 'selected' : ''}>${cfg.label}</option>`
-      ).join('');
-
-      detailTr.innerHTML = `<td colspan="25">
-        <div class="detail-panel" id="panel-${plant.id}">
-          <div class="panel-controls">
-            <label class="panel-label">Status:
-              <select class="panel-select" onchange="updateStatus('${plant.id}', this.value)">${statusOptions}</select>
-            </label>
-            <label class="panel-label">Bed:
-              <select class="panel-select" onchange="reassign('${plant.id}', this.value)">${bedOptions}</select>
-            </label>
-            <label class="panel-label">Qty:
-              <input type="number" class="panel-select" min="1" value="${plant.qty || 1}" style="width:54px;" onchange="updateQty('${plant.id}', this.value)" />
-            </label>
-            <button class="panel-btn btn-remove" onclick="removePlant('${plant.id}')">✕ Remove</button>
-          </div>
-          <hr class="panel-divider">
-          ${buildCarePanel(plant.name, plant.variety)}
-        </div></td>`;
       tbody.appendChild(detailTr);
     });
-  });
+  }
 
   // Restore scroll position (prevents jump when qty/status/bed changes trigger re-render)
   if (wrap) {
@@ -1595,7 +1722,10 @@ function reorderPlant(plantId, dir) {
   const plants   = getPlants();
   const plant    = plants.find(p => p.id === plantId);
   if (!plant) return;
-  const bedPlants = plants.filter(p => p.bed === plant.bed);
+  // In status view reorder within the status group; otherwise within the bed
+  const bedPlants = _viewMode === 'status'
+    ? plants.filter(p => p.status === plant.status)
+    : plants.filter(p => p.bed === plant.bed);
   const idx       = bedPlants.findIndex(p => p.id === plantId);
   const newIdx    = idx + dir;
   if (newIdx < 0 || newIdx >= bedPlants.length) return;
@@ -2270,6 +2400,13 @@ if (!getSnapshots().length) saveSnapshot('Session start');
 
 // Close open detail panel when clicking outside of it
 document.addEventListener('click', function(e) {
+  // Close view dropdown if clicking outside it
+  const viewDd = document.getElementById('view-dropdown');
+  if (viewDd && viewDd.classList.contains('open') && !e.target.closest('.view-corner-wrap')) {
+    viewDd.classList.remove('open');
+  }
+
+  // Close detail panel if clicking outside it
   const openPanel = document.querySelector('.detail-panel.open');
   if (!openPanel) return;
   if (openPanel.contains(e.target)) return;       // click inside panel — ignore
