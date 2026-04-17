@@ -278,11 +278,11 @@
   .frost-snowflake {
     position: absolute; left: -1px; top: 50%;
     transform: translate(-50%, -50%);
-    width: 1.15rem; height: 1.15rem;
+    width: 1.44rem; height: 1.44rem;
     cursor: pointer; z-index: 20;
     touch-action: manipulation; -webkit-tap-highlight-color: transparent;
     display: flex; align-items: center; justify-content: center;
-    background: var(--moss);
+    background: #3d5230;
     border-radius: 50%;
     padding: 2px;
   }
@@ -2132,7 +2132,30 @@ function submitAddPlant() {
 // ══════════════════════════════════════════════════════════════
 // BED EDIT POPOVER
 // ══════════════════════════════════════════════════════════════
-const BEP_COLORS = ['#4a7a9b','#7a5e9b','#9b7a3a','#4a9b6a','#9b4a6a','#6a4a9b','#9b6a4a','#4a9b9b','#7a7a4a','#888'];
+const BEP_COLORS = [
+  // Reds
+  '#c0392b', '#e74c3c',
+  // Oranges
+  '#e67e22', '#ca6f1e',
+  // Yellows (darkened for white-text legibility)
+  '#b7950b', '#9a7d0a',
+  // Greens
+  '#27ae60', '#1e8449',
+  // Teals
+  '#1abc9c', '#148f77',
+  // Blues
+  '#2980b9', '#4a7a9b',
+  // Indigo / Violet
+  '#4a235a', '#7a5e9b',
+  // Purples
+  '#7d3c98', '#6a4a9b',
+  // Pinks
+  '#c0395b', '#9b4a6a',
+  // Earth / Browns
+  '#9b7a3a', '#8b5e3c',
+  // Neutrals
+  '#7f8c8d', '#888',
+];
 let _editingBedId   = null;
 let _bepChosenColor = null;
 let _bepTriggerEl   = null;
