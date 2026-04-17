@@ -42,12 +42,14 @@
     color: var(--ink);
     min-height: 100vh;
     padding: 24px 16px 48px;
+    padding-left: max(16px, 2vw);
+    padding-right: max(16px, 2vw);
     background-image:
       radial-gradient(ellipse at 20% 0%, rgba(77,62,42,0.8) 0%, transparent 60%),
       radial-gradient(ellipse at 80% 100%, rgba(74,94,58,0.4) 0%, transparent 50%);
   }
 
-  .page-wrap { max-width: 1100px; margin: 0 auto; }
+  .page-wrap { max-width: 1600px; margin: 0 auto; }
 
   header { text-align: center; padding: 32px 0 24px; animation: fadeDown 0.7s ease both; }
   header h1 { font-family: 'Playfair Display', serif; font-size: clamp(1.5rem, 5vw, 2.4rem); color: var(--cream); letter-spacing: 0.02em; }
