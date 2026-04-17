@@ -13,7 +13,8 @@
   */
 
   :root {
-    --thead-h: 52px;
+    --thead-h: 62px;
+    --month-row-h: 38px;
     --soil: #3d2b1f;
     --moss: #4a5e3a;
     --sprout: #b5cc8e;
@@ -80,7 +81,7 @@
 
   /* ── HALF-MONTH SUBHEADER ── */
   thead tr.half-row th {
-    position: sticky; top: 26px; z-index: 20;
+    position: sticky; top: var(--month-row-h); z-index: 20;
     background: #3d5230;
     padding: 2px 2px 6px;
     font-size: 0.55rem; font-weight: 400; letter-spacing: 0.05em; text-transform: uppercase;
@@ -1426,10 +1427,14 @@ function render() {
   const plants  = getPlants();
   table.querySelectorAll('tbody').forEach(tb => tb.remove());
 
-  // Set --thead-h so sticky top offsets correctly
+  // Measure and set sticky offset variables after layout
   requestAnimationFrame(() => {
-    const h = table.querySelector('thead')?.offsetHeight || 52;
-    document.documentElement.style.setProperty('--thead-h', `${h}px`);
+    const thead    = table.querySelector('thead');
+    const monthRow = thead?.querySelector('tr.month-row');
+    const mh = monthRow?.offsetHeight || 38;
+    const th = thead?.offsetHeight    || 62;
+    document.documentElement.style.setProperty('--month-row-h', `${mh}px`);
+    document.documentElement.style.setProperty('--thead-h',     `${th}px`);
   });
 
   // ── Shared helper: build 24 bar-cell columns for a plant ──
@@ -1492,7 +1497,7 @@ function render() {
       </div>` : '';
 
     plantTr.innerHTML = `
-      <td style="border-left:3px solid ${bed.color}"><div style="display:flex;align-items:center;">
+      <td><div style="display:flex;align-items:center;">
         <div class="plant-info" onclick="toggleDetail('${plant.id}')" style="flex:1;min-width:0;">
           <span class="plant-name">${plant.name} ${qtyHtml}</span>
           ${varietyHtml}
@@ -1501,6 +1506,8 @@ function render() {
         </div>
         ${reorderBtns}
       </div></td>${buildCellsHtml(plant)}`;
+    // Apply bed color stripe directly — inline HTML can't reliably interpolate in all contexts
+    if (plantTr.cells[0]) plantTr.cells[0].style.borderLeft = `3px solid ${bed.color}`;
 
     // Detail row (same for all view modes)
     const detailTr = document.createElement('tr');
