@@ -504,7 +504,7 @@
 <div class="page-wrap">
   <header>
     <h1>🌱 My Garden Planting Calendar</h1>
-    <p>Zone 8b · Portland, OR · 2026 · Portland Nursery Timing</p>
+    <p>Zone 8b · Portland, OR · 97201</p>
   </header>
   <div class="frost-note">
     <strong>Zone 8b Frost Dates:</strong> Last frost ~<strong>Mar 15</strong> · First fall frost ~<strong>Nov 15</strong> · Growing season ≈ 245 days
@@ -548,7 +548,7 @@
 
     <div class="bottom-legend">
       <strong>Column guide:</strong> <strong>E</strong> = Early (1st–15th) · <strong>L</strong> = Late (16th–end) ·
-      Timing: <em>Portland Nursery Veggie Calendar</em> ·
+      Timing: <em>Zone 8b · 97201</em> ·
       <strong>Tap a plant</strong> to change status, reassign bed, or remove ·
       <strong>Tap a bed name</strong> to rename
     </div>
@@ -568,7 +568,7 @@
       </div>
     </div>
   </div>
-  <p class="tip">Scroll right to see all months · Headers stay fixed · Blue = current period</p>
+  <p class="tip">Scroll right to see all months · Headers stay fixed · Green column = current period · Blue lines = frost dates</p>
 </div>
 
 <!-- CONFIRM DIALOG -->
@@ -2011,6 +2011,18 @@ function importGardenData(e) {
 
 // Auto-save initial snapshot on first load if history is empty
 if (!getSnapshots().length) saveSnapshot('Session start');
+
+// Close open detail panel when clicking outside of it
+document.addEventListener('click', function(e) {
+  const openPanel = document.querySelector('.detail-panel.open');
+  if (!openPanel) return;
+  if (openPanel.contains(e.target)) return;       // click inside panel — ignore
+  if (e.target.closest('.plant-info')) return;    // plant row — toggleDetail handles it
+  if (e.target.closest('.bed-edit-popover')) return; // bed popover — ignore
+  document.querySelectorAll('.detail-panel').forEach(p => p.classList.remove('open'));
+  document.querySelectorAll('.plant-info').forEach(i => i.classList.remove('expanded'));
+  document.querySelectorAll('#main-table tbody').forEach(tb => tb.classList.remove('has-open-panel'));
+});
 
 // ── One-time migration: refresh months for direct-sow plants so stored
 //    'transplant' phases update to 'direct' after the database change ──
