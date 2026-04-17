@@ -239,11 +239,16 @@
   .frost-snowflake {
     position: absolute; left: -1px; top: 50%;
     transform: translate(-50%, -50%);
-    font-size: 0.92rem; line-height: 1; cursor: pointer; z-index: 20;
-    color: rgba(100,185,235,0.95);
+    width: 0.92rem; height: 0.92rem;
+    cursor: pointer; z-index: 20;
     touch-action: manipulation; -webkit-tap-highlight-color: transparent;
+    display: flex; align-items: center; justify-content: center;
   }
-  .frost-snowflake:hover { color: #fff; }
+  .frost-snowflake img {
+    width: 100%; height: 100%; object-fit: contain; opacity: 0.9;
+    transition: opacity 0.15s, filter 0.15s;
+  }
+  .frost-snowflake:hover img { opacity: 1; filter: brightness(1.3); }
   #frost-tooltip {
     position: fixed; background: #1a2a3a; color: #b8daf0;
     border: 1px solid rgba(160,220,255,0.35); border-radius: 6px;
@@ -522,11 +527,11 @@
                 <button class="add-plant-btn" onclick="event.stopPropagation(); openAddBed()">🪴 + Bed</button>
               </div>
             </th>
-            <th>E</th><th>L</th><th>E</th><th>L</th><th>E</th><th class="frost-l" id="frost-spring"><span class="frost-snowflake" onclick="showFrostTip(event,'spring')">❄</span>L</th>
+            <th>E</th><th>L</th><th>E</th><th>L</th><th>E</th><th class="frost-l" id="frost-spring"><span class="frost-snowflake" onclick="showFrostTip(event,'spring')"><img src="simple-blue-snowflakes-png-8.png" alt="❄"></span>L</th>
             <th class="current-half">E</th><th>L</th>
             <th>E</th><th>L</th><th>E</th><th>L</th><th>E</th><th>L</th>
             <th>E</th><th>L</th><th>E</th><th>L</th><th>E</th><th>L</th>
-            <th>E</th><th class="frost-l" id="frost-fall"><span class="frost-snowflake" onclick="showFrostTip(event,'fall')">❄</span>L</th><th>E</th><th>L</th>
+            <th>E</th><th class="frost-l" id="frost-fall"><span class="frost-snowflake" onclick="showFrostTip(event,'fall')"><img src="simple-blue-snowflakes-png-8.png" alt="❄"></span>L</th><th>E</th><th>L</th>
           </tr>
         </thead>
         <tbody id="calendar-body"></tbody>
