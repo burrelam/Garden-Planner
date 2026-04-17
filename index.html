@@ -69,11 +69,11 @@
     background: var(--moss);
     padding: 8px 2px 2px;
     font-size: 0.7rem; font-weight: 600; letter-spacing: 0.07em; text-transform: uppercase;
-    text-align: center; color: var(--sprout);
+    text-align: center; color: var(--moss);
     border-left: 2px solid rgba(255,255,255,0.15); white-space: nowrap;
   }
   thead tr.month-row th:first-child { border-left: none; }
-  thead tr.month-row th.current-month-header { color: var(--cream); }
+  thead tr.month-row th.current-month-header { color: #a8d870; }
 
   /* ── HALF-MONTH SUBHEADER ── */
   thead tr.half-row th {
@@ -81,11 +81,11 @@
     background: #3d5230;
     padding: 2px 2px 6px;
     font-size: 0.55rem; font-weight: 400; letter-spacing: 0.05em; text-transform: uppercase;
-    text-align: center; color: rgba(181,204,142,0.7);
+    text-align: center; color: #3d5230;
     border-left: 1px solid rgba(255,255,255,0.06); white-space: nowrap;
   }
   thead tr.half-row th:first-child { border-left: none; }
-  thead tr.half-row th.current-half { color: var(--cream); font-weight: 600; }
+  thead tr.half-row th.current-half { color: #a8d870; font-weight: 600; }
 
   /* Add plant/bed buttons in header */
   .header-btn-group {
@@ -230,11 +230,11 @@
   .detail-coming-soon { font-style: italic; color: #aaa; font-size: 0.7rem; }
 
   /* ── FROST INDICATORS ── */
-  th.frost-l { position: relative; border-left: 2px solid rgba(90,165,220,0.20) !important; overflow: visible; }
+  th.frost-l { position: relative; border-left: 3px solid rgba(0,200,255,0.70) !important; overflow: visible; }
   /* Frost tick line extends down through all plant rows */
   #main-table tbody td:nth-child(7),
   #main-table tbody td:nth-child(23) {
-    border-left: 2px solid rgba(90,165,220,0.20) !important;
+    border-left: 3px solid rgba(0,200,255,0.70) !important;
   }
   .frost-snowflake {
     position: absolute; left: -1px; top: 50%;
@@ -331,7 +331,7 @@
   th.current-half::after {
     content: ''; position: absolute; top: 0; bottom: 0;
     left: var(--today-pos, 50%);
-    width: 1.5px; background: rgba(40,30,20,0.3);
+    width: 3px; background: rgba(57,255,20,0.85);
     pointer-events: none; z-index: 1;
   }
   th.current-half { position: relative; }
