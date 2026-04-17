@@ -22,9 +22,9 @@
     --cream: #f5f0e8;
     --parchment: #ede6d6;
     --ink: #2a1f16;
-    --indoor: #3a6b2a;
+    --indoor: #d4543a;
     --transplant: #e8c96d;
-    --harvest-color: #d4543a;
+    --harvest-color: #3a6b2a;
     --bed-a: #4a7a9b;
     --bed-b: #7a5e9b;
     --bed-c: #9b7a3a;
@@ -73,7 +73,7 @@
     border-left: 2px solid rgba(255,255,255,0.15); white-space: nowrap;
   }
   thead tr.month-row th:first-child { border-left: none; }
-  thead tr.month-row th.current-month-header { color: #b8e87a; }
+  thead tr.month-row th.current-month-header { color: var(--cream); }
 
   /* ── HALF-MONTH SUBHEADER ── */
   thead tr.half-row th {
@@ -85,7 +85,7 @@
     border-left: 1px solid rgba(255,255,255,0.06); white-space: nowrap;
   }
   thead tr.half-row th:first-child { border-left: none; }
-  thead tr.half-row th.current-half { color: #b8e87a; font-weight: 600; }
+  thead tr.half-row th.current-half { color: var(--cream); font-weight: 600; }
 
   /* Add plant/bed buttons in header */
   .header-btn-group {
@@ -230,11 +230,11 @@
   .detail-coming-soon { font-style: italic; color: #aaa; font-size: 0.7rem; }
 
   /* ── FROST INDICATORS ── */
-  th.frost-l { position: relative; border-left: 2px solid rgba(90,165,220,0.85) !important; overflow: visible; }
+  th.frost-l { position: relative; border-left: 2px solid rgba(90,165,220,0.20) !important; overflow: visible; }
   /* Frost tick line extends down through all plant rows */
   #main-table tbody td:nth-child(7),
   #main-table tbody td:nth-child(23) {
-    border-left: 2px solid rgba(90,165,220,0.85) !important;
+    border-left: 2px solid rgba(90,165,220,0.20) !important;
   }
   .frost-snowflake {
     position: absolute; left: -1px; top: 50%;
@@ -326,7 +326,15 @@
   /* ── MONTH CELLS ── */
   td.hcol { padding: 5px 1px; border-left: 1px solid #ede5d8; min-width: 22px; width: 22px; vertical-align: middle; }
   td.hcol.month-start { border-left: 2px solid #d5cab8; }
-  td.hcol.current-half-col { background: rgba(90,160,55,0.12); }
+  td.hcol.current-half-col { background: rgba(90,160,55,0.12); position: relative; }
+  td.hcol.current-half-col::after,
+  th.current-half::after {
+    content: ''; position: absolute; top: 0; bottom: 0;
+    left: var(--today-pos, 50%);
+    width: 1.5px; background: rgba(40,30,20,0.3);
+    pointer-events: none; z-index: 1;
+  }
+  th.current-half { position: relative; }
 
   tbody tr { border-top: 1px solid #e5ddd0; }
   tbody tr:hover td { background: rgba(181,204,142,0.05); }
@@ -1033,10 +1041,28 @@ function render() {
   const savedScrollTop  = wrap ? wrap.scrollTop  : 0;
   const savedScrollLeft = wrap ? wrap.scrollLeft : 0;
 
+  // Current date calculations for column highlight + today tick
+  const _now          = new Date();
+  const _month        = _now.getMonth();           // 0–11
+  const _day          = _now.getDate();
+  const _isLate       = _day > 15;
+  const _currentColIdx = _month * 2 + (_isLate ? 1 : 0);
+  const _daysInMonth  = new Date(_now.getFullYear(), _month + 1, 0).getDate();
+  const _dayFrac      = (_day - 0.5) / _daysInMonth;   // 0→1 through month
+  const _halfFrac     = _isLate ? (_dayFrac - 0.5) * 2 : _dayFrac * 2; // 0→1 within column
+  const _todayPct     = Math.min(100, Math.max(0, _halfFrac * 100)).toFixed(1) + '%';
+
+  // Push today's position as a CSS variable on the table
+  const table = document.getElementById('main-table');
+  if (table) table.style.setProperty('--today-pos', _todayPct);
+
+  // Sync thead current-half class to actual today
+  document.querySelectorAll('thead tr.half-row th:not(.corner)').forEach((th, i) => {
+    th.classList.toggle('current-half', i === _currentColIdx);
+  });
+
   const beds    = getBeds();
   const plants  = getPlants();
-  // Replace all tbodies with one per bed for sticky headers
-  const table = document.getElementById('main-table');
   table.querySelectorAll('tbody').forEach(tb => tb.remove());
 
   // Set --thead-h so sticky top offsets correctly
@@ -1127,7 +1153,7 @@ function render() {
       let cellsHtml = '';
       plant.months.forEach((phase, i) => {
         const isMonthStart = i % 2 === 0;
-        const isCurrent    = i === 6;
+        const isCurrent    = i === _currentColIdx;
         let cls = 'hcol';
         if (isMonthStart) cls += ' month-start';
         if (isCurrent)    cls += ' current-half-col';
