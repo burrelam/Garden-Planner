@@ -24,6 +24,7 @@
     --ink: #2a1f16;
     --indoor: #d4543a;
     --transplant: #e8c96d;
+    --direct-sow: #e8872a;
     --harvest-color: #3a6b2a;
     --bed-a: #4a7a9b;
     --bed-b: #7a5e9b;
@@ -351,6 +352,7 @@
   .bar { height: 16px; border-radius: 2px; width: 100%; display: block; position: relative; overflow: hidden; }
   .bar-indoor     { background: var(--indoor);        opacity: 0.85; }
   .bar-transplant { background: var(--transplant);    opacity: 0.9;  }
+  .bar-direct     { background: var(--direct-sow);    opacity: 0.9;  }
   .bar-harvest    { background: var(--harvest-color); opacity: 0.85; }
   .bar-marigold   { background: #f0b03a;               opacity: 0.85; }
   .bar-maybe      { opacity: 0.38 !important; }
@@ -505,6 +507,7 @@
   <div class="legend">
     <div class="legend-item"><div class="legend-swatch" style="background:var(--indoor)"></div>Start Seeds Indoors</div>
     <div class="legend-item"><div class="legend-swatch" style="background:var(--transplant)"></div>Plant / Transplant Outdoors</div>
+    <div class="legend-item"><div class="legend-swatch" style="background:var(--direct-sow)"></div>Direct Sow Outdoors</div>
     <div class="legend-item"><div class="legend-swatch" style="background:var(--harvest-color)"></div>Harvest Window</div>
   </div>
 
@@ -718,11 +721,11 @@ const PLANT_DATABASE = {
   },
   'Peas': {
     varieties: {
-      'Sugar Snap': { dtm: '60–70 days', months: makeMonths([[2,5,'transplant'],[6,11,'harvest'],[14,15,'transplant'],[18,21,'harvest']]) },
-      'Snow Pea':   { dtm: '55–70 days', months: makeMonths([[2,5,'transplant'],[6,11,'harvest'],[14,15,'transplant'],[18,21,'harvest']]) },
-      'Shelling':   { dtm: '70–80 days', months: makeMonths([[2,5,'transplant'],[6,11,'harvest'],[14,15,'transplant'],[18,21,'harvest']]) },
+      'Sugar Snap': { dtm: '60–70 days', months: makeMonths([[2,5,'direct'],[6,11,'harvest'],[14,15,'direct'],[18,21,'harvest']]) },
+      'Snow Pea':   { dtm: '55–70 days', months: makeMonths([[2,5,'direct'],[6,11,'harvest'],[14,15,'direct'],[18,21,'harvest']]) },
+      'Shelling':   { dtm: '70–80 days', months: makeMonths([[2,5,'direct'],[6,11,'harvest'],[14,15,'direct'],[18,21,'harvest']]) },
     },
-    default: { dtm: '60–80 days', months: makeMonths([[2,5,'transplant'],[6,11,'harvest'],[14,15,'transplant'],[18,21,'harvest']]) }
+    default: { dtm: '60–80 days', months: makeMonths([[2,5,'direct'],[6,11,'harvest'],[14,15,'direct'],[18,21,'harvest']]) }
   },
   'Lettuce': {
     varieties: {
@@ -734,7 +737,7 @@ const PLANT_DATABASE = {
   },
   'Carrots': {
     varieties: {},
-    default: { dtm: '70–80 days', months: makeMonths([[4,7,'transplant'],[10,13,'harvest'],[14,15,'transplant'],[18,23,'harvest']]) }
+    default: { dtm: '70–80 days', months: makeMonths([[4,7,'direct'],[10,13,'harvest'],[14,15,'direct'],[18,23,'harvest']]) }
   },
   'Celery': {
     varieties: {},
@@ -742,11 +745,11 @@ const PLANT_DATABASE = {
   },
   'Beans': {
     varieties: {
-      'Purple String': { dtm: '50–60 days', months: makeMonths([[7,9,'transplant'],[12,15,'harvest']]) },
-      'Green Bush':    { dtm: '50–60 days', months: makeMonths([[7,9,'transplant'],[12,15,'harvest']]) },
-      'Pole Bean':     { dtm: '60–70 days', months: makeMonths([[7,9,'transplant'],[12,15,'harvest']]) },
+      'Purple String': { dtm: '50–60 days', months: makeMonths([[7,9,'direct'],[12,15,'harvest']]) },
+      'Green Bush':    { dtm: '50–60 days', months: makeMonths([[7,9,'direct'],[12,15,'harvest']]) },
+      'Pole Bean':     { dtm: '60–70 days', months: makeMonths([[7,9,'direct'],[12,15,'harvest']]) },
     },
-    default: { dtm: '50–70 days', months: makeMonths([[7,9,'transplant'],[12,15,'harvest']]) }
+    default: { dtm: '50–70 days', months: makeMonths([[7,9,'direct'],[12,15,'harvest']]) }
   },
   'Cucumbers': {
     varieties: {
@@ -807,31 +810,31 @@ const PLANT_DATABASE = {
   },
   'Radishes': {
     varieties: {},
-    default: { dtm: '22–25 days', months: makeMonths([[4,11,'transplant'],[6,13,'harvest'],[14,17,'transplant'],[16,19,'harvest']]) }
+    default: { dtm: '22–25 days', months: makeMonths([[4,11,'direct'],[6,13,'harvest'],[14,17,'direct'],[16,19,'harvest']]) }
   },
   'Beets': {
     varieties: {},
-    default: { dtm: '55–70 days', months: makeMonths([[2,7,'transplant'],[8,13,'harvest'],[14,17,'transplant'],[18,21,'harvest']]) }
+    default: { dtm: '55–70 days', months: makeMonths([[2,7,'direct'],[8,13,'harvest'],[14,17,'direct'],[18,21,'harvest']]) }
   },
   // ── NEW ADDITIONS ──
   // Source: Portland Nursery Veggie Calendar (Willamette Valley)
   'Green Onions': {
     varieties: {
-      'Scallion': { dtm: '60–80 days', months: makeMonths([[2,9,'transplant'],[6,15,'harvest'],[16,19,'transplant'],[18,21,'harvest']]) },
+      'Scallion': { dtm: '60–80 days', months: makeMonths([[2,9,'direct'],[6,15,'harvest'],[16,19,'direct'],[18,21,'harvest']]) },
     },
-    default: { dtm: '60–80 days', months: makeMonths([[2,9,'transplant'],[6,15,'harvest'],[16,19,'transplant'],[18,21,'harvest']]) }
+    default: { dtm: '60–80 days', months: makeMonths([[2,9,'direct'],[6,15,'harvest'],[16,19,'direct'],[18,21,'harvest']]) }
   },
   'Spinach': {
     varieties: {
-      'Savoy':     { dtm: '40–50 days', months: makeMonths([[2,7,'transplant'],[6,11,'harvest'],[14,17,'transplant'],[18,21,'harvest']]) },
-      'Flat Leaf': { dtm: '38–45 days', months: makeMonths([[2,7,'transplant'],[6,11,'harvest'],[14,17,'transplant'],[18,21,'harvest']]) },
+      'Savoy':     { dtm: '40–50 days', months: makeMonths([[2,7,'direct'],[6,11,'harvest'],[14,17,'direct'],[18,21,'harvest']]) },
+      'Flat Leaf': { dtm: '38–45 days', months: makeMonths([[2,7,'direct'],[6,11,'harvest'],[14,17,'direct'],[18,21,'harvest']]) },
     },
-    default: { dtm: '40–50 days', months: makeMonths([[2,7,'transplant'],[6,11,'harvest'],[14,17,'transplant'],[18,21,'harvest']]) }
+    default: { dtm: '40–50 days', months: makeMonths([[2,7,'direct'],[6,11,'harvest'],[14,17,'direct'],[18,21,'harvest']]) }
   },
   'Cilantro': {
     varieties: {},
     // Direct sow Mar–May and Aug–Sep; bolts in heat so two short windows
-    default: { dtm: '45–70 days', months: makeMonths([[4,9,'transplant'],[8,13,'harvest'],[14,17,'transplant'],[16,19,'harvest']]) }
+    default: { dtm: '45–70 days', months: makeMonths([[4,9,'direct'],[8,13,'harvest'],[14,17,'direct'],[16,19,'harvest']]) }
   },
   'Cabbage': {
     varieties: {
@@ -1513,7 +1516,7 @@ function openAddPlant() {
 
   // Populate bed dropdown
   const bedSelect = document.getElementById('form-bed');
-  bedSelect.innerHTML = getBeds().map(b => `<option value="${b.id}">${b.label.toUpperCase()}</option>`).join('') +
+  bedSelect.innerHTML = getBeds().map(b => `<option value="${b.id}" ${b.id === 'unassigned' ? 'selected' : ''}>${b.label.toUpperCase()}</option>`).join('') +
     '<option value="__new_bed__">＋ New bed…</option>';
   document.getElementById('form-new-bed-name').style.display = 'none';
   document.getElementById('form-new-bed-name').value = '';
