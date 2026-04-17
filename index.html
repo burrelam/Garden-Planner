@@ -24,6 +24,7 @@
     --ink: #2a1f16;
     --indoor: #d4543a;
     --transplant: #e8c96d;
+    --direct-sow: #e8872a;
     --harvest-color: #3a6b2a;
     --bed-a: #4a7a9b;
     --bed-b: #7a5e9b;
@@ -273,7 +274,8 @@
   .care-col ul { margin: 0 0 6px; padding-left: 14px; }
   .care-col li { font-size: 0.49rem; color: #6a5a48; margin-bottom: 2px; line-height: 1.45; }
   @media (min-width: 768px) {
-    .care-col li { font-size: 0.60rem; }
+    .care-col li     { font-size: 0.70rem; }
+    .care-col strong { font-size: 0.74rem; }
   }
   .care-safe  { font-size: 0.67rem; color: #7a9a6a; margin-top: 6px; }
 
@@ -351,8 +353,13 @@
   .bar { height: 16px; border-radius: 2px; width: 100%; display: block; position: relative; overflow: hidden; }
   .bar-indoor     { background: var(--indoor);        opacity: 0.85; }
   .bar-transplant { background: var(--transplant);    opacity: 0.9;  }
+  .bar-direct     { background: var(--direct-sow);    opacity: 0.9;  }
   .bar-harvest    { background: var(--harvest-color); opacity: 0.85; }
   .bar-marigold   { background: #f0b03a;               opacity: 0.85; }
+  .bar-split      { opacity: 0.9; }
+
+  /* Placeholder row — must not inherit sticky-left treatment */
+  tr.placeholder-row td { position: static !important; left: auto !important; min-width: 0 !important; width: auto !important; }
   .bar-maybe      { opacity: 0.38 !important; }
   .bar-left  { border-radius: 3px 0 0 3px; }
   .bar-right { border-radius: 0 3px 3px 0; }
@@ -497,14 +504,15 @@
 <div class="page-wrap">
   <header>
     <h1>🌱 My Garden Planting Calendar</h1>
-    <p>Zone 8b · Portland, OR · 2026 · Portland Nursery Timing</p>
+    <p>Zone 8b · Portland, OR · 97201</p>
   </header>
   <div class="frost-note">
     <strong>Zone 8b Frost Dates:</strong> Last frost ~<strong>Mar 15</strong> · First fall frost ~<strong>Nov 15</strong> · Growing season ≈ 245 days
   </div>
   <div class="legend">
     <div class="legend-item"><div class="legend-swatch" style="background:var(--indoor)"></div>Start Seeds Indoors</div>
-    <div class="legend-item"><div class="legend-swatch" style="background:var(--transplant)"></div>Plant / Transplant Outdoors</div>
+    <div class="legend-item"><div class="legend-swatch" style="background:var(--transplant)"></div>Transplant Outdoors</div>
+    <div class="legend-item"><div class="legend-swatch" style="background:var(--direct-sow)"></div>Direct Sow Outdoors</div>
     <div class="legend-item"><div class="legend-swatch" style="background:var(--harvest-color)"></div>Harvest Window</div>
   </div>
 
@@ -540,7 +548,7 @@
 
     <div class="bottom-legend">
       <strong>Column guide:</strong> <strong>E</strong> = Early (1st–15th) · <strong>L</strong> = Late (16th–end) ·
-      Timing: <em>Portland Nursery Veggie Calendar</em> ·
+      Timing: <em>Zone 8b · 97201</em> ·
       <strong>Tap a plant</strong> to change status, reassign bed, or remove ·
       <strong>Tap a bed name</strong> to rename
     </div>
@@ -560,7 +568,7 @@
       </div>
     </div>
   </div>
-  <p class="tip">Scroll right to see all months · Headers stay fixed · Blue = current period</p>
+  <p class="tip">Scroll right to see all months · Headers stay fixed · Green column = current period · Blue lines = frost dates</p>
 </div>
 
 <!-- CONFIRM DIALOG -->
@@ -718,11 +726,11 @@ const PLANT_DATABASE = {
   },
   'Peas': {
     varieties: {
-      'Sugar Snap': { dtm: '60–70 days', months: makeMonths([[2,5,'transplant'],[6,11,'harvest'],[14,15,'transplant'],[18,21,'harvest']]) },
-      'Snow Pea':   { dtm: '55–70 days', months: makeMonths([[2,5,'transplant'],[6,11,'harvest'],[14,15,'transplant'],[18,21,'harvest']]) },
-      'Shelling':   { dtm: '70–80 days', months: makeMonths([[2,5,'transplant'],[6,11,'harvest'],[14,15,'transplant'],[18,21,'harvest']]) },
+      'Sugar Snap': { dtm: '60–70 days', months: makeMonths([[2,5,'direct'],[6,11,'harvest'],[14,15,'direct'],[18,21,'harvest']]) },
+      'Snow Pea':   { dtm: '55–70 days', months: makeMonths([[2,5,'direct'],[6,11,'harvest'],[14,15,'direct'],[18,21,'harvest']]) },
+      'Shelling':   { dtm: '70–80 days', months: makeMonths([[2,5,'direct'],[6,11,'harvest'],[14,15,'direct'],[18,21,'harvest']]) },
     },
-    default: { dtm: '60–80 days', months: makeMonths([[2,5,'transplant'],[6,11,'harvest'],[14,15,'transplant'],[18,21,'harvest']]) }
+    default: { dtm: '60–80 days', months: makeMonths([[2,5,'direct'],[6,11,'harvest'],[14,15,'direct'],[18,21,'harvest']]) }
   },
   'Lettuce': {
     varieties: {
@@ -734,15 +742,19 @@ const PLANT_DATABASE = {
   },
   'Carrots': {
     varieties: {},
-    default: { dtm: '70–80 days', months: makeMonths([[4,7,'transplant'],[10,13,'harvest'],[14,15,'transplant'],[18,23,'harvest']]) }
+    default: { dtm: '70–80 days', months: makeMonths([[4,7,'direct'],[10,13,'harvest'],[14,15,'direct'],[18,23,'harvest']]) }
+  },
+  'Celery': {
+    varieties: {},
+    default: { dtm: '80–120 days', months: makeMonths([[2,4,'indoor'],[5,9,'transplant'],[12,19,'harvest']]) }
   },
   'Beans': {
     varieties: {
-      'Purple String': { dtm: '50–60 days', months: makeMonths([[7,9,'transplant'],[12,15,'harvest']]) },
-      'Green Bush':    { dtm: '50–60 days', months: makeMonths([[7,9,'transplant'],[12,15,'harvest']]) },
-      'Pole Bean':     { dtm: '60–70 days', months: makeMonths([[7,9,'transplant'],[12,15,'harvest']]) },
+      'Purple String': { dtm: '50–60 days', months: makeMonths([[7,9,'direct'],[12,15,'harvest']]) },
+      'Green Bush':    { dtm: '50–60 days', months: makeMonths([[7,9,'direct'],[12,15,'harvest']]) },
+      'Pole Bean':     { dtm: '60–70 days', months: makeMonths([[7,9,'direct'],[12,15,'harvest']]) },
     },
-    default: { dtm: '50–70 days', months: makeMonths([[7,9,'transplant'],[12,15,'harvest']]) }
+    default: { dtm: '50–70 days', months: makeMonths([[7,9,'direct'],[12,15,'harvest']]) }
   },
   'Cucumbers': {
     varieties: {
@@ -803,31 +815,31 @@ const PLANT_DATABASE = {
   },
   'Radishes': {
     varieties: {},
-    default: { dtm: '22–25 days', months: makeMonths([[4,11,'transplant'],[6,13,'harvest'],[14,17,'transplant'],[16,19,'harvest']]) }
+    default: { dtm: '22–25 days', months: makeMonths([[4,11,'direct'],[6,13,'harvest'],[14,17,'direct'],[16,19,'harvest']]) }
   },
   'Beets': {
     varieties: {},
-    default: { dtm: '55–70 days', months: makeMonths([[2,7,'transplant'],[8,13,'harvest'],[14,17,'transplant'],[18,21,'harvest']]) }
+    default: { dtm: '55–70 days', months: makeMonths([[2,7,'direct'],[8,13,'harvest'],[14,17,'direct'],[18,21,'harvest']]) }
   },
   // ── NEW ADDITIONS ──
   // Source: Portland Nursery Veggie Calendar (Willamette Valley)
   'Green Onions': {
     varieties: {
-      'Scallion': { dtm: '60–80 days', months: makeMonths([[2,9,'transplant'],[6,15,'harvest'],[16,19,'transplant'],[18,21,'harvest']]) },
+      'Scallion': { dtm: '60–80 days', months: makeMonths([[2,9,'direct'],[6,15,'harvest'],[16,19,'direct'],[18,21,'harvest']]) },
     },
-    default: { dtm: '60–80 days', months: makeMonths([[2,9,'transplant'],[6,15,'harvest'],[16,19,'transplant'],[18,21,'harvest']]) }
+    default: { dtm: '60–80 days', months: makeMonths([[2,9,'direct'],[6,15,'harvest'],[16,19,'direct'],[18,21,'harvest']]) }
   },
   'Spinach': {
     varieties: {
-      'Savoy':     { dtm: '40–50 days', months: makeMonths([[2,7,'transplant'],[6,11,'harvest'],[14,17,'transplant'],[18,21,'harvest']]) },
-      'Flat Leaf': { dtm: '38–45 days', months: makeMonths([[2,7,'transplant'],[6,11,'harvest'],[14,17,'transplant'],[18,21,'harvest']]) },
+      'Savoy':     { dtm: '40–50 days', months: makeMonths([[2,7,'direct'],[6,11,'harvest'],[14,17,'direct'],[18,21,'harvest']]) },
+      'Flat Leaf': { dtm: '38–45 days', months: makeMonths([[2,7,'direct'],[6,11,'harvest'],[14,17,'direct'],[18,21,'harvest']]) },
     },
-    default: { dtm: '40–50 days', months: makeMonths([[2,7,'transplant'],[6,11,'harvest'],[14,17,'transplant'],[18,21,'harvest']]) }
+    default: { dtm: '40–50 days', months: makeMonths([[2,7,'direct'],[6,11,'harvest'],[14,17,'direct'],[18,21,'harvest']]) }
   },
   'Cilantro': {
     varieties: {},
     // Direct sow Mar–May and Aug–Sep; bolts in heat so two short windows
-    default: { dtm: '45–70 days', months: makeMonths([[4,9,'transplant'],[8,13,'harvest'],[14,17,'transplant'],[16,19,'harvest']]) }
+    default: { dtm: '45–70 days', months: makeMonths([[4,9,'direct'],[8,13,'harvest'],[14,17,'direct'],[16,19,'harvest']]) }
   },
   'Cabbage': {
     varieties: {
@@ -855,6 +867,46 @@ const PLANT_DATABASE = {
     // Portland Nursery: plant bare root Feb–Apr; ever-bearing harvests Jun–Oct
     default: { dtm: '60+ days', months: makeMonths([[2,5,'transplant'],[8,17,'harvest']]) }
   },
+  // ── FLOWERS (Zone 8b) ──
+  'Zinnias': {
+    varieties: {
+      'Envy': { dtm: '75–90 days to bloom', months: makeMonths([[1,3,'indoor'],[6,9,['direct','transplant']],[10,19,'harvest']]) },
+    },
+    default: { dtm: '75–90 days to bloom', months: makeMonths([[1,3,'indoor'],[6,9,['direct','transplant']],[10,19,'harvest']]) }
+  },
+  'Sunflowers': {
+    varieties: {
+      'Autumn Beauty': { dtm: '75–85 days to bloom', months: makeMonths([[4,5,'indoor'],[6,9,'direct'],[12,17,'harvest']]) },
+    },
+    default: { dtm: '75–85 days to bloom', months: makeMonths([[4,5,'indoor'],[6,9,'direct'],[12,17,'harvest']]) }
+  },
+  'Dahlias': {
+    varieties: {
+      'Arabian Night':    { dtm: '100–109 days to bloom', months: makeMonths([[6,9,'transplant'],[12,19,'harvest']]) },
+      'Bishop\'s Children': { dtm: '84–98 days to bloom', months: makeMonths([[4,5,'indoor'],[6,9,'transplant'],[12,19,'harvest']]) },
+    },
+    // Plant tubers after last frost (late Apr in Zone 8b); perennializes in Zone 8b if mulched
+    default: { dtm: '84–109 days to bloom', months: makeMonths([[6,9,'transplant'],[12,19,'harvest']]) }
+  },
+  'Hydrangea': {
+    varieties: {},
+    // Perennial shrub — plant spring or fall; blooms June–September in Zone 8b
+    default: { dtm: 'Perennial shrub', months: makeMonths([[4,7,'transplant'],[10,17,'harvest']]) }
+  },
+  'Carnation': {
+    varieties: {},
+    // Start indoors Feb–Mar; transplant May; blooms Jun–Sep in Zone 8b
+    default: { dtm: '90–120 days to bloom', months: makeMonths([[2,5,'indoor'],[8,9,'transplant'],[10,17,'harvest']]) }
+  },
+  // ── VEGETABLES (Zone 8b) ──
+  'Potatoes': {
+    varieties: {
+      'Yukon Gold':      { dtm: '70–90 days', months: makeMonths([[4,7,'direct'],[12,17,'harvest']]) },
+      'Adirondack Red':  { dtm: '80–90 days', months: makeMonths([[4,7,'direct'],[12,17,'harvest']]) },
+    },
+    // Zone 8b: plant seed potatoes Mar–May; harvest Jul–Sep when foliage dies back
+    default: { dtm: '70–90 days', months: makeMonths([[4,7,'direct'],[12,17,'harvest']]) }
+  },
 };
 
 // ══════════════════════════════════════════════════════════════
@@ -862,14 +914,16 @@ const PLANT_DATABASE = {
 // ══════════════════════════════════════════════════════════════
 const PLANT_CATEGORIES = {
   'Tomato': 'vegetable', 'Pepper': 'vegetable', 'Peas': 'vegetable',
-  'Lettuce': 'vegetable', 'Carrots': 'vegetable', 'Beans': 'vegetable',
+  'Lettuce': 'vegetable', 'Carrots': 'vegetable', 'Celery': 'vegetable', 'Beans': 'vegetable',
   'Cucumbers': 'vegetable', 'Onions': 'vegetable', 'Zucchini': 'vegetable',
   'Squash': 'vegetable', 'Radishes': 'vegetable', 'Beets': 'vegetable',
   'Kale': 'vegetable', 'Spinach': 'vegetable', 'Cabbage': 'vegetable',
   'Cauliflower': 'vegetable',
   'Garlic': 'herb', 'Shallots': 'herb', 'Basil': 'herb',
   'Green Onions': 'herb', 'Cilantro': 'herb',
-  'Marigolds': 'flower',
+  'Marigolds': 'flower', 'Zinnias': 'flower', 'Sunflowers': 'flower',
+  'Dahlias': 'flower', 'Hydrangea': 'flower', 'Carnation': 'flower',
+  'Potatoes': 'vegetable',
   'Strawberries': 'fruit',
 };
 
@@ -889,6 +943,21 @@ const VERDANTLY_CARE = {
         'Trellis vines to save ground space and improve airflow',
         'Water at the base; wet foliage encourages powdery mildew',
         'Feed every 2–3 weeks with balanced organic fertilizer after flowering begins',
+      ],
+      harvest: [
+        'Harvest in the morning when fruits are firm and cool',
+        'Use scissors or a knife — pulling can damage vines',
+        'Most varieties ready 50–70 days after transplanting',
+        'Pick frequently — regular harvesting keeps plants productive',
+        'Select a variety below for size and timing specifics',
+      ],
+      companions: [
+        '✅ Marigolds — repel cucumber beetles and aphids',
+        '✅ Beans — fix nitrogen; improve soil for heavy feeders',
+        '✅ Dill (young) — attracts beneficial insects',
+        '✅ Sunflowers — provide trellis support and attract pollinators',
+        '❌ Sage — inhibits cucumber growth',
+        '❌ Potatoes — share blight susceptibility',
       ],
       pests: [
         'Most modern varieties resist Powdery Mildew & Cucumber Mosaic Virus',
@@ -950,6 +1019,215 @@ const VERDANTLY_CARE = {
           'Harvest at 3–6 inches depending on pickle style',
           'Pick daily or every other day to extend season through late summer',
           'Thin skin absorbs pickling brine exceptionally well',
+        ],
+      },
+    },
+  },
+
+  'Zinnias': {
+    default: {
+      sun:   'Full sun (6–8 hrs/day)',
+      water: 'Moderate — water at the base; avoid wetting foliage',
+      soil:  'Well-drained, average fertility · pH 6.0–7.0',
+      frost: 'Frost-tender annual — plant after last frost only',
+      tips: [
+        'Start indoors 4–6 weeks before last frost, or direct sow after frost danger passes',
+        'Thin seedlings to 12–18 inches apart for best air circulation',
+        'Pinch growing tips when 8–12 inches tall to encourage bushiness and more blooms',
+        'Deadhead spent flowers regularly to extend blooming season into fall',
+        'Avoid overhead watering — powdery mildew is the main enemy of zinnias',
+      ],
+      harvest: [
+        'Cut flowers in the morning when temperatures are cool',
+        'Harvest when petals are fully open but before pollen shows at center',
+        'Cut long stems just above a leaf node — the plant will branch and rebloom',
+        'Change vase water every 2 days; zinnias can last 7–12 days as cut flowers',
+      ],
+      companions: [
+        '✅ Marigolds — fellow pest repellers; great color companions',
+        '✅ Cucumbers & squash — attract pollinators that benefit nearby vegetables',
+        '✅ Basil — aromatic deterrent to aphids; both love heat',
+        '✅ Cosmos — extend the season; similar care needs',
+        '❌ Fennel — inhibits growth of nearby plants including zinnias',
+      ],
+      pests: [
+        'Powdery mildew — most common issue; space plants well and water at base',
+        'Spider mites in hot, dry weather — spray undersides of leaves with water',
+        'Japanese beetles — hand-pick in the morning when they are sluggish',
+      ],
+      safe: '🐱 🐶 Non-toxic to cats and dogs (ASPCA)',
+    },
+    varieties: {
+      'Envy': {
+        spacing: '12–18 inches apart',
+        height:  '24–36 inches tall',
+        harvest: [
+          'Unique lime-green blooms — harvest at full petal extension for longest vase life',
+          'Green color intensifies in cooler weather; fades slightly in high heat',
+          'Excellent cut flower — holds well for 7–10 days in a vase',
+        ],
+      },
+    },
+  },
+
+  'Sunflowers': {
+    default: {
+      sun:   'Full sun — needs at least 6–8 hours direct sun daily',
+      water: 'Low to moderate — drought-tolerant once established; deep water weekly',
+      soil:  'Well-drained, moderately fertile · pH 6.0–7.5',
+      frost: 'Frost-tender annual — direct sow after last frost; tolerates light chill as seedling',
+      tips: [
+        'Direct sow in place — sunflowers dislike transplanting (taproot tears easily)',
+        'Sow seeds 1 inch deep; thin to final spacing once 6 inches tall',
+        'Stake tall varieties (over 4 feet) in windy locations before heads form',
+        'Side-dress with low-nitrogen fertilizer at bud stage to encourage large heads',
+        'Plant in succession every 2–3 weeks for blooms from July through September',
+      ],
+      harvest: [
+        'For cut flowers: harvest when outer petals just begin to open, before pollen drops',
+        'For seeds: wait until the back of the head turns brown and petals fully drop',
+        'Cover drying seed heads with a paper bag to protect from birds',
+        'Dry seed heads face-down in a warm, airy space for 1–2 weeks before storing',
+      ],
+      companions: [
+        '✅ Cucumbers — sunflowers provide a natural trellis and attract pollinators',
+        '✅ Squash & melons — shade the soil and reduce moisture loss',
+        '✅ Basil — aromatic pest deterrent planted at base',
+        '✅ Corn — classic Three Sisters companion; share structural support',
+        '❌ Potatoes — sunflowers may inhibit potato growth',
+        '❌ Pole beans — compete for light and structure',
+      ],
+      pests: [
+        'Sunflower moths — inspect seed heads and remove larvae by hand',
+        'Aphids on new growth — knock off with a strong water spray',
+        'Birds love the seeds — net or bag heads if saving seed',
+        'Downy mildew in cool, wet springs — ensure good drainage and airflow',
+      ],
+      safe: '🐱 🐶 🐴 Non-toxic to cats, dogs & horses (ASPCA)',
+    },
+    varieties: {
+      'Autumn Beauty': {
+        spacing: '12–24 inches apart',
+        height:  '5–8 feet tall — stake in wind',
+        harvest: [
+          'Multi-branching variety — expect many smaller 4–6 inch blooms in warm gold, red, and bronze',
+          'Cut stems early in the morning just as outer petals unfurl',
+          'Excellent for bouquets — each plant produces 10–20 stems through the season',
+        ],
+      },
+    },
+  },
+
+  'Dahlias': {
+    default: {
+      sun:   'Full sun (6–8 hrs/day); afternoon shade tolerated in hot summers',
+      water: 'Moderate to high — consistent moisture once actively growing; reduce in fall',
+      soil:  'Well-drained, rich loam · pH 6.0–7.0; amend with compost at planting',
+      frost: 'Frost-tender tubers — plant after last frost; Zone 8b tubers may overwinter in ground with mulch',
+      tips: [
+        'Plant tubers 4–6 inches deep with the eye (bud) facing up after last frost (late April in Zone 8b)',
+        'Do not water until green shoots appear — tubers rot easily in cold, wet soil',
+        'Pinch growing tips at 12 inches to encourage branching and more blooms',
+        'Stake medium and tall varieties at planting time before roots are established',
+        'In Zone 8b, tubers can overwinter in ground with 4–6 inches of mulch after frost kills tops',
+      ],
+      harvest: [
+        'Cut stems in the morning; immediately place in cool water for best vase life',
+        'Harvest blooms when fully open — dahlias do not continue to open after cutting',
+        'Sear cut ends briefly over a flame or in boiling water to extend vase life to 5–7 days',
+        'Deadhead spent blooms regularly to keep plants producing into fall',
+      ],
+      companions: [
+        '✅ Marigolds — repel aphids and nematodes around tubers',
+        '✅ Basil — aromatic deterrent to aphids and thrips',
+        '✅ Cosmos — similar care; extends the seasonal display',
+        '✅ Zinnias — great heat-loving companions for full-sun borders',
+        '❌ Fennel — allelopathic; inhibits nearby plant growth',
+      ],
+      pests: [
+        'Aphids and thrips — spray with insecticidal soap at first sign',
+        'Powdery mildew in late summer — improve airflow; avoid overhead watering',
+        'Earwigs damage petals — set beer traps or damp newspaper traps at night',
+        'Slugs on young shoots — apply iron phosphate bait at soil level',
+      ],
+      safe: '⚠️ Mildly irritating to cats and dogs — avoid ingestion (ASPCA)',
+    },
+    varieties: {
+      'Arabian Night': {
+        spacing: '18–24 inches apart',
+        height:  '36–40 inches tall',
+        harvest: [
+          'Deep maroon-black decorative dahlia — one of the darkest available',
+          'Blooms are 3–4 inches across; long stems make excellent cut flowers',
+          'Harvest when petals are fully open; lasts 5–7 days in a vase',
+        ],
+      },
+      'Bishop\'s Children': {
+        spacing: '24 inches apart',
+        height:  '42 inches tall',
+        harvest: [
+          'Seed-grown mix of vibrant reds, oranges, and purples with dark chocolate foliage',
+          'Single-flowered blooms 2–3 inches across — excellent for pollinators',
+          'Blooms freely without deadheading; harvest semi-open for best vase life',
+        ],
+      },
+    },
+  },
+
+  'Potatoes': {
+    default: {
+      sun:   'Full sun (6–8 hrs/day)',
+      water: 'Moderate — consistent moisture during tuber formation; reduce as vines die back',
+      soil:  'Loose, well-drained, slightly acidic · pH 5.0–6.5; avoid freshly limed soil',
+      frost: 'Foliage is frost-sensitive; tubers tolerate light ground freeze once mature',
+      tips: [
+        'Plant certified disease-free seed potatoes cut into 2 oz pieces with at least one eye each',
+        'Allow cut pieces to cure for 1–2 days before planting to prevent rot',
+        'Plant in trenches 4 inches deep; hill soil up around stems as plants grow to prevent greening',
+        'Stop watering when foliage yellows and falls over — this signals tubers are mature',
+        'In Zone 8b: plant mid-March to mid-May; harvest July through September',
+      ],
+      harvest: [
+        'New potatoes: harvest 2–3 weeks after flowering begins while skins are thin',
+        'Storage potatoes: wait until foliage fully dies back, then wait another 2 weeks',
+        'Cure storage potatoes at 50–60°F in high humidity for 1–2 weeks before storing',
+        'Store in a cool, dark, well-ventilated location; check regularly for rot',
+        '⚠️ Green skin or sprouts contain solanine — always discard green or sprouted potatoes',
+      ],
+      companions: [
+        '✅ Beans — fix nitrogen in soil; interplant between rows',
+        '✅ Horseradish — planted at corners of the bed, deters Colorado potato beetles',
+        '✅ Marigolds — planted nearby, repel nematodes and some insects',
+        '❌ Tomatoes — same family (Solanaceae); share blight and pest pressure',
+        '❌ Cucumbers — share susceptibility to blight; keep separated',
+        '❌ Fennel — inhibits growth of most vegetables including potatoes',
+        '❌ Sunflowers — may inhibit potato development',
+      ],
+      pests: [
+        'Colorado potato beetle — hand-pick adults and egg clusters; use row covers on young plants',
+        'Late blight (Phytophthora) — most serious disease; plant resistant varieties; avoid overhead water',
+        'Wireworms — rotate crops; avoid planting in sod ground for 2+ years',
+        'Scab — keep soil pH at or below 6.0; avoid fresh manure at planting time',
+      ],
+      safe: '⚠️ TOXIC — green potato flesh, sprouts, and leaves contain solanine; always discard green potatoes',
+    },
+    varieties: {
+      'Yukon Gold': {
+        spacing: '12 inches apart in rows 2–3 feet apart',
+        height:  '18–24 inches tall',
+        harvest: [
+          'Classic yellow-fleshed all-purpose potato — ready in 70–90 days',
+          'Excellent flavor even as new potatoes (harvest ~60 days after planting)',
+          'Medium-sized tubers with thin skin — does not store as long as russets; use within 3 months',
+        ],
+      },
+      'Adirondack Red': {
+        spacing: '10–12 inches apart in rows 2–3 feet apart',
+        height:  '18–24 inches tall',
+        harvest: [
+          'Vibrant red skin and pink-red flesh — retains color when cooked',
+          'Ready in 80–90 days; scab-resistant variety (great for Zone 8b wet springs)',
+          'Best for boiling and roasting; flesh stays firm and colorful',
         ],
       },
     },
@@ -1134,6 +1412,7 @@ function render() {
     // If no plants yet, show placeholder
     if (!plantsInBed.length) {
       const placeholderTr = document.createElement('tr');
+      placeholderTr.className = 'placeholder-row';
       placeholderTr.innerHTML = `
         <td colspan="25" style="padding:10px 16px;font-size:0.7rem;color:#aaa;font-style:italic;background:#faf7f2;border-top:1px solid #e5ddd0;">
           Work in progress… add a plant and assign it to this bed 🌱
@@ -1165,15 +1444,24 @@ function render() {
 
         let barHtml = '';
         if (phase) {
-          const prev = i > 0  ? plant.months[i-1] : null;
-          const next = i < 23 ? plant.months[i+1] : null;
+          const isDual   = Array.isArray(phase);
+          const phaseKey = isDual ? phase.join('|') : phase;
+          const prevKey  = i > 0  ? (Array.isArray(plant.months[i-1]) ? plant.months[i-1].join('|') : plant.months[i-1]) : null;
+          const nextKey  = i < 23 ? (Array.isArray(plant.months[i+1]) ? plant.months[i+1].join('|') : plant.months[i+1]) : null;
           let roundClass = 'bar-solo';
-          if (prev === phase && next === phase) roundClass = 'bar-mid';
-          else if (prev === phase) roundClass = 'bar-right';
-          else if (next === phase) roundClass = 'bar-left';
+          if (prevKey === phaseKey && nextKey === phaseKey) roundClass = 'bar-mid';
+          else if (prevKey === phaseKey) roundClass = 'bar-right';
+          else if (nextKey === phaseKey) roundClass = 'bar-left';
           const maybeClass     = plant.status === 'undecided' ? ' bar-maybe' : '';
           const willplantClass = plant.status === 'willplant' ? ' bar-willplant' : '';
-          barHtml = `<div class="bar bar-${phase} ${roundClass}${maybeClass}${willplantClass}"></div>`;
+          if (isDual) {
+            const PHASE_COLORS = { indoor:'var(--indoor)', transplant:'var(--transplant)', direct:'var(--direct-sow)', harvest:'var(--harvest-color)', marigold:'#f0b03a' };
+            const c1 = PHASE_COLORS[phase[0]] || '#ccc';
+            const c2 = PHASE_COLORS[phase[1]] || '#999';
+            barHtml = `<div class="bar bar-split ${roundClass}${maybeClass}${willplantClass}" style="background:linear-gradient(135deg,${c1} 50%,${c2} 50%)"></div>`;
+          } else {
+            barHtml = `<div class="bar bar-${phase} ${roundClass}${maybeClass}${willplantClass}"></div>`;
+          }
         }
         cellsHtml += `<td class="${cls}">${barHtml}</td>`;
       });
@@ -1453,6 +1741,7 @@ function buildCarePanel(plantName, variety) {
       <div class="care-col">
         <strong>Growing Tips</strong>
         <ul>${c.tips.map(t => `<li>${t}</li>`).join('')}</ul>
+        ${c.companions ? `<strong>Companion Plants</strong><ul>${c.companions.map(x => `<li>${x}</li>`).join('')}</ul>` : ''}
       </div>
       <div class="care-col">
         <strong>Harvest</strong>
@@ -1502,7 +1791,7 @@ function openAddPlant() {
 
   // Populate bed dropdown
   const bedSelect = document.getElementById('form-bed');
-  bedSelect.innerHTML = getBeds().map(b => `<option value="${b.id}">${b.label.toUpperCase()}</option>`).join('') +
+  bedSelect.innerHTML = getBeds().map(b => `<option value="${b.id}" ${b.id === 'unassigned' ? 'selected' : ''}>${b.label.toUpperCase()}</option>`).join('') +
     '<option value="__new_bed__">＋ New bed…</option>';
   document.getElementById('form-new-bed-name').style.display = 'none';
   document.getElementById('form-new-bed-name').value = '';
@@ -1973,6 +2262,37 @@ function importGardenData(e) {
 
 // Auto-save initial snapshot on first load if history is empty
 if (!getSnapshots().length) saveSnapshot('Session start');
+
+// Close open detail panel when clicking outside of it
+document.addEventListener('click', function(e) {
+  const openPanel = document.querySelector('.detail-panel.open');
+  if (!openPanel) return;
+  if (openPanel.contains(e.target)) return;       // click inside panel — ignore
+  if (e.target.closest('.plant-info')) return;    // plant row — toggleDetail handles it
+  if (e.target.closest('.bed-edit-popover')) return; // bed popover — ignore
+  document.querySelectorAll('.detail-panel').forEach(p => p.classList.remove('open'));
+  document.querySelectorAll('.plant-info').forEach(i => i.classList.remove('expanded'));
+  document.querySelectorAll('#main-table tbody').forEach(tb => tb.classList.remove('has-open-panel'));
+});
+
+// ── One-time migration: refresh months for direct-sow plants so stored
+//    'transplant' phases update to 'direct' after the database change ──
+(function migrateDirectSow() {
+  const DIRECT_SOW = new Set(['Peas','Carrots','Beans','Radishes','Beets','Green Onions','Spinach','Cilantro']);
+  const plants = getPlants();
+  let changed = false;
+  plants.forEach(p => {
+    if (!DIRECT_SOW.has(p.name)) return;
+    const db = PLANT_DATABASE[p.name];
+    if (!db) return;
+    const fresh = (p.variety && db.varieties && db.varieties[p.variety])
+      ? db.varieties[p.variety].months
+      : db.default.months;
+    p.months = fresh.slice();
+    changed = true;
+  });
+  if (changed) savePlants(plants);
+})();
 
 render();
 </script>
