@@ -280,7 +280,11 @@
   .care-safe  { font-size: 0.67rem; color: #7a9a6a; margin-top: 6px; }
 
   .panel-controls {
-    display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-top: 10px;
+    display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-bottom: 0;
+  }
+  .panel-divider {
+    border: none; border-top: 1px solid rgba(90,74,56,0.18);
+    margin: 10px 0 10px;
   }
   .panel-label { font-size: 0.68rem; color: #5a4a38; font-weight: 500; display: flex; align-items: center; gap: 6px; }
   .panel-select {
@@ -1498,7 +1502,6 @@ function render() {
 
       detailTr.innerHTML = `<td colspan="25">
         <div class="detail-panel" id="panel-${plant.id}">
-          ${buildCarePanel(plant.name, plant.variety)}
           <div class="panel-controls">
             <label class="panel-label">Status:
               <select class="panel-select" onchange="updateStatus('${plant.id}', this.value)">${statusOptions}</select>
@@ -1511,6 +1514,8 @@ function render() {
             </label>
             <button class="panel-btn btn-remove" onclick="removePlant('${plant.id}')">✕ Remove</button>
           </div>
+          <hr class="panel-divider">
+          ${buildCarePanel(plant.name, plant.variety)}
         </div></td>`;
       tbody.appendChild(detailTr);
     });
