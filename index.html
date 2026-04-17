@@ -274,7 +274,8 @@
   .care-col ul { margin: 0 0 6px; padding-left: 14px; }
   .care-col li { font-size: 0.49rem; color: #6a5a48; margin-bottom: 2px; line-height: 1.45; }
   @media (min-width: 768px) {
-    .care-col li { font-size: 0.60rem; }
+    .care-col li     { font-size: 0.70rem; }
+    .care-col strong { font-size: 0.74rem; }
   }
   .care-safe  { font-size: 0.67rem; color: #7a9a6a; margin-top: 6px; }
 
@@ -355,6 +356,10 @@
   .bar-direct     { background: var(--direct-sow);    opacity: 0.9;  }
   .bar-harvest    { background: var(--harvest-color); opacity: 0.85; }
   .bar-marigold   { background: #f0b03a;               opacity: 0.85; }
+  .bar-split      { opacity: 0.9; }
+
+  /* Placeholder row — must not inherit sticky-left treatment */
+  tr.placeholder-row td { position: static !important; left: auto !important; min-width: 0 !important; width: auto !important; }
   .bar-maybe      { opacity: 0.38 !important; }
   .bar-left  { border-radius: 3px 0 0 3px; }
   .bar-right { border-radius: 0 3px 3px 0; }
@@ -506,7 +511,7 @@
   </div>
   <div class="legend">
     <div class="legend-item"><div class="legend-swatch" style="background:var(--indoor)"></div>Start Seeds Indoors</div>
-    <div class="legend-item"><div class="legend-swatch" style="background:var(--transplant)"></div>Plant / Transplant Outdoors</div>
+    <div class="legend-item"><div class="legend-swatch" style="background:var(--transplant)"></div>Transplant Outdoors</div>
     <div class="legend-item"><div class="legend-swatch" style="background:var(--direct-sow)"></div>Direct Sow Outdoors</div>
     <div class="legend-item"><div class="legend-swatch" style="background:var(--harvest-color)"></div>Harvest Window</div>
   </div>
@@ -904,6 +909,14 @@ const VERDANTLY_CARE = {
         'Pick frequently — regular harvesting keeps plants productive',
         'Select a variety below for size and timing specifics',
       ],
+      companions: [
+        '✅ Marigolds — repel cucumber beetles and aphids',
+        '✅ Beans — fix nitrogen; improve soil for heavy feeders',
+        '✅ Dill (young) — attracts beneficial insects',
+        '✅ Sunflowers — provide trellis support and attract pollinators',
+        '❌ Sage — inhibits cucumber growth',
+        '❌ Potatoes — share blight susceptibility',
+      ],
       pests: [
         'Most modern varieties resist Powdery Mildew & Cucumber Mosaic Virus',
         'Watch for cucumber beetles and spider mites',
@@ -1148,6 +1161,7 @@ function render() {
     // If no plants yet, show placeholder
     if (!plantsInBed.length) {
       const placeholderTr = document.createElement('tr');
+      placeholderTr.className = 'placeholder-row';
       placeholderTr.innerHTML = `
         <td colspan="25" style="padding:10px 16px;font-size:0.7rem;color:#aaa;font-style:italic;background:#faf7f2;border-top:1px solid #e5ddd0;">
           Work in progress… add a plant and assign it to this bed 🌱
@@ -1179,15 +1193,24 @@ function render() {
 
         let barHtml = '';
         if (phase) {
-          const prev = i > 0  ? plant.months[i-1] : null;
-          const next = i < 23 ? plant.months[i+1] : null;
+          const isDual   = Array.isArray(phase);
+          const phaseKey = isDual ? phase.join('|') : phase;
+          const prevKey  = i > 0  ? (Array.isArray(plant.months[i-1]) ? plant.months[i-1].join('|') : plant.months[i-1]) : null;
+          const nextKey  = i < 23 ? (Array.isArray(plant.months[i+1]) ? plant.months[i+1].join('|') : plant.months[i+1]) : null;
           let roundClass = 'bar-solo';
-          if (prev === phase && next === phase) roundClass = 'bar-mid';
-          else if (prev === phase) roundClass = 'bar-right';
-          else if (next === phase) roundClass = 'bar-left';
+          if (prevKey === phaseKey && nextKey === phaseKey) roundClass = 'bar-mid';
+          else if (prevKey === phaseKey) roundClass = 'bar-right';
+          else if (nextKey === phaseKey) roundClass = 'bar-left';
           const maybeClass     = plant.status === 'undecided' ? ' bar-maybe' : '';
           const willplantClass = plant.status === 'willplant' ? ' bar-willplant' : '';
-          barHtml = `<div class="bar bar-${phase} ${roundClass}${maybeClass}${willplantClass}"></div>`;
+          if (isDual) {
+            const PHASE_COLORS = { indoor:'var(--indoor)', transplant:'var(--transplant)', direct:'var(--direct-sow)', harvest:'var(--harvest-color)', marigold:'#f0b03a' };
+            const c1 = PHASE_COLORS[phase[0]] || '#ccc';
+            const c2 = PHASE_COLORS[phase[1]] || '#999';
+            barHtml = `<div class="bar bar-split ${roundClass}${maybeClass}${willplantClass}" style="background:linear-gradient(135deg,${c1} 50%,${c2} 50%)"></div>`;
+          } else {
+            barHtml = `<div class="bar bar-${phase} ${roundClass}${maybeClass}${willplantClass}"></div>`;
+          }
         }
         cellsHtml += `<td class="${cls}">${barHtml}</td>`;
       });
@@ -1467,6 +1490,7 @@ function buildCarePanel(plantName, variety) {
       <div class="care-col">
         <strong>Growing Tips</strong>
         <ul>${c.tips.map(t => `<li>${t}</li>`).join('')}</ul>
+        ${c.companions ? `<strong>Companion Plants</strong><ul>${c.companions.map(x => `<li>${x}</li>`).join('')}</ul>` : ''}
       </div>
       <div class="care-col">
         <strong>Harvest</strong>
@@ -1987,6 +2011,25 @@ function importGardenData(e) {
 
 // Auto-save initial snapshot on first load if history is empty
 if (!getSnapshots().length) saveSnapshot('Session start');
+
+// ── One-time migration: refresh months for direct-sow plants so stored
+//    'transplant' phases update to 'direct' after the database change ──
+(function migrateDirectSow() {
+  const DIRECT_SOW = new Set(['Peas','Carrots','Beans','Radishes','Beets','Green Onions','Spinach','Cilantro']);
+  const plants = getPlants();
+  let changed = false;
+  plants.forEach(p => {
+    if (!DIRECT_SOW.has(p.name)) return;
+    const db = PLANT_DATABASE[p.name];
+    if (!db) return;
+    const fresh = (p.variety && db.varieties && db.varieties[p.variety])
+      ? db.varieties[p.variety].months
+      : db.default.months;
+    p.months = fresh.slice();
+    changed = true;
+  });
+  if (changed) savePlants(plants);
+})();
 
 render();
 </script>
