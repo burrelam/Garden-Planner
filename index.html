@@ -13,8 +13,8 @@
   */
 
   :root {
-    --thead-h: 62px;
-    --month-row-h: 38px;
+    --thead-h: 56px;
+    --month-row-h: 34px;
     --soil: #3d2b1f;
     --moss: #4a5e3a;
     --sprout: #b5cc8e;
@@ -258,7 +258,9 @@
 
   /* ── DETAIL PANEL ── */
   tr.detail-row td { padding: 0; background: #f9f5ee; border-top: 1px solid #e5ddd0; }
-  #main-table tbody.has-open-panel { position: relative; z-index: 10; }
+  /* All tbodys get a base stacking context so group headers always paint above any open panel */
+  #main-table tbody { position: relative; z-index: 2; }
+  #main-table tbody.has-open-panel { position: relative; z-index: 1; }
   /* Raise detail panel above the bed header row within the same tbody stacking context */
   #main-table tbody.has-open-panel tr.detail-row td {
     position: relative; z-index: 6;
@@ -1428,15 +1430,15 @@ function render() {
   const plants  = getPlants();
   table.querySelectorAll('tbody').forEach(tb => tb.remove());
 
-  // Measure and set sticky offset variables after layout
-  requestAnimationFrame(() => {
+  // Double-rAF: first fires after paint, second fires after layout is fully settled
+  requestAnimationFrame(() => requestAnimationFrame(() => {
     const thead    = table.querySelector('thead');
     const monthRow = thead?.querySelector('tr.month-row');
-    const mh = monthRow?.offsetHeight || 38;
-    const th = thead?.offsetHeight    || 62;
+    const mh = monthRow?.offsetHeight || 34;
+    const th = thead?.offsetHeight    || 56;
     document.documentElement.style.setProperty('--month-row-h', `${mh}px`);
     document.documentElement.style.setProperty('--thead-h',     `${th}px`);
-  });
+  }));
 
   // ── Shared helper: build 24 bar-cell columns for a plant ──
   function buildCellsHtml(plant) {
