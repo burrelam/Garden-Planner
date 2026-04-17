@@ -867,6 +867,46 @@ const PLANT_DATABASE = {
     // Portland Nursery: plant bare root Feb–Apr; ever-bearing harvests Jun–Oct
     default: { dtm: '60+ days', months: makeMonths([[2,5,'transplant'],[8,17,'harvest']]) }
   },
+  // ── FLOWERS (Zone 8b) ──
+  'Zinnias': {
+    varieties: {
+      'Envy': { dtm: '75–90 days to bloom', months: makeMonths([[1,3,'indoor'],[6,9,['direct','transplant']],[10,19,'harvest']]) },
+    },
+    default: { dtm: '75–90 days to bloom', months: makeMonths([[1,3,'indoor'],[6,9,['direct','transplant']],[10,19,'harvest']]) }
+  },
+  'Sunflowers': {
+    varieties: {
+      'Autumn Beauty': { dtm: '75–85 days to bloom', months: makeMonths([[4,5,'indoor'],[6,9,'direct'],[12,17,'harvest']]) },
+    },
+    default: { dtm: '75–85 days to bloom', months: makeMonths([[4,5,'indoor'],[6,9,'direct'],[12,17,'harvest']]) }
+  },
+  'Dahlias': {
+    varieties: {
+      'Arabian Night':    { dtm: '100–109 days to bloom', months: makeMonths([[6,9,'transplant'],[12,19,'harvest']]) },
+      'Bishop\'s Children': { dtm: '84–98 days to bloom', months: makeMonths([[4,5,'indoor'],[6,9,'transplant'],[12,19,'harvest']]) },
+    },
+    // Plant tubers after last frost (late Apr in Zone 8b); perennializes in Zone 8b if mulched
+    default: { dtm: '84–109 days to bloom', months: makeMonths([[6,9,'transplant'],[12,19,'harvest']]) }
+  },
+  'Hydrangea': {
+    varieties: {},
+    // Perennial shrub — plant spring or fall; blooms June–September in Zone 8b
+    default: { dtm: 'Perennial shrub', months: makeMonths([[4,7,'transplant'],[10,17,'harvest']]) }
+  },
+  'Carnation': {
+    varieties: {},
+    // Start indoors Feb–Mar; transplant May; blooms Jun–Sep in Zone 8b
+    default: { dtm: '90–120 days to bloom', months: makeMonths([[2,5,'indoor'],[8,9,'transplant'],[10,17,'harvest']]) }
+  },
+  // ── VEGETABLES (Zone 8b) ──
+  'Potatoes': {
+    varieties: {
+      'Yukon Gold':      { dtm: '70–90 days', months: makeMonths([[4,7,'direct'],[12,17,'harvest']]) },
+      'Adirondack Red':  { dtm: '80–90 days', months: makeMonths([[4,7,'direct'],[12,17,'harvest']]) },
+    },
+    // Zone 8b: plant seed potatoes Mar–May; harvest Jul–Sep when foliage dies back
+    default: { dtm: '70–90 days', months: makeMonths([[4,7,'direct'],[12,17,'harvest']]) }
+  },
 };
 
 // ══════════════════════════════════════════════════════════════
@@ -881,7 +921,9 @@ const PLANT_CATEGORIES = {
   'Cauliflower': 'vegetable',
   'Garlic': 'herb', 'Shallots': 'herb', 'Basil': 'herb',
   'Green Onions': 'herb', 'Cilantro': 'herb',
-  'Marigolds': 'flower',
+  'Marigolds': 'flower', 'Zinnias': 'flower', 'Sunflowers': 'flower',
+  'Dahlias': 'flower', 'Hydrangea': 'flower', 'Carnation': 'flower',
+  'Potatoes': 'vegetable',
   'Strawberries': 'fruit',
 };
 
@@ -977,6 +1019,215 @@ const VERDANTLY_CARE = {
           'Harvest at 3–6 inches depending on pickle style',
           'Pick daily or every other day to extend season through late summer',
           'Thin skin absorbs pickling brine exceptionally well',
+        ],
+      },
+    },
+  },
+
+  'Zinnias': {
+    default: {
+      sun:   'Full sun (6–8 hrs/day)',
+      water: 'Moderate — water at the base; avoid wetting foliage',
+      soil:  'Well-drained, average fertility · pH 6.0–7.0',
+      frost: 'Frost-tender annual — plant after last frost only',
+      tips: [
+        'Start indoors 4–6 weeks before last frost, or direct sow after frost danger passes',
+        'Thin seedlings to 12–18 inches apart for best air circulation',
+        'Pinch growing tips when 8–12 inches tall to encourage bushiness and more blooms',
+        'Deadhead spent flowers regularly to extend blooming season into fall',
+        'Avoid overhead watering — powdery mildew is the main enemy of zinnias',
+      ],
+      harvest: [
+        'Cut flowers in the morning when temperatures are cool',
+        'Harvest when petals are fully open but before pollen shows at center',
+        'Cut long stems just above a leaf node — the plant will branch and rebloom',
+        'Change vase water every 2 days; zinnias can last 7–12 days as cut flowers',
+      ],
+      companions: [
+        '✅ Marigolds — fellow pest repellers; great color companions',
+        '✅ Cucumbers & squash — attract pollinators that benefit nearby vegetables',
+        '✅ Basil — aromatic deterrent to aphids; both love heat',
+        '✅ Cosmos — extend the season; similar care needs',
+        '❌ Fennel — inhibits growth of nearby plants including zinnias',
+      ],
+      pests: [
+        'Powdery mildew — most common issue; space plants well and water at base',
+        'Spider mites in hot, dry weather — spray undersides of leaves with water',
+        'Japanese beetles — hand-pick in the morning when they are sluggish',
+      ],
+      safe: '🐱 🐶 Non-toxic to cats and dogs (ASPCA)',
+    },
+    varieties: {
+      'Envy': {
+        spacing: '12–18 inches apart',
+        height:  '24–36 inches tall',
+        harvest: [
+          'Unique lime-green blooms — harvest at full petal extension for longest vase life',
+          'Green color intensifies in cooler weather; fades slightly in high heat',
+          'Excellent cut flower — holds well for 7–10 days in a vase',
+        ],
+      },
+    },
+  },
+
+  'Sunflowers': {
+    default: {
+      sun:   'Full sun — needs at least 6–8 hours direct sun daily',
+      water: 'Low to moderate — drought-tolerant once established; deep water weekly',
+      soil:  'Well-drained, moderately fertile · pH 6.0–7.5',
+      frost: 'Frost-tender annual — direct sow after last frost; tolerates light chill as seedling',
+      tips: [
+        'Direct sow in place — sunflowers dislike transplanting (taproot tears easily)',
+        'Sow seeds 1 inch deep; thin to final spacing once 6 inches tall',
+        'Stake tall varieties (over 4 feet) in windy locations before heads form',
+        'Side-dress with low-nitrogen fertilizer at bud stage to encourage large heads',
+        'Plant in succession every 2–3 weeks for blooms from July through September',
+      ],
+      harvest: [
+        'For cut flowers: harvest when outer petals just begin to open, before pollen drops',
+        'For seeds: wait until the back of the head turns brown and petals fully drop',
+        'Cover drying seed heads with a paper bag to protect from birds',
+        'Dry seed heads face-down in a warm, airy space for 1–2 weeks before storing',
+      ],
+      companions: [
+        '✅ Cucumbers — sunflowers provide a natural trellis and attract pollinators',
+        '✅ Squash & melons — shade the soil and reduce moisture loss',
+        '✅ Basil — aromatic pest deterrent planted at base',
+        '✅ Corn — classic Three Sisters companion; share structural support',
+        '❌ Potatoes — sunflowers may inhibit potato growth',
+        '❌ Pole beans — compete for light and structure',
+      ],
+      pests: [
+        'Sunflower moths — inspect seed heads and remove larvae by hand',
+        'Aphids on new growth — knock off with a strong water spray',
+        'Birds love the seeds — net or bag heads if saving seed',
+        'Downy mildew in cool, wet springs — ensure good drainage and airflow',
+      ],
+      safe: '🐱 🐶 🐴 Non-toxic to cats, dogs & horses (ASPCA)',
+    },
+    varieties: {
+      'Autumn Beauty': {
+        spacing: '12–24 inches apart',
+        height:  '5–8 feet tall — stake in wind',
+        harvest: [
+          'Multi-branching variety — expect many smaller 4–6 inch blooms in warm gold, red, and bronze',
+          'Cut stems early in the morning just as outer petals unfurl',
+          'Excellent for bouquets — each plant produces 10–20 stems through the season',
+        ],
+      },
+    },
+  },
+
+  'Dahlias': {
+    default: {
+      sun:   'Full sun (6–8 hrs/day); afternoon shade tolerated in hot summers',
+      water: 'Moderate to high — consistent moisture once actively growing; reduce in fall',
+      soil:  'Well-drained, rich loam · pH 6.0–7.0; amend with compost at planting',
+      frost: 'Frost-tender tubers — plant after last frost; Zone 8b tubers may overwinter in ground with mulch',
+      tips: [
+        'Plant tubers 4–6 inches deep with the eye (bud) facing up after last frost (late April in Zone 8b)',
+        'Do not water until green shoots appear — tubers rot easily in cold, wet soil',
+        'Pinch growing tips at 12 inches to encourage branching and more blooms',
+        'Stake medium and tall varieties at planting time before roots are established',
+        'In Zone 8b, tubers can overwinter in ground with 4–6 inches of mulch after frost kills tops',
+      ],
+      harvest: [
+        'Cut stems in the morning; immediately place in cool water for best vase life',
+        'Harvest blooms when fully open — dahlias do not continue to open after cutting',
+        'Sear cut ends briefly over a flame or in boiling water to extend vase life to 5–7 days',
+        'Deadhead spent blooms regularly to keep plants producing into fall',
+      ],
+      companions: [
+        '✅ Marigolds — repel aphids and nematodes around tubers',
+        '✅ Basil — aromatic deterrent to aphids and thrips',
+        '✅ Cosmos — similar care; extends the seasonal display',
+        '✅ Zinnias — great heat-loving companions for full-sun borders',
+        '❌ Fennel — allelopathic; inhibits nearby plant growth',
+      ],
+      pests: [
+        'Aphids and thrips — spray with insecticidal soap at first sign',
+        'Powdery mildew in late summer — improve airflow; avoid overhead watering',
+        'Earwigs damage petals — set beer traps or damp newspaper traps at night',
+        'Slugs on young shoots — apply iron phosphate bait at soil level',
+      ],
+      safe: '⚠️ Mildly irritating to cats and dogs — avoid ingestion (ASPCA)',
+    },
+    varieties: {
+      'Arabian Night': {
+        spacing: '18–24 inches apart',
+        height:  '36–40 inches tall',
+        harvest: [
+          'Deep maroon-black decorative dahlia — one of the darkest available',
+          'Blooms are 3–4 inches across; long stems make excellent cut flowers',
+          'Harvest when petals are fully open; lasts 5–7 days in a vase',
+        ],
+      },
+      'Bishop\'s Children': {
+        spacing: '24 inches apart',
+        height:  '42 inches tall',
+        harvest: [
+          'Seed-grown mix of vibrant reds, oranges, and purples with dark chocolate foliage',
+          'Single-flowered blooms 2–3 inches across — excellent for pollinators',
+          'Blooms freely without deadheading; harvest semi-open for best vase life',
+        ],
+      },
+    },
+  },
+
+  'Potatoes': {
+    default: {
+      sun:   'Full sun (6–8 hrs/day)',
+      water: 'Moderate — consistent moisture during tuber formation; reduce as vines die back',
+      soil:  'Loose, well-drained, slightly acidic · pH 5.0–6.5; avoid freshly limed soil',
+      frost: 'Foliage is frost-sensitive; tubers tolerate light ground freeze once mature',
+      tips: [
+        'Plant certified disease-free seed potatoes cut into 2 oz pieces with at least one eye each',
+        'Allow cut pieces to cure for 1–2 days before planting to prevent rot',
+        'Plant in trenches 4 inches deep; hill soil up around stems as plants grow to prevent greening',
+        'Stop watering when foliage yellows and falls over — this signals tubers are mature',
+        'In Zone 8b: plant mid-March to mid-May; harvest July through September',
+      ],
+      harvest: [
+        'New potatoes: harvest 2–3 weeks after flowering begins while skins are thin',
+        'Storage potatoes: wait until foliage fully dies back, then wait another 2 weeks',
+        'Cure storage potatoes at 50–60°F in high humidity for 1–2 weeks before storing',
+        'Store in a cool, dark, well-ventilated location; check regularly for rot',
+        '⚠️ Green skin or sprouts contain solanine — always discard green or sprouted potatoes',
+      ],
+      companions: [
+        '✅ Beans — fix nitrogen in soil; interplant between rows',
+        '✅ Horseradish — planted at corners of the bed, deters Colorado potato beetles',
+        '✅ Marigolds — planted nearby, repel nematodes and some insects',
+        '❌ Tomatoes — same family (Solanaceae); share blight and pest pressure',
+        '❌ Cucumbers — share susceptibility to blight; keep separated',
+        '❌ Fennel — inhibits growth of most vegetables including potatoes',
+        '❌ Sunflowers — may inhibit potato development',
+      ],
+      pests: [
+        'Colorado potato beetle — hand-pick adults and egg clusters; use row covers on young plants',
+        'Late blight (Phytophthora) — most serious disease; plant resistant varieties; avoid overhead water',
+        'Wireworms — rotate crops; avoid planting in sod ground for 2+ years',
+        'Scab — keep soil pH at or below 6.0; avoid fresh manure at planting time',
+      ],
+      safe: '⚠️ TOXIC — green potato flesh, sprouts, and leaves contain solanine; always discard green potatoes',
+    },
+    varieties: {
+      'Yukon Gold': {
+        spacing: '12 inches apart in rows 2–3 feet apart',
+        height:  '18–24 inches tall',
+        harvest: [
+          'Classic yellow-fleshed all-purpose potato — ready in 70–90 days',
+          'Excellent flavor even as new potatoes (harvest ~60 days after planting)',
+          'Medium-sized tubers with thin skin — does not store as long as russets; use within 3 months',
+        ],
+      },
+      'Adirondack Red': {
+        spacing: '10–12 inches apart in rows 2–3 feet apart',
+        height:  '18–24 inches tall',
+        harvest: [
+          'Vibrant red skin and pink-red flesh — retains color when cooked',
+          'Ready in 80–90 days; scab-resistant variety (great for Zone 8b wet springs)',
+          'Best for boiling and roasting; flesh stays firm and colorful',
         ],
       },
     },
