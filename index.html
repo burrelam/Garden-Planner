@@ -1621,8 +1621,18 @@ const DEFAULT_PLANTS = [
 ];
 
 function getPlants() {
-  try { const s = localStorage.getItem('garden_plants'); return s ? JSON.parse(s) : DEFAULT_PLANTS; }
-  catch(e) { return DEFAULT_PLANTS; }
+  try {
+    const s = localStorage.getItem('garden_plants');
+    const plants = s ? JSON.parse(s) : DEFAULT_PLANTS;
+    // Always re-derive months from PLANT_DATABASE so timing/color changes are reflected automatically
+    return plants.map(p => {
+      const db = PLANT_DATABASE[p.name];
+      if (!db) return p;
+      const entry = (p.variety && db.varieties && db.varieties[p.variety]) || db.default;
+      if (!entry) return p;
+      return { ...p, months: entry.months };
+    });
+  } catch(e) { return DEFAULT_PLANTS; }
 }
 function savePlants(plants) { localStorage.setItem('garden_plants', JSON.stringify(plants)); }
 
