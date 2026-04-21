@@ -203,8 +203,8 @@
   /* ── PLANT INFO CELL ── */
   .plant-info { padding: 7px 6px; display: flex; flex-direction: column; gap: 2px; cursor: pointer; user-select: none; overflow: hidden; }
   .plant-info:hover { background: rgba(0,0,0,0.03); }
-  .plant-name { font-family: 'Playfair Display', serif; font-size: clamp(0.72rem, 2.2vw, 0.86rem); font-weight: 700; color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 1.2; }
-  .plant-variety { font-size: clamp(0.60rem, 1.8vw, 0.70rem); color: #7a6a58; font-weight: 400; font-style: italic; line-height: 1.2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .plant-name { display: block; font-family: 'Playfair Display', serif; font-size: clamp(0.72rem, 2.2vw, 0.86rem); font-weight: 700; color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 1.2; }
+  .plant-variety { display: block; font-size: clamp(0.60rem, 1.8vw, 0.70rem); color: #7a6a58; font-weight: 400; font-style: italic; line-height: 1.2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .compat-icons { font-size: 0.7rem; letter-spacing: 0.02em; flex-shrink: 0; }
   .plant-dtm { font-size: 0.67rem; color: #9a8a78; font-weight: 300; }
   .plant-qty { font-size: 0.72rem; color: var(--moss); font-weight: 600; }
@@ -388,15 +388,29 @@
   /* ── MONTH CELLS ── */
   td.hcol { padding: 5px 1px; border-left: 1px solid #ede5d8; min-width: 22px; width: 22px; vertical-align: middle; }
   td.hcol.month-start { border-left: 2px solid #d5cab8; }
-  td.hcol.current-half-col { background: rgba(90,160,55,0.12); position: relative; }
+  td.hcol.current-half-col { background: rgba(90,160,55,0.12); position: relative; z-index: 3; }
   td.hcol.current-half-col::after,
   th.current-half::after {
     content: ''; position: absolute; top: 0; bottom: 0;
     left: var(--today-pos, 50%);
     width: 3px; background: rgba(57,255,20,0.85);
-    pointer-events: none; z-index: 1;
+    pointer-events: none; z-index: 20;
   }
   th.current-half { position: relative; }
+  /* Downward-pointing arrow in the E/L header at today's exact position */
+  th.current-half::before {
+    content: '';
+    position: absolute;
+    left: var(--today-pos, 50%);
+    bottom: 1px;
+    transform: translateX(-50%);
+    width: 0; height: 0;
+    border-left: 4px solid transparent;
+    border-right: 4px solid transparent;
+    border-top: 5px solid rgba(57,255,20,0.95);
+    pointer-events: none;
+    z-index: 25;
+  }
 
   tbody tr { border-top: 1px solid #e5ddd0; }
   tbody tr:hover td { background: rgba(181,204,142,0.05); }
