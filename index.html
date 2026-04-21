@@ -316,17 +316,24 @@
     background: rgba(90,120,70,0.1); border: 1px solid rgba(90,120,70,0.22);
     border-radius: 4px; padding: 2px 8px; font-size: 0.67rem; color: #5a4a38;
   }
-  .care-cols { display: flex; gap: 24px; flex-wrap: wrap; }
-  .care-col  { flex: 1; min-width: 170px; }
+  .care-cols { display: flex; gap: 16px; flex-wrap: wrap; }
+  .care-col  { flex: 1; min-width: 140px; }
   .care-col strong {
     display: block; font-size: 0.67rem; font-weight: 600; color: #4a3a28;
     margin: 6px 0 3px; letter-spacing: 0.05em; text-transform: uppercase;
   }
   .care-col ul { margin: 0 0 6px; padding-left: 14px; }
-  .care-col li { font-size: 0.49rem; color: #6a5a48; margin-bottom: 2px; line-height: 1.45; }
+  .care-col li { font-size: 0.65rem; color: #6a5a48; margin-bottom: 2px; line-height: 1.5; }
   @media (min-width: 768px) {
     .care-col li     { font-size: 0.70rem; }
     .care-col strong { font-size: 0.74rem; }
+  }
+  @media (max-width: 480px) {
+    .care-cols { flex-direction: column; gap: 4px; }
+    .care-col  { min-width: 100%; }
+    .care-col li     { font-size: 0.67rem; }
+    .care-col strong { font-size: 0.69rem; }
+    .care-tag { font-size: 0.63rem; }
   }
   .care-safe  { font-size: 0.67rem; color: #7a9a6a; margin-top: 6px; }
 
@@ -388,7 +395,7 @@
   /* ── MONTH CELLS ── */
   td.hcol { padding: 5px 1px; border-left: 1px solid #ede5d8; min-width: 22px; width: 22px; vertical-align: middle; }
   td.hcol.month-start { border-left: 2px solid #d5cab8; }
-  td.hcol.current-half-col { background: rgba(90,160,55,0.12); position: relative; }
+  td.hcol.current-half-col { background: rgba(90,160,55,0.12); position: relative; z-index: 1; }
   td.hcol.current-half-col::after,
   th.current-half::after {
     content: ''; position: absolute; top: 0; bottom: 0;
