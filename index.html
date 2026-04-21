@@ -325,15 +325,18 @@
   .care-col ul { margin: 0 0 6px; padding-left: 14px; }
   .care-col li { font-size: 0.65rem; color: #6a5a48; margin-bottom: 2px; line-height: 1.5; }
   @media (min-width: 768px) {
-    .care-col li     { font-size: 0.70rem; }
-    .care-col strong { font-size: 0.74rem; }
+    .care-col li     { font-size: 0.76rem; }
+    .care-col strong { font-size: 0.80rem; }
+    .care-safe       { font-size: 0.75rem; }
+    .care-tag        { font-size: 0.73rem; }
   }
   @media (max-width: 480px) {
     .care-cols { flex-direction: column; gap: 4px; }
     .care-col  { min-width: 100%; }
-    .care-col li     { font-size: 0.67rem; }
-    .care-col strong { font-size: 0.69rem; }
-    .care-tag { font-size: 0.63rem; }
+    .care-col li     { font-size: 0.62rem; }
+    .care-col strong { font-size: 0.64rem; }
+    .care-tag        { font-size: 0.69rem; }
+    .care-safe       { font-size: 0.70rem; }
   }
   .care-safe  { font-size: 0.67rem; color: #7a9a6a; margin-top: 6px; }
 
@@ -1997,11 +2000,18 @@ function render() {
   plants.forEach(plant => {
     const bedmates = plants.filter(p => p.bed === plant.bed && p.id !== plant.id);
     if (!bedmates.length) { compatMap[plant.id] = { companion: false, warning: false }; return; }
-    const { good, bad } = getCompanionNames(plant.name);
     let companion = false, warning = false;
+    // Forward: does this plant list any bedmate as companion/incompatible?
+    const { good, bad } = getCompanionNames(plant.name);
     bedmates.forEach(bm => {
       if (good.some(g => compatMatch(g, bm.name))) companion = true;
       if (bad.some(b  => compatMatch(b,  bm.name))) warning  = true;
+    });
+    // Reverse: does any bedmate list this plant as companion/incompatible?
+    bedmates.forEach(bm => {
+      const { good: bmGood, bad: bmBad } = getCompanionNames(bm.name);
+      if (bmGood.some(g => compatMatch(g, plant.name))) companion = true;
+      if (bmBad.some(b  => compatMatch(b,  plant.name))) warning  = true;
     });
     compatMap[plant.id] = { companion, warning };
   });
