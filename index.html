@@ -203,8 +203,9 @@
   /* ── PLANT INFO CELL ── */
   .plant-info { padding: 7px 6px; display: flex; flex-direction: column; gap: 2px; cursor: pointer; user-select: none; overflow: hidden; }
   .plant-info:hover { background: rgba(0,0,0,0.03); }
-  .plant-name { font-family: 'Playfair Display', serif; font-size: 0.86rem; font-weight: 700; color: var(--ink); white-space: normal; line-height: 1.2; word-break: break-word; overflow-wrap: break-word; }
-  .plant-variety { font-size: 0.70rem; color: #7a6a58; font-weight: 400; font-style: italic; line-height: 1.2; }
+  .plant-name { font-family: 'Playfair Display', serif; font-size: clamp(0.72rem, 2.2vw, 0.86rem); font-weight: 700; color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 1.2; }
+  .plant-variety { font-size: clamp(0.60rem, 1.8vw, 0.70rem); color: #7a6a58; font-weight: 400; font-style: italic; line-height: 1.2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .compat-icons { font-size: 0.7rem; letter-spacing: 0.02em; flex-shrink: 0; }
   .plant-dtm { font-size: 0.67rem; color: #9a8a78; font-weight: 300; }
   .plant-qty { font-size: 0.72rem; color: var(--moss); font-weight: 600; }
   .plant-badge { font-size: 0.59rem; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; }
@@ -1903,6 +1904,11 @@ function render() {
     const badgeHtml   = `<span class="plant-badge ${statusCfg.cls}">${statusCfg.label}</span>`;
     const bedPillHtml = `<span class="bed-pill" style="background:${bed.color}">${bed.label}</span>`;
 
+    // Companion/warning icons
+    const compat = compatMap[plant.id] || {};
+    const compatHtml = (compat.companion ? '💕' : '') + (compat.warning ? '🚫' : '');
+    const compatIconHtml = compatHtml ? `<span class="compat-icons">${compatHtml}</span>` : '';
+
     // Line 3: bed pill in alpha/category views; nothing in bed/status
     const line3 = (viewMode === 'alpha' || viewMode === 'category') ? bedPillHtml : '';
 
@@ -1921,7 +1927,7 @@ function render() {
           <span class="plant-name">${plant.name} ${qtyHtml}</span>
           ${varietyHtml}
           ${line3}
-          <div class="plant-info-bottom">${line4left}<span class="expand-arrow">▾</span></div>
+          <div class="plant-info-bottom">${line4left}${compatIconHtml}<span class="expand-arrow">▾</span></div>
         </div>
         ${reorderBtns}
       </div></td>${buildCellsHtml(plant)}`;
@@ -1963,6 +1969,20 @@ function render() {
   const bedMap = {};
   beds.forEach(b => bedMap[b.id] = b);
   const movableBeds = beds.filter(b => b.id !== 'unassigned');
+
+  // Pre-compute companion/warning indicators per plant based on bedmates
+  const compatMap = {};
+  plants.forEach(plant => {
+    const bedmates = plants.filter(p => p.bed === plant.bed && p.id !== plant.id);
+    if (!bedmates.length) { compatMap[plant.id] = { companion: false, warning: false }; return; }
+    const { good, bad } = getCompanionNames(plant.name);
+    let companion = false, warning = false;
+    bedmates.forEach(bm => {
+      if (good.some(g => compatMatch(g, bm.name))) companion = true;
+      if (bad.some(b  => compatMatch(b,  bm.name))) warning  = true;
+    });
+    compatMap[plant.id] = { companion, warning };
+  });
 
   // ══ BED VIEW (default) ══════════════════════════════════════
   if (_viewMode === 'bed') {
@@ -2345,6 +2365,32 @@ function showFrostTip(e, type) {
 }
 
 // ══════════════════════════════════════════════════════════════
+// COMPANION COMPATIBILITY HELPERS
+// ══════════════════════════════════════════════════════════════
+function getCompanionNames(plantName) {
+  const entry = VERDANTLY_CARE[plantName];
+  if (!entry) return { good: [], bad: [] };
+  const companions = (entry.default || entry).companions || [];
+  const good = [], bad = [];
+  companions.forEach(line => {
+    const isGood = line.startsWith('✅');
+    const isBad  = line.startsWith('❌');
+    if (!isGood && !isBad) return;
+    // Strip emoji + split on em-dash or parenthesis → extract first plant name
+    const name = line.replace(/^[✅❌]\s*/, '').split(/\s*[—–(]/)[0].trim().toLowerCase();
+    if (isGood) good.push(name);
+    else bad.push(name);
+  });
+  return { good, bad };
+}
+
+function compatMatch(companionEntry, plantName) {
+  const c = companionEntry.toLowerCase();
+  const p = plantName.toLowerCase();
+  return c === p || c.startsWith(p) || p.startsWith(c);
+}
+
+// ══════════════════════════════════════════════════════════════
 // CARE DETAIL PANEL BUILDER
 // ══════════════════════════════════════════════════════════════
 function buildCarePanel(plantName, variety) {
@@ -2368,7 +2414,7 @@ function buildCarePanel(plantName, variety) {
       <div class="care-col">
         <strong>Growing Tips</strong>
         <ul>${c.tips.map(t => `<li>${t}</li>`).join('')}</ul>
-        ${c.companions ? `<strong>Companion Plants</strong><ul>${c.companions.map(x => `<li>${x}</li>`).join('')}</ul>` : ''}
+        ${c.companions ? `<strong>Companion Plants</strong><ul>${c.companions.map(x => `<li>${x.replace(/^✅/,'💕').replace(/^❌/,'🚫')}</li>`).join('')}</ul>` : ''}
       </div>
       <div class="care-col">
         <strong>Harvest</strong>
