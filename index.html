@@ -197,6 +197,10 @@
     min-width: 140px; width: 140px;
     background: inherit;
   }
+  tr.bed-row td:nth-child(2) {
+    position: sticky; left: 140px; top: var(--thead-h); z-index: 5;
+    background: inherit;
+  }
 
   /* ── BED ACCENT STRIPES — applied inline via JS so custom beds work too ── */
 
@@ -206,9 +210,9 @@
   .plant-name { display: block; font-family: 'Playfair Display', serif; font-size: clamp(0.72rem, 2.2vw, 0.86rem); font-weight: 700; color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 1.2; }
   .plant-variety { display: block; font-size: clamp(0.60rem, 1.8vw, 0.70rem); color: #7a6a58; font-weight: 400; font-style: italic; line-height: 1.2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .compat-icons { font-size: 0.7rem; letter-spacing: 0.02em; flex-shrink: 0; }
-  .plant-dtm { font-size: 0.67rem; color: #9a8a78; font-weight: 300; }
-  .plant-qty { font-size: 0.72rem; color: var(--moss); font-weight: 600; }
-  .plant-badge { font-size: 0.59rem; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; }
+  .plant-dtm { font-size: 0.70rem; color: #9a8a78; font-weight: 300; }
+  .plant-qty { font-size: 0.75rem; color: var(--moss); font-weight: 600; }
+  .plant-badge { font-size: 0.62rem; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; }
   .badge-planted    { color: #4a7a3a; }
   .badge-willplant  { color: #4a7a9b; }
   .badge-undecided  { color: #9b7a3a; }
@@ -221,7 +225,7 @@
 
   /* ── BED PILL (status/alpha views) ── */
   .bed-pill {
-    display: inline-block; font-size: 0.56rem; font-weight: 700;
+    display: inline-block; font-size: 0.59rem; font-weight: 700;
     letter-spacing: 0.06em; text-transform: uppercase;
     padding: 1px 6px; border-radius: 3px; color: white; line-height: 1.6; flex-shrink: 0;
   }
@@ -325,15 +329,15 @@
   .care-col ul { margin: 0 0 6px; padding-left: 14px; }
   .care-col li { font-size: 0.65rem; color: #6a5a48; margin-bottom: 2px; line-height: 1.5; }
   @media (min-width: 768px) {
-    .care-col li     { font-size: 0.76rem; }
-    .care-col strong { font-size: 0.80rem; }
-    .care-safe       { font-size: 0.75rem; }
+    .care-col li     { font-size: 0.82rem; }
+    .care-col strong { font-size: 0.87rem; }
+    .care-safe       { font-size: 0.81rem; }
     .care-tag        { font-size: 0.73rem; }
   }
   @media (max-width: 480px) {
     .care-cols { flex-direction: column; gap: 4px; }
     .care-col  { min-width: 100%; }
-    .care-col li     { font-size: 0.62rem; }
+    .care-col li     { font-size: 0.56rem; }
     .care-col strong { font-size: 0.64rem; }
     .care-tag        { font-size: 0.69rem; }
     .care-safe       { font-size: 0.70rem; }
@@ -1779,6 +1783,7 @@ let _collapsedBeds = {};
 let _collapsedStatusGroups = {};
 let _collapsedCategories = {};
 let _viewMode = 'bed';
+let _hasScrolledToToday = false;
 
 function toggleStatusCollapse(statusKey) {
   _collapsedStatusGroups[statusKey] = !_collapsedStatusGroups[statusKey];
@@ -2045,7 +2050,7 @@ function render() {
             <input class="bed-name-input" data-bed-id="${bed.id}" value="${bed.label}" readonly tabindex="-1" />
           </div>
         </td>
-        <td colspan="24" style="background:${bed.color};vertical-align:middle;">
+        <td colspan="8" style="background:${bed.color};vertical-align:middle;">
           <div style="display:flex;align-items:center;gap:6px;padding:0 8px;">
             ${canRemove ? `
               <button class="bed-reorder-btn" onclick="reorderBed('${bed.id}', -1)" ${!canMoveUp ? 'disabled' : ''} title="Move up">↑</button>
@@ -2059,7 +2064,8 @@ function render() {
               <button class="panel-btn btn-remove" style="font-size:0.6rem;padding:2px 6px;min-width:0;line-height:1;" onclick="removeBed('${bed.id}')" title="Remove bed">✕</button>
             ` : ''}
           </div>
-        </td>`;
+        </td>
+        <td colspan="16" style="background:${bed.color}"></td>`;
       tbody.appendChild(bedTr);
 
       if (isCollapsed) return;
@@ -2194,6 +2200,16 @@ function render() {
   if (wrap) {
     wrap.scrollTop  = savedScrollTop;
     wrap.scrollLeft = savedScrollLeft;
+  }
+
+  // One-time: scroll horizontally so today's column is centered on initial load
+  if (!_hasScrolledToToday && wrap) {
+    const now = new Date();
+    const col  = now.getMonth() * 2 + (now.getDate() > 15 ? 1 : 0);
+    const cellW = 22, nameW = 140;
+    const target = nameW + col * cellW - (wrap.clientWidth - nameW) / 2;
+    wrap.scrollLeft = Math.max(0, target);
+    _hasScrolledToToday = true;
   }
 }
 
