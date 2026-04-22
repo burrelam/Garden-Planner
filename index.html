@@ -259,12 +259,14 @@
   /* ── STATUS GROUP HEADERS (status view) ── */
   tr.status-group-row td { padding: 0; border-top: 2px solid rgba(0,0,0,0.08); position: sticky; top: var(--thead-h); z-index: 4; }
   tr.status-group-row td:first-child { position: sticky; left: 0; top: var(--thead-h); z-index: 5; background: inherit; min-width: 140px; width: 140px; }
+  tr.status-group-row td:nth-child(2) { position: sticky; left: 140px; top: var(--thead-h); z-index: 5; background: inherit; }
   .status-group-header { display: flex; align-items: center; gap: 6px; padding: 5px 8px; font-size: 0.68rem; font-weight: 700; letter-spacing: 0.09em; text-transform: uppercase; color: white; cursor: pointer; }
   tr.status-group-row td:hover { filter: brightness(0.85); }
 
   /* ── CATEGORY GROUP HEADERS (category view) ── */
   tr.category-group-row td { padding: 0; border-top: 2px solid rgba(0,0,0,0.08); position: sticky; top: var(--thead-h); z-index: 4; }
   tr.category-group-row td:first-child { position: sticky; left: 0; top: var(--thead-h); z-index: 5; background: inherit; min-width: 140px; width: 140px; }
+  tr.category-group-row td:nth-child(2) { position: sticky; left: 140px; top: var(--thead-h); z-index: 5; background: inherit; }
   .category-group-header { display: flex; align-items: center; gap: 6px; padding: 5px 8px; font-size: 0.68rem; font-weight: 700; letter-spacing: 0.09em; text-transform: uppercase; color: white; cursor: pointer; }
   tr.category-group-row td:hover { filter: brightness(0.85); }
 
@@ -1809,8 +1811,10 @@ function toggleCategoryCollapse(catKey) {
   });
   const arrow = tbody.querySelector('.cat-arrow');
   if (arrow) arrow.textContent = isCollapsed ? '▶' : '▼';
-  const countSpan = tbody.querySelector('.category-group-header span:last-child');
-  // count stays accurate — no recount needed since we only hide/show
+  const btn = tbody.querySelector('.bed-collapse-btn');
+  if (btn) btn.innerHTML = isCollapsed
+    ? `Expand <span style="display:inline-block;transform:rotate(180deg);">▾</span>`
+    : 'Collapse ▾';
 }
 
 function toggleViewDropdown() {
@@ -2112,13 +2116,14 @@ function render() {
             ${STATUS_LABELS[statusKey]}
           </div>
         </td>
-        <td colspan="24" style="background:${color};cursor:pointer;" onclick="toggleStatusCollapse('${statusKey}')">
+        <td colspan="8" style="background:${color};cursor:pointer;" onclick="toggleStatusCollapse('${statusKey}')">
           <div style="display:flex;align-items:center;gap:6px;padding:0 8px;">
             <button class="bed-collapse-btn" style="background:${lightColor};color:${color};pointer-events:none;">
               ${isCollapsed ? `Expand <span style="display:inline-block;transform:rotate(180deg);">▾</span>` : 'Collapse ▾'}
             </button>
           </div>
-        </td>`;
+        </td>
+        <td colspan="16" style="background:${color};cursor:pointer;" onclick="toggleStatusCollapse('${statusKey}')"></td>`;
       tbody.appendChild(headerTr);
 
       if (isCollapsed) return;
@@ -2176,13 +2181,22 @@ function render() {
       // Group header row
       const headerTr = document.createElement('tr');
       headerTr.className = 'category-group-row';
-      headerTr.innerHTML = `<td colspan="25" style="background:${cfg.color};cursor:pointer;" onclick="toggleCategoryCollapse('${catKey}')">
-        <div class="category-group-header">
-          <span class="cat-arrow">${isCollapsed ? '▶' : '▼'}</span>
-          <span>${cfg.label}</span>
-          <span style="font-weight:400;opacity:0.8;font-size:0.62rem;">${groupPlants.length} plant${groupPlants.length !== 1 ? 's' : ''}</span>
-        </div>
-      </td>`;
+      headerTr.innerHTML = `
+        <td style="background:${cfg.color};cursor:pointer;" onclick="toggleCategoryCollapse('${catKey}')">
+          <div class="category-group-header">
+            <span class="cat-arrow">${isCollapsed ? '▶' : '▼'}</span>
+            <span>${cfg.label}</span>
+          </div>
+        </td>
+        <td colspan="8" style="background:${cfg.color};cursor:pointer;" onclick="toggleCategoryCollapse('${catKey}')">
+          <div style="display:flex;align-items:center;gap:6px;padding:0 8px;">
+            <button class="bed-collapse-btn" style="background:rgba(255,255,255,0.2);color:white;pointer-events:none;">
+              ${isCollapsed ? `Expand <span style="display:inline-block;transform:rotate(180deg);">▾</span>` : 'Collapse ▾'}
+            </button>
+            <span style="font-size:0.62rem;font-weight:400;opacity:0.8;color:white;">${groupPlants.length} plant${groupPlants.length !== 1 ? 's' : ''}</span>
+          </div>
+        </td>
+        <td colspan="16" style="background:${cfg.color};cursor:pointer;" onclick="toggleCategoryCollapse('${catKey}')"></td>`;
       tbody.appendChild(headerTr);
 
       if (isCollapsed) return;
