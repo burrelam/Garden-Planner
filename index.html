@@ -321,6 +321,7 @@
   .care-tag {
     background: rgba(90,120,70,0.1); border: 1px solid rgba(90,120,70,0.22);
     border-radius: 4px; padding: 2px 8px; font-size: 0.67rem; color: #5a4a38;
+    white-space: normal; word-break: break-word; line-height: 1.4;
   }
   .care-cols { display: flex; gap: 16px; flex-wrap: wrap; }
   .care-col  { flex: 1; min-width: 140px; }
@@ -341,8 +342,9 @@
     .care-col  { min-width: 100%; }
     .care-col li     { font-size: 0.56rem; }
     .care-col strong { font-size: 0.64rem; }
-    .care-tag        { font-size: 0.69rem; }
+    .care-tag        { font-size: 0.69rem; max-width: calc(50% - 3px); }
     .care-safe       { font-size: 0.76rem; }
+    .care-meta       { gap: 4px; }
   }
   .care-safe  { font-size: 0.73rem; color: #7a9a6a; margin-top: 6px; }
 
@@ -1809,8 +1811,6 @@ function toggleCategoryCollapse(catKey) {
   Array.from(tbody.children).forEach(tr => {
     if (!tr.classList.contains('category-group-row')) tr.style.display = isCollapsed ? 'none' : '';
   });
-  const arrow = tbody.querySelector('.cat-arrow');
-  if (arrow) arrow.textContent = isCollapsed ? '▶' : '▼';
   const btn = tbody.querySelector('.bed-collapse-btn');
   if (btn) btn.innerHTML = isCollapsed
     ? `Expand <span style="display:inline-block;transform:rotate(180deg);">▾</span>`
@@ -2155,7 +2155,7 @@ function render() {
   } else if (_viewMode === 'category') {
     const CAT_ORDER  = ['vegetable', 'herb', 'flower', 'fruit', 'other'];
     const CAT_CONFIG = {
-      vegetable: { label: '🥦 Vegetables', color: '#3a6b3a' },
+      vegetable: { label: '🥕 Vegetables', color: '#3a6b3a' },
       herb:      { label: '🌿 Herbs',       color: '#4a7a6a' },
       flower:    { label: '🌸 Flowers',     color: '#9b4a6a' },
       fruit:     { label: '🍓 Fruit',       color: '#c07a3a' },
@@ -2184,7 +2184,6 @@ function render() {
       headerTr.innerHTML = `
         <td style="background:${cfg.color};cursor:pointer;" onclick="toggleCategoryCollapse('${catKey}')">
           <div class="category-group-header">
-            <span class="cat-arrow">${isCollapsed ? '▶' : '▼'}</span>
             <span>${cfg.label}</span>
           </div>
         </td>
