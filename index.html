@@ -169,6 +169,7 @@
   .bed-collapse-btn:hover { opacity: 0.8; }
   @media (max-width: 480px) {
     .bed-collapse-btn { font-size: 1.0rem; padding: 7px 14px; border-radius: 6px; }
+    .bed-collapse-btn .btn-label { font-size: 0.58rem; vertical-align: middle; }
   }
 
   /* ── PLANT REORDER BUTTONS ── */
@@ -1055,9 +1056,37 @@ const PLANT_CATEGORIES = {
 };
 
 // ══════════════════════════════════════════════════════════════
-// VERDANTLY CARE DATA  (detail panel — filled in per plant)
+// VERDANTLY CARE DATA  — loaded from care-data.json at runtime
+// Edit care-data.json to update plant care info without touching
+// this file. Data is cached in localStorage after first fetch.
 // ══════════════════════════════════════════════════════════════
-const VERDANTLY_CARE = {
+const CARE_DATA_VERSION = '1';   // bump this to force a cache refresh
+let VERDANTLY_CARE = {};
+
+(async function loadCareData() {
+  try {
+    const cacheKey = 'care_data_v' + CARE_DATA_VERSION;
+    const cached   = localStorage.getItem(cacheKey);
+    if (cached) {
+      VERDANTLY_CARE = JSON.parse(cached);
+      return;
+    }
+    const res  = await fetch('./care-data.json');
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const data = await res.json();
+    VERDANTLY_CARE = data;
+    // Cache it; also clear any old version keys
+    Object.keys(localStorage)
+      .filter(k => k.startsWith('care_data_v') && k !== cacheKey)
+      .forEach(k => localStorage.removeItem(k));
+    localStorage.setItem(cacheKey, JSON.stringify(data));
+  } catch (e) {
+    console.warn('care-data.json could not be loaded — care panels will show "coming soon"', e);
+  }
+})();
+
+// ── LEGACY BLOCK REMOVED — data now lives in care-data.json ──
+const _VERDANTLY_CARE_STUB = {
   'Tomato': {
     default: {
       sun:   'Full sun (6–8 hrs/day)',
@@ -1691,7 +1720,7 @@ const VERDANTLY_CARE = {
         ],
       },
       'Adirondack Red': {
-        spacing: '10–12 inches apart in rows 2–3 feet apart',
+        spacing: '10–12″ apart; rows 2–3 ft',
         height:  '18–24 inches tall',
         harvest: [
           'Vibrant red skin and pink-red flesh — retains color when cooked',
@@ -1702,6 +1731,9 @@ const VERDANTLY_CARE = {
     },
   },
 };
+// _VERDANTLY_CARE_STUB is intentionally unused — kept only so the
+// old data isn't lost before care-data.json is confirmed working.
+// It can be deleted once you've verified the JSON file loads correctly.
 
 // ══════════════════════════════════════════════════════════════
 // BEDS
@@ -1803,8 +1835,8 @@ function toggleStatusCollapse(statusKey) {
   });
   const btn = tbody.querySelector('.bed-collapse-btn');
   if (btn) btn.innerHTML = isCollapsed
-    ? `Expand <span style="display:inline-block;transform:rotate(180deg);">▾</span>`
-    : 'Collapse ▾';
+    ? `<span class="btn-label">Expand</span> <span style="display:inline-block;transform:rotate(180deg);">▾</span>`
+    : '<span class="btn-label">Collapse</span> ▾';
 }
 
 function toggleCategoryCollapse(catKey) {
@@ -1817,8 +1849,8 @@ function toggleCategoryCollapse(catKey) {
   });
   const btn = tbody.querySelector('.bed-collapse-btn');
   if (btn) btn.innerHTML = isCollapsed
-    ? `Expand <span style="display:inline-block;transform:rotate(180deg);">▾</span>`
-    : 'Collapse ▾';
+    ? `<span class="btn-label">Expand</span> <span style="display:inline-block;transform:rotate(180deg);">▾</span>`
+    : '<span class="btn-label">Collapse</span> ▾';
 }
 
 function toggleViewDropdown() {
@@ -1848,8 +1880,8 @@ function toggleBedCollapse(bedId) {
   });
   const btn = tbody.querySelector('.bed-collapse-btn');
   if (btn) btn.innerHTML = isCollapsed
-    ? `Expand <span style="display:inline-block;transform:rotate(180deg);">▾</span>`
-    : 'Collapse ▾';
+    ? `<span class="btn-label">Expand</span> <span style="display:inline-block;transform:rotate(180deg);">▾</span>`
+    : '<span class="btn-label">Collapse</span> ▾';
 }
 
 // ══════════════════════════════════════════════════════════════
@@ -2066,7 +2098,7 @@ function render() {
             ` : ''}
             <button class="bed-collapse-btn" style="background:${lightColor};color:${bed.color};"
               onclick="toggleBedCollapse('${bed.id}')">
-              ${isCollapsed ? `Expand <span style="display:inline-block;transform:rotate(180deg);">▾</span>` : 'Collapse ▾'}
+              ${isCollapsed ? `<span class="btn-label">Expand</span> <span style="display:inline-block;transform:rotate(180deg);">▾</span>` : '<span class="btn-label">Collapse</span> ▾'}
             </button>
             ${canRemove ? `
               <button class="panel-btn btn-remove" style="font-size:0.6rem;padding:2px 6px;min-width:0;line-height:1;" onclick="removeBed('${bed.id}')" title="Remove bed">✕</button>
@@ -2123,7 +2155,7 @@ function render() {
         <td colspan="8" style="background:${color};cursor:pointer;" onclick="toggleStatusCollapse('${statusKey}')">
           <div style="display:flex;align-items:center;gap:6px;padding:0 8px;">
             <button class="bed-collapse-btn" style="background:${lightColor};color:${color};pointer-events:none;">
-              ${isCollapsed ? `Expand <span style="display:inline-block;transform:rotate(180deg);">▾</span>` : 'Collapse ▾'}
+              ${isCollapsed ? `<span class="btn-label">Expand</span> <span style="display:inline-block;transform:rotate(180deg);">▾</span>` : '<span class="btn-label">Collapse</span> ▾'}
             </button>
           </div>
         </td>
@@ -2194,7 +2226,7 @@ function render() {
         <td colspan="8" style="background:${cfg.color};cursor:pointer;" onclick="toggleCategoryCollapse('${catKey}')">
           <div style="display:flex;align-items:center;gap:6px;padding:0 8px;">
             <button class="bed-collapse-btn" style="background:rgba(255,255,255,0.2);color:white;pointer-events:none;">
-              ${isCollapsed ? `Expand <span style="display:inline-block;transform:rotate(180deg);">▾</span>` : 'Collapse ▾'}
+              ${isCollapsed ? `<span class="btn-label">Expand</span> <span style="display:inline-block;transform:rotate(180deg);">▾</span>` : '<span class="btn-label">Collapse</span> ▾'}
             </button>
             <span style="font-size:0.62rem;font-weight:400;opacity:0.8;color:white;">${groupPlants.length} plant${groupPlants.length !== 1 ? 's' : ''}</span>
           </div>
