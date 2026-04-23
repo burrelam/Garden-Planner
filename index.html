@@ -168,8 +168,13 @@
   }
   .bed-collapse-btn:hover { opacity: 0.8; }
   @media (max-width: 480px) {
-    .btn-arrow { display: inline-block; transform: scale(2.2); margin: 0 5px; line-height: 1; }
-    .plant-name { font-size: 0.91rem; }
+    .btn-arrow      { display: inline-block; transform: scale(2.2); margin: 0 5px; line-height: 1; }
+    .plant-name     { font-size: 0.98rem; }
+    .plant-variety  { font-size: 0.68rem; }
+    .plant-dtm      { font-size: 0.78rem; }
+    .plant-badge    { font-size: 0.70rem; }
+    .bed-pill       { font-size: 0.67rem; }
+    .plant-qty      { font-size: 0.83rem; }
   }
 
   /* ── PLANT REORDER BUTTONS ── */
@@ -379,10 +384,10 @@
   .sheet-subtitle { font-size: 0.72rem; color: #7a6a58; font-style: italic; }
   .sheet-close    { background: none; border: none; font-size: 1.1rem; color: #9a8a78; cursor: pointer; padding: 2px 4px; line-height: 1; }
   /* Use desktop-scale fonts inside the sheet */
-  #mobile-sheet .care-col li     { font-size: 0.79rem; }
-  #mobile-sheet .care-col strong { font-size: 0.84rem; }
-  #mobile-sheet .care-tag        { font-size: 0.73rem; max-width: calc(50% - 3px); }
-  #mobile-sheet .care-safe       { font-size: 0.87rem; }
+  #mobile-sheet .care-col li     { font-size: 0.96rem; }
+  #mobile-sheet .care-col strong { font-size: 1.01rem; }
+  #mobile-sheet .care-tag        { font-size: 0.90rem; max-width: calc(50% - 3px); }
+  #mobile-sheet .care-safe       { font-size: 1.04rem; }
   #mobile-sheet .care-cols       { flex-direction: column; gap: 4px; }
   #mobile-sheet .care-col        { min-width: 100%; }
 
@@ -2407,6 +2412,15 @@ function openMobileSheet(plantId) {
   const beds = getBeds();
   const bedOptions    = beds.map(b => `<option value="${b.id}" ${b.id === plant.bed ? 'selected' : ''}>${b.label.toUpperCase()}</option>`).join('');
   const statusOptions = Object.entries(STATUS_CONFIG).map(([val, cfg]) => `<option value="${val}" ${val === plant.status ? 'selected' : ''}>${cfg.label}</option>`).join('');
+  const dbEntry = PLANT_DATABASE[plant.name];
+  const dbVarieties = dbEntry && dbEntry.varieties ? Object.keys(dbEntry.varieties) : [];
+  const varietyHtml = dbVarieties.length > 0 ? `
+      <label class="panel-label">Variety:
+        <select class="panel-select" onchange="updateVariety('${plantId}', this.value)">
+          <option value="">— none —</option>
+          ${dbVarieties.map(v => `<option value="${v}" ${v === plant.variety ? 'selected' : ''}>${v}</option>`).join('')}
+        </select>
+      </label>` : '';
 
   document.getElementById('sheet-title').textContent    = plant.name;
   document.getElementById('sheet-subtitle').textContent = plant.variety || '';
@@ -2415,7 +2429,7 @@ function openMobileSheet(plantId) {
       <span class="panel-label" style="color:#9a8a78;font-weight:300;font-size:0.65rem;">⏱ ${plant.dtm}</span>
       <label class="panel-label">Status:
         <select class="panel-select" onchange="updateStatus('${plantId}', this.value)">${statusOptions}</select>
-      </label>
+      </label>${varietyHtml}
       <label class="panel-label">Bed:
         <select class="panel-select" onchange="reassign('${plantId}', this.value)">${bedOptions}</select>
       </label>
@@ -2443,6 +2457,21 @@ function closeMobileSheet() {
   sheet.classList.remove('slide-up');
   backdrop.classList.remove('open');
   setTimeout(() => { if (!sheet.classList.contains('slide-up')) sheet.classList.remove('open'); }, 300);
+}
+
+function updateVariety(plantId, variety) {
+  const plants = getPlants();
+  const plant  = plants.find(p => p.id === plantId);
+  if (!plant) return;
+  saveSnapshot(`Before: variety changed (${plant.name})`);
+  plant.variety = variety || null;
+  const db = PLANT_DATABASE[plant.name];
+  if (db) {
+    const varData = (variety && db.varieties && db.varieties[variety]) ? db.varieties[variety] : db.default;
+    plant.months = varData.months;
+    plant.dtm    = varData.dtm;
+  }
+  savePlants(plants); render(); toggleDetail(plantId);
 }
 
 function updateQty(plantId, val) {
