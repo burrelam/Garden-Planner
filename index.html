@@ -169,7 +169,7 @@
   .bed-collapse-btn:hover { opacity: 0.8; }
   @media (max-width: 480px) {
     .btn-arrow { display: inline-block; transform: scale(2.2); margin: 0 5px; line-height: 1; }
-    .plant-name { font-size: 0.78rem; }
+    .plant-name { font-size: 0.84rem; }
   }
 
   /* ── PLANT REORDER BUTTONS ── */
@@ -211,7 +211,7 @@
   /* ── PLANT INFO CELL ── */
   .plant-info { padding: 7px 6px; display: flex; flex-direction: column; gap: 2px; cursor: pointer; user-select: none; overflow: hidden; }
   .plant-info:hover { background: rgba(0,0,0,0.03); }
-  .plant-name { display: block; font-family: 'Playfair Display', serif; font-size: clamp(0.72rem, 2.2vw, 0.86rem); font-weight: 700; color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 1.2; }
+  .plant-name { display: block; font-family: 'Playfair Display', serif; font-size: clamp(0.78rem, 2.2vw, 0.92rem); font-weight: 700; color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 1.2; }
   .plant-variety { display: block; font-size: clamp(0.60rem, 1.8vw, 0.70rem); color: #7a6a58; font-weight: 400; font-style: italic; line-height: 1.2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .compat-icons { font-size: 0.7rem; letter-spacing: 0.02em; flex-shrink: 0; }
   .plant-dtm { font-size: 0.70rem; color: #9a8a78; font-weight: 300; }
@@ -331,22 +331,22 @@
   .care-cols { display: flex; gap: 16px; flex-wrap: wrap; }
   .care-col  { flex: 1; min-width: 140px; }
   .care-col strong {
-    display: block; font-size: 0.67rem; font-weight: 600; color: #4a3a28;
+    display: block; font-size: 0.64rem; font-weight: 600; color: #4a3a28;
     margin: 6px 0 3px; letter-spacing: 0.05em; text-transform: uppercase;
   }
   .care-col ul { margin: 0 0 6px; padding-left: 14px; }
-  .care-col li { font-size: 0.65rem; color: #6a5a48; margin-bottom: 2px; line-height: 1.5; }
+  .care-col li { font-size: 0.62rem; color: #6a5a48; margin-bottom: 2px; line-height: 1.5; }
   @media (min-width: 768px) {
-    .care-col li     { font-size: 0.82rem; }
-    .care-col strong { font-size: 0.87rem; }
+    .care-col li     { font-size: 0.79rem; }
+    .care-col strong { font-size: 0.84rem; }
     .care-safe       { font-size: 0.87rem; }
     .care-tag        { font-size: 0.73rem; }
   }
   @media (max-width: 480px) {
     .care-cols { flex-direction: column; gap: 4px; }
     .care-col  { min-width: 100%; }
-    .care-col li     { font-size: 0.56rem; }
-    .care-col strong { font-size: 0.64rem; }
+    .care-col li     { font-size: 0.53rem; }
+    .care-col strong { font-size: 0.61rem; }
     .care-tag        { font-size: 0.69rem; max-width: calc(50% - 3px); }
     .care-safe       { font-size: 0.76rem; }
     .care-meta       { gap: 4px; }
@@ -991,6 +991,7 @@ const PLANT_DATABASE = {
       'June-bearing':    { dtm: 'Year 2+ harvest', months: makeMonths([[2,5,'transplant'],[10,15,'harvest']]) },
       'Ever-bearing':    { dtm: '60 days',          months: makeMonths([[2,5,'transplant'],[8,17,'harvest']]) },
       'Day-neutral':     { dtm: '60 days',          months: makeMonths([[2,5,'transplant'],[8,17,'harvest']]) },
+      'Albion':          { dtm: '90–99 days',        months: makeMonths([[2,7,'transplant'],[10,19,'harvest']]) },
     },
     // Portland Nursery: plant bare root Feb–Apr; ever-bearing harvests Jun–Oct
     default: { dtm: '60+ days', months: makeMonths([[2,5,'transplant'],[8,17,'harvest']]) }
@@ -1726,6 +1727,54 @@ const _VERDANTLY_CARE_STUB = {
           'Vibrant red skin and pink-red flesh — retains color when cooked',
           'Ready in 80–90 days; scab-resistant variety (great for Zone 8b wet springs)',
           'Best for boiling and roasting; flesh stays firm and colorful',
+        ],
+      },
+    },
+  },
+
+  'Strawberries': {
+    default: {
+      sun:   'Full sun (6–8 hrs/day)',
+      water: 'Moderate; consistent moisture',
+      soil:  'Well-drained, fertile loam · pH 5.5–6.5',
+      frost: 'Hardy zones 4–9; tolerates light frost',
+      tips: [
+        'Pinch blossoms until July 1st in first year — strengthens roots for better future yields',
+        'Remove runners to keep energy focused on fruit production',
+        'Day-neutral varieties produce regardless of day length — harvest June through October',
+        'Mulch crowns after first frost to protect through winter',
+        'Renovate beds annually after harvest — thin plants and refresh mulch',
+      ],
+      harvest: [
+        'Harvest daily once berries turn fully red — check under leaves for hidden fruits',
+        'Refrigerate immediately in a single layer to prevent bruising',
+        'Everbearing season runs June through October in Zone 8b',
+        'Morning harvest gives the best flavor and longest shelf life',
+      ],
+      companions: [
+        '✅ Borage — deters aphids, attracts pollinators; said to improve flavor',
+        '✅ Thyme — repels worms; improves fruit flavor',
+        '✅ Marigolds — repel nematodes and aphids',
+        '❌ Fennel — allelopathic; inhibits strawberry growth',
+        '❌ Brassicas — compete for nutrients',
+      ],
+      pests: [
+        'Birds — net plants when berries begin to color',
+        'Slugs — use iron phosphate bait at soil level',
+        'Albion resists Anthracnose, Powdery Mildew, and Verticillium Wilt',
+        'Phytophthora crown rot — ensure excellent drainage; avoid overwatering',
+      ],
+      safe: '🐱 🐶 Non-toxic to cats and dogs; fruit safe for humans',
+    },
+    varieties: {
+      'Albion': {
+        spacing: '12–18 inches apart',
+        height:  '12 inches tall',
+        harvest: [
+          'Day-neutral everbearing hybrid — large, firm, conical berries with exceptional sweetness',
+          'Harvest from June through October; picks daily as berries ripen fully red',
+          'Strong disease resistance: Anthracnose, Powdery Mildew, Verticillium Wilt',
+          'Performs well in both hot dry summers and cool maritime climates',
         ],
       },
     },

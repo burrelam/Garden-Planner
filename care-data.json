@@ -641,5 +641,53 @@
         ]
       }
     }
+  },
+
+  "Strawberries": {
+    "default": {
+      "sun":   "Full sun (6–8 hrs/day)",
+      "water": "Moderate; consistent moisture",
+      "soil":  "Well-drained, fertile loam · pH 5.5–6.5",
+      "frost": "Hardy zones 4–9; tolerates light frost",
+      "tips": [
+        "Pinch blossoms until July 1st in first year — strengthens roots for better future yields",
+        "Remove runners to keep energy focused on fruit production",
+        "Day-neutral varieties produce regardless of day length — harvest June through October",
+        "Mulch crowns after first frost to protect through winter",
+        "Renovate beds annually after harvest — thin plants and refresh mulch"
+      ],
+      "harvest": [
+        "Harvest daily once berries turn fully red — check under leaves for hidden fruits",
+        "Refrigerate immediately in a single layer to prevent bruising",
+        "Everbearing season runs June through October in Zone 8b",
+        "Morning harvest gives the best flavor and longest shelf life"
+      ],
+      "companions": [
+        "✅ Borage — deters aphids, attracts pollinators; said to improve flavor",
+        "✅ Thyme — repels worms; improves fruit flavor",
+        "✅ Marigolds — repel nematodes and aphids",
+        "❌ Fennel — allelopathic; inhibits strawberry growth",
+        "❌ Brassicas — compete for nutrients"
+      ],
+      "pests": [
+        "Birds — net plants when berries begin to color",
+        "Slugs — use iron phosphate bait at soil level",
+        "Albion resists Anthracnose, Powdery Mildew, and Verticillium Wilt",
+        "Phytophthora crown rot — ensure excellent drainage; avoid overwatering"
+      ],
+      "safe": "🐱 🐶 Non-toxic to cats and dogs; fruit safe for humans"
+    },
+    "varieties": {
+      "Albion": {
+        "spacing": "12–18 inches apart",
+        "height":  "12 inches tall",
+        "harvest": [
+          "Day-neutral everbearing hybrid — large, firm, conical berries with exceptional sweetness",
+          "Harvest from June through October; pick daily as berries ripen fully red",
+          "Strong disease resistance: Anthracnose, Powdery Mildew, Verticillium Wilt",
+          "Performs well in both hot dry summers and cool maritime climates"
+        ]
+      }
+    }
   }
 }
