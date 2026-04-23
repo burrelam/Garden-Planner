@@ -1133,7 +1133,7 @@ const PLANT_CATEGORIES = {
 // Edit care-data.json to update plant care info without touching
 // this file. Data is cached in localStorage after first fetch.
 // ══════════════════════════════════════════════════════════════
-const CARE_DATA_VERSION = '1';   // bump this to force a cache refresh
+const CARE_DATA_VERSION = '2';   // bump this to force a cache refresh
 let VERDANTLY_CARE = {};
 
 (async function loadCareData() {
@@ -2100,11 +2100,13 @@ function render() {
     const compatHtml = (compat.companion ? '💕' : '') + (compat.warning ? '🚫' : '');
     const compatIconHtml = compatHtml ? `<span class="compat-icons">${compatHtml}</span>` : '';
 
-    // Line 3: bed pill in alpha/category views; nothing in bed/status
-    const line3 = (viewMode === 'alpha' || viewMode === 'category') ? bedPillHtml : '';
+    // Line 3: bed pill in category view only; clean in alpha/bed/status
+    const line3 = viewMode === 'category' ? bedPillHtml : '';
 
-    // Bottom row left: status badge (bed + alpha views); bed pill (status view)
-    const line4left = viewMode === 'status' ? bedPillHtml : badgeHtml;
+    // Bottom row left: status badge (bed/category views); bed pill (status view); nothing (alpha)
+    const line4left = viewMode === 'status'   ? bedPillHtml
+                    : viewMode === 'alpha'    ? ''
+                    : badgeHtml;
 
     const reorderBtns = viewMode !== 'alpha' ? `
       <div class="plant-reorder-btns">
@@ -2425,7 +2427,12 @@ function openMobileSheet(plantId) {
           <option value="">— none —</option>
           ${dbVarieties.map(v => `<option value="${v}" ${v === plant.variety ? 'selected' : ''}>${v}</option>`).join('')}
         </select>
-      </label>` : '';
+      </label>` : `
+      <label class="panel-label">Variety:
+        <input type="text" class="panel-select" value="${plant.variety || ''}"
+          placeholder="e.g. Heirloom" style="width:120px;"
+          onchange="updateVariety('${plantId}', this.value.trim())" />
+      </label>`;
 
   document.getElementById('sheet-title').textContent    = plant.name;
   document.getElementById('sheet-subtitle').textContent = plant.variety || '';
