@@ -59,9 +59,34 @@
 
   .frost-note { background: rgba(120,180,220,0.12); border: 1px solid rgba(120,180,220,0.3); border-radius: 8px; padding: 9px 16px; color: #b8daf0; font-size: 0.76rem; text-align: center; margin: 0 0 16px; letter-spacing: 0.04em; }
 
-  .legend { display: flex; gap: 18px; justify-content: center; flex-wrap: wrap; margin-bottom: 20px; animation: fadeUp 0.6s 0.2s ease both; }
-  .legend-item { display: flex; align-items: center; gap: 7px; color: var(--cream); font-size: 0.76rem; letter-spacing: 0.04em; }
-  .legend-swatch { width: 26px; height: 13px; border-radius: 3px; }
+  /* ── LEGEND TOGGLE ── */
+  .legend-wrap { margin-bottom: 20px; animation: fadeUp 0.6s 0.2s ease both; text-align: center; }
+  .legend-toggle-btn {
+    background: rgba(255,255,255,0.14); border: 1px solid rgba(255,255,255,0.28);
+    color: var(--cream); font-size: 0.64rem; font-weight: 700; letter-spacing: 0.09em;
+    text-transform: uppercase; padding: 5px 14px; border-radius: 5px;
+    cursor: pointer; display: inline-flex; align-items: center; gap: 6px;
+    transition: opacity 0.15s;
+  }
+  .legend-toggle-btn:hover { opacity: 0.8; }
+  .legend-toggle-btn .legend-arrow { font-size: 0.62rem; display: inline-block; transition: transform 0.2s; }
+  .legend-toggle-btn.open .legend-arrow { transform: rotate(180deg); }
+  .legend-panel {
+    display: none; margin-top: 10px; padding: 14px 20px 16px;
+    background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.14);
+    border-radius: 10px; animation: fadeDown 0.18s ease;
+  }
+  .legend-panel.open { display: block; }
+  .legend-panel-grid { display: flex; gap: 20px 32px; flex-wrap: wrap; justify-content: center; }
+  .legend-section { min-width: 180px; }
+  .legend-section-title {
+    font-size: 0.57rem; font-weight: 700; letter-spacing: 0.11em; text-transform: uppercase;
+    color: rgba(245,240,232,0.45); margin-bottom: 8px;
+  }
+  .legend-items { display: flex; flex-direction: column; gap: 7px; }
+  .legend-item { display: flex; align-items: center; gap: 8px; color: var(--cream); font-size: 0.72rem; letter-spacing: 0.02em; }
+  .legend-swatch { width: 26px; height: 13px; border-radius: 3px; flex-shrink: 0; }
+  .legend-emoji-icon { font-size: 0.85rem; width: 22px; text-align: center; flex-shrink: 0; }
 
   .calendar-outer { background: var(--cream); border-radius: 16px; overflow: hidden; box-shadow: 0 20px 60px rgba(0,0,0,0.4); animation: fadeUp 0.7s 0.1s ease both; }
   .table-wrap { overflow: auto; max-height: 68vh; -webkit-overflow-scrolling: touch; }
@@ -220,7 +245,7 @@
   .plant-info:hover { background: rgba(0,0,0,0.03); }
   .plant-name { display: block; font-family: 'Playfair Display', serif; font-size: clamp(0.78rem, 2.2vw, 0.92rem); font-weight: 700; color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 1.2; flex: 1; min-width: 0; }
   .plant-variety { display: block; font-size: clamp(0.60rem, 1.8vw, 0.70rem); color: #7a6a58; font-weight: 400; font-style: italic; line-height: 1.2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex: 1; min-width: 0; padding-right: 3px; }
-  .compat-icons { font-size: 0.7rem; letter-spacing: 0.02em; flex-shrink: 0; line-height: 1; }
+  .compat-icons { font-size: 0.7rem; flex-shrink: 0; display: flex; flex-direction: column; align-items: center; gap: 1px; line-height: 1; }
   .plant-name-row { display: flex; align-items: flex-start; justify-content: space-between; gap: 2px; overflow: hidden; }
   .plant-dtm { font-size: 0.70rem; color: #9a8a78; font-weight: 300; }
   .plant-qty { font-size: 0.75rem; color: var(--moss); font-weight: 600; }
@@ -650,12 +675,32 @@
   <div class="frost-note">
     <strong>Zone 8b Frost Dates:</strong> Last frost ~<strong>Mar 15</strong> · First fall frost ~<strong>Nov 15</strong> · Growing season ≈ 245 days
   </div>
-  <div class="legend">
-    <div class="legend-item"><div class="legend-swatch" style="background:var(--indoor)"></div>Start Seeds Indoors</div>
-    <div class="legend-item"><div class="legend-swatch" style="background:var(--transplant)"></div>Transplant Outdoors</div>
-    <div class="legend-item"><div class="legend-swatch" style="background:var(--direct-sow)"></div>Direct Sow Outdoors</div>
-    <div class="legend-item"><div class="legend-swatch" style="background:var(--harvest-color)"></div>Harvest Window</div>
-    <div class="legend-item"><div class="legend-swatch" style="background:var(--bloom-color)"></div>Bloom Window</div>
+  <div class="legend-wrap">
+    <button class="legend-toggle-btn" id="legend-toggle-btn" onclick="toggleLegend()">
+      📖 Legend <span class="legend-arrow">▾</span>
+    </button>
+    <div class="legend-panel" id="legend-panel">
+      <div class="legend-panel-grid">
+        <div class="legend-section">
+          <div class="legend-section-title">Calendar Colors</div>
+          <div class="legend-items">
+            <div class="legend-item"><div class="legend-swatch" style="background:var(--indoor)"></div>Start Seeds Indoors</div>
+            <div class="legend-item"><div class="legend-swatch" style="background:var(--transplant)"></div>Transplant Outdoors</div>
+            <div class="legend-item"><div class="legend-swatch" style="background:var(--direct-sow)"></div>Direct Sow Outdoors</div>
+            <div class="legend-item"><div class="legend-swatch" style="background:var(--harvest-color)"></div>Harvest Window</div>
+            <div class="legend-item"><div class="legend-swatch" style="background:var(--bloom-color)"></div>Bloom Window</div>
+          </div>
+        </div>
+        <div class="legend-section">
+          <div class="legend-section-title">Plant Icons</div>
+          <div class="legend-items">
+            <div class="legend-item"><span class="legend-emoji-icon">💗</span>Benefits from a companion in this bed</div>
+            <div class="legend-item"><span class="legend-emoji-icon">💕</span>Acts as a companion to another plant in this bed</div>
+            <div class="legend-item"><span class="legend-emoji-icon">🚫</span>An incompatible plant is in this bed</div>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 
   <div class="calendar-outer">
@@ -1981,6 +2026,14 @@ function toggleCategoryCollapse(catKey) {
     : '<span class="btn-label">Collapse</span> <span class="btn-arrow">▾</span>';
 }
 
+function toggleLegend() {
+  const panel = document.getElementById('legend-panel');
+  const btn   = document.getElementById('legend-toggle-btn');
+  if (!panel) return;
+  const isOpen = panel.classList.toggle('open');
+  btn.classList.toggle('open', isOpen);
+}
+
 function toggleViewDropdown() {
   const dd = document.getElementById('view-dropdown');
   if (dd) dd.classList.toggle('open');
@@ -2104,8 +2157,11 @@ function render() {
 
     // Companion/warning icons
     const compat = compatMap[plant.id] || {};
-    const compatHtml = (compat.companion ? '💕' : '') + (compat.warning ? '🚫' : '');
-    const compatIconHtml = compatHtml ? `<span class="compat-icons">${compatHtml}</span>` : '';
+    const topIcon    = compat.beneficiary ? '💗' : compat.companion ? '💕' : '';
+    const bottomIcon = compat.warning ? '🚫' : '';
+    const compatIconHtml = (topIcon || bottomIcon)
+      ? `<span class="compat-icons">${topIcon ? `<span>${topIcon}</span>` : ''}${bottomIcon ? `<span>${bottomIcon}</span>` : ''}</span>`
+      : '';
 
     // Line 3: bed pill in category view only; clean in alpha/bed/status
     const line3 = viewMode === 'category' ? bedPillHtml : '';
@@ -2178,25 +2234,31 @@ function render() {
   beds.forEach(b => bedMap[b.id] = b);
   const movableBeds = beds.filter(b => b.id !== 'unassigned');
 
-  // Pre-compute companion/warning indicators per plant based on bedmates
+  // Pre-compute companion/warning indicators per plant based on bedmates.
+  // beneficiary = this plant's care data lists a bedmate as a good companion (it WANTS that plant nearby)
+  // companion   = a bedmate's care data lists THIS plant (this plant IS the companion to another)
+  // If both, beneficiary wins (mutual = show 💗 only)
+  // warning = any incompatible plant is in the same bed
   const compatMap = {};
   plants.forEach(plant => {
     const bedmates = plants.filter(p => p.bed === plant.bed && p.id !== plant.id);
-    if (!bedmates.length) { compatMap[plant.id] = { companion: false, warning: false }; return; }
-    let companion = false, warning = false;
-    // Forward: does this plant list any bedmate as companion/incompatible?
+    if (!bedmates.length) { compatMap[plant.id] = { beneficiary: false, companion: false, warning: false }; return; }
+    let beneficiary = false, companion = false, warning = false;
+    // Forward: does this plant list any bedmate as good/bad?
     const { good, bad } = getCompanionNames(plant.name);
     bedmates.forEach(bm => {
-      if (good.some(g => compatMatch(g, bm.name))) companion = true;
-      if (bad.some(b  => compatMatch(b,  bm.name))) warning  = true;
+      if (good.some(g => compatMatch(g, bm.name))) beneficiary = true;
+      if (bad.some(b  => compatMatch(b,  bm.name))) warning    = true;
     });
-    // Reverse: does any bedmate list this plant as companion/incompatible?
+    // Reverse: does any bedmate list this plant as good/bad?
     bedmates.forEach(bm => {
       const { good: bmGood, bad: bmBad } = getCompanionNames(bm.name);
       if (bmGood.some(g => compatMatch(g, plant.name))) companion = true;
       if (bmBad.some(b  => compatMatch(b,  plant.name))) warning  = true;
     });
-    compatMap[plant.id] = { companion, warning };
+    // Mutual relationship: beneficiary overrides companion (show 💗, not both)
+    if (beneficiary) companion = false;
+    compatMap[plant.id] = { beneficiary, companion, warning };
   });
 
   // ══ BED VIEW (default) ══════════════════════════════════════
