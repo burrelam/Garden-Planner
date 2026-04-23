@@ -2394,10 +2394,10 @@ function render() {
   if (!_hasScrolledToToday && wrap) {
     _hasScrolledToToday = true; // set immediately so re-renders don't queue multiple scrolls
     requestAnimationFrame(() => requestAnimationFrame(() => {
-      const now   = new Date();
-      const col   = now.getMonth() * 2 + (now.getDate() > 15 ? 1 : 0);
-      const cellW = 22, nameW = 140;
-      const target = nameW + col * cellW - (wrap.clientWidth - nameW) / 2;
+      const now    = new Date();
+      const cellW  = 22;
+      // Align the start of the current month to the left edge of the visible area (past the sticky name col)
+      const target = now.getMonth() * 2 * cellW;
       wrap.scrollLeft = Math.max(0, target);
     }));
   }
@@ -2727,10 +2727,12 @@ function getCompanionNames(plantName) {
     const isGood = line.startsWith('✅');
     const isBad  = line.startsWith('❌');
     if (!isGood && !isBad) return;
-    // Strip emoji + split on em-dash or parenthesis → extract first plant name
-    const name = line.replace(/^[✅❌]\s*/, '').split(/\s*[—–(]/)[0].trim().toLowerCase();
-    if (isGood) good.push(name);
-    else bad.push(name);
+    // Strip emoji + split on em-dash or parenthesis → extract plant name portion
+    const namePart = line.replace(/^[✅❌]\s*/, '').split(/\s*[—–(]/)[0].trim();
+    // Handle "&"-separated names (e.g. "Onions & leeks", "Spinach & lettuce")
+    const names = namePart.split(/\s*&\s*/).map(n => n.trim().toLowerCase()).filter(Boolean);
+    if (isGood) good.push(...names);
+    else        bad.push(...names);
   });
   return { good, bad };
 }
@@ -3350,6 +3352,30 @@ document.addEventListener('click', function(e) {
 
 render();
 initSheetDrag();
+initMonthSnap();
+
+function initMonthSnap() {
+  const wrap = document.querySelector('.table-wrap');
+  if (!wrap) return;
+  const cellW = 22, monthW = cellW * 2; // 44px per full month
+  function snapToNearestMonth() {
+    const nearest = Math.round(wrap.scrollLeft / monthW) * monthW;
+    if (Math.abs(wrap.scrollLeft - nearest) > 1) {
+      wrap.scrollTo({ left: nearest, behavior: 'smooth' });
+    }
+  }
+  // Use scrollend if available (Chrome 114+, Firefox 109+, Safari 17.4+)
+  // Fall back to debounce for older browsers
+  if ('onscrollend' in window) {
+    wrap.addEventListener('scrollend', snapToNearestMonth);
+  } else {
+    let snapTimer;
+    wrap.addEventListener('scroll', () => {
+      clearTimeout(snapTimer);
+      snapTimer = setTimeout(snapToNearestMonth, 200);
+    });
+  }
+}
 </script>
 </body>
 </html>
