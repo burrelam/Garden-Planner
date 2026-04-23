@@ -169,8 +169,8 @@
   .bed-collapse-btn:hover { opacity: 0.8; }
   @media (max-width: 480px) {
     .btn-arrow      { display: inline-block; transform: scale(2.2); margin: 0 5px; line-height: 1; }
-    .plant-name     { font-size: 0.98rem; }
-    .plant-variety  { font-size: 0.68rem; }
+    .plant-name     { font-size: 1.02rem; }
+    .plant-variety  { font-size: 0.72rem; }
     .plant-dtm      { font-size: 0.78rem; }
     .plant-badge    { font-size: 0.70rem; }
     .bed-pill       { font-size: 0.67rem; }
@@ -350,7 +350,7 @@
   @media (max-width: 480px) {
     .care-cols { flex-direction: column; gap: 4px; }
     .care-col  { min-width: 100%; }
-    .care-tag  { font-size: 0.69rem; max-width: calc(50% - 3px); }
+    .care-tag  { font-size: 0.69rem; }
     .care-meta { gap: 4px; }
   }
   .care-safe  { font-size: 0.73rem; color: #7a9a6a; margin-top: 6px; }
@@ -380,13 +380,15 @@
     padding: 4px 0 10px; border-bottom: 1px solid rgba(90,74,56,0.15);
     margin-bottom: 12px;
   }
-  .sheet-title    { font-family: 'Playfair Display', serif; font-size: 1.05rem; font-weight: 700; color: var(--ink); display: block; }
-  .sheet-subtitle { font-size: 0.72rem; color: #7a6a58; font-style: italic; }
+  .sheet-title    { font-family: 'Playfair Display', serif; font-size: 1.31rem; font-weight: 700; color: var(--ink); display: block; }
+  .sheet-subtitle { font-size: 0.90rem; color: #7a6a58; font-style: italic; }
   .sheet-close    { background: none; border: none; font-size: 1.1rem; color: #9a8a78; cursor: pointer; padding: 2px 4px; line-height: 1; }
+  #mobile-sheet .panel-label  { font-size: 0.85rem; }
+  #mobile-sheet .panel-select { font-size: 0.85rem; }
   /* Use desktop-scale fonts inside the sheet */
   #mobile-sheet .care-col li     { font-size: 0.96rem; }
   #mobile-sheet .care-col strong { font-size: 1.01rem; }
-  #mobile-sheet .care-tag        { font-size: 0.90rem; max-width: calc(50% - 3px); }
+  #mobile-sheet .care-tag        { font-size: 0.90rem; width: 100%; }
   #mobile-sheet .care-safe       { font-size: 1.04rem; }
   #mobile-sheet .care-cols       { flex-direction: column; gap: 4px; }
   #mobile-sheet .care-col        { min-width: 100%; }
@@ -2426,7 +2428,7 @@ function openMobileSheet(plantId) {
   document.getElementById('sheet-subtitle').textContent = plant.variety || '';
   document.getElementById('sheet-body').innerHTML = `
     <div class="panel-controls">
-      <span class="panel-label" style="color:#9a8a78;font-weight:300;font-size:0.65rem;">⏱ ${plant.dtm}</span>
+      <span class="panel-label" style="color:#9a8a78;font-weight:300;font-size:0.81rem;">⏱ ${plant.dtm}</span>
       <label class="panel-label">Status:
         <select class="panel-select" onchange="updateStatus('${plantId}', this.value)">${statusOptions}</select>
       </label>${varietyHtml}
@@ -2454,9 +2456,43 @@ function openMobileSheet(plantId) {
 function closeMobileSheet() {
   const sheet    = document.getElementById('mobile-sheet');
   const backdrop = document.getElementById('mobile-sheet-backdrop');
+  sheet.style.transition = '';   // restore CSS transition in case drag suppressed it
+  sheet.style.transform  = '';   // clear any inline drag offset
   sheet.classList.remove('slide-up');
   backdrop.classList.remove('open');
   setTimeout(() => { if (!sheet.classList.contains('slide-up')) sheet.classList.remove('open'); }, 300);
+}
+
+function initSheetDrag() {
+  const sheet = document.getElementById('mobile-sheet');
+  let startY = null, startScrollTop = 0;
+
+  sheet.addEventListener('touchstart', e => {
+    startY         = e.touches[0].clientY;
+    startScrollTop = sheet.scrollTop;
+  }, { passive: true });
+
+  sheet.addEventListener('touchmove', e => {
+    if (startY === null) return;
+    const dy = e.touches[0].clientY - startY;
+    // Only drag-to-close when already scrolled to the top and pulling down
+    if (startScrollTop === 0 && dy > 0) {
+      sheet.style.transition = 'none';
+      sheet.style.transform  = `translateY(${dy}px)`;
+    }
+  }, { passive: true });
+
+  sheet.addEventListener('touchend', e => {
+    if (startY === null) return;
+    const dy = e.changedTouches[0].clientY - startY;
+    startY = null;
+    sheet.style.transition = ''; // restore
+    if (startScrollTop === 0 && dy > 80) {
+      closeMobileSheet();
+    } else {
+      sheet.style.transform = ''; // snap back via CSS transition
+    }
+  });
 }
 
 function updateVariety(plantId, variety) {
@@ -3286,6 +3322,7 @@ document.addEventListener('click', function(e) {
 })();
 
 render();
+initSheetDrag();
 </script>
 </body>
 </html>
