@@ -229,7 +229,7 @@
   .badge-willplant  { color: #4a7a9b; }
   .badge-undecided  { color: #9b7a3a; }
   .badge-maybe      { color: var(--terra); }
-  .expand-arrow { font-size: 0.75rem; color: #888; transition: transform 0.2s; display: inline-block; flex-shrink: 0; }
+  .expand-arrow { font-size: 0.75rem; color: #888; transition: transform 0.2s; display: inline-block; flex-shrink: 0; margin-left: auto; }
   .expanded .expand-arrow { transform: rotate(180deg); }
 
   /* ── PLANT INFO BOTTOM ROW (status+arrow on one line) ── */
@@ -247,14 +247,14 @@
   /* ── VIEW CORNER DROPDOWN ── */
   .view-corner-wrap { position: relative; width: 100%; }
   .view-corner-btn {
-    width: 100%; background: transparent; border: none;
-    color: var(--cream); font-size: 0.62rem; font-weight: 600;
-    letter-spacing: 0.08em; text-transform: uppercase;
-    cursor: pointer; padding: 5px 6px;
+    width: 100%; background: rgba(255,255,255,0.18); border: 1px solid rgba(255,255,255,0.35);
+    color: var(--cream); font-size: 0.60rem; font-weight: 700;
+    letter-spacing: 0.07em; text-transform: uppercase;
+    cursor: pointer; padding: 3px 7px;
     display: flex; align-items: center; justify-content: space-between; gap: 3px;
-    border-radius: 3px;
+    border-radius: 4px; transition: opacity 0.15s;
   }
-  .view-corner-btn:hover { background: rgba(255,255,255,0.12); }
+  .view-corner-btn:hover { opacity: 0.8; }
   .view-corner-btn .view-arrow { font-size: 0.78rem; }
   .view-corner-dropdown {
     display: none; position: absolute; top: calc(100% + 2px); left: 0; z-index: 200;
