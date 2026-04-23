@@ -27,6 +27,7 @@
     --transplant: #e8c96d;
     --direct-sow: #e8872a;
     --harvest-color: #3a6b2a;
+    --bloom-color: #d4729a;
     --bed-a: #4a7a9b;
     --bed-b: #7a5e9b;
     --bed-c: #9b7a3a;
@@ -139,9 +140,9 @@
   }
 
   /* ── BED HEADER ROWS ── */
-  tr.bed-row td { padding: 0; border-top: 3px solid #bbb; position: sticky; top: var(--thead-h); z-index: 2; }
+  tr.bed-row td { padding: 0; border-top: 3px solid #bbb; position: sticky; top: var(--thead-h); z-index: 4; }
   .bed-header { display: flex; align-items: center; gap: 5px; padding: 5px 6px; cursor: pointer; }
-  .bed-header:hover { filter: brightness(1.1); }
+  .bed-header:hover { filter: brightness(0.85); }
   .bed-dot { width: 8px; height: 8px; border-radius: 50%; background: white; opacity: 0.7; flex-shrink: 0; }
   .bed-name-input {
     background: transparent; border: none;
@@ -166,6 +167,15 @@
     transition: opacity 0.15s;
   }
   .bed-collapse-btn:hover { opacity: 0.8; }
+  @media (max-width: 480px) {
+    .btn-arrow      { display: inline-block; transform: scale(2.2); margin: 0 5px; line-height: 1; }
+    .plant-name     { font-size: 0.98rem; }
+    .plant-variety  { font-size: 0.68rem; }
+    .plant-dtm      { font-size: 0.78rem; }
+    .plant-badge    { font-size: 0.70rem; }
+    .bed-pill       { font-size: 0.67rem; }
+    .plant-qty      { font-size: 0.83rem; }
+  }
 
   /* ── PLANT REORDER BUTTONS ── */
   .plant-reorder-btns { display: flex; flex-direction: column; gap: 1px; padding: 2px 3px; flex-shrink: 0; }
@@ -196,17 +206,22 @@
     min-width: 140px; width: 140px;
     background: inherit;
   }
+  tr.bed-row td:nth-child(2) {
+    position: sticky; left: 140px; top: var(--thead-h); z-index: 5;
+    background: inherit;
+  }
 
   /* ── BED ACCENT STRIPES — applied inline via JS so custom beds work too ── */
 
   /* ── PLANT INFO CELL ── */
   .plant-info { padding: 7px 6px; display: flex; flex-direction: column; gap: 2px; cursor: pointer; user-select: none; overflow: hidden; }
   .plant-info:hover { background: rgba(0,0,0,0.03); }
-  .plant-name { font-family: 'Playfair Display', serif; font-size: 0.86rem; font-weight: 700; color: var(--ink); white-space: normal; line-height: 1.2; word-break: break-word; overflow-wrap: break-word; }
-  .plant-variety { font-size: 0.70rem; color: #7a6a58; font-weight: 400; font-style: italic; line-height: 1.2; }
-  .plant-dtm { font-size: 0.67rem; color: #9a8a78; font-weight: 300; }
-  .plant-qty { font-size: 0.72rem; color: var(--moss); font-weight: 600; }
-  .plant-badge { font-size: 0.59rem; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; }
+  .plant-name { display: block; font-family: 'Playfair Display', serif; font-size: clamp(0.78rem, 2.2vw, 0.92rem); font-weight: 700; color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 1.2; }
+  .plant-variety { display: block; font-size: clamp(0.60rem, 1.8vw, 0.70rem); color: #7a6a58; font-weight: 400; font-style: italic; line-height: 1.2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .compat-icons { font-size: 0.7rem; letter-spacing: 0.02em; flex-shrink: 0; }
+  .plant-dtm { font-size: 0.70rem; color: #9a8a78; font-weight: 300; }
+  .plant-qty { font-size: 0.75rem; color: var(--moss); font-weight: 600; }
+  .plant-badge { font-size: 0.62rem; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; }
   .badge-planted    { color: #4a7a3a; }
   .badge-willplant  { color: #4a7a9b; }
   .badge-undecided  { color: #9b7a3a; }
@@ -219,7 +234,7 @@
 
   /* ── BED PILL (status/alpha views) ── */
   .bed-pill {
-    display: inline-block; font-size: 0.56rem; font-weight: 700;
+    display: inline-block; font-size: 0.59rem; font-weight: 700;
     letter-spacing: 0.06em; text-transform: uppercase;
     padding: 1px 6px; border-radius: 3px; color: white; line-height: 1.6; flex-shrink: 0;
   }
@@ -251,10 +266,18 @@
   .view-corner-option.active { background: rgba(74,94,58,0.14); color: var(--moss); font-weight: 700; }
 
   /* ── STATUS GROUP HEADERS (status view) ── */
-  tr.status-group-row td { padding: 0; border-top: 2px solid rgba(0,0,0,0.08); position: sticky; top: var(--thead-h); z-index: 2; }
+  tr.status-group-row td { padding: 0; border-top: 2px solid rgba(0,0,0,0.08); position: sticky; top: var(--thead-h); z-index: 4; }
   tr.status-group-row td:first-child { position: sticky; left: 0; top: var(--thead-h); z-index: 5; background: inherit; min-width: 140px; width: 140px; }
+  tr.status-group-row td:nth-child(2) { position: sticky; left: 140px; top: var(--thead-h); z-index: 5; background: inherit; }
   .status-group-header { display: flex; align-items: center; gap: 6px; padding: 5px 8px; font-size: 0.68rem; font-weight: 700; letter-spacing: 0.09em; text-transform: uppercase; color: white; cursor: pointer; }
-  tr.status-group-row td:hover { filter: brightness(1.1); }
+  tr.status-group-row td:hover { filter: brightness(0.85); }
+
+  /* ── CATEGORY GROUP HEADERS (category view) ── */
+  tr.category-group-row td { padding: 0; border-top: 2px solid rgba(0,0,0,0.08); position: sticky; top: var(--thead-h); z-index: 4; }
+  tr.category-group-row td:first-child { position: sticky; left: 0; top: var(--thead-h); z-index: 5; background: inherit; min-width: 140px; width: 140px; }
+  tr.category-group-row td:nth-child(2) { position: sticky; left: 140px; top: var(--thead-h); z-index: 5; background: inherit; }
+  .category-group-header { display: flex; align-items: center; gap: 6px; padding: 5px 8px; font-size: 0.68rem; font-weight: 700; letter-spacing: 0.09em; text-transform: uppercase; color: white; cursor: pointer; }
+  tr.category-group-row td:hover { filter: brightness(0.85); }
 
   /* ── DETAIL PANEL ── */
   tr.detail-row td { padding: 0; background: #f9f5ee; border-top: 1px solid #e5ddd0; }
@@ -307,20 +330,66 @@
   .care-tag {
     background: rgba(90,120,70,0.1); border: 1px solid rgba(90,120,70,0.22);
     border-radius: 4px; padding: 2px 8px; font-size: 0.67rem; color: #5a4a38;
+    white-space: normal; word-break: break-word; line-height: 1.4;
+    display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
   }
-  .care-cols { display: flex; gap: 24px; flex-wrap: wrap; }
-  .care-col  { flex: 1; min-width: 170px; }
+  .care-cols { display: flex; gap: 16px; flex-wrap: wrap; }
+  .care-col  { flex: 1; min-width: 140px; }
   .care-col strong {
-    display: block; font-size: 0.67rem; font-weight: 600; color: #4a3a28;
+    display: block; font-size: 0.64rem; font-weight: 600; color: #4a3a28;
     margin: 6px 0 3px; letter-spacing: 0.05em; text-transform: uppercase;
   }
   .care-col ul { margin: 0 0 6px; padding-left: 14px; }
-  .care-col li { font-size: 0.49rem; color: #6a5a48; margin-bottom: 2px; line-height: 1.45; }
+  .care-col li { font-size: 0.62rem; color: #6a5a48; margin-bottom: 2px; line-height: 1.5; }
   @media (min-width: 768px) {
-    .care-col li     { font-size: 0.70rem; }
-    .care-col strong { font-size: 0.74rem; }
+    .care-col li     { font-size: 0.79rem; }
+    .care-col strong { font-size: 0.84rem; }
+    .care-safe       { font-size: 0.87rem; }
+    .care-tag        { font-size: 0.73rem; }
   }
-  .care-safe  { font-size: 0.67rem; color: #7a9a6a; margin-top: 6px; }
+  @media (max-width: 480px) {
+    .care-cols { flex-direction: column; gap: 4px; }
+    .care-col  { min-width: 100%; }
+    .care-tag  { font-size: 0.69rem; max-width: calc(50% - 3px); }
+    .care-meta { gap: 4px; }
+  }
+  .care-safe  { font-size: 0.73rem; color: #7a9a6a; margin-top: 6px; }
+
+  /* ── MOBILE BOTTOM SHEET (Option A) ── */
+  #mobile-sheet-backdrop {
+    display: none; position: fixed; inset: 0; z-index: 100;
+    background: rgba(0,0,0,0.45);
+  }
+  #mobile-sheet-backdrop.open { display: block; }
+  #mobile-sheet {
+    display: none; position: fixed; bottom: 0; left: 0; right: 0; z-index: 101;
+    background: var(--cream); border-radius: 18px 18px 0 0;
+    padding: 0 16px 40px; max-height: 80vh; overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    transform: translateY(100%);
+    transition: transform 0.28s cubic-bezier(0.32,0,0.15,1);
+  }
+  #mobile-sheet.open     { display: block; }
+  #mobile-sheet.slide-up { transform: translateY(0); }
+  .sheet-handle {
+    width: 36px; height: 4px; background: rgba(0,0,0,0.18);
+    border-radius: 2px; margin: 10px auto 6px;
+  }
+  .sheet-header {
+    display: flex; justify-content: space-between; align-items: flex-start;
+    padding: 4px 0 10px; border-bottom: 1px solid rgba(90,74,56,0.15);
+    margin-bottom: 12px;
+  }
+  .sheet-title    { font-family: 'Playfair Display', serif; font-size: 1.05rem; font-weight: 700; color: var(--ink); display: block; }
+  .sheet-subtitle { font-size: 0.72rem; color: #7a6a58; font-style: italic; }
+  .sheet-close    { background: none; border: none; font-size: 1.1rem; color: #9a8a78; cursor: pointer; padding: 2px 4px; line-height: 1; }
+  /* Use desktop-scale fonts inside the sheet */
+  #mobile-sheet .care-col li     { font-size: 0.96rem; }
+  #mobile-sheet .care-col strong { font-size: 1.01rem; }
+  #mobile-sheet .care-tag        { font-size: 0.90rem; max-width: calc(50% - 3px); }
+  #mobile-sheet .care-safe       { font-size: 1.04rem; }
+  #mobile-sheet .care-cols       { flex-direction: column; gap: 4px; }
+  #mobile-sheet .care-col        { min-width: 100%; }
 
   .panel-controls {
     display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-bottom: 0;
@@ -380,15 +449,30 @@
   /* ── MONTH CELLS ── */
   td.hcol { padding: 5px 1px; border-left: 1px solid #ede5d8; min-width: 22px; width: 22px; vertical-align: middle; }
   td.hcol.month-start { border-left: 2px solid #d5cab8; }
-  td.hcol.current-half-col { background: rgba(90,160,55,0.12); position: relative; }
+  td.hcol.current-half-col { background: rgba(90,160,55,0.26); position: relative; z-index: 1; }
   td.hcol.current-half-col::after,
   th.current-half::after {
     content: ''; position: absolute; top: 0; bottom: 0;
-    left: var(--today-pos, 50%);
+    /* center the 3px tick on --today-pos */
+    left: calc(var(--today-pos, 50%) - 1.5px);
     width: 3px; background: rgba(57,255,20,0.85);
-    pointer-events: none; z-index: 1;
+    pointer-events: none; z-index: 20;
   }
   th.current-half { position: relative; }
+  /* Downward-pointing arrow in the E/L header — point aligns with tick center */
+  th.current-half::before {
+    content: '';
+    position: absolute;
+    left: var(--today-pos, 50%);
+    bottom: 0px;
+    transform: translateX(-50%);
+    width: 0; height: 0;
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+    border-top: 6px solid rgba(57,255,20,0.95);
+    pointer-events: none;
+    z-index: 25;
+  }
 
   tbody tr { border-top: 1px solid #e5ddd0; }
   tbody tr:hover td { background: rgba(181,204,142,0.05); }
@@ -402,6 +486,7 @@
   .bar-transplant { background: var(--transplant);    opacity: 0.9;  }
   .bar-direct     { background: var(--direct-sow);    opacity: 0.9;  }
   .bar-harvest    { background: var(--harvest-color); opacity: 0.85; }
+  .bar-bloom      { background: var(--bloom-color);   opacity: 0.90; }
   .bar-marigold   { background: #f0b03a;               opacity: 0.85; }
   .bar-split      { opacity: 0.9; }
 
@@ -561,6 +646,7 @@
     <div class="legend-item"><div class="legend-swatch" style="background:var(--transplant)"></div>Transplant Outdoors</div>
     <div class="legend-item"><div class="legend-swatch" style="background:var(--direct-sow)"></div>Direct Sow Outdoors</div>
     <div class="legend-item"><div class="legend-swatch" style="background:var(--harvest-color)"></div>Harvest Window</div>
+    <div class="legend-item"><div class="legend-swatch" style="background:var(--bloom-color)"></div>Bloom Window</div>
   </div>
 
   <div class="calendar-outer">
@@ -587,9 +673,10 @@
                   <span id="view-label">Bed View</span><span>▾</span>
                 </button>
                 <div class="view-corner-dropdown" id="view-dropdown">
-                  <div class="view-corner-option active" data-view="bed"    onclick="setViewMode('bed')">🪴 Bed View</div>
-                  <div class="view-corner-option"        data-view="status" onclick="setViewMode('status')">🏷 Status View</div>
-                  <div class="view-corner-option"        data-view="alpha"  onclick="setViewMode('alpha')">🔤 A–Z View</div>
+                  <div class="view-corner-option active" data-view="bed"      onclick="setViewMode('bed')">🪴 Bed View</div>
+                  <div class="view-corner-option"        data-view="status"   onclick="setViewMode('status')">🏷 Status View</div>
+                  <div class="view-corner-option"        data-view="alpha"    onclick="setViewMode('alpha')">🔤 A–Z View</div>
+                  <div class="view-corner-option"        data-view="category" onclick="setViewMode('category')">🌸 Category View</div>
                 </div>
               </div>
             </th>
@@ -650,6 +737,20 @@
     <button class="btn-cancel" style="flex:1;padding:7px;font-size:0.68rem;" onclick="closeBedEditPopover()">Cancel</button>
     <button class="btn-primary" style="flex:1;padding:7px;font-size:0.68rem;" onclick="saveBedEdit()">Save</button>
   </div>
+</div>
+
+<!-- MOBILE BOTTOM SHEET -->
+<div id="mobile-sheet-backdrop" onclick="closeMobileSheet()"></div>
+<div id="mobile-sheet">
+  <div class="sheet-handle"></div>
+  <div class="sheet-header">
+    <div>
+      <span class="sheet-title" id="sheet-title"></span>
+      <span class="sheet-subtitle" id="sheet-subtitle"></span>
+    </div>
+    <button class="sheet-close" onclick="closeMobileSheet()">✕</button>
+  </div>
+  <div id="sheet-body"></div>
 </div>
 
 <!-- FROST TOOLTIP -->
@@ -769,6 +870,27 @@ const PLANT_DATABASE = {
       'Cherokee Purple': { dtm: '80–90 days', months: makeMonths([[0,6,'indoor'],[7,9,'transplant'],[14,19,'harvest']]) },
       'Cherry':          { dtm: '60–70 days', months: makeMonths([[0,6,'indoor'],[7,9,'transplant'],[14,19,'harvest']]) },
       'Beefsteak':       { dtm: '85–95 days', months: makeMonths([[0,6,'indoor'],[7,9,'transplant'],[14,19,'harvest']]) },
+      'San Marzano':           { dtm: '80–90 days', months: makeMonths([[0,6,'indoor'],[7,9,'transplant'],[14,19,'harvest']]) },
+      'Amish Paste':           { dtm: '80–85 days', months: makeMonths([[0,6,'indoor'],[7,9,'transplant'],[14,19,'harvest']]) },
+      'Black Krim':            { dtm: '75–90 days', months: makeMonths([[0,6,'indoor'],[7,9,'transplant'],[13,19,'harvest']]) },
+      'Early Girl':            { dtm: '60–69 days', months: makeMonths([[0,6,'indoor'],[7,9,'transplant'],[11,19,'harvest']]) },
+      // — From Tomatoes.rtf —
+      'Arkansas Traveler':     { dtm: '75–80 days', months: makeMonths([[0,6,'indoor'],[7,9,'transplant'],[13,19,'harvest']]) },
+      "Aunt Ruby's German Green": { dtm: '80–85 days', months: makeMonths([[0,6,'indoor'],[7,9,'transplant'],[14,19,'harvest']]) },
+      "Barry's Crazy Cherry":  { dtm: '65–75 days', months: makeMonths([[0,6,'indoor'],[7,9,'transplant'],[11,19,'harvest']]) },
+      'Big Rainbow':           { dtm: '80–90 days', months: makeMonths([[0,6,'indoor'],[7,9,'transplant'],[14,19,'harvest']]) },
+      'Black Cherry':          { dtm: '64–70 days', months: makeMonths([[0,6,'indoor'],[7,9,'transplant'],[11,19,'harvest']]) },
+      'Black Strawberry':      { dtm: '70–75 days', months: makeMonths([[0,6,'indoor'],[7,9,'transplant'],[12,19,'harvest']]) },
+      'Blue Beauty':           { dtm: '75–80 days', months: makeMonths([[0,6,'indoor'],[7,9,'transplant'],[13,19,'harvest']]) },
+      'Blue Beech':            { dtm: '78–85 days', months: makeMonths([[0,6,'indoor'],[7,9,'transplant'],[13,19,'harvest']]) },
+      // — From Plum Tomatoes.rtf —
+      'Federle':               { dtm: '80–85 days', months: makeMonths([[0,6,'indoor'],[7,9,'transplant'],[14,19,'harvest']]) },
+      'Hungarian Heart':       { dtm: '65–75 days', months: makeMonths([[0,6,'indoor'],[7,9,'transplant'],[11,19,'harvest']]) },
+      'Jersey Devil':          { dtm: '80–85 days', months: makeMonths([[0,6,'indoor'],[7,9,'transplant'],[14,19,'harvest']]) },
+      'Opalka':                { dtm: '75–80 days', months: makeMonths([[0,6,'indoor'],[7,9,'transplant'],[13,19,'harvest']]) },
+      'Rio Grande':            { dtm: '70–75 days', months: makeMonths([[0,6,'indoor'],[7,9,'transplant'],[12,19,'harvest']]) },
+      'Speckled Roman':        { dtm: '78–85 days', months: makeMonths([[0,6,'indoor'],[7,9,'transplant'],[13,19,'harvest']]) },
+      'Striped Roman':         { dtm: '78–85 days', months: makeMonths([[0,6,'indoor'],[7,9,'transplant'],[13,19,'harvest']]) },
     },
     default: { dtm: '70–90 days', months: makeMonths([[0,6,'indoor'],[7,9,'transplant'],[14,19,'harvest']]) }
   },
@@ -799,18 +921,25 @@ const PLANT_DATABASE = {
     default: { dtm: '45–75 days', months: makeMonths([[0,3,'indoor'],[4,7,'transplant'],[8,11,'harvest'],[14,17,'transplant'],[18,21,'harvest']]) }
   },
   'Carrots': {
-    varieties: {},
+    varieties: {
+      'Kyoto Red':    { dtm: '70–80 days', months: makeMonths([[4,7,'direct'],[10,13,'harvest'],[14,15,'direct'],[18,23,'harvest']]) },
+      'Imperator 58': { dtm: '75–80 days', months: makeMonths([[4,7,'direct'],[10,13,'harvest'],[14,15,'direct'],[18,23,'harvest']]) },
+    },
     default: { dtm: '70–80 days', months: makeMonths([[4,7,'direct'],[10,13,'harvest'],[14,15,'direct'],[18,23,'harvest']]) }
   },
   'Celery': {
-    varieties: {},
+    varieties: {
+      'Utah 52-70': { dtm: '100–130 days', months: makeMonths([[2,4,'indoor'],[5,9,'transplant'],[12,19,'harvest']]) },
+    },
     default: { dtm: '80–120 days', months: makeMonths([[2,4,'indoor'],[5,9,'transplant'],[12,19,'harvest']]) }
   },
   'Beans': {
     varieties: {
-      'Purple String': { dtm: '50–60 days', months: makeMonths([[7,9,'direct'],[12,15,'harvest']]) },
-      'Green Bush':    { dtm: '50–60 days', months: makeMonths([[7,9,'direct'],[12,15,'harvest']]) },
-      'Pole Bean':     { dtm: '60–70 days', months: makeMonths([[7,9,'direct'],[12,15,'harvest']]) },
+      'Purple String':    { dtm: '50–60 days', months: makeMonths([[7,9,'direct'],[12,15,'harvest']]) },
+      'Green Bush':       { dtm: '50–60 days', months: makeMonths([[7,9,'direct'],[12,15,'harvest']]) },
+      'Pole Bean':        { dtm: '60–70 days', months: makeMonths([[7,9,'direct'],[12,15,'harvest']]) },
+      'Blue Lake 274':    { dtm: '55–65 days', months: makeMonths([[7,9,'direct'],[12,15,'harvest']]) },
+      'Royalty Purple Pod':{ dtm: '50–60 days', months: makeMonths([[7,9,'direct'],[12,15,'harvest']]) },
     },
     default: { dtm: '50–70 days', months: makeMonths([[7,9,'direct'],[12,15,'harvest']]) }
   },
@@ -850,10 +979,10 @@ const PLANT_DATABASE = {
   },
   'Marigolds': {
     varieties: {
-      'French': { dtm: '50–60 days to bloom', months: makeMonths([[4,7,'indoor'],[8,9,'transplant'],[10,18,'marigold']]) },
-      'African':{ dtm: '60–70 days to bloom', months: makeMonths([[4,7,'indoor'],[8,9,'transplant'],[10,18,'marigold']]) },
+      'French': { dtm: '50–60 days to bloom', months: makeMonths([[4,7,'indoor'],[8,9,'transplant'],[10,18,'bloom']]) },
+      'African':{ dtm: '60–70 days to bloom', months: makeMonths([[4,7,'indoor'],[8,9,'transplant'],[10,18,'bloom']]) },
     },
-    default: { dtm: '50–70 days to bloom', months: makeMonths([[4,7,'indoor'],[8,9,'transplant'],[10,18,'marigold']]) }
+    default: { dtm: '50–70 days to bloom', months: makeMonths([[4,7,'indoor'],[8,9,'transplant'],[10,18,'bloom']]) }
   },
   'Kale': {
     varieties: {},
@@ -905,14 +1034,17 @@ const PLANT_DATABASE = {
       'Red':      { dtm: '80–180 days', months: makeMonths([[0,3,'indoor'],[4,7,'transplant'],[10,13,'harvest'],[14,17,'transplant'],[18,21,'harvest']]) },
       'Savoy':    { dtm: '80–120 days', months: makeMonths([[0,3,'indoor'],[4,7,'transplant'],[10,13,'harvest'],[14,17,'transplant'],[18,21,'harvest']]) },
       'Napa':     { dtm: '70–80 days',  months: makeMonths([[0,3,'indoor'],[4,7,'transplant'],[10,13,'harvest'],[14,17,'transplant'],[18,21,'harvest']]) },
+      'Earliana': { dtm: '60 days',     months: makeMonths([[0,3,'indoor'],[4,7,'transplant'],[9,11,'harvest'],[14,17,'transplant'],[17,19,'harvest']]) },
     },
     default: { dtm: '80–180 days', months: makeMonths([[0,3,'indoor'],[4,7,'transplant'],[10,13,'harvest'],[14,17,'transplant'],[18,21,'harvest']]) }
   },
   'Cauliflower': {
     varieties: {
-      'White':   { dtm: '55–100 days', months: makeMonths([[0,3,'indoor'],[4,7,'transplant'],[10,13,'harvest'],[14,17,'transplant'],[18,21,'harvest']]) },
-      'Purple':  { dtm: '70–80 days',  months: makeMonths([[0,3,'indoor'],[4,7,'transplant'],[10,13,'harvest'],[14,17,'transplant'],[18,21,'harvest']]) },
-      'Romanesco':{ dtm: '75–100 days',months: makeMonths([[0,3,'indoor'],[4,7,'transplant'],[10,13,'harvest'],[14,17,'transplant'],[18,21,'harvest']]) },
+      'White':        { dtm: '55–100 days', months: makeMonths([[0,3,'indoor'],[4,7,'transplant'],[10,13,'harvest'],[14,17,'transplant'],[18,21,'harvest']]) },
+      'Purple':       { dtm: '70–80 days',  months: makeMonths([[0,3,'indoor'],[4,7,'transplant'],[10,13,'harvest'],[14,17,'transplant'],[18,21,'harvest']]) },
+      'Romanesco':    { dtm: '75–100 days', months: makeMonths([[0,3,'indoor'],[4,7,'transplant'],[10,13,'harvest'],[14,17,'transplant'],[18,21,'harvest']]) },
+      'Igloo':        { dtm: '50–60 days',  months: makeMonths([[0,3,'indoor'],[4,7,'transplant'],[10,13,'harvest'],[14,17,'transplant'],[18,21,'harvest']]) },
+      'Early Snowball':{ dtm: '55–65 days', months: makeMonths([[0,3,'indoor'],[4,7,'transplant'],[10,13,'harvest'],[14,17,'transplant'],[18,21,'harvest']]) },
     },
     default: { dtm: '55–100 days', months: makeMonths([[0,3,'indoor'],[4,7,'transplant'],[10,13,'harvest'],[14,17,'transplant'],[18,21,'harvest']]) }
   },
@@ -921,40 +1053,48 @@ const PLANT_DATABASE = {
       'June-bearing':    { dtm: 'Year 2+ harvest', months: makeMonths([[2,5,'transplant'],[10,15,'harvest']]) },
       'Ever-bearing':    { dtm: '60 days',          months: makeMonths([[2,5,'transplant'],[8,17,'harvest']]) },
       'Day-neutral':     { dtm: '60 days',          months: makeMonths([[2,5,'transplant'],[8,17,'harvest']]) },
+      'Albion':          { dtm: '90–99 days',        months: makeMonths([[2,7,'transplant'],[10,19,'harvest']]) },
     },
     // Portland Nursery: plant bare root Feb–Apr; ever-bearing harvests Jun–Oct
     default: { dtm: '60+ days', months: makeMonths([[2,5,'transplant'],[8,17,'harvest']]) }
   },
+  'Artichoke': {
+    varieties: {
+      'Green Globe': { dtm: '85–100 days from transplant', months: makeMonths([[0,3,'indoor'],[4,7,'transplant'],[8,13,'harvest']]) },
+    },
+    // Zone 8b perennial; start indoors Jan–Feb, transplant Mar–Apr, harvest May–Jul
+    default: { dtm: '85–100 days from transplant', months: makeMonths([[0,3,'indoor'],[4,7,'transplant'],[8,13,'harvest']]) }
+  },
   // ── FLOWERS (Zone 8b) ──
   'Zinnias': {
     varieties: {
-      'Envy': { dtm: '75–90 days to bloom', months: makeMonths([[1,3,'indoor'],[6,9,['direct','transplant']],[10,19,'harvest']]) },
+      'Envy': { dtm: '75–90 days to bloom', months: makeMonths([[1,3,'indoor'],[6,9,['direct','transplant']],[10,19,'bloom']]) },
     },
-    default: { dtm: '75–90 days to bloom', months: makeMonths([[1,3,'indoor'],[6,9,['direct','transplant']],[10,19,'harvest']]) }
+    default: { dtm: '75–90 days to bloom', months: makeMonths([[1,3,'indoor'],[6,9,['direct','transplant']],[10,19,'bloom']]) }
   },
   'Sunflowers': {
     varieties: {
-      'Autumn Beauty': { dtm: '75–85 days to bloom', months: makeMonths([[4,5,'indoor'],[6,9,'direct'],[12,17,'harvest']]) },
+      'Autumn Beauty': { dtm: '75–85 days to bloom', months: makeMonths([[4,5,'indoor'],[6,9,'direct'],[12,17,'bloom']]) },
     },
-    default: { dtm: '75–85 days to bloom', months: makeMonths([[4,5,'indoor'],[6,9,'direct'],[12,17,'harvest']]) }
+    default: { dtm: '75–85 days to bloom', months: makeMonths([[4,5,'indoor'],[6,9,'direct'],[12,17,'bloom']]) }
   },
   'Dahlias': {
     varieties: {
-      'Arabian Night':    { dtm: '100–109 days to bloom', months: makeMonths([[6,9,'transplant'],[12,19,'harvest']]) },
-      'Bishop\'s Children': { dtm: '84–98 days to bloom', months: makeMonths([[4,5,'indoor'],[6,9,'transplant'],[12,19,'harvest']]) },
+      'Arabian Night':    { dtm: '100–109 days to bloom', months: makeMonths([[6,9,'transplant'],[12,19,'bloom']]) },
+      'Bishop\'s Children': { dtm: '84–98 days to bloom', months: makeMonths([[4,5,'indoor'],[6,9,'transplant'],[12,19,'bloom']]) },
     },
     // Plant tubers after last frost (late Apr in Zone 8b); perennializes in Zone 8b if mulched
-    default: { dtm: '84–109 days to bloom', months: makeMonths([[6,9,'transplant'],[12,19,'harvest']]) }
+    default: { dtm: '84–109 days to bloom', months: makeMonths([[6,9,'transplant'],[12,19,'bloom']]) }
   },
   'Hydrangea': {
     varieties: {},
     // Perennial shrub — plant spring or fall; blooms June–September in Zone 8b
-    default: { dtm: 'Perennial shrub', months: makeMonths([[4,7,'transplant'],[10,17,'harvest']]) }
+    default: { dtm: 'Perennial shrub', months: makeMonths([[4,7,'transplant'],[10,17,'bloom']]) }
   },
   'Carnation': {
     varieties: {},
     // Start indoors Feb–Mar; transplant May; blooms Jun–Sep in Zone 8b
-    default: { dtm: '90–120 days to bloom', months: makeMonths([[2,5,'indoor'],[8,9,'transplant'],[10,17,'harvest']]) }
+    default: { dtm: '90–120 days to bloom', months: makeMonths([[2,5,'indoor'],[8,9,'transplant'],[10,17,'bloom']]) }
   },
   // ── VEGETABLES (Zone 8b) ──
   'Potatoes': {
@@ -983,18 +1123,389 @@ const PLANT_CATEGORIES = {
   'Dahlias': 'flower', 'Hydrangea': 'flower', 'Carnation': 'flower',
   'Potatoes': 'vegetable',
   'Strawberries': 'fruit',
+  'Artichoke': 'vegetable',
 };
 
 // ══════════════════════════════════════════════════════════════
-// VERDANTLY CARE DATA  (detail panel — filled in per plant)
+// VERDANTLY CARE DATA  — loaded from care-data.json at runtime
+// Edit care-data.json to update plant care info without touching
+// this file. Data is cached in localStorage after first fetch.
 // ══════════════════════════════════════════════════════════════
-const VERDANTLY_CARE = {
+const CARE_DATA_VERSION = '1';   // bump this to force a cache refresh
+let VERDANTLY_CARE = {};
+
+(async function loadCareData() {
+  try {
+    const cacheKey = 'care_data_v' + CARE_DATA_VERSION;
+    const cached   = localStorage.getItem(cacheKey);
+    if (cached) {
+      VERDANTLY_CARE = JSON.parse(cached);
+      return;
+    }
+    const res  = await fetch('./care-data.json');
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const data = await res.json();
+    VERDANTLY_CARE = data;
+    // Cache it; also clear any old version keys
+    Object.keys(localStorage)
+      .filter(k => k.startsWith('care_data_v') && k !== cacheKey)
+      .forEach(k => localStorage.removeItem(k));
+    localStorage.setItem(cacheKey, JSON.stringify(data));
+  } catch (e) {
+    console.warn('care-data.json could not be loaded — care panels will show "coming soon"', e);
+  }
+})();
+
+// ── LEGACY BLOCK REMOVED — data now lives in care-data.json ──
+const _VERDANTLY_CARE_STUB = {
+  'Tomato': {
+    default: {
+      sun:   'Full sun (6–8 hrs/day)',
+      water: 'Moderate; deep water, keep foliage dry',
+      soil:  'Well-drained, fertile loam with organic matter · pH 6.0–6.8',
+      frost: 'Frost-tender; soil 60°F+ required',
+      tips: [
+        'Start indoors 6–8 weeks before last frost (late Jan–Feb for Zone 8b)',
+        'Bury stems deeply at transplant — up to the top 2 sets of leaves',
+        'Stake or cage all indeterminate varieties early, before plants need it',
+        'Remove suckers for 1–2 leader training; more leaders = more fruit but smaller',
+        'Switch to low-nitrogen fertilizer once flowering begins',
+        'Water deeply and consistently — irregular watering causes blossom end rot',
+      ],
+      harvest: [
+        'Harvest when fully colored and slightly soft to gentle pressure',
+        'Twist gently or cut stem — don\'t pull or yank',
+        'Morning harvest preserves the best flavor',
+        'Green tomatoes at season\'s end ripen indoors in a cool, dark spot (not touching)',
+      ],
+      companions: [
+        '✅ Basil — improves flavor and repels aphids & whiteflies',
+        '✅ Marigolds — deter nematodes and pest insects',
+        '✅ Carrots — loosen soil around tomato roots',
+        '✅ Parsley — attracts beneficial predatory insects',
+        '❌ Fennel — inhibits tomato growth',
+        '❌ Brassicas (cabbage, broccoli) — compete heavily for nutrients',
+        '❌ Corn — shares the corn earworm/tomato fruitworm pest',
+      ],
+      pests: [
+        'Tomato hornworms — handpick or use Bt spray; check undersides of leaves',
+        'Aphids cluster on new growth — knock off with water or insecticidal soap',
+        'Blossom end rot = calcium/watering issue, not a disease — water consistently',
+        'Space plants and prune lower leaves for airflow to reduce early & late blight',
+      ],
+      safe: '⚠️ Leaves & stems are toxic to cats & dogs — fruits are safe',
+    },
+    varieties: {
+      'Roma': {
+        spacing: '18–24 inches apart',
+        height:  'Determinate — 3–4 feet tall',
+        harvest: [
+          'Determinate variety — most fruits ripen at once; excellent for canning runs',
+          'Harvest when fully red and slightly soft — typically 75–80 days',
+          'Dense, meaty flesh with few seeds — ideal for paste, sauce, and drying',
+        ],
+      },
+      'Cherokee Purple': {
+        spacing: '24–36 inches apart',
+        height:  'Indeterminate — up to 5 feet tall',
+        harvest: [
+          'Deep reddish-purple skin with dark green shoulders signals ripeness',
+          'Harvest at ~80 days — fruits feel firm with slight give; 8–10 oz each',
+          'Complex smoky-sweet flavor — best fresh-sliced or in small-batch premium sauce',
+        ],
+      },
+      'Cherry': {
+        spacing: '18–24 inches apart',
+        height:  'Indeterminate — 4–6 feet tall',
+        harvest: [
+          'Harvest when fully colored and easily detaches with a gentle pull',
+          'Check plants daily — cherry tomatoes ripen fast and crack if left too long',
+          'Most productive of all types; expect hundreds of fruits per plant per season',
+        ],
+      },
+      'Beefsteak': {
+        spacing: '24–36 inches apart',
+        height:  'Indeterminate — up to 6 feet tall',
+        harvest: [
+          'Large fruits up to 2 lbs — support heavy branches early to prevent snapping',
+          'Harvest at 85–95 days when fully red and just yielding to pressure',
+          'Meaty, low-seed flesh — the classic summer slicing tomato',
+        ],
+      },
+      'San Marzano': {
+        spacing: '24–36 inches apart',
+        height:  'Indeterminate — 4–5 ft; stake/trellis',
+        harvest: [
+          'Harvest elongated 3–5 oz fruits when fully deep red and firm — ~80–90 days',
+          'Sweeter, less acidic than Roma; thicker flesh and fewer seeds',
+          'The gold standard for pasta sauce, pizza sauce, and canning',
+          'Open-pollinated heirloom — save seeds for next year',
+        ],
+      },
+      'Amish Paste': {
+        spacing: '18–24 inches apart',
+        height:  'Indeterminate vine — up to 8 ft',
+        harvest: [
+          'Large oxheart-shaped fruits 6–8 oz — among the biggest paste tomatoes',
+          'Harvest at full red color around 80 days from transplant',
+          'Sweeter than most paste varieties — excellent fresh, roasted, or in sauce',
+          'Dense flesh cooks down beautifully; naturally thin sauce base — reduce to taste',
+        ],
+      },
+      'Black Krim': {
+        spacing: '24–36 inches apart',
+        height:  'Indeterminate — up to 5 feet tall',
+        harvest: [
+          'Harvest when dark red-purple with green shoulders at 4–5 inches — ~80 days',
+          'Rich, sweet flavor with a natural salty edge and subtle smokiness',
+          'Excellent disease resistance: Fusarium, Verticillium, Late Blight, TMV',
+          'Striking dark color adds drama to salads and caprese; great for fresh eating',
+        ],
+      },
+      'Early Girl': {
+        spacing: '18–24 inches apart',
+        height:  'Indeterminate — 3–8 feet tall',
+        harvest: [
+          'Earliest full-size slicer — harvest starts just 50–60 days after transplant',
+          'Globe-shaped fruits 4–5 oz; vibrant red with balanced sweet flavor',
+          'Outstanding disease resistance: Fusarium (R1&2), Verticillium, Nematodes + more',
+          'Check plants daily once ripening begins; harvest in cool mornings for best flavor',
+        ],
+      },
+      // — From Tomatoes.rtf —
+      'Arkansas Traveler': {
+        spacing: '24–36 inches apart',
+        height:  'Indeterminate — up to 5 feet tall',
+        harvest: [
+          'Medium-sized pink fruits 6–8 oz; harvest at ~75–80 days from transplant',
+          'Heat-tolerant heirloom known for setting fruit even in hot, humid summers',
+          'Mild, low-acid flavor — great for fresh eating; resists cracking',
+        ],
+      },
+      "Aunt Ruby's German Green": {
+        spacing: '24–36 inches apart',
+        height:  'Indeterminate — up to 5 feet tall',
+        harvest: [
+          'Large beefsteak fruits 1–2 lbs; harvest when green-yellow with a slight give — ~80–85 days',
+          'Unique fruity, sweet, complex flavor — one of the most distinctive heirlooms',
+          'Color stays green-yellow when ripe; don\'t wait for red — smell and feel to judge',
+        ],
+      },
+      "Barry's Crazy Cherry": {
+        spacing: '18–24 inches apart',
+        height:  'Indeterminate — 5–6 feet tall',
+        harvest: [
+          'Clusters of small red cherry fruits; harvest 65–75 days from transplant',
+          'Sweet, prolific producer — excellent for snacking and salads',
+          'Pick when fully colored and detaches easily with a gentle tug',
+        ],
+      },
+      'Big Rainbow': {
+        spacing: '24–36 inches apart',
+        height:  'Indeterminate — 5–6 feet tall',
+        harvest: [
+          'Huge bicolored fruits 1–2 lbs with red and yellow streaks — ~80–90 days',
+          'Low-acid, sweet, fruity flavor with beautiful interior marbling',
+          'One of the most stunning heirlooms on the plate; great for showcasing at harvest',
+        ],
+      },
+      'Black Cherry': {
+        spacing: '18–24 inches apart',
+        height:  'Indeterminate — 6–8 ft; vigorous',
+        harvest: [
+          'Rich, deep red-purple cherry fruits; harvest 64–70 days from transplant',
+          'Complex, rich flavor with a sweet-tart balance — one of the best cherry types',
+          'Very vigorous plant — prune suckers to keep manageable; stake firmly',
+        ],
+      },
+      'Black Strawberry': {
+        spacing: '18–24 inches apart',
+        height:  'Indeterminate — 4–6 feet tall',
+        harvest: [
+          'Small elongated dark red-purple fruits; harvest at ~70–75 days',
+          'Sweet and rich with a hint of smokiness similar to Black Cherry',
+          'Striking appearance — black-red skin deepens to strawberry-red at blossom end',
+        ],
+      },
+      'Blue Beauty': {
+        spacing: '24–36 inches apart',
+        height:  'Indeterminate — 4–5 feet tall',
+        harvest: [
+          'Large beefsteak fruits with striking blue-purple shoulders; harvest ~75–80 days',
+          'Mild, sweet flavor with excellent meaty texture; high in anthocyanins',
+          'Blue color on sun-exposed skin fades to red as fruit fully ripens',
+        ],
+      },
+      'Blue Beech': {
+        spacing: '18–24 inches apart',
+        height:  'Indeterminate — 4–5 feet tall',
+        harvest: [
+          'Small paste-type plum fruits with blue-purple skin; harvest ~78–85 days',
+          'Dense, meaty flesh with excellent flavor for its small size',
+          'Versatile paste tomato — great for roasting, sauce, or fresh eating',
+        ],
+      },
+      // — From Plum Tomatoes.rtf —
+      'Federle': {
+        spacing: '18–24 inches apart',
+        height:  'Indeterminate — 4–6 feet tall',
+        harvest: [
+          'Long, slender plum fruits 4–6 oz; harvest at ~80–85 days from transplant',
+          'Excellent meaty flesh with very few seeds — outstanding for sauce and drying',
+          'Productive heirloom; fruits hold well on the vine without cracking',
+        ],
+      },
+      'Hungarian Heart': {
+        spacing: '24–36 inches apart',
+        height:  'Indeterminate — 5–6 feet tall',
+        harvest: [
+          'Large oxheart-shaped plum fruits 10–16 oz; harvest ~65–75 days',
+          'One of the earliest large paste tomatoes — meaty, nearly seedless flesh',
+          'Sweet, mild flavor; superb for thick sauce without long cooking times',
+        ],
+      },
+      'Jersey Devil': {
+        spacing: '18–24 inches apart',
+        height:  'Indeterminate — 4–5 feet tall',
+        harvest: [
+          'Long pointed horn-shaped fruits 4–6 oz; harvest ~80–85 days',
+          'Very meaty with thick walls and small seed cavities — excellent for paste',
+          'Prolific producer; fruits stay firm and resist cracking through wet seasons',
+        ],
+      },
+      'Opalka': {
+        spacing: '18–24 inches apart',
+        height:  'Indeterminate — 4–6 feet tall',
+        harvest: [
+          'Long, tapered paste fruits 4–5 oz; harvest ~75–80 days',
+          'Polish heirloom with rich flavor and dense, dry flesh — ideal for sauce',
+          'Considered one of the finest paste tomatoes for flavor; rarely found in stores',
+        ],
+      },
+      'Rio Grande': {
+        spacing: '18–24 inches apart',
+        height:  'Determinate — 3–4 feet tall',
+        harvest: [
+          'Determinate plum tomato — most fruits ripen together for a canning harvest',
+          'Firm, meaty 4–6 oz fruits; harvest ~70–75 days from transplant',
+          'Crack-resistant and heat-tolerant; reliable production in Pacific Northwest summers',
+        ],
+      },
+      'Speckled Roman': {
+        spacing: '18–24 inches apart',
+        height:  'Indeterminate — 4–5 feet tall',
+        harvest: [
+          'Beautiful orange-red elongated fruits with yellow stripes; harvest ~78–85 days',
+          'Excellent sweet flavor for a paste type — equally good fresh or in sauce',
+          'A cross between Antique Roman and Banana Legs — colorful addition to any garden',
+        ],
+      },
+      'Striped Roman': {
+        spacing: '18–24 inches apart',
+        height:  'Indeterminate — 4–5 feet tall',
+        harvest: [
+          'Elongated paste fruits with striking red-orange and yellow stripes; ~78–85 days',
+          'Meaty flesh with excellent balanced flavor — versatile for sauce or fresh eating',
+          'Beautiful presentation at harvest; fruits hold well and resist cracking',
+        ],
+      },
+    },
+  },
+  'Pepper': {
+    default: {
+      sun:   'Full sun (6–8 hrs/day)',
+      water: 'Moderate; avoid waterlogging',
+      soil:  'Well-drained, fertile loam with organic matter · pH 6.0–6.8',
+      frost: 'Frost-tender; soil 60°F+ required',
+      tips: [
+        'Start indoors 6–8 weeks before last frost (late Jan–Feb for Zone 8b)',
+        'Pepper seeds germinate slowly — keep soil at 80–90°F; use a heat mat',
+        'Transplant with ideal transplants showing buds but no open flowers',
+        'Pinch first flowers on young plants to encourage bushier, more productive growth',
+        'Avoid excess nitrogen — it pushes foliage at the expense of fruit',
+        'Mulch around the base to retain moisture and regulate soil temperature',
+      ],
+      harvest: [
+        'Most peppers can be harvested green or left to ripen to full color',
+        'Cut with scissors or pruners — pulling can snap branches',
+        'Regular harvesting encourages continuous fruit set throughout the season',
+        'Flavor deepens and sweetens as peppers ripen from green to red',
+      ],
+      companions: [
+        '✅ Basil — repels aphids and spider mites; improves flavor',
+        '✅ Marigolds — deter nematodes and aphids',
+        '✅ Carrots — loosen soil without competing heavily',
+        '✅ Spinach — low-growing ground cover that retains soil moisture',
+        '❌ Fennel — allelopathic; inhibits pepper growth',
+        '❌ Brassicas — compete for nutrients and attract shared pests',
+      ],
+      pests: [
+        'Aphids — especially on new growth; knock off with water or insecticidal soap',
+        'Pepper hornworms — handpick; check leaf undersides for eggs',
+        'Bacterial leaf spot — avoid overhead watering; improve airflow',
+        'Blossom end rot — caused by inconsistent watering or calcium deficiency',
+      ],
+      safe: '⚠️ Capsaicin can irritate pets — hot varieties especially; wear gloves when handling',
+    },
+    varieties: {
+      'Jalapeño': {
+        spacing: '18–24 inches apart',
+        height:  'Upright bush — 2–3 feet tall',
+        harvest: [
+          'Harvest green at 3 inches for fresh heat, or leave to ripen red for sweeter, deeper flavor',
+          'First harvest 60–80 days from transplant; produces continuously until frost',
+          'Thick flesh ideal for stuffing, pickling, smoking (chipotle), or slicing onto nachos',
+          'Heat level can be tuned by watering — consistent moisture = milder; stress = hotter',
+        ],
+      },
+      'Shishito': {
+        spacing: '12–18 inches apart',
+        height:  'Compact upright bush — 18 inches tall; container-friendly',
+        harvest: [
+          'Harvest at 60–75 days when slender and wrinkled green; don\'t wait for color change',
+          'About 1 in 10 peppers will surprise with unexpected heat (100–1,000 Scoville)',
+          'Best flash-fried or blistered in a hot pan; also excellent pickled or stir-fried',
+          'Thin skin cooks fast — harvest regularly to keep the plant producing all season',
+        ],
+      },
+      'Serrano': {
+        spacing: '18–24 inches apart',
+        height:  'Upright bush — 18–24 inches tall',
+        harvest: [
+          'Harvest green at 1–4 inches for peak heat; ripens yellow, orange, then red',
+          'First harvest 75–90 days; 3–5× hotter than jalapeño (10,000–25,000 Scoville)',
+          'Thin skin means no need to peel — ideal for fresh salsas, hot sauces, and pico',
+          'Very prolific producer; a single plant yields 50+ peppers per season',
+        ],
+      },
+      'Bell': {
+        spacing: '18–24 inches apart',
+        height:  'Upright bush — 2–3 feet tall',
+        harvest: [
+          'Harvest green at full size (70–85 days) or leave to ripen to red, yellow, or orange',
+          'Ripe peppers are sweeter, higher in vitamin C, and more flavorful than green',
+          'Thick walls ideal for stuffing, roasting, or raw in salads',
+          'Support heavy-fruiting branches early to prevent snapping',
+        ],
+      },
+      'Habanero': {
+        spacing: '18–24 inches apart',
+        height:  'Upright bush — 2–3 feet tall',
+        harvest: [
+          'Harvest when fully colored (orange, red, or chocolate) at 100–120 days',
+          'Extremely hot (100,000–350,000 Scoville) — wear gloves when harvesting and processing',
+          'Fruity, floral aroma distinguishes habanero heat from other hot peppers',
+          'Store fresh up to 2 weeks; excellent for hot sauce, drying, or freezing',
+        ],
+      },
+    },
+  },
   'Cucumbers': {
     default: {
       sun:   'Full sun (6–8 hrs/day)',
-      water: 'Moderate — keep soil evenly moist',
+      water: 'Moderate; keep evenly moist',
       soil:  'Well-drained, fertile loam · pH 6.0–7.0',
-      frost: 'Frost-tender — plant after last frost only',
+      frost: 'Frost-tender; after last frost',
       tips: [
         'Start indoors in early April (cucumbers need warm soil — don\'t rush it)',
         'Transplant when soil consistently reaches 65°F — usually late April/May in Zone 8b',
@@ -1085,9 +1596,9 @@ const VERDANTLY_CARE = {
   'Zinnias': {
     default: {
       sun:   'Full sun (6–8 hrs/day)',
-      water: 'Moderate — water at the base; avoid wetting foliage',
+      water: 'Moderate; water at base only',
       soil:  'Well-drained, average fertility · pH 6.0–7.0',
-      frost: 'Frost-tender annual — plant after last frost only',
+      frost: 'Frost-tender annual; after last frost',
       tips: [
         'Start indoors 4–6 weeks before last frost, or direct sow after frost danger passes',
         'Thin seedlings to 12–18 inches apart for best air circulation',
@@ -1130,10 +1641,10 @@ const VERDANTLY_CARE = {
 
   'Sunflowers': {
     default: {
-      sun:   'Full sun — needs at least 6–8 hours direct sun daily',
-      water: 'Low to moderate — drought-tolerant once established; deep water weekly',
+      sun:   'Full sun (6–8 hrs/day)',
+      water: 'Low–moderate; drought-tolerant',
       soil:  'Well-drained, moderately fertile · pH 6.0–7.5',
-      frost: 'Frost-tender annual — direct sow after last frost; tolerates light chill as seedling',
+      frost: 'Frost-tender; sow after last frost',
       tips: [
         'Direct sow in place — sunflowers dislike transplanting (taproot tears easily)',
         'Sow seeds 1 inch deep; thin to final spacing once 6 inches tall',
@@ -1178,10 +1689,10 @@ const VERDANTLY_CARE = {
 
   'Dahlias': {
     default: {
-      sun:   'Full sun (6–8 hrs/day); afternoon shade tolerated in hot summers',
-      water: 'Moderate to high — consistent moisture once actively growing; reduce in fall',
+      sun:   'Full sun; afternoon shade OK in heat',
+      water: 'Moderate–high; reduce in fall',
       soil:  'Well-drained, rich loam · pH 6.0–7.0; amend with compost at planting',
-      frost: 'Frost-tender tubers — plant after last frost; Zone 8b tubers may overwinter in ground with mulch',
+      frost: 'Frost-tender tubers; mulch Zone 8b',
       tips: [
         'Plant tubers 4–6 inches deep with the eye (bud) facing up after last frost (late April in Zone 8b)',
         'Do not water until green shoots appear — tubers rot easily in cold, wet soil',
@@ -1235,9 +1746,9 @@ const VERDANTLY_CARE = {
   'Potatoes': {
     default: {
       sun:   'Full sun (6–8 hrs/day)',
-      water: 'Moderate — consistent moisture during tuber formation; reduce as vines die back',
+      water: 'Moderate; reduce as vines die back',
       soil:  'Loose, well-drained, slightly acidic · pH 5.0–6.5; avoid freshly limed soil',
-      frost: 'Foliage is frost-sensitive; tubers tolerate light ground freeze once mature',
+      frost: 'Foliage tender; tubers harden with age',
       tips: [
         'Plant certified disease-free seed potatoes cut into 2 oz pieces with at least one eye each',
         'Allow cut pieces to cure for 1–2 days before planting to prevent rot',
@@ -1271,7 +1782,7 @@ const VERDANTLY_CARE = {
     },
     varieties: {
       'Yukon Gold': {
-        spacing: '12 inches apart in rows 2–3 feet apart',
+        spacing: '12″ apart; rows 2–3 ft',
         height:  '18–24 inches tall',
         harvest: [
           'Classic yellow-fleshed all-purpose potato — ready in 70–90 days',
@@ -1280,7 +1791,7 @@ const VERDANTLY_CARE = {
         ],
       },
       'Adirondack Red': {
-        spacing: '10–12 inches apart in rows 2–3 feet apart',
+        spacing: '10–12″ apart; rows 2–3 ft',
         height:  '18–24 inches tall',
         harvest: [
           'Vibrant red skin and pink-red flesh — retains color when cooked',
@@ -1290,7 +1801,58 @@ const VERDANTLY_CARE = {
       },
     },
   },
+
+  'Strawberries': {
+    default: {
+      sun:   'Full sun (6–8 hrs/day)',
+      water: 'Moderate; consistent moisture',
+      soil:  'Well-drained, fertile loam · pH 5.5–6.5',
+      frost: 'Hardy zones 4–9; tolerates light frost',
+      tips: [
+        'Pinch blossoms until July 1st in first year — strengthens roots for better future yields',
+        'Remove runners to keep energy focused on fruit production',
+        'Day-neutral varieties produce regardless of day length — harvest June through October',
+        'Mulch crowns after first frost to protect through winter',
+        'Renovate beds annually after harvest — thin plants and refresh mulch',
+      ],
+      harvest: [
+        'Harvest daily once berries turn fully red — check under leaves for hidden fruits',
+        'Refrigerate immediately in a single layer to prevent bruising',
+        'Everbearing season runs June through October in Zone 8b',
+        'Morning harvest gives the best flavor and longest shelf life',
+      ],
+      companions: [
+        '✅ Borage — deters aphids, attracts pollinators; said to improve flavor',
+        '✅ Thyme — repels worms; improves fruit flavor',
+        '✅ Marigolds — repel nematodes and aphids',
+        '❌ Fennel — allelopathic; inhibits strawberry growth',
+        '❌ Brassicas — compete for nutrients',
+      ],
+      pests: [
+        'Birds — net plants when berries begin to color',
+        'Slugs — use iron phosphate bait at soil level',
+        'Albion resists Anthracnose, Powdery Mildew, and Verticillium Wilt',
+        'Phytophthora crown rot — ensure excellent drainage; avoid overwatering',
+      ],
+      safe: '🐱 🐶 Non-toxic to cats and dogs; fruit safe for humans',
+    },
+    varieties: {
+      'Albion': {
+        spacing: '12–18 inches apart',
+        height:  '12 inches tall',
+        harvest: [
+          'Day-neutral everbearing hybrid — large, firm, conical berries with exceptional sweetness',
+          'Harvest from June through October; picks daily as berries ripen fully red',
+          'Strong disease resistance: Anthracnose, Powdery Mildew, Verticillium Wilt',
+          'Performs well in both hot dry summers and cool maritime climates',
+        ],
+      },
+    },
+  },
 };
+// _VERDANTLY_CARE_STUB is intentionally unused — kept only so the
+// old data isn't lost before care-data.json is confirmed working.
+// It can be deleted once you've verified the JSON file loads correctly.
 
 // ══════════════════════════════════════════════════════════════
 // BEDS
@@ -1337,8 +1899,18 @@ const DEFAULT_PLANTS = [
 ];
 
 function getPlants() {
-  try { const s = localStorage.getItem('garden_plants'); return s ? JSON.parse(s) : DEFAULT_PLANTS; }
-  catch(e) { return DEFAULT_PLANTS; }
+  try {
+    const s = localStorage.getItem('garden_plants');
+    const plants = s ? JSON.parse(s) : DEFAULT_PLANTS;
+    // Always re-derive months from PLANT_DATABASE so timing/color changes are reflected automatically
+    return plants.map(p => {
+      const db = PLANT_DATABASE[p.name];
+      if (!db) return p;
+      const entry = (p.variety && db.varieties && db.varieties[p.variety]) || db.default;
+      if (!entry) return p;
+      return { ...p, months: entry.months };
+    });
+  } catch(e) { return DEFAULT_PLANTS; }
 }
 function savePlants(plants) { localStorage.setItem('garden_plants', JSON.stringify(plants)); }
 
@@ -1368,11 +1940,36 @@ function lightenColor(hex, amount) {
 // ══════════════════════════════════════════════════════════════
 let _collapsedBeds = {};
 let _collapsedStatusGroups = {};
+let _collapsedCategories = {};
 let _viewMode = 'bed';
+let _hasScrolledToToday = false;
 
 function toggleStatusCollapse(statusKey) {
   _collapsedStatusGroups[statusKey] = !_collapsedStatusGroups[statusKey];
-  render();
+  const isCollapsed = _collapsedStatusGroups[statusKey];
+  const tbody = document.querySelector(`tbody[data-status-group="${statusKey}"]`);
+  if (!tbody) { render(); return; }
+  Array.from(tbody.children).forEach(tr => {
+    if (!tr.classList.contains('status-group-row')) tr.style.display = isCollapsed ? 'none' : '';
+  });
+  const btn = tbody.querySelector('.bed-collapse-btn');
+  if (btn) btn.innerHTML = isCollapsed
+    ? `<span class="btn-label">Expand</span> <span class="btn-arrow" style="display:inline-block;transform:rotate(180deg);">▾</span>`
+    : '<span class="btn-label">Collapse</span> <span class="btn-arrow">▾</span>';
+}
+
+function toggleCategoryCollapse(catKey) {
+  _collapsedCategories[catKey] = !_collapsedCategories[catKey];
+  const isCollapsed = _collapsedCategories[catKey];
+  const tbody = document.querySelector(`tbody[data-category-group="${catKey}"]`);
+  if (!tbody) { render(); return; }
+  Array.from(tbody.children).forEach(tr => {
+    if (!tr.classList.contains('category-group-row')) tr.style.display = isCollapsed ? 'none' : '';
+  });
+  const btn = tbody.querySelector('.bed-collapse-btn');
+  if (btn) btn.innerHTML = isCollapsed
+    ? `<span class="btn-label">Expand</span> <span class="btn-arrow" style="display:inline-block;transform:rotate(180deg);">▾</span>`
+    : '<span class="btn-label">Collapse</span> <span class="btn-arrow">▾</span>';
 }
 
 function toggleViewDropdown() {
@@ -1383,7 +1980,7 @@ function setViewMode(mode) {
   _viewMode = mode;
   const dd = document.getElementById('view-dropdown');
   if (dd) dd.classList.remove('open');
-  const LABELS = { bed: 'Bed View', status: 'Status View', alpha: 'A–Z View' };
+  const LABELS = { bed: 'Bed View', status: 'Status View', alpha: 'A–Z View', category: 'Category View' };
   const lbl = document.getElementById('view-label');
   if (lbl) lbl.textContent = LABELS[mode] || 'View';
   document.querySelectorAll('.view-corner-option').forEach(o =>
@@ -1394,7 +1991,16 @@ function setViewMode(mode) {
 
 function toggleBedCollapse(bedId) {
   _collapsedBeds[bedId] = !_collapsedBeds[bedId];
-  render();
+  const isCollapsed = _collapsedBeds[bedId];
+  const tbody = document.querySelector(`tbody[data-bed-id="${bedId}"]`);
+  if (!tbody) { render(); return; }
+  Array.from(tbody.children).forEach(tr => {
+    if (!tr.classList.contains('bed-row')) tr.style.display = isCollapsed ? 'none' : '';
+  });
+  const btn = tbody.querySelector('.bed-collapse-btn');
+  if (btn) btn.innerHTML = isCollapsed
+    ? `<span class="btn-label">Expand</span> <span class="btn-arrow" style="display:inline-block;transform:rotate(180deg);">▾</span>`
+    : '<span class="btn-label">Collapse</span> <span class="btn-arrow">▾</span>';
 }
 
 // ══════════════════════════════════════════════════════════════
@@ -1462,7 +2068,7 @@ function render() {
         const maybeClass     = plant.status === 'undecided' ? ' bar-maybe' : '';
         const willplantClass = plant.status === 'willplant' ? ' bar-willplant' : '';
         if (isDual) {
-          const PHASE_COLORS = { indoor:'var(--indoor)', transplant:'var(--transplant)', direct:'var(--direct-sow)', harvest:'var(--harvest-color)', marigold:'#f0b03a' };
+          const PHASE_COLORS = { indoor:'var(--indoor)', transplant:'var(--transplant)', direct:'var(--direct-sow)', harvest:'var(--harvest-color)', bloom:'var(--bloom-color)', marigold:'#f0b03a' };
           const c1 = PHASE_COLORS[phase[0]] || '#ccc';
           const c2 = PHASE_COLORS[phase[1]] || '#999';
           barHtml = `<div class="bar bar-split ${roundClass}${maybeClass}${willplantClass}" style="background:linear-gradient(135deg,${c1} 50%,${c2} 50%)"></div>`;
@@ -1487,8 +2093,13 @@ function render() {
     const badgeHtml   = `<span class="plant-badge ${statusCfg.cls}">${statusCfg.label}</span>`;
     const bedPillHtml = `<span class="bed-pill" style="background:${bed.color}">${bed.label}</span>`;
 
-    // Line 3: bed pill in alpha view; nothing in bed/status (DTM moved to panel)
-    const line3 = viewMode === 'alpha' ? bedPillHtml : '';
+    // Companion/warning icons
+    const compat = compatMap[plant.id] || {};
+    const compatHtml = (compat.companion ? '💕' : '') + (compat.warning ? '🚫' : '');
+    const compatIconHtml = compatHtml ? `<span class="compat-icons">${compatHtml}</span>` : '';
+
+    // Line 3: bed pill in alpha/category views; nothing in bed/status
+    const line3 = (viewMode === 'alpha' || viewMode === 'category') ? bedPillHtml : '';
 
     // Bottom row left: status badge (bed + alpha views); bed pill (status view)
     const line4left = viewMode === 'status' ? bedPillHtml : badgeHtml;
@@ -1505,7 +2116,7 @@ function render() {
           <span class="plant-name">${plant.name} ${qtyHtml}</span>
           ${varietyHtml}
           ${line3}
-          <div class="plant-info-bottom">${line4left}<span class="expand-arrow">▾</span></div>
+          <div class="plant-info-bottom">${line4left}${compatIconHtml}<span class="expand-arrow">▾</span></div>
         </div>
         ${reorderBtns}
       </div></td>${buildCellsHtml(plant)}`;
@@ -1548,6 +2159,27 @@ function render() {
   beds.forEach(b => bedMap[b.id] = b);
   const movableBeds = beds.filter(b => b.id !== 'unassigned');
 
+  // Pre-compute companion/warning indicators per plant based on bedmates
+  const compatMap = {};
+  plants.forEach(plant => {
+    const bedmates = plants.filter(p => p.bed === plant.bed && p.id !== plant.id);
+    if (!bedmates.length) { compatMap[plant.id] = { companion: false, warning: false }; return; }
+    let companion = false, warning = false;
+    // Forward: does this plant list any bedmate as companion/incompatible?
+    const { good, bad } = getCompanionNames(plant.name);
+    bedmates.forEach(bm => {
+      if (good.some(g => compatMatch(g, bm.name))) companion = true;
+      if (bad.some(b  => compatMatch(b,  bm.name))) warning  = true;
+    });
+    // Reverse: does any bedmate list this plant as companion/incompatible?
+    bedmates.forEach(bm => {
+      const { good: bmGood, bad: bmBad } = getCompanionNames(bm.name);
+      if (bmGood.some(g => compatMatch(g, plant.name))) companion = true;
+      if (bmBad.some(b  => compatMatch(b,  plant.name))) warning  = true;
+    });
+    compatMap[plant.id] = { companion, warning };
+  });
+
   // ══ BED VIEW (default) ══════════════════════════════════════
   if (_viewMode === 'bed') {
     const bedOrder = beds.map(b => b.id);
@@ -1572,12 +2204,12 @@ function render() {
       const lightColor  = lightenColor(bed.color, 0.55);
       bedTr.innerHTML = `
         <td style="background:${bed.color}">
-          <div class="bed-header" onclick="event.stopPropagation(); openBedEditPopover('${bed.id}', this)" title="Click to edit name or color">
+          <div class="bed-header" ${canRemove ? `onclick="event.stopPropagation(); openBedEditPopover('${bed.id}', this)" title="Click to edit name or color"` : `style="cursor:default;" title=""`}>
             <div class="bed-dot"></div>
             <input class="bed-name-input" data-bed-id="${bed.id}" value="${bed.label}" readonly tabindex="-1" />
           </div>
         </td>
-        <td colspan="24" style="background:${bed.color};vertical-align:middle;">
+        <td colspan="8" style="background:${bed.color};vertical-align:middle;">
           <div style="display:flex;align-items:center;gap:6px;padding:0 8px;">
             ${canRemove ? `
               <button class="bed-reorder-btn" onclick="reorderBed('${bed.id}', -1)" ${!canMoveUp ? 'disabled' : ''} title="Move up">↑</button>
@@ -1585,13 +2217,14 @@ function render() {
             ` : ''}
             <button class="bed-collapse-btn" style="background:${lightColor};color:${bed.color};"
               onclick="toggleBedCollapse('${bed.id}')">
-              ${isCollapsed ? `Expand <span style="display:inline-block;transform:rotate(180deg);">▾</span>` : 'Collapse ▾'}
+              ${isCollapsed ? `<span class="btn-label">Expand</span> <span class="btn-arrow" style="display:inline-block;transform:rotate(180deg);">▾</span>` : '<span class="btn-label">Collapse</span> <span class="btn-arrow">▾</span>'}
             </button>
             ${canRemove ? `
               <button class="panel-btn btn-remove" style="font-size:0.6rem;padding:2px 6px;min-width:0;line-height:1;" onclick="removeBed('${bed.id}')" title="Remove bed">✕</button>
             ` : ''}
           </div>
-        </td>`;
+        </td>
+        <td colspan="16" style="background:${bed.color}"></td>`;
       tbody.appendChild(bedTr);
 
       if (isCollapsed) return;
@@ -1638,13 +2271,14 @@ function render() {
             ${STATUS_LABELS[statusKey]}
           </div>
         </td>
-        <td colspan="24" style="background:${color};cursor:pointer;" onclick="toggleStatusCollapse('${statusKey}')">
+        <td colspan="8" style="background:${color};cursor:pointer;" onclick="toggleStatusCollapse('${statusKey}')">
           <div style="display:flex;align-items:center;gap:6px;padding:0 8px;">
             <button class="bed-collapse-btn" style="background:${lightColor};color:${color};pointer-events:none;">
-              ${isCollapsed ? `Expand <span style="display:inline-block;transform:rotate(180deg);">▾</span>` : 'Collapse ▾'}
+              ${isCollapsed ? `<span class="btn-label">Expand</span> <span class="btn-arrow" style="display:inline-block;transform:rotate(180deg);">▾</span>` : '<span class="btn-label">Collapse</span> <span class="btn-arrow">▾</span>'}
             </button>
           </div>
-        </td>`;
+        </td>
+        <td colspan="16" style="background:${color};cursor:pointer;" onclick="toggleStatusCollapse('${statusKey}')"></td>`;
       tbody.appendChild(headerTr);
 
       if (isCollapsed) return;
@@ -1671,6 +2305,63 @@ function render() {
       tbody.appendChild(plantTr);
       tbody.appendChild(detailTr);
     });
+
+  // ══ CATEGORY VIEW ════════════════════════════════════════════
+  } else if (_viewMode === 'category') {
+    const CAT_ORDER  = ['vegetable', 'herb', 'flower', 'fruit', 'other'];
+    const CAT_CONFIG = {
+      vegetable: { label: '🥕 Vegetables', color: '#3a6b3a' },
+      herb:      { label: '🌿 Herbs',       color: '#4a7a6a' },
+      flower:    { label: '🌸 Flowers',     color: '#9b4a6a' },
+      fruit:     { label: '🍓 Fruit',       color: '#c07a3a' },
+      other:     { label: '🌱 Other',       color: '#7a7a6a' },
+    };
+
+    // Sort all plants A–Z within each category
+    const sorted = [...plants].sort((a, b) => {
+      const n = a.name.localeCompare(b.name);
+      return n !== 0 ? n : (a.variety || '').localeCompare(b.variety || '');
+    });
+
+    CAT_ORDER.forEach(catKey => {
+      const cfg = CAT_CONFIG[catKey];
+      const groupPlants = sorted.filter(p => (PLANT_CATEGORIES[p.name] || 'other') === catKey);
+      if (!groupPlants.length) return;
+
+      const isCollapsed = !!_collapsedCategories[catKey];
+      const tbody = document.createElement('tbody');
+      tbody.dataset.categoryGroup = catKey;
+      table.appendChild(tbody);
+
+      // Group header row
+      const headerTr = document.createElement('tr');
+      headerTr.className = 'category-group-row';
+      headerTr.innerHTML = `
+        <td style="background:${cfg.color};cursor:pointer;" onclick="toggleCategoryCollapse('${catKey}')">
+          <div class="category-group-header">
+            <span>${cfg.label}</span>
+          </div>
+        </td>
+        <td colspan="8" style="background:${cfg.color};cursor:pointer;" onclick="toggleCategoryCollapse('${catKey}')">
+          <div style="display:flex;align-items:center;gap:6px;padding:0 8px;">
+            <button class="bed-collapse-btn" style="background:rgba(255,255,255,0.2);color:white;pointer-events:none;">
+              ${isCollapsed ? `<span class="btn-label">Expand</span> <span class="btn-arrow" style="display:inline-block;transform:rotate(180deg);">▾</span>` : '<span class="btn-label">Collapse</span> <span class="btn-arrow">▾</span>'}
+            </button>
+            <span style="font-size:0.62rem;font-weight:400;opacity:0.8;color:white;">${groupPlants.length} plant${groupPlants.length !== 1 ? 's' : ''}</span>
+          </div>
+        </td>
+        <td colspan="16" style="background:${cfg.color};cursor:pointer;" onclick="toggleCategoryCollapse('${catKey}')"></td>`;
+      tbody.appendChild(headerTr);
+
+      if (isCollapsed) return;
+
+      groupPlants.forEach((plant, idx) => {
+        const bed = bedMap[plant.bed] || bedMap['unassigned'];
+        const { plantTr, detailTr } = buildPlantRowPair(plant, idx > 0, idx < groupPlants.length - 1, 'category', bed);
+        tbody.appendChild(plantTr);
+        tbody.appendChild(detailTr);
+      });
+    });
   }
 
   // Restore scroll position (prevents jump when qty/status/bed changes trigger re-render)
@@ -1678,9 +2369,20 @@ function render() {
     wrap.scrollTop  = savedScrollTop;
     wrap.scrollLeft = savedScrollLeft;
   }
+
+  // One-time: scroll horizontally so today's column is centered on initial load
+  if (!_hasScrolledToToday && wrap) {
+    const now = new Date();
+    const col  = now.getMonth() * 2 + (now.getDate() > 15 ? 1 : 0);
+    const cellW = 22, nameW = 140;
+    const target = nameW + col * cellW - (wrap.clientWidth - nameW) / 2;
+    wrap.scrollLeft = Math.max(0, target);
+    _hasScrolledToToday = true;
+  }
 }
 
 function toggleDetail(plantId) {
+  if (window.innerWidth <= 480) { openMobileSheet(plantId); return; }
   const panel     = document.getElementById(`panel-${plantId}`);
   const detailRow = document.getElementById(`detail-${plantId}`);
   const plantRow  = document.querySelector(`tr[data-plant-id="${plantId}"]`);
@@ -1700,6 +2402,76 @@ function toggleDetail(plantId) {
     const tbody = detailRow?.closest('tbody');
     if (tbody) tbody.classList.add('has-open-panel');
   }
+}
+
+function openMobileSheet(plantId) {
+  const plants = getPlants();
+  const plant  = plants.find(p => p.id === plantId);
+  if (!plant) return;
+
+  const beds = getBeds();
+  const bedOptions    = beds.map(b => `<option value="${b.id}" ${b.id === plant.bed ? 'selected' : ''}>${b.label.toUpperCase()}</option>`).join('');
+  const statusOptions = Object.entries(STATUS_CONFIG).map(([val, cfg]) => `<option value="${val}" ${val === plant.status ? 'selected' : ''}>${cfg.label}</option>`).join('');
+  const dbEntry = PLANT_DATABASE[plant.name];
+  const dbVarieties = dbEntry && dbEntry.varieties ? Object.keys(dbEntry.varieties) : [];
+  const varietyHtml = dbVarieties.length > 0 ? `
+      <label class="panel-label">Variety:
+        <select class="panel-select" onchange="updateVariety('${plantId}', this.value)">
+          <option value="">— none —</option>
+          ${dbVarieties.map(v => `<option value="${v}" ${v === plant.variety ? 'selected' : ''}>${v}</option>`).join('')}
+        </select>
+      </label>` : '';
+
+  document.getElementById('sheet-title').textContent    = plant.name;
+  document.getElementById('sheet-subtitle').textContent = plant.variety || '';
+  document.getElementById('sheet-body').innerHTML = `
+    <div class="panel-controls">
+      <span class="panel-label" style="color:#9a8a78;font-weight:300;font-size:0.65rem;">⏱ ${plant.dtm}</span>
+      <label class="panel-label">Status:
+        <select class="panel-select" onchange="updateStatus('${plantId}', this.value)">${statusOptions}</select>
+      </label>${varietyHtml}
+      <label class="panel-label">Bed:
+        <select class="panel-select" onchange="reassign('${plantId}', this.value)">${bedOptions}</select>
+      </label>
+      <label class="panel-label">Qty:
+        <input type="number" class="panel-select" min="1" value="${plant.qty || 1}" style="width:54px;" onchange="updateQty('${plantId}', this.value)" />
+      </label>
+      <button class="panel-btn btn-remove" onclick="removePlant('${plantId}')">✕ Remove</button>
+    </div>
+    <hr class="panel-divider">
+    ${buildCarePanel(plant.name, plant.variety)}`;
+
+  const sheet    = document.getElementById('mobile-sheet');
+  const backdrop = document.getElementById('mobile-sheet-backdrop');
+  const alreadyOpen = sheet.classList.contains('slide-up');
+  if (!alreadyOpen) {
+    backdrop.classList.add('open');
+    sheet.classList.add('open');
+    requestAnimationFrame(() => requestAnimationFrame(() => sheet.classList.add('slide-up')));
+  }
+}
+
+function closeMobileSheet() {
+  const sheet    = document.getElementById('mobile-sheet');
+  const backdrop = document.getElementById('mobile-sheet-backdrop');
+  sheet.classList.remove('slide-up');
+  backdrop.classList.remove('open');
+  setTimeout(() => { if (!sheet.classList.contains('slide-up')) sheet.classList.remove('open'); }, 300);
+}
+
+function updateVariety(plantId, variety) {
+  const plants = getPlants();
+  const plant  = plants.find(p => p.id === plantId);
+  if (!plant) return;
+  saveSnapshot(`Before: variety changed (${plant.name})`);
+  plant.variety = variety || null;
+  const db = PLANT_DATABASE[plant.name];
+  if (db) {
+    const varData = (variety && db.varieties && db.varieties[variety]) ? db.varieties[variety] : db.default;
+    plant.months = varData.months;
+    plant.dtm    = varData.dtm;
+  }
+  savePlants(plants); render(); toggleDetail(plantId);
 }
 
 function updateQty(plantId, val) {
@@ -1740,6 +2512,7 @@ function removePlant(plantId) {
     const plants = getPlants().filter(p => p.id !== plantId);
     savePlants(plants);
     render();
+    if (window.innerWidth <= 480) closeMobileSheet();
   });
 }
 
@@ -1747,10 +2520,12 @@ function reorderPlant(plantId, dir) {
   const plants   = getPlants();
   const plant    = plants.find(p => p.id === plantId);
   if (!plant) return;
-  // In status view reorder within the status group; otherwise within the bed
+  // Reorder within the relevant group for the active view
   const bedPlants = _viewMode === 'status'
     ? plants.filter(p => p.status === plant.status)
-    : plants.filter(p => p.bed === plant.bed);
+    : _viewMode === 'category'
+      ? plants.filter(p => (PLANT_CATEGORIES[p.name] || 'other') === (PLANT_CATEGORIES[plant.name] || 'other'))
+      : plants.filter(p => p.bed === plant.bed);
   const idx       = bedPlants.findIndex(p => p.id === plantId);
   const newIdx    = idx + dir;
   if (newIdx < 0 || newIdx >= bedPlants.length) return;
@@ -1878,6 +2653,32 @@ function showFrostTip(e, type) {
 }
 
 // ══════════════════════════════════════════════════════════════
+// COMPANION COMPATIBILITY HELPERS
+// ══════════════════════════════════════════════════════════════
+function getCompanionNames(plantName) {
+  const entry = VERDANTLY_CARE[plantName];
+  if (!entry) return { good: [], bad: [] };
+  const companions = (entry.default || entry).companions || [];
+  const good = [], bad = [];
+  companions.forEach(line => {
+    const isGood = line.startsWith('✅');
+    const isBad  = line.startsWith('❌');
+    if (!isGood && !isBad) return;
+    // Strip emoji + split on em-dash or parenthesis → extract first plant name
+    const name = line.replace(/^[✅❌]\s*/, '').split(/\s*[—–(]/)[0].trim().toLowerCase();
+    if (isGood) good.push(name);
+    else bad.push(name);
+  });
+  return { good, bad };
+}
+
+function compatMatch(companionEntry, plantName) {
+  const c = companionEntry.toLowerCase();
+  const p = plantName.toLowerCase();
+  return c === p || c.startsWith(p) || p.startsWith(c);
+}
+
+// ══════════════════════════════════════════════════════════════
 // CARE DETAIL PANEL BUILDER
 // ══════════════════════════════════════════════════════════════
 function buildCarePanel(plantName, variety) {
@@ -1901,7 +2702,7 @@ function buildCarePanel(plantName, variety) {
       <div class="care-col">
         <strong>Growing Tips</strong>
         <ul>${c.tips.map(t => `<li>${t}</li>`).join('')}</ul>
-        ${c.companions ? `<strong>Companion Plants</strong><ul>${c.companions.map(x => `<li>${x}</li>`).join('')}</ul>` : ''}
+        ${c.companions ? `<strong>Companion Plants</strong><ul>${c.companions.map(x => `<li>${x.replace(/^✅/,'💕').replace(/^❌/,'🚫')}</li>`).join('')}</ul>` : ''}
       </div>
       <div class="care-col">
         <strong>Harvest</strong>
