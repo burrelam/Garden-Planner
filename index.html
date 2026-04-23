@@ -95,17 +95,17 @@
   /* Add plant/bed buttons in header */
   .header-btn-group {
     display: flex;
-    gap: 3px;
-    padding: 3px 4px;
+    gap: 2px;
+    padding: 1px 3px 2px;
   }
   .add-plant-btn {
     flex: 1;
-    padding: 2px 2px;
+    padding: 5px 2px;
     background: rgba(255,255,255,0.15);
     border: 1px dashed rgba(255,255,255,0.4);
     border-radius: 3px;
     color: white;
-    font-size: 0.56rem;
+    font-size: 0.65rem;
     font-weight: 500;
     letter-spacing: 0.05em;
     text-transform: uppercase;
@@ -169,8 +169,8 @@
   .bed-collapse-btn:hover { opacity: 0.8; }
   @media (max-width: 480px) {
     .btn-arrow      { display: inline-block; transform: scale(2.2); margin: 0 5px; line-height: 1; }
-    .plant-name     { font-size: 1.06rem; }
-    .plant-variety  { font-size: 0.76rem; }
+    .plant-name     { font-size: 1.22rem; }
+    .plant-variety  { font-size: 0.87rem; }
     .plant-dtm      { font-size: 0.78rem; }
     .plant-badge    { font-size: 0.70rem; }
     .bed-pill       { font-size: 0.67rem; }
@@ -216,9 +216,10 @@
   /* ── PLANT INFO CELL ── */
   .plant-info { padding: 7px 6px; display: flex; flex-direction: column; gap: 2px; cursor: pointer; user-select: none; overflow: hidden; }
   .plant-info:hover { background: rgba(0,0,0,0.03); }
-  .plant-name { display: block; font-family: 'Playfair Display', serif; font-size: clamp(0.78rem, 2.2vw, 0.92rem); font-weight: 700; color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 1.2; }
+  .plant-name { display: block; font-family: 'Playfair Display', serif; font-size: clamp(0.78rem, 2.2vw, 0.92rem); font-weight: 700; color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 1.2; flex: 1; min-width: 0; }
   .plant-variety { display: block; font-size: clamp(0.60rem, 1.8vw, 0.70rem); color: #7a6a58; font-weight: 400; font-style: italic; line-height: 1.2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .compat-icons { font-size: 0.7rem; letter-spacing: 0.02em; flex-shrink: 0; }
+  .compat-icons { font-size: 0.7rem; letter-spacing: 0.02em; flex-shrink: 0; line-height: 1; }
+  .plant-name-row { display: flex; align-items: flex-start; justify-content: space-between; gap: 2px; overflow: hidden; }
   .plant-dtm { font-size: 0.70rem; color: #9a8a78; font-weight: 300; }
   .plant-qty { font-size: 0.75rem; color: var(--moss); font-weight: 600; }
   .plant-badge { font-size: 0.62rem; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; }
@@ -250,6 +251,7 @@
     border-radius: 3px;
   }
   .view-corner-btn:hover { background: rgba(255,255,255,0.12); }
+  .view-corner-btn .view-arrow { font-size: 0.78rem; }
   .view-corner-dropdown {
     display: none; position: absolute; top: calc(100% + 2px); left: 0; z-index: 200;
     background: var(--cream); border-radius: 7px; overflow: hidden;
@@ -672,7 +674,7 @@
             <th class="corner" style="padding:0;">
               <div class="view-corner-wrap">
                 <button class="view-corner-btn" onclick="event.stopPropagation();toggleViewDropdown()">
-                  <span id="view-label">Bed View</span><span>▾</span>
+                  <span id="view-label">Bed View</span><span class="view-arrow">▾</span>
                 </button>
                 <div class="view-corner-dropdown" id="view-dropdown">
                   <div class="view-corner-option active" data-view="bed"      onclick="setViewMode('bed')">🪴 Bed View</div>
@@ -2117,10 +2119,10 @@ function render() {
     plantTr.innerHTML = `
       <td><div style="display:flex;align-items:center;">
         <div class="plant-info" onclick="toggleDetail('${plant.id}')" style="flex:1;min-width:0;">
-          <span class="plant-name">${plant.name} ${qtyHtml}</span>
+          <div class="plant-name-row"><span class="plant-name">${plant.name} ${qtyHtml}</span>${compatIconHtml}</div>
           ${varietyHtml}
           ${line3}
-          <div class="plant-info-bottom">${line4left}${compatIconHtml}<span class="expand-arrow">▾</span></div>
+          <div class="plant-info-bottom">${line4left}<span class="expand-arrow">▾</span></div>
         </div>
         ${reorderBtns}
       </div></td>${buildCellsHtml(plant)}`;
