@@ -169,7 +169,7 @@
   .bed-collapse-btn:hover { opacity: 0.8; }
   @media (max-width: 480px) {
     .btn-arrow { display: inline-block; transform: scale(2.2); margin: 0 5px; line-height: 1; }
-    .plant-name { font-size: 0.84rem; }
+    .plant-name { font-size: 0.91rem; }
   }
 
   /* ── PLANT REORDER BUTTONS ── */
@@ -869,18 +869,25 @@ const PLANT_DATABASE = {
     default: { dtm: '45–75 days', months: makeMonths([[0,3,'indoor'],[4,7,'transplant'],[8,11,'harvest'],[14,17,'transplant'],[18,21,'harvest']]) }
   },
   'Carrots': {
-    varieties: {},
+    varieties: {
+      'Kyoto Red':    { dtm: '70–80 days', months: makeMonths([[4,7,'direct'],[10,13,'harvest'],[14,15,'direct'],[18,23,'harvest']]) },
+      'Imperator 58': { dtm: '75–80 days', months: makeMonths([[4,7,'direct'],[10,13,'harvest'],[14,15,'direct'],[18,23,'harvest']]) },
+    },
     default: { dtm: '70–80 days', months: makeMonths([[4,7,'direct'],[10,13,'harvest'],[14,15,'direct'],[18,23,'harvest']]) }
   },
   'Celery': {
-    varieties: {},
+    varieties: {
+      'Utah 52-70': { dtm: '100–130 days', months: makeMonths([[2,4,'indoor'],[5,9,'transplant'],[12,19,'harvest']]) },
+    },
     default: { dtm: '80–120 days', months: makeMonths([[2,4,'indoor'],[5,9,'transplant'],[12,19,'harvest']]) }
   },
   'Beans': {
     varieties: {
-      'Purple String': { dtm: '50–60 days', months: makeMonths([[7,9,'direct'],[12,15,'harvest']]) },
-      'Green Bush':    { dtm: '50–60 days', months: makeMonths([[7,9,'direct'],[12,15,'harvest']]) },
-      'Pole Bean':     { dtm: '60–70 days', months: makeMonths([[7,9,'direct'],[12,15,'harvest']]) },
+      'Purple String':    { dtm: '50–60 days', months: makeMonths([[7,9,'direct'],[12,15,'harvest']]) },
+      'Green Bush':       { dtm: '50–60 days', months: makeMonths([[7,9,'direct'],[12,15,'harvest']]) },
+      'Pole Bean':        { dtm: '60–70 days', months: makeMonths([[7,9,'direct'],[12,15,'harvest']]) },
+      'Blue Lake 274':    { dtm: '55–65 days', months: makeMonths([[7,9,'direct'],[12,15,'harvest']]) },
+      'Royalty Purple Pod':{ dtm: '50–60 days', months: makeMonths([[7,9,'direct'],[12,15,'harvest']]) },
     },
     default: { dtm: '50–70 days', months: makeMonths([[7,9,'direct'],[12,15,'harvest']]) }
   },
@@ -975,14 +982,17 @@ const PLANT_DATABASE = {
       'Red':      { dtm: '80–180 days', months: makeMonths([[0,3,'indoor'],[4,7,'transplant'],[10,13,'harvest'],[14,17,'transplant'],[18,21,'harvest']]) },
       'Savoy':    { dtm: '80–120 days', months: makeMonths([[0,3,'indoor'],[4,7,'transplant'],[10,13,'harvest'],[14,17,'transplant'],[18,21,'harvest']]) },
       'Napa':     { dtm: '70–80 days',  months: makeMonths([[0,3,'indoor'],[4,7,'transplant'],[10,13,'harvest'],[14,17,'transplant'],[18,21,'harvest']]) },
+      'Earliana': { dtm: '60 days',     months: makeMonths([[0,3,'indoor'],[4,7,'transplant'],[9,11,'harvest'],[14,17,'transplant'],[17,19,'harvest']]) },
     },
     default: { dtm: '80–180 days', months: makeMonths([[0,3,'indoor'],[4,7,'transplant'],[10,13,'harvest'],[14,17,'transplant'],[18,21,'harvest']]) }
   },
   'Cauliflower': {
     varieties: {
-      'White':   { dtm: '55–100 days', months: makeMonths([[0,3,'indoor'],[4,7,'transplant'],[10,13,'harvest'],[14,17,'transplant'],[18,21,'harvest']]) },
-      'Purple':  { dtm: '70–80 days',  months: makeMonths([[0,3,'indoor'],[4,7,'transplant'],[10,13,'harvest'],[14,17,'transplant'],[18,21,'harvest']]) },
-      'Romanesco':{ dtm: '75–100 days',months: makeMonths([[0,3,'indoor'],[4,7,'transplant'],[10,13,'harvest'],[14,17,'transplant'],[18,21,'harvest']]) },
+      'White':        { dtm: '55–100 days', months: makeMonths([[0,3,'indoor'],[4,7,'transplant'],[10,13,'harvest'],[14,17,'transplant'],[18,21,'harvest']]) },
+      'Purple':       { dtm: '70–80 days',  months: makeMonths([[0,3,'indoor'],[4,7,'transplant'],[10,13,'harvest'],[14,17,'transplant'],[18,21,'harvest']]) },
+      'Romanesco':    { dtm: '75–100 days', months: makeMonths([[0,3,'indoor'],[4,7,'transplant'],[10,13,'harvest'],[14,17,'transplant'],[18,21,'harvest']]) },
+      'Igloo':        { dtm: '50–60 days',  months: makeMonths([[0,3,'indoor'],[4,7,'transplant'],[10,13,'harvest'],[14,17,'transplant'],[18,21,'harvest']]) },
+      'Early Snowball':{ dtm: '55–65 days', months: makeMonths([[0,3,'indoor'],[4,7,'transplant'],[10,13,'harvest'],[14,17,'transplant'],[18,21,'harvest']]) },
     },
     default: { dtm: '55–100 days', months: makeMonths([[0,3,'indoor'],[4,7,'transplant'],[10,13,'harvest'],[14,17,'transplant'],[18,21,'harvest']]) }
   },
@@ -995,6 +1005,13 @@ const PLANT_DATABASE = {
     },
     // Portland Nursery: plant bare root Feb–Apr; ever-bearing harvests Jun–Oct
     default: { dtm: '60+ days', months: makeMonths([[2,5,'transplant'],[8,17,'harvest']]) }
+  },
+  'Artichoke': {
+    varieties: {
+      'Green Globe': { dtm: '85–100 days from transplant', months: makeMonths([[0,3,'indoor'],[4,7,'transplant'],[8,13,'harvest']]) },
+    },
+    // Zone 8b perennial; start indoors Jan–Feb, transplant Mar–Apr, harvest May–Jul
+    default: { dtm: '85–100 days from transplant', months: makeMonths([[0,3,'indoor'],[4,7,'transplant'],[8,13,'harvest']]) }
   },
   // ── FLOWERS (Zone 8b) ──
   'Zinnias': {
@@ -1054,6 +1071,7 @@ const PLANT_CATEGORIES = {
   'Dahlias': 'flower', 'Hydrangea': 'flower', 'Carnation': 'flower',
   'Potatoes': 'vegetable',
   'Strawberries': 'fruit',
+  'Artichoke': 'vegetable',
 };
 
 // ══════════════════════════════════════════════════════════════
