@@ -96,23 +96,25 @@
   .header-btn-group {
     display: flex;
     gap: 2px;
-    padding: 1px 3px 2px;
+    padding: 1px 2px 2px;
   }
   .add-plant-btn {
     flex: 1;
-    padding: 5px 2px;
+    padding: 5px 0;
     background: rgba(255,255,255,0.15);
     border: 1px dashed rgba(255,255,255,0.4);
     border-radius: 3px;
     color: white;
-    font-size: 0.65rem;
+    font-size: 0.58rem;
     font-weight: 500;
-    letter-spacing: 0.05em;
+    letter-spacing: 0.03em;
     text-transform: uppercase;
     cursor: pointer;
     text-align: center;
     transition: background 0.15s;
     line-height: 1.2;
+    min-width: 0;
+    overflow: hidden;
   }
   .add-plant-btn:hover { background: rgba(255,255,255,0.25); }
 
@@ -232,6 +234,8 @@
 
   /* ── PLANT INFO BOTTOM ROW (status+arrow on one line) ── */
   .plant-info-bottom { display: flex; align-items: center; justify-content: space-between; gap: 4px; }
+  /* ── ALPHA VIEW: variety + expand arrow on one line ── */
+  .plant-variety-arrow-row { display: flex; align-items: center; justify-content: space-between; gap: 2px; }
 
   /* ── BED PILL (status/alpha views) ── */
   .bed-pill {
@@ -2116,13 +2120,21 @@ function render() {
         <button class="plant-reorder-btn" onclick="event.stopPropagation();reorderPlant('${plant.id}',1)"  ${!canDown ? 'disabled' : ''} title="Move down">↓</button>
       </div>` : '';
 
+    // Alpha view: arrow lives on the variety line; no separate bottom row needed
+    const varietyAndArrow = viewMode === 'alpha'
+      ? `<div class="plant-variety-arrow-row">${varietyHtml}<span class="expand-arrow">▾</span></div>`
+      : varietyHtml;
+    const bottomRow = viewMode === 'alpha'
+      ? ''
+      : `<div class="plant-info-bottom">${line4left}<span class="expand-arrow">▾</span></div>`;
+
     plantTr.innerHTML = `
       <td><div style="display:flex;align-items:center;">
         <div class="plant-info" onclick="toggleDetail('${plant.id}')" style="flex:1;min-width:0;">
           <div class="plant-name-row"><span class="plant-name">${plant.name} ${qtyHtml}</span>${compatIconHtml}</div>
-          ${varietyHtml}
+          ${varietyAndArrow}
           ${line3}
-          <div class="plant-info-bottom">${line4left}<span class="expand-arrow">▾</span></div>
+          ${bottomRow}
         </div>
         ${reorderBtns}
       </div></td>${buildCellsHtml(plant)}`;
