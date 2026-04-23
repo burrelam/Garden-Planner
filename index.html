@@ -219,7 +219,7 @@
   .plant-info { padding: 7px 6px; display: flex; flex-direction: column; gap: 2px; cursor: pointer; user-select: none; overflow: hidden; }
   .plant-info:hover { background: rgba(0,0,0,0.03); }
   .plant-name { display: block; font-family: 'Playfair Display', serif; font-size: clamp(0.78rem, 2.2vw, 0.92rem); font-weight: 700; color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 1.2; flex: 1; min-width: 0; }
-  .plant-variety { display: block; font-size: clamp(0.60rem, 1.8vw, 0.70rem); color: #7a6a58; font-weight: 400; font-style: italic; line-height: 1.2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .plant-variety { display: block; font-size: clamp(0.60rem, 1.8vw, 0.70rem); color: #7a6a58; font-weight: 400; font-style: italic; line-height: 1.2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex: 1; min-width: 0; padding-right: 3px; }
   .compat-icons { font-size: 0.7rem; letter-spacing: 0.02em; flex-shrink: 0; line-height: 1; }
   .plant-name-row { display: flex; align-items: flex-start; justify-content: space-between; gap: 2px; overflow: hidden; }
   .plant-dtm { font-size: 0.70rem; color: #9a8a78; font-weight: 300; }
@@ -367,6 +367,7 @@
     background: rgba(0,0,0,0.45);
   }
   #mobile-sheet-backdrop.open { display: block; }
+  body.sheet-open { overflow: hidden; touch-action: none; }
   #mobile-sheet {
     display: none; position: fixed; bottom: 0; left: 0; right: 0; z-index: 101;
     background: var(--cream); border-radius: 18px 18px 0 0;
@@ -1139,7 +1140,7 @@ const PLANT_CATEGORIES = {
 // Edit care-data.json to update plant care info without touching
 // this file. Data is cached in localStorage after first fetch.
 // ══════════════════════════════════════════════════════════════
-const CARE_DATA_VERSION = '2';   // bump this to force a cache refresh
+const CARE_DATA_VERSION = '3';   // bump this to force a cache refresh
 let VERDANTLY_CARE = {};
 
 (async function loadCareData() {
@@ -2471,6 +2472,7 @@ function openMobileSheet(plantId) {
   const backdrop = document.getElementById('mobile-sheet-backdrop');
   const alreadyOpen = sheet.classList.contains('slide-up');
   if (!alreadyOpen) {
+    document.body.classList.add('sheet-open');
     backdrop.classList.add('open');
     sheet.classList.add('open');
     requestAnimationFrame(() => requestAnimationFrame(() => sheet.classList.add('slide-up')));
@@ -2480,6 +2482,7 @@ function openMobileSheet(plantId) {
 function closeMobileSheet() {
   const sheet    = document.getElementById('mobile-sheet');
   const backdrop = document.getElementById('mobile-sheet-backdrop');
+  document.body.classList.remove('sheet-open');
   sheet.style.transition = '';   // restore CSS transition in case drag suppressed it
   sheet.style.transform  = '';   // clear any inline drag offset
   sheet.classList.remove('slide-up');
