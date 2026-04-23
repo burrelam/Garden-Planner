@@ -350,6 +350,10 @@
     .care-tag        { font-size: 0.69rem; max-width: calc(50% - 3px); }
     .care-safe       { font-size: 0.76rem; }
     .care-meta       { gap: 4px; }
+    /* Option B: pin care panel to left of viewport when table is scrolled */
+    tr.detail-row td                                  { position: sticky !important; left: 0 !important; z-index: 6; }
+    #main-table tbody.has-open-panel tr.detail-row td { position: sticky !important; left: 0 !important; z-index: 6; }
+    .detail-panel                                     { width: 100vw; box-sizing: border-box; }
   }
   .care-safe  { font-size: 0.73rem; color: #7a9a6a; margin-top: 6px; }
 
@@ -2152,7 +2156,7 @@ function render() {
       const lightColor  = lightenColor(bed.color, 0.55);
       bedTr.innerHTML = `
         <td style="background:${bed.color}">
-          <div class="bed-header" onclick="event.stopPropagation(); openBedEditPopover('${bed.id}', this)" title="Click to edit name or color">
+          <div class="bed-header" ${canRemove ? `onclick="event.stopPropagation(); openBedEditPopover('${bed.id}', this)" title="Click to edit name or color"` : `style="cursor:default;" title=""`}>
             <div class="bed-dot"></div>
             <input class="bed-name-input" data-bed-id="${bed.id}" value="${bed.label}" readonly tabindex="-1" />
           </div>
