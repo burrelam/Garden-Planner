@@ -643,6 +643,335 @@
     }
   },
 
+  "Carrots": {
+    "default": {
+      "sun":   "Full sun (6–8 hrs/day)",
+      "water": "Moderate; keep evenly moist — especially during germination",
+      "soil":  "Deep, loose, stone-free sandy loam · pH 6.0–6.8; no fresh manure",
+      "frost": "Hardy; tolerates frost; can overwinter in ground under mulch",
+      "tips": [
+        "Direct sow — carrots strongly dislike transplanting",
+        "Sow seeds ¼ inch deep; germination takes 14–21 days — keep soil moist the whole time",
+        "Thin to 2–3 inches apart once seedlings are 2 inches tall; crowded roots fork and twist",
+        "Avoid fresh manure or high-nitrogen fertilizer — causes hairy, forked roots",
+        "Mulch lightly to retain moisture and prevent green shoulders (bitter flavor)",
+        "In Zone 8b: direct sow March–June and again in July for fall harvest"
+      ],
+      "harvest": [
+        "Harvest when shoulders are ½–¾ inch diameter at soil surface",
+        "Loosen soil with a fork before pulling to avoid snapping",
+        "Flavor sweetens after a light frost — leave in ground and harvest through fall",
+        "Twist off tops immediately after harvest to prevent roots from drying out"
+      ],
+      "companions": [
+        "✅ Onions & leeks — deter carrot fly with strong scent",
+        "✅ Rosemary & sage — aromatic deterrents to carrot fly",
+        "✅ Tomatoes — carrots loosen soil around tomato roots; mutually beneficial",
+        "❌ Dill (mature) — inhibits carrot growth when fully grown",
+        "❌ Parsley — same family; can cross-attract shared pests"
+      ],
+      "pests": [
+        "Carrot fly — use row covers at sowing; avoid thinning in still air (scent attracts flies)",
+        "Aphids — knock off with water; encourage ladybugs and lacewings nearby",
+        "Wireworms — rotate planting area; avoid ground that was recently sod"
+      ],
+      "safe": "🐱 🐶 Non-toxic to cats and dogs (ASPCA)"
+    },
+    "varieties": {
+      "Kyoto Red": {
+        "spacing": "2–3 inches apart; rows 12 inches",
+        "height":  "Tops 12–18 inches; roots 6–8 inches",
+        "harvest": [
+          "Japanese heirloom with deep red-orange skin and flesh — color holds when cooked",
+          "Harvest at 70–80 days when 6–8 inches long; flavor is sweet and mild",
+          "Excellent for roasting, juicing, and pickling — striking color in any dish"
+        ]
+      },
+      "Imperator 58": {
+        "spacing": "2–3 inches apart; rows 12 inches",
+        "height":  "Tops 18 inches; roots 8–9 inches",
+        "harvest": [
+          "Long, tapered classic carrot — the grocery-store standard for good reason",
+          "Harvest at 75–80 days when 8–9 inches; needs deep, loose soil to grow straight",
+          "Excellent flavor and stores well; great for juicing, snacking, and cooking"
+        ]
+      }
+    }
+  },
+
+  "Celery": {
+    "default": {
+      "sun":   "Full sun to partial shade (4–6 hrs minimum)",
+      "water": "High; needs consistently moist soil throughout the season",
+      "soil":  "Rich, moisture-retentive loam · pH 6.0–7.0; heavy feeder — amend with compost",
+      "frost": "Hardy to light frost; Zone 8b winters manageable with mulch",
+      "tips": [
+        "Start indoors 10–12 weeks before last frost — one of the longest-season crops",
+        "Seeds need light to germinate — press onto soil surface, don't cover",
+        "Transplant carefully; celery roots are sensitive — use deep cells or soil blocks",
+        "Mulch heavily around plants to retain the consistent moisture celery demands",
+        "Side-dress with compost or balanced fertilizer every 3–4 weeks during the season",
+        "Blanch stalks for milder flavor: wrap stems with cardboard or mound soil for 2 weeks before harvest"
+      ],
+      "harvest": [
+        "Harvest outer stalks first once they reach 12 inches — plants continue producing",
+        "Cut full heads at the base when stalks are firm and tight",
+        "Harvest before a hard freeze — light frost actually sweetens stalks",
+        "Refrigerate immediately; celery loses crispness quickly at room temperature"
+      ],
+      "companions": [
+        "✅ Tomatoes — celery repels the white cabbage butterfly near brassicas and tomatoes",
+        "✅ Leeks — strong scents deter shared insect pests",
+        "✅ Cabbage & brassicas — celery is said to improve their growth",
+        "❌ Parsley & parsnips — same family; compete and attract shared pests",
+        "❌ Corn — competes for nutrients without benefit"
+      ],
+      "pests": [
+        "Celery leaf miner — remove affected leaves; use row covers early in season",
+        "Aphids — inspect new growth weekly; spray with insecticidal soap as needed",
+        "Carrot fly — same pest as carrots; use row covers or companion planting",
+        "Fusarium wilt — rotate planting areas; choose resistant varieties like Utah 52-70"
+      ],
+      "safe": "🐱 🐶 Non-toxic to cats and dogs"
+    },
+    "varieties": {
+      "Utah 52-70": {
+        "spacing": "8–10 inches apart; rows 18–24 inches",
+        "height":  "18–24 inches tall",
+        "harvest": [
+          "Classic green celery with crisp, stringless stalks — the home garden standard",
+          "Harvest at 100–130 days when stalks are 12–18 inches and firm",
+          "Excellent fusarium wilt resistance — ideal for Pacific Northwest wet springs",
+          "Strong flavor and aroma; great fresh, cooked, or for stock"
+        ]
+      }
+    }
+  },
+
+  "Beans": {
+    "default": {
+      "sun":   "Full sun (6–8 hrs/day)",
+      "water": "Moderate; water at soil level — wet foliage causes bean rust and mold",
+      "soil":  "Well-drained, moderately fertile · pH 6.0–7.0; don't over-fertilize with nitrogen",
+      "frost": "Frost-tender; sow only after last frost and soil is 60°F+",
+      "tips": [
+        "Direct sow in place — beans dislike transplanting",
+        "Don't soak seeds before planting (can cause rot); just sow directly into moist soil",
+        "Inoculate seed with rhizobium bacteria for best nitrogen fixation in new beds",
+        "Do not add nitrogen fertilizer — beans fix their own; excess nitrogen = foliage, no pods",
+        "Pick regularly — the more you harvest, the more the plant produces",
+        "In Zone 8b: sow May through July for continuous harvests into September"
+      ],
+      "harvest": [
+        "Harvest when pods are firm, crisp, and snap cleanly — before seeds swell visibly",
+        "Pick every 2–3 days at peak season to keep plants productive",
+        "Harvest in the morning when pods are crisp and temperatures are cool",
+        "Beans past their prime become tough and stringy — compost them and keep picking"
+      ],
+      "companions": [
+        "✅ Carrots — loosen soil; don't compete heavily with nitrogen-fixing beans",
+        "✅ Cucumbers — compatible warm-season companions",
+        "✅ Marigolds — deter bean beetles and aphids",
+        "✅ Squash — classic Three Sisters combination with corn",
+        "❌ Onions & garlic — inhibit bean growth (and vice versa)",
+        "❌ Fennel — allelopathic; inhibits beans and most vegetables"
+      ],
+      "pests": [
+        "Mexican bean beetle — handpick egg clusters on leaf undersides; use row covers early",
+        "Aphids — especially on tender new growth; spray with water or insecticidal soap",
+        "Spider mites in hot, dry weather — increase watering; spray leaf undersides",
+        "Bean rust (fungal) — avoid overhead watering; increase airflow between plants"
+      ],
+      "safe": "🐱 🐶 Non-toxic to cats and dogs when cooked; raw kidney beans contain lectin — always cook"
+    },
+    "varieties": {
+      "Blue Lake 274": {
+        "spacing": "4–6 inches apart; rows 18 inches",
+        "height":  "Bush bean — 18–24 inches tall",
+        "harvest": [
+          "The gold standard bush bean — straight, stringless 6-inch pods with excellent flavor",
+          "Harvest at 55–65 days when pods are pencil-thin and snap cleanly",
+          "Very productive and concentrated harvest — ideal for canning and freezing",
+          "One of the most disease-resistant bush beans available; reliable in wet PNW summers"
+        ]
+      },
+      "Royalty Purple Pod": {
+        "spacing": "4–6 inches apart; rows 18 inches",
+        "height":  "Bush bean — 18–20 inches tall",
+        "harvest": [
+          "Striking purple pods turn green when cooked — easy visual marker for harvest readiness",
+          "Harvest at 50–60 days when pods are 5–6 inches; bright purple means they're ready",
+          "Exceptional cold tolerance — can be sown 2 weeks earlier than most beans",
+          "Mild, sweet flavor; pods stay tender longer on the plant than most green beans"
+        ]
+      },
+      "Purple String": {
+        "spacing": "4–6 inches apart; rows 18 inches",
+        "height":  "Bush bean — 18–20 inches tall",
+        "harvest": [
+          "Purple pods turn green when cooked; harvest when 5–6 inches at 50–60 days",
+          "Excellent cold tolerance for early season planting in Zone 8b",
+          "Crisp, sweet flavor — great fresh or lightly steamed"
+        ]
+      }
+    }
+  },
+
+  "Cauliflower": {
+    "default": {
+      "sun":   "Full sun (6–8 hrs/day)",
+      "water": "Moderate–high; consistent moisture — irregular watering causes hollow or split heads",
+      "soil":  "Rich, well-drained loam · pH 6.0–7.0; calcium-rich; heavy feeder",
+      "frost": "Hardy to light frost; cool weather produces the best, tightest heads",
+      "tips": [
+        "Start indoors 4–6 weeks before transplant; or start late summer for fall crop",
+        "Transplant in cool weather — heat stress causes premature heading and poor quality",
+        "Blanch white varieties: tie outer leaves over the developing curd when 2–3 inches across",
+        "Check heads daily once curd appears — can go from perfect to over-mature in days",
+        "Side-dress with balanced fertilizer at transplant and again at head formation",
+        "In Zone 8b: spring transplant Feb–Mar; fall transplant July–Aug"
+      ],
+      "harvest": [
+        "Harvest when head is firm, tight, and 6–8 inches across — before curds begin to separate",
+        "Cut head with a sharp knife leaving a few outer leaves for protection",
+        "Refrigerate immediately; peak freshness lasts 3–5 days",
+        "Over-mature heads turn creamy or brown and develop a ricey texture — harvest on time"
+      ],
+      "companions": [
+        "✅ Celery — said to improve cauliflower growth and deter white cabbage butterfly",
+        "✅ Dill & chamomile — attract beneficial insects; improve brassica health",
+        "✅ Onions — deter aphids and imported cabbageworm",
+        "❌ Strawberries — compete and may stunt each other",
+        "❌ Tomatoes — compete heavily; different fertility needs"
+      ],
+      "pests": [
+        "Imported cabbageworm & cabbage loopers — inspect undersides of leaves weekly; use Bt spray",
+        "Aphids — especially under leaves; blast with water or spray insecticidal soap",
+        "Clubroot — avoid planting brassicas in same spot more than once every 4 years",
+        "Downy mildew — improve airflow; avoid overhead watering in cool, wet weather"
+      ],
+      "safe": "🐱 🐶 Non-toxic to cats and dogs"
+    },
+    "varieties": {
+      "Igloo": {
+        "spacing": "18 inches apart; rows 24 inches",
+        "height":  "18–24 inches tall",
+        "harvest": [
+          "Compact, early white head — ideal for small gardens and containers",
+          "Harvest at 50–60 days when head is 6 inches and tight",
+          "Self-blanching leaves wrap naturally over curd — less maintenance than older varieties",
+          "Excellent for Zone 8b spring crop; handles cool, rainy conditions well"
+        ]
+      },
+      "Early Snowball": {
+        "spacing": "18 inches apart; rows 24 inches",
+        "height":  "18 inches tall",
+        "harvest": [
+          "Classic heirloom — compact 6-inch white heads with excellent flavor",
+          "Harvest at 55–65 days; one of the earliest reliable cauliflower varieties",
+          "Great for spring and fall planting; adapts well to Pacific Northwest climate",
+          "Blanch by tying outer leaves over curd as it develops for brightest white color"
+        ]
+      }
+    }
+  },
+
+  "Cabbage": {
+    "default": {
+      "sun":   "Full sun (6–8 hrs/day)",
+      "water": "Moderate; consistent moisture — irregular watering causes heads to split",
+      "soil":  "Rich, well-drained loam · pH 6.0–7.5; heavy feeder; amend with compost",
+      "frost": "Very hardy — improves in flavor after light frost (cold converts starch to sugar)",
+      "tips": [
+        "Start indoors 4–6 weeks before transplant date",
+        "Firm the soil well around transplants — cabbage needs a stable root zone",
+        "Side-dress with nitrogen-rich fertilizer (blood meal or fish emulsion) when heads begin to form",
+        "Watch for splitting as heads mature — harvest promptly or slice through the root to slow growth",
+        "In Zone 8b: spring transplant Feb–Mar; fall transplant July–Aug for winter harvest"
+      ],
+      "harvest": [
+        "Harvest when head feels firm and solid when squeezed — outer leaves may yellow slightly",
+        "Cut at the base with a sharp knife, leaving the lowest leaves to potentially produce small side heads",
+        "Refrigerate unwashed; heads keep 1–2 weeks in the crisper",
+        "Spring cabbage has lighter, looser heads; fall/winter types are denser and store longer"
+      ],
+      "companions": [
+        "✅ Dill — attracts beneficial wasps that prey on cabbage caterpillars",
+        "✅ Celery — deters white cabbage butterfly; mutually beneficial",
+        "✅ Onions & marigolds — deter aphids and imported cabbageworm",
+        "❌ Strawberries — inhibit each other's growth",
+        "❌ Tomatoes — compete heavily for nutrients; different growing conditions"
+      ],
+      "pests": [
+        "Imported cabbageworm — most common pest; use Bt spray or row covers from transplant",
+        "Cabbage aphids — grey-green and clustered; knock off with water, follow with soap spray",
+        "Root maggots — use brassica collars at soil level to prevent fly egg-laying",
+        "Slugs — especially on young transplants; use iron phosphate bait at soil level"
+      ],
+      "safe": "🐱 🐶 Non-toxic to cats and dogs"
+    },
+    "varieties": {
+      "Earliana": {
+        "spacing": "18 inches apart; rows 24 inches",
+        "height":  "12–18 inches tall",
+        "harvest": [
+          "Early-maturing heirloom — compact 3–4 lb heads ready in just 60 days",
+          "Excellent for spring planting; matures before summer heat sets in",
+          "Tender, mild flavor — best for fresh eating, slaws, and quick-pickled preparations",
+          "Harvest while still firm; early cabbage splits faster than storage types — don't delay"
+        ]
+      }
+    }
+  },
+
+  "Artichoke": {
+    "default": {
+      "sun":   "Full sun (6–8 hrs/day)",
+      "water": "Moderate–high; deep, regular watering; reduce in late fall",
+      "soil":  "Rich, well-drained loam · pH 6.0–7.0; mulch heavily to retain moisture",
+      "frost": "Hardy to Zone 7; crowns survive Zone 8b winters with 4–6 inches of mulch",
+      "tips": [
+        "Start indoors in January; transplant outdoors March–April after hardening off",
+        "Perennial in Zone 8b — cut stalks back to 12 inches after frost kills the tops",
+        "Mulch crowns heavily each winter to protect from hard freezes",
+        "Divide overcrowded clumps every 3–4 years to maintain vigor and production",
+        "Side-dress with compost each spring as new growth emerges",
+        "First-year plants produce lightly; full production starts in year 2"
+      ],
+      "harvest": [
+        "Harvest buds before scales begin to open — once they splay, bud is past peak",
+        "Cut stem 1–2 inches below the bud head with a sharp knife",
+        "Primary (terminal) bud harvested first, followed by smaller side buds",
+        "Harvest season runs May–July in Zone 8b; cut buds promptly to encourage more"
+      ],
+      "companions": [
+        "✅ Sunflowers — attract pollinators and provide wind protection",
+        "✅ Tarragon — said to improve artichoke flavor and deter pests",
+        "✅ Peas — fix nitrogen early in season before artichokes take over space",
+        "❌ Potatoes — compete for space and nutrients in a perennial bed"
+      ],
+      "pests": [
+        "Aphids — appear in dense clusters in spring; knock off with water, follow with soap spray",
+        "Artichoke plume moth — inspect inside buds; handpick larvae; use Bt if severe",
+        "Snails & slugs — especially on young spring growth; use iron phosphate bait",
+        "Botrytis (gray mold) — ensure good airflow; avoid overhead watering in cool weather"
+      ],
+      "safe": "🐱 🐶 Non-toxic to cats and dogs; artichoke hearts are safe for humans"
+    },
+    "varieties": {
+      "Green Globe": {
+        "spacing": "4–6 feet apart (large perennial plant)",
+        "height":  "3–5 feet tall; 4–6 feet wide at maturity",
+        "harvest": [
+          "The classic artichoke — large, globe-shaped buds 3–5 inches across",
+          "Harvest 85–100 days from transplant when bud is tight and compact",
+          "Established plants (year 2+) produce 6–10 primary buds plus side shoots per season",
+          "Standard for steaming, roasting, and stuffing; rich, nutty flavor when harvested fresh"
+        ]
+      }
+    }
+  },
+
   "Strawberries": {
     "default": {
       "sun":   "Full sun (6–8 hrs/day)",

@@ -169,8 +169,8 @@
   .bed-collapse-btn:hover { opacity: 0.8; }
   @media (max-width: 480px) {
     .btn-arrow      { display: inline-block; transform: scale(2.2); margin: 0 5px; line-height: 1; }
-    .plant-name     { font-size: 1.02rem; }
-    .plant-variety  { font-size: 0.72rem; }
+    .plant-name     { font-size: 1.06rem; }
+    .plant-variety  { font-size: 0.76rem; }
     .plant-dtm      { font-size: 0.78rem; }
     .plant-badge    { font-size: 0.70rem; }
     .bed-pill       { font-size: 0.67rem; }
@@ -2372,14 +2372,17 @@ function render() {
     wrap.scrollLeft = savedScrollLeft;
   }
 
-  // One-time: scroll horizontally so today's column is centered on initial load
+  // One-time: scroll horizontally so today's column is centered on initial load.
+  // Deferred via double-rAF so clientWidth is readable after the browser has painted.
   if (!_hasScrolledToToday && wrap) {
-    const now = new Date();
-    const col  = now.getMonth() * 2 + (now.getDate() > 15 ? 1 : 0);
-    const cellW = 22, nameW = 140;
-    const target = nameW + col * cellW - (wrap.clientWidth - nameW) / 2;
-    wrap.scrollLeft = Math.max(0, target);
-    _hasScrolledToToday = true;
+    _hasScrolledToToday = true; // set immediately so re-renders don't queue multiple scrolls
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      const now   = new Date();
+      const col   = now.getMonth() * 2 + (now.getDate() > 15 ? 1 : 0);
+      const cellW = 22, nameW = 140;
+      const target = nameW + col * cellW - (wrap.clientWidth - nameW) / 2;
+      wrap.scrollLeft = Math.max(0, target);
+    }));
   }
 }
 
