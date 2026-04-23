@@ -345,17 +345,46 @@
   @media (max-width: 480px) {
     .care-cols { flex-direction: column; gap: 4px; }
     .care-col  { min-width: 100%; }
-    .care-col li     { font-size: 0.53rem; }
-    .care-col strong { font-size: 0.61rem; }
-    .care-tag        { font-size: 0.69rem; max-width: calc(50% - 3px); }
-    .care-safe       { font-size: 0.76rem; }
-    .care-meta       { gap: 4px; }
-    /* Option B: pin care panel to left of viewport when table is scrolled */
-    tr.detail-row td                                  { position: sticky !important; left: 0 !important; z-index: 6; }
-    #main-table tbody.has-open-panel tr.detail-row td { position: sticky !important; left: 0 !important; z-index: 6; }
-    .detail-panel                                     { width: 100vw; box-sizing: border-box; }
+    .care-tag  { font-size: 0.69rem; max-width: calc(50% - 3px); }
+    .care-meta { gap: 4px; }
   }
   .care-safe  { font-size: 0.73rem; color: #7a9a6a; margin-top: 6px; }
+
+  /* ── MOBILE BOTTOM SHEET (Option A) ── */
+  #mobile-sheet-backdrop {
+    display: none; position: fixed; inset: 0; z-index: 100;
+    background: rgba(0,0,0,0.45);
+  }
+  #mobile-sheet-backdrop.open { display: block; }
+  #mobile-sheet {
+    display: none; position: fixed; bottom: 0; left: 0; right: 0; z-index: 101;
+    background: var(--cream); border-radius: 18px 18px 0 0;
+    padding: 0 16px 40px; max-height: 80vh; overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    transform: translateY(100%);
+    transition: transform 0.28s cubic-bezier(0.32,0,0.15,1);
+  }
+  #mobile-sheet.open     { display: block; }
+  #mobile-sheet.slide-up { transform: translateY(0); }
+  .sheet-handle {
+    width: 36px; height: 4px; background: rgba(0,0,0,0.18);
+    border-radius: 2px; margin: 10px auto 6px;
+  }
+  .sheet-header {
+    display: flex; justify-content: space-between; align-items: flex-start;
+    padding: 4px 0 10px; border-bottom: 1px solid rgba(90,74,56,0.15);
+    margin-bottom: 12px;
+  }
+  .sheet-title    { font-family: 'Playfair Display', serif; font-size: 1.05rem; font-weight: 700; color: var(--ink); display: block; }
+  .sheet-subtitle { font-size: 0.72rem; color: #7a6a58; font-style: italic; }
+  .sheet-close    { background: none; border: none; font-size: 1.1rem; color: #9a8a78; cursor: pointer; padding: 2px 4px; line-height: 1; }
+  /* Use desktop-scale fonts inside the sheet */
+  #mobile-sheet .care-col li     { font-size: 0.79rem; }
+  #mobile-sheet .care-col strong { font-size: 0.84rem; }
+  #mobile-sheet .care-tag        { font-size: 0.73rem; max-width: calc(50% - 3px); }
+  #mobile-sheet .care-safe       { font-size: 0.87rem; }
+  #mobile-sheet .care-cols       { flex-direction: column; gap: 4px; }
+  #mobile-sheet .care-col        { min-width: 100%; }
 
   .panel-controls {
     display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-bottom: 0;
@@ -703,6 +732,20 @@
     <button class="btn-cancel" style="flex:1;padding:7px;font-size:0.68rem;" onclick="closeBedEditPopover()">Cancel</button>
     <button class="btn-primary" style="flex:1;padding:7px;font-size:0.68rem;" onclick="saveBedEdit()">Save</button>
   </div>
+</div>
+
+<!-- MOBILE BOTTOM SHEET -->
+<div id="mobile-sheet-backdrop" onclick="closeMobileSheet()"></div>
+<div id="mobile-sheet">
+  <div class="sheet-handle"></div>
+  <div class="sheet-header">
+    <div>
+      <span class="sheet-title" id="sheet-title"></span>
+      <span class="sheet-subtitle" id="sheet-subtitle"></span>
+    </div>
+    <button class="sheet-close" onclick="closeMobileSheet()">✕</button>
+  </div>
+  <div id="sheet-body"></div>
 </div>
 
 <!-- FROST TOOLTIP -->
@@ -2334,6 +2377,7 @@ function render() {
 }
 
 function toggleDetail(plantId) {
+  if (window.innerWidth <= 480) { openMobileSheet(plantId); return; }
   const panel     = document.getElementById(`panel-${plantId}`);
   const detailRow = document.getElementById(`detail-${plantId}`);
   const plantRow  = document.querySelector(`tr[data-plant-id="${plantId}"]`);
@@ -2353,6 +2397,52 @@ function toggleDetail(plantId) {
     const tbody = detailRow?.closest('tbody');
     if (tbody) tbody.classList.add('has-open-panel');
   }
+}
+
+function openMobileSheet(plantId) {
+  const plants = getPlants();
+  const plant  = plants.find(p => p.id === plantId);
+  if (!plant) return;
+
+  const beds = getBeds();
+  const bedOptions    = beds.map(b => `<option value="${b.id}" ${b.id === plant.bed ? 'selected' : ''}>${b.label.toUpperCase()}</option>`).join('');
+  const statusOptions = Object.entries(STATUS_CONFIG).map(([val, cfg]) => `<option value="${val}" ${val === plant.status ? 'selected' : ''}>${cfg.label}</option>`).join('');
+
+  document.getElementById('sheet-title').textContent    = plant.name;
+  document.getElementById('sheet-subtitle').textContent = plant.variety || '';
+  document.getElementById('sheet-body').innerHTML = `
+    <div class="panel-controls">
+      <span class="panel-label" style="color:#9a8a78;font-weight:300;font-size:0.65rem;">⏱ ${plant.dtm}</span>
+      <label class="panel-label">Status:
+        <select class="panel-select" onchange="updateStatus('${plantId}', this.value)">${statusOptions}</select>
+      </label>
+      <label class="panel-label">Bed:
+        <select class="panel-select" onchange="reassign('${plantId}', this.value)">${bedOptions}</select>
+      </label>
+      <label class="panel-label">Qty:
+        <input type="number" class="panel-select" min="1" value="${plant.qty || 1}" style="width:54px;" onchange="updateQty('${plantId}', this.value)" />
+      </label>
+      <button class="panel-btn btn-remove" onclick="removePlant('${plantId}')">✕ Remove</button>
+    </div>
+    <hr class="panel-divider">
+    ${buildCarePanel(plant.name, plant.variety)}`;
+
+  const sheet    = document.getElementById('mobile-sheet');
+  const backdrop = document.getElementById('mobile-sheet-backdrop');
+  const alreadyOpen = sheet.classList.contains('slide-up');
+  if (!alreadyOpen) {
+    backdrop.classList.add('open');
+    sheet.classList.add('open');
+    requestAnimationFrame(() => requestAnimationFrame(() => sheet.classList.add('slide-up')));
+  }
+}
+
+function closeMobileSheet() {
+  const sheet    = document.getElementById('mobile-sheet');
+  const backdrop = document.getElementById('mobile-sheet-backdrop');
+  sheet.classList.remove('slide-up');
+  backdrop.classList.remove('open');
+  setTimeout(() => { if (!sheet.classList.contains('slide-up')) sheet.classList.remove('open'); }, 300);
 }
 
 function updateQty(plantId, val) {
@@ -2393,6 +2483,7 @@ function removePlant(plantId) {
     const plants = getPlants().filter(p => p.id !== plantId);
     savePlants(plants);
     render();
+    if (window.innerWidth <= 480) closeMobileSheet();
   });
 }
 
