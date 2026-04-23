@@ -69,7 +69,8 @@
     transition: opacity 0.15s;
   }
   .legend-toggle-btn:hover { opacity: 0.8; }
-  .legend-toggle-btn .legend-arrow { font-size: 0.62rem; display: inline-block; transition: transform 0.2s; }
+  .legend-toggle-btn .legend-book  { font-size: 1.28rem; line-height: 1; }
+  .legend-toggle-btn .legend-arrow { font-size: 1.24rem; display: inline-block; transition: transform 0.2s; line-height: 1; }
   .legend-toggle-btn.open .legend-arrow { transform: rotate(180deg); }
   .legend-panel {
     display: none; margin-top: 10px; padding: 14px 20px 16px;
@@ -80,8 +81,8 @@
   .legend-panel-grid { display: flex; gap: 20px 32px; flex-wrap: wrap; justify-content: center; }
   .legend-section { min-width: 180px; }
   .legend-section-title {
-    font-size: 0.57rem; font-weight: 700; letter-spacing: 0.11em; text-transform: uppercase;
-    color: rgba(245,240,232,0.45); margin-bottom: 8px;
+    font-size: 0.86rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
+    color: rgba(245,240,232,0.7); margin-bottom: 10px;
   }
   .legend-items { display: flex; flex-direction: column; gap: 7px; }
   .legend-item { display: flex; align-items: center; gap: 8px; color: var(--cream); font-size: 0.72rem; letter-spacing: 0.02em; }
@@ -662,6 +663,29 @@
   .snapshot-item .snap-detail { font-size: 0.61rem; color: #9a8a78; }
   .snapshot-empty { padding: 10px 12px; font-size: 0.68rem; color: #aaa; font-style: italic; }
 
+  /* ── ZONE / LOCATION SETTINGS ── */
+  .zone-display { display: inline-flex; align-items: center; gap: 6px; }
+  .zone-edit-btn { background: none; border: none; cursor: pointer; font-size: 0.78rem; opacity: 0.55; transition: opacity 0.15s; padding: 1px 3px; color: var(--cream); line-height: 1; }
+  .zone-edit-btn:hover { opacity: 1; }
+  #zone-modal-overlay { display: none; position: fixed; inset: 0; background: rgba(40,25,15,0.75); z-index: 300; align-items: center; justify-content: center; padding: 20px; }
+  #zone-modal-overlay.open { display: flex; }
+  .zone-modal { background: var(--cream); border-radius: 14px; padding: 24px; width: 100%; max-width: 380px; box-shadow: 0 24px 60px rgba(0,0,0,0.5); animation: fadeUp 0.25s ease both; }
+  .zone-modal h2 { font-family: 'Playfair Display', serif; font-size: 1.1rem; color: var(--ink); margin-bottom: 5px; }
+  .zone-modal-sub { font-size: 0.71rem; color: #7a6a58; margin-bottom: 20px; line-height: 1.5; }
+  .zone-section { margin-bottom: 16px; }
+  .zone-section-label { font-size: 0.62rem; font-weight: 700; letter-spacing: 0.10em; text-transform: uppercase; color: #9a8a78; margin-bottom: 9px; padding-bottom: 4px; border-bottom: 1px solid #e8e0d0; }
+  .zone-row { display: flex; gap: 8px; align-items: flex-end; }
+  .zone-row .form-group { flex: 1; margin-bottom: 0; }
+  .zone-lookup-btn { padding: 8px 14px; background: var(--moss); color: white; border: none; border-radius: 6px; font-size: 0.73rem; font-weight: 600; cursor: pointer; white-space: nowrap; transition: opacity 0.15s; font-family: 'DM Sans', sans-serif; }
+  .zone-lookup-btn:hover { opacity: 0.85; }
+  .zone-lookup-btn:disabled { opacity: 0.5; cursor: default; }
+  .zone-result-msg { font-size: 0.71rem; min-height: 1.5em; margin-top: 7px; font-weight: 500; }
+  .zone-result-msg.ok    { color: #3a7a2a; }
+  .zone-result-msg.error { color: #b03030; }
+  .zone-or-divider { text-align: center; font-size: 0.62rem; color: #bbb; letter-spacing: 0.08em; text-transform: uppercase; margin: 16px 0; position: relative; }
+  .zone-or-divider::before { content: ''; position: absolute; top: 50%; left: 0; right: 0; height: 1px; background: #ddd5c5; }
+  .zone-or-divider span { background: var(--cream); padding: 0 10px; position: relative; }
+
   @keyframes fadeDown { from { opacity:0; transform:translateY(-14px); } to { opacity:1; transform:translateY(0); } }
   @keyframes fadeUp   { from { opacity:0; transform:translateY(14px);  } to { opacity:1; transform:translateY(0); } }
 </style>
@@ -670,14 +694,14 @@
 <div class="page-wrap">
   <header>
     <h1>🌱 My Garden Planting Calendar</h1>
-    <p>Zone 8b · Portland, OR · 97201</p>
+    <p class="zone-display"><span id="zone-display-text">Zone 8b · Portland, OR · 97201</span><button class="zone-edit-btn" onclick="openZoneModal()" title="Change location">✏️</button></p>
   </header>
   <div class="frost-note">
     <strong>Zone 8b Frost Dates:</strong> Last frost ~<strong>Mar 15</strong> · First fall frost ~<strong>Nov 15</strong> · Growing season ≈ 245 days
   </div>
   <div class="legend-wrap">
     <button class="legend-toggle-btn" id="legend-toggle-btn" onclick="toggleLegend()">
-      📖 Legend <span class="legend-arrow">▾</span>
+      <span class="legend-book">📖</span> Legend <span class="legend-arrow">▾</span>
     </button>
     <div class="legend-panel" id="legend-panel">
       <div class="legend-panel-grid">
@@ -897,6 +921,57 @@
     <div class="modal-actions">
       <button class="btn-cancel" onclick="closeAddBed()">Cancel</button>
       <button class="btn-primary" onclick="submitAddBed()">Add Bed</button>
+    </div>
+  </div>
+</div>
+
+<!-- ZONE / LOCATION SETTINGS MODAL -->
+<div id="zone-modal-overlay" onclick="handleZoneOverlayClick(event)">
+  <div class="zone-modal">
+    <h2>🌍 Garden Location</h2>
+    <p class="zone-modal-sub">Enter your ZIP code to auto-detect your USDA hardiness zone, or select your zone manually below.</p>
+
+    <div class="zone-section">
+      <div class="zone-section-label">Look Up by ZIP Code</div>
+      <div class="zone-row">
+        <div class="form-group">
+          <label>US ZIP Code</label>
+          <input id="zone-zip-input" type="text" inputmode="numeric" maxlength="5" placeholder="e.g. 97201"
+            onkeydown="if(event.key==='Enter') lookupZip()" />
+        </div>
+        <button class="zone-lookup-btn" id="zone-lookup-btn" onclick="lookupZip()">Look Up</button>
+      </div>
+      <div class="zone-result-msg" id="zone-result-msg"></div>
+    </div>
+
+    <div class="zone-or-divider"><span>or</span></div>
+
+    <div class="zone-section">
+      <div class="zone-section-label">Select Zone Manually</div>
+      <div class="form-group" style="margin-bottom:0;">
+        <label>USDA Hardiness Zone</label>
+        <select id="zone-manual-select">
+          <option value="">— select zone —</option>
+          <option>1a</option><option>1b</option>
+          <option>2a</option><option>2b</option>
+          <option>3a</option><option>3b</option>
+          <option>4a</option><option>4b</option>
+          <option>5a</option><option>5b</option>
+          <option>6a</option><option>6b</option>
+          <option>7a</option><option>7b</option>
+          <option>8a</option><option>8b</option>
+          <option>9a</option><option>9b</option>
+          <option>10a</option><option>10b</option>
+          <option>11a</option><option>11b</option>
+          <option>12a</option><option>12b</option>
+          <option>13a</option><option>13b</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="modal-actions" style="margin-top:20px;">
+      <button class="btn-cancel" onclick="closeZoneModal()">Cancel</button>
+      <button class="btn-save" onclick="saveZoneSettings()">Save</button>
     </div>
   </div>
 </div>
@@ -3415,6 +3490,115 @@ document.addEventListener('click', function(e) {
 render();
 initSheetDrag();
 initMonthSnap();
+renderZoneDisplay();
+
+// ══════════════════════════════════════════════════════════════
+// ZONE / LOCATION SETTINGS
+// ══════════════════════════════════════════════════════════════
+const ZONE_KEY = 'garden_zone_v1';
+
+function getZoneSettings() {
+  try {
+    const stored = localStorage.getItem(ZONE_KEY);
+    return stored ? JSON.parse(stored) : { zip: '97201', zone: '8b', city: 'Portland', state: 'OR' };
+  } catch(e) { return { zip: '97201', zone: '8b', city: 'Portland', state: 'OR' }; }
+}
+
+function renderZoneDisplay() {
+  const s   = getZoneSettings();
+  const el  = document.getElementById('zone-display-text');
+  if (!el) return;
+  const loc = (s.city && s.state) ? ` · ${s.city}, ${s.state}` : '';
+  const zip = s.zip ? ` · ${s.zip}` : '';
+  el.textContent = `Zone ${s.zone}${loc}${zip}`;
+}
+
+function openZoneModal() {
+  const s = getZoneSettings();
+  document.getElementById('zone-zip-input').value      = s.zip  || '';
+  document.getElementById('zone-manual-select').value  = s.zone || '';
+  document.getElementById('zone-result-msg').textContent = '';
+  document.getElementById('zone-result-msg').className   = 'zone-result-msg';
+  document.getElementById('zone-modal-overlay').classList.add('open');
+}
+
+function closeZoneModal() {
+  document.getElementById('zone-modal-overlay').classList.remove('open');
+}
+
+function handleZoneOverlayClick(e) {
+  if (e.target === document.getElementById('zone-modal-overlay')) closeZoneModal();
+}
+
+async function lookupZip() {
+  const zip = document.getElementById('zone-zip-input').value.trim();
+  const msg = document.getElementById('zone-result-msg');
+  const btn = document.getElementById('zone-lookup-btn');
+  if (!/^\d{5}$/.test(zip)) {
+    msg.textContent = 'Please enter a valid 5-digit ZIP code.';
+    msg.className   = 'zone-result-msg error';
+    return;
+  }
+  btn.disabled    = true;
+  btn.textContent = 'Looking up…';
+  msg.textContent = '';
+  msg.className   = 'zone-result-msg';
+  try {
+    // Fetch USDA zone
+    const zoneRes  = await fetch(`https://phzmapi.org/${zip}.json`);
+    if (!zoneRes.ok) throw new Error('Zone not found');
+    const zoneData = await zoneRes.json();
+    const zone = (zoneData.zone || '').replace(/^Zone\s*/i, '').trim();
+    if (!zone) throw new Error('Zone not found for this ZIP');
+
+    // Fetch city/state (no API key needed)
+    let city = '', state = '';
+    try {
+      const locRes  = await fetch(`https://api.zippopotam.us/us/${zip}`);
+      if (locRes.ok) {
+        const locData = await locRes.json();
+        city  = locData.places?.[0]?.['place name']  || '';
+        state = locData.places?.[0]?.['state abbreviation'] || '';
+      }
+    } catch(_) {}
+
+    // Pre-fill manual select to match
+    document.getElementById('zone-manual-select').value = zone;
+
+    msg.textContent = `✅ Zone ${zone}${city ? ` — ${city}, ${state}` : ''}`;
+    msg.className   = 'zone-result-msg ok';
+
+    // Store interim result so Save picks it up
+    window._zoneLookupResult = { zip, zone, city, state };
+  } catch(err) {
+    msg.textContent = '❌ Could not find zone for that ZIP. Try selecting manually below.';
+    msg.className   = 'zone-result-msg error';
+    window._zoneLookupResult = null;
+  } finally {
+    btn.disabled    = false;
+    btn.textContent = 'Look Up';
+  }
+}
+
+function saveZoneSettings() {
+  // Priority: lookup result (if ZIP was looked up) → manual select
+  let settings;
+  if (window._zoneLookupResult) {
+    settings = { ...window._zoneLookupResult };
+    window._zoneLookupResult = null;
+  } else {
+    const manualZone = document.getElementById('zone-manual-select').value;
+    const zip        = document.getElementById('zone-zip-input').value.trim();
+    if (!manualZone) { alert('Please select a zone or look up your ZIP code first.'); return; }
+    const existing   = getZoneSettings();
+    settings = { zip: zip || existing.zip || '', zone: manualZone, city: existing.city || '', state: existing.state || '' };
+    // If ZIP changed, clear city/state (stale)
+    if (zip && zip !== existing.zip) { settings.city = ''; settings.state = ''; }
+  }
+  localStorage.setItem(ZONE_KEY, JSON.stringify(settings));
+  renderZoneDisplay();
+  closeZoneModal();
+}
 
 function initMonthSnap() {
   const wrap = document.querySelector('.table-wrap');
