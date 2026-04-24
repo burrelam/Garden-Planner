@@ -664,9 +664,15 @@
   .snapshot-empty { padding: 10px 12px; font-size: 0.68rem; color: #aaa; font-style: italic; }
 
   /* ── ZONE / LOCATION SETTINGS ── */
-  .zone-display { display: inline-flex; align-items: center; gap: 6px; }
-  .zone-edit-btn { background: none; border: none; cursor: pointer; font-size: 0.78rem; opacity: 0.55; transition: opacity 0.15s; padding: 1px 3px; color: var(--cream); line-height: 1; }
-  .zone-edit-btn:hover { opacity: 1; }
+  .zone-display { display: inline-flex; align-items: center; gap: 6px; flex-wrap: wrap; justify-content: center; }
+  .zone-chip {
+    background: rgba(255,255,255,0.13); border: 1px solid rgba(255,255,255,0.28);
+    color: var(--cream); font-family: 'DM Sans', sans-serif;
+    font-size: 0.75rem; font-weight: 500; letter-spacing: 0.03em;
+    padding: 3px 11px; border-radius: 20px; cursor: pointer;
+    transition: background 0.15s; line-height: 1.6;
+  }
+  .zone-chip:hover { background: rgba(255,255,255,0.24); }
   #zone-modal-overlay { display: none; position: fixed; inset: 0; background: rgba(40,25,15,0.75); z-index: 300; align-items: center; justify-content: center; padding: 20px; }
   #zone-modal-overlay.open { display: flex; }
   .zone-modal { background: var(--cream); border-radius: 14px; padding: 24px; width: 100%; max-width: 380px; box-shadow: 0 24px 60px rgba(0,0,0,0.5); animation: fadeUp 0.25s ease both; }
@@ -694,7 +700,7 @@
 <div class="page-wrap">
   <header>
     <h1>🌱 My Garden Planting Calendar</h1>
-    <p class="zone-display"><span id="zone-display-text">Zone 8b · Portland, OR · 97201</span><button class="zone-edit-btn" onclick="openZoneModal()" title="Change location">✏️</button></p>
+    <p class="zone-display" id="zone-display"></p>
   </header>
   <div class="frost-note">
     <strong>Zone 8b Frost Dates:</strong> Last frost ~<strong>Mar 15</strong> · First fall frost ~<strong>Nov 15</strong> · Growing season ≈ 245 days
@@ -3591,12 +3597,22 @@ function getZoneSettings() {
 }
 
 function renderZoneDisplay() {
-  const s   = getZoneSettings();
-  const el  = document.getElementById('zone-display-text');
+  const s  = getZoneSettings();
+  const el = document.getElementById('zone-display');
   if (!el) return;
-  const loc = (s.city && s.state) ? ` · ${s.city}, ${s.state}` : '';
-  const zip = s.zip ? ` · ${s.zip}` : '';
-  el.textContent = `Zone ${s.zone}${loc}${zip}`;
+  el.innerHTML = '';
+
+  function makeChip(label) {
+    const btn = document.createElement('button');
+    btn.className   = 'zone-chip';
+    btn.textContent = label;
+    btn.onclick     = openZoneModal;
+    el.appendChild(btn);
+  }
+
+  makeChip(`Zone ${s.zone || '8b'}`);
+  if (s.city && s.state) makeChip(`${s.city}, ${s.state}`);
+  else if (s.zip)        makeChip(s.zip);
 }
 
 function renderFrostNote() {
@@ -3694,10 +3710,8 @@ function saveZoneSettings() {
     const manualZone = document.getElementById('zone-manual-select').value;
     const zip        = document.getElementById('zone-zip-input').value.trim();
     if (!manualZone) { alert('Please select a zone or look up your ZIP code first.'); return; }
-    const existing   = getZoneSettings();
-    settings = { zip: zip || existing.zip || '', zone: manualZone, city: existing.city || '', state: existing.state || '' };
-    // If ZIP changed, clear city/state (stale)
-    if (zip && zip !== existing.zip) { settings.city = ''; settings.state = ''; }
+    // Manual zone select — always clear city/state (no ZIP lookup = location unknown)
+    settings = { zip: zip || '', zone: manualZone, city: '', state: '' };
   }
   localStorage.setItem(ZONE_KEY, JSON.stringify(settings));
   recomputeAllMonths();
