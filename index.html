@@ -1274,9 +1274,9 @@ const PLANT_DATABASE = {
   },
   'Zinnias': {
     varieties: {
-      'Envy': { dtm: '75–90 days to bloom', phases: [{type:'indoor',anchor:'lastFrost',startOff:-3,endOff:-1},{type:['direct','transplant'],anchor:'lastFrost',startOff:2,endOff:5},{type:'bloom',anchor:'lastFrost',startOff:6,endOff:15}] },
+      'Envy': { dtm: '75–90 days to bloom', phases: [{type:'indoor',anchor:'lastFrost',startOff:-3,endOff:-1},{type:'transplant',anchor:'lastFrost',startOff:2,endOff:5},{type:'bloom',anchor:'lastFrost',startOff:6,endOff:15}] },
     },
-    default: { dtm: '75–90 days to bloom', phases: [{type:'indoor',anchor:'lastFrost',startOff:-3,endOff:-1},{type:['direct','transplant'],anchor:'lastFrost',startOff:2,endOff:5},{type:'bloom',anchor:'lastFrost',startOff:6,endOff:15}] }
+    default: { dtm: '75–90 days to bloom', phases: [{type:'indoor',anchor:'lastFrost',startOff:-3,endOff:-1},{type:'transplant',anchor:'lastFrost',startOff:2,endOff:5},{type:'bloom',anchor:'lastFrost',startOff:6,endOff:15}] }
   },
   'Sunflowers': {
     varieties: {
@@ -2127,7 +2127,7 @@ function getPlants() {
       if (!db) return p;
       const entry = (p.variety && db.varieties && db.varieties[p.variety]) || db.default;
       if (!entry) return p;
-      return { ...p, months: entry.months };
+      return { ...p, months: getPlantMonths(p.name, p.variety) };
     });
   } catch(e) { return DEFAULT_PLANTS; }
 }
