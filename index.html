@@ -3558,25 +3558,6 @@ document.addEventListener('click', function(e) {
   document.querySelectorAll('#main-table tbody').forEach(tb => tb.classList.remove('has-open-panel'));
 });
 
-// ── One-time migration: refresh months for direct-sow plants so stored
-//    'transplant' phases update to 'direct' after the database change ──
-(function migrateDirectSow() {
-  const DIRECT_SOW = new Set(['Peas','Carrots','Beans','Radishes','Beets','Green Onions','Spinach','Cilantro']);
-  const plants = getPlants();
-  let changed = false;
-  plants.forEach(p => {
-    if (!DIRECT_SOW.has(p.name)) return;
-    const db = PLANT_DATABASE[p.name];
-    if (!db) return;
-    const fresh = (p.variety && db.varieties && db.varieties[p.variety])
-      ? db.varieties[p.variety].months
-      : db.default.months;
-    p.months = fresh.slice();
-    changed = true;
-  });
-  if (changed) savePlants(plants);
-})();
-
 recomputeAllMonths();
 render();
 initSheetDrag();
