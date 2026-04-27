@@ -90,7 +90,7 @@
   .legend-emoji-icon { font-size: 0.85rem; width: 22px; text-align: center; flex-shrink: 0; }
 
   .calendar-outer { background: var(--cream); border-radius: 16px; overflow: hidden; box-shadow: 0 20px 60px rgba(0,0,0,0.4); animation: fadeUp 0.7s 0.1s ease both; }
-  .table-wrap { overflow: auto; max-height: 68vh; -webkit-overflow-scrolling: touch; }
+  .table-wrap { overflow: auto; max-height: 68vh; -webkit-overflow-scrolling: touch; scroll-snap-type: x mandatory; }
 
   table { border-collapse: collapse; width: 100%; min-width: 900px; table-layout: fixed; }
 
@@ -483,7 +483,7 @@
 
   /* ── MONTH CELLS ── */
   td.hcol { padding: 5px 1px; border-left: 1px solid #ede5d8; min-width: 22px; width: 22px; vertical-align: middle; }
-  td.hcol.month-start { border-left: 2px solid #d5cab8; }
+  td.hcol.month-start { border-left: 2px solid #d5cab8; scroll-snap-align: start; }
   td.hcol.current-half-col { background: rgba(90,160,55,0.26); position: relative; z-index: 1; }
   td.hcol.current-half-col::after,
   th.current-half::after {
@@ -2214,6 +2214,7 @@ function setViewMode(mode) {
     o.classList.toggle('active', o.dataset.view === mode)
   );
   render();
+  requestAnimationFrame(() => scrollToCurrentMonth('smooth'));
 }
 
 function toggleBedCollapse(bedId) {
@@ -2616,17 +2617,11 @@ function render() {
     wrap.scrollLeft = savedScrollLeft;
   }
 
-  // One-time: scroll horizontally so today's column is centered on initial load.
-  // Deferred via double-rAF so clientWidth is readable after the browser has painted.
+  // One-time: scroll to current month on initial load.
+  // Double-rAF ensures layout is fully painted before we measure cell widths.
   if (!_hasScrolledToToday && wrap) {
-    _hasScrolledToToday = true; // set immediately so re-renders don't queue multiple scrolls
-    requestAnimationFrame(() => requestAnimationFrame(() => {
-      const now    = new Date();
-      const cellW  = 22;
-      // Align the start of the current month to the left edge of the visible area (past the sticky name col)
-      const target = now.getMonth() * 2 * cellW;
-      wrap.scrollLeft = Math.max(0, target);
-    }));
+    _hasScrolledToToday = true;
+    requestAnimationFrame(() => requestAnimationFrame(() => scrollToCurrentMonth('auto')));
   }
 }
 
@@ -3733,6 +3728,16 @@ function saveZoneSettings() {
   renderFrostIndicators();
   render();
   closeZoneModal();
+}
+
+function scrollToCurrentMonth(behavior) {
+  const wrap = document.querySelector('.table-wrap');
+  if (!wrap) return;
+  // Measure actual rendered cell width from the DOM — avoids hardcoded 22px being slightly off
+  const firstDataTh = document.querySelector('thead tr.half-row th:not(.corner)');
+  const cellW  = firstDataTh ? firstDataTh.getBoundingClientRect().width : 22;
+  const target = new Date().getMonth() * 2 * cellW;
+  wrap.scrollTo({ left: Math.max(0, target), behavior: behavior || 'auto' });
 }
 
 function initMonthSnap() {
