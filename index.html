@@ -2901,13 +2901,29 @@ function removeBed(bedId) {
 function showFrostTip(e, type) {
   e.stopPropagation();
   const tip = document.getElementById('frost-tooltip');
-  const flakeSrc = document.querySelector('.frost-snowflake img')?.src || '';
+  const flakeSrc = document.querySelector('.frost-snowflake img')?.src || window._frostFlakeSrc || '';
   const flakeHtml = flakeSrc
     ? `<img src="${flakeSrc}" style="width:1rem;height:1rem;vertical-align:middle;margin-right:5px;opacity:0.9;">`
     : '❄';
-  tip.innerHTML = type === 'spring'
-    ? `${flakeHtml}<strong>Last Spring Frost</strong><br>~March 15 · Zone 8b · Portland, OR`
-    : `${flakeHtml}<strong>First Fall Frost</strong><br>~November 15 · Zone 8b · Portland, OR`;
+
+  // Build dynamic label from saved zone settings
+  const s    = getZoneSettings();
+  const zone = s.zone || '8b';
+  const fd   = FROST_DATES[zone] || FROST_DATES['8b'];
+  const MO   = ['','Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const loc  = (s.city && s.state) ? ` · ${s.city}, ${s.state}` : (s.zip ? ` · ZIP ${s.zip}` : '');
+
+  let label;
+  if (!fd.lf) {
+    label = `Frost-free year-round · Zone ${zone}${loc}`;
+  } else if (type === 'spring') {
+    label = `~${MO[fd.lf[0]]} ${fd.lf[1]} · Zone ${zone}${loc}`;
+  } else {
+    label = `~${MO[fd.ff[0]]} ${fd.ff[1]} · Zone ${zone}${loc}`;
+  }
+
+  const title = type === 'spring' ? 'Last Spring Frost' : 'First Fall Frost';
+  tip.innerHTML = `${flakeHtml}<strong>${title}</strong><br>${label}`;
 
   // Render offscreen first so we can measure actual size
   tip.style.left    = '-9999px';
@@ -3736,10 +3752,10 @@ function saveZoneSettings() {
   }
   localStorage.setItem(ZONE_KEY, JSON.stringify(settings));
   recomputeAllMonths();
-  renderZoneDisplay();
-  renderFrostNote();
-  renderFrostIndicators();
-  render();
+  render();               // rebuild table first — must come before renderFrostIndicators()
+  renderZoneDisplay();    // update zone chips in header
+  renderFrostNote();      // update frost date sentence
+  renderFrostIndicators(); // re-stamp snowflakes on the freshly rendered table
   closeZoneModal();
 }
 
