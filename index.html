@@ -90,7 +90,7 @@
   .legend-emoji-icon { font-size: 0.85rem; width: 22px; text-align: center; flex-shrink: 0; }
 
   .calendar-outer { background: var(--cream); border-radius: 16px; overflow: hidden; box-shadow: 0 20px 60px rgba(0,0,0,0.4); animation: fadeUp 0.7s 0.1s ease both; }
-  .table-wrap { overflow: auto; max-height: 68vh; -webkit-overflow-scrolling: touch; scroll-snap-type: x mandatory; }
+  .table-wrap { overflow: auto; max-height: 68vh; -webkit-overflow-scrolling: touch; }
 
   table { border-collapse: collapse; width: 100%; min-width: 900px; table-layout: fixed; }
 
@@ -3553,6 +3553,11 @@ document.addEventListener('click', function(e) {
   document.querySelectorAll('#main-table tbody').forEach(tb => tb.classList.remove('has-open-panel'));
 });
 
+// ZONE_KEY must be declared before any function that calls getZoneSettings() runs.
+// If declared after the init sequence, it sits in the Temporal Dead Zone and every
+// getZoneSettings() call silently fails, returning Portland 8b defaults forever.
+const ZONE_KEY = 'garden_zone_v1';
+
 // Cache snowflake image src from hardcoded HTML before it gets replaced
 window._frostFlakeSrc = document.querySelector('.frost-snowflake img')?.src || '';
 
@@ -3567,7 +3572,7 @@ renderFrostIndicators();
 // ══════════════════════════════════════════════════════════════
 // ZONE / LOCATION SETTINGS
 // ══════════════════════════════════════════════════════════════
-const ZONE_KEY = 'garden_zone_v1';
+// (ZONE_KEY is declared above the init sequence to avoid the Temporal Dead Zone)
 
 function getZoneSettings() {
   try {
@@ -3596,15 +3601,23 @@ function renderZoneDisplay() {
 }
 
 function renderFrostIndicators() {
-  const { lf, ff } = getZoneFrostSlots();
   const ths = Array.from(document.querySelectorAll('thead tr.half-row th:not(.corner)'));
   if (!ths.length) return;
 
-  // Reset every cell to its default E / L label
+  // Reset every cell to its default E / L label (also clears any stale frost-l borders)
   ths.forEach((th, i) => {
     th.classList.remove('frost-l');
     th.innerHTML = i % 2 === 0 ? 'E' : 'L';
   });
+
+  // Check if the current zone is frost-free (null lf in FROST_DATES).
+  // Must check FROST_DATES directly — getZoneFrostSlots() returns { lf:0, ff:23 } for
+  // frost-free zones, but lf=0 would otherwise pass the ">= 0" guard and draw an indicator.
+  const zone = (typeof getZoneSettings === 'function' ? getZoneSettings().zone : null) || '8b';
+  const fd   = FROST_DATES[zone] || FROST_DATES['8b'];
+  if (!fd.lf) return; // frost-free zone — no frost indicators
+
+  const { lf, ff } = getZoneFrostSlots();
 
   const src = window._frostFlakeSrc || '';
   function snowflake(type) {
@@ -3743,13 +3756,19 @@ function scrollToCurrentMonth(behavior) {
 function initMonthSnap() {
   const wrap = document.querySelector('.table-wrap');
   if (!wrap) return;
-  const cellW = 22, monthW = cellW * 2; // 44px per full month
+
   function snapToNearestMonth() {
+    // Measure actual rendered cell width each time — avoids stale hardcoded values
+    const firstDataTh = document.querySelector('thead tr.half-row th:not(.corner)');
+    const cellW  = firstDataTh ? firstDataTh.getBoundingClientRect().width : 22;
+    const monthW = cellW * 2;
+    if (monthW < 1) return;
     const nearest = Math.round(wrap.scrollLeft / monthW) * monthW;
     if (Math.abs(wrap.scrollLeft - nearest) > 1) {
       wrap.scrollTo({ left: nearest, behavior: 'smooth' });
     }
   }
+
   // Use scrollend if available (Chrome 114+, Firefox 109+, Safari 17.4+)
   // Fall back to debounce for older browsers
   if ('onscrollend' in window) {
