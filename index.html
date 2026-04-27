@@ -3558,12 +3558,16 @@ document.addEventListener('click', function(e) {
   document.querySelectorAll('#main-table tbody').forEach(tb => tb.classList.remove('has-open-panel'));
 });
 
+// Cache snowflake image src from hardcoded HTML before it gets replaced
+window._frostFlakeSrc = document.querySelector('.frost-snowflake img')?.src || '';
+
 recomputeAllMonths();
 render();
 initSheetDrag();
 initMonthSnap();
 renderZoneDisplay();
 renderFrostNote();
+renderFrostIndicators();
 
 // ══════════════════════════════════════════════════════════════
 // ZONE / LOCATION SETTINGS
@@ -3594,6 +3598,34 @@ function renderZoneDisplay() {
   makeChip(`Zone ${s.zone || '8b'}`);
   if (s.city && s.state) makeChip(`${s.city}, ${s.state}`);
   else if (s.zip)        makeChip(s.zip);
+}
+
+function renderFrostIndicators() {
+  const { lf, ff } = getZoneFrostSlots();
+  const ths = Array.from(document.querySelectorAll('thead tr.half-row th:not(.corner)'));
+  if (!ths.length) return;
+
+  // Reset every cell to its default E / L label
+  ths.forEach((th, i) => {
+    th.classList.remove('frost-l');
+    th.innerHTML = i % 2 === 0 ? 'E' : 'L';
+  });
+
+  const src = window._frostFlakeSrc || '';
+  function snowflake(type) {
+    return src
+      ? `<span class="frost-snowflake" onclick="showFrostTip(event,'${type}')"><img src="${src}"></span>`
+      : `<span class="frost-snowflake" onclick="showFrostTip(event,'${type}')">❄</span>`;
+  }
+
+  if (lf >= 0 && lf < ths.length) {
+    ths[lf].classList.add('frost-l');
+    ths[lf].innerHTML = snowflake('spring');
+  }
+  if (ff >= 0 && ff < ths.length && ff !== lf) {
+    ths[ff].classList.add('frost-l');
+    ths[ff].innerHTML = snowflake('fall');
+  }
 }
 
 function renderFrostNote() {
@@ -3698,6 +3730,7 @@ function saveZoneSettings() {
   recomputeAllMonths();
   renderZoneDisplay();
   renderFrostNote();
+  renderFrostIndicators();
   render();
   closeZoneModal();
 }
