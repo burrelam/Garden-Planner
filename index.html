@@ -327,11 +327,10 @@
   .detail-coming-soon { font-style: italic; color: #aaa; font-size: 0.7rem; }
 
   /* ── FROST INDICATORS ── */
-  th.frost-l { position: relative; border-left: 3px solid rgba(0,200,255,0.70) !important; overflow: visible; }
-  #main-table tbody td:nth-child(7),
-  #main-table tbody td:nth-child(23) {
-    border-left: 3px solid rgba(0,200,255,0.70) !important;
-  }
+  /* th.frost-l  = snowflake header cell; td.frost-col = body column blue line.
+     Both are set/cleared dynamically by renderFrostIndicators() — no hardcoded nth-child. */
+  th.frost-l  { position: relative; border-left: 3px solid rgba(0,200,255,0.70) !important; overflow: visible; }
+  td.frost-col { border-left: 3px solid rgba(0,200,255,0.70) !important; }
   .frost-snowflake {
     position: absolute; left: -1px; top: 50%;
     transform: translate(-50%, -50%);
@@ -2911,7 +2910,7 @@ function showFrostTip(e, type) {
   const zone = s.zone || '8b';
   const fd   = FROST_DATES[zone] || FROST_DATES['8b'];
   const MO   = ['','Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-  const loc  = (s.city && s.state) ? ` · ${s.city}, ${s.state}` : (s.zip ? ` · ZIP ${s.zip}` : '');
+  const loc  = (s.city && s.state) ? ` · ${s.city}, ${s.state}` : '';
 
   let label;
   if (!fd.lf) {
@@ -3618,20 +3617,24 @@ function renderZoneDisplay() {
 
 function renderFrostIndicators() {
   const ths = Array.from(document.querySelectorAll('thead tr.half-row th:not(.corner)'));
-  if (!ths.length) return;
 
-  // Reset every cell to its default E / L label (also clears any stale frost-l borders)
+  // Always clear stale header frost marks and body frost-col lines first,
+  // so switching to any zone (including frost-free) leaves a clean state.
   ths.forEach((th, i) => {
     th.classList.remove('frost-l');
     th.innerHTML = i % 2 === 0 ? 'E' : 'L';
   });
+  document.querySelectorAll('#main-table tbody td.frost-col')
+          .forEach(td => td.classList.remove('frost-col'));
+
+  if (!ths.length) return;
 
   // Check if the current zone is frost-free (null lf in FROST_DATES).
   // Must check FROST_DATES directly — getZoneFrostSlots() returns { lf:0, ff:23 } for
-  // frost-free zones, but lf=0 would otherwise pass the ">= 0" guard and draw an indicator.
+  // frost-free zones, and lf=0 would otherwise pass the ">= 0" guard and draw indicators.
   const zone = (typeof getZoneSettings === 'function' ? getZoneSettings().zone : null) || '8b';
   const fd   = FROST_DATES[zone] || FROST_DATES['8b'];
-  if (!fd.lf) return; // frost-free zone — no frost indicators
+  if (!fd.lf) return; // frost-free zone — no indicators at all
 
   const { lf, ff } = getZoneFrostSlots();
 
@@ -3642,6 +3645,7 @@ function renderFrostIndicators() {
       : `<span class="frost-snowflake" onclick="showFrostTip(event,'${type}')">❄</span>`;
   }
 
+  // Header: snowflake + blue left border on the correct th
   if (lf >= 0 && lf < ths.length) {
     ths[lf].classList.add('frost-l');
     ths[lf].innerHTML = snowflake('spring');
@@ -3649,6 +3653,16 @@ function renderFrostIndicators() {
   if (ff >= 0 && ff < ths.length && ff !== lf) {
     ths[ff].classList.add('frost-l');
     ths[ff].innerHTML = snowflake('fall');
+  }
+
+  // Body: add frost-col to the matching td.hcol in every plant row.
+  // Row layout: td (name, nth-child 1) + 24 td.hcol (nth-child 2–25).
+  // Slot index `n` → nth-child(n + 2).
+  document.querySelectorAll(`#main-table tbody td.hcol:nth-child(${lf + 2})`)
+          .forEach(td => td.classList.add('frost-col'));
+  if (ff !== lf) {
+    document.querySelectorAll(`#main-table tbody td.hcol:nth-child(${ff + 2})`)
+            .forEach(td => td.classList.add('frost-col'));
   }
 }
 
