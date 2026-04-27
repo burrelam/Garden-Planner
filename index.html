@@ -247,7 +247,7 @@
   .plant-name { display: block; font-family: 'Playfair Display', serif; font-size: clamp(0.78rem, 2.2vw, 0.92rem); font-weight: 700; color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 1.2; flex: 1; min-width: 0; }
   .plant-variety { display: block; font-size: clamp(0.60rem, 1.8vw, 0.70rem); color: #7a6a58; font-weight: 400; font-style: italic; line-height: 1.2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex: 1; min-width: 0; padding-right: 3px; }
   .compat-icons { font-size: 0.7rem; flex-shrink: 0; display: flex; flex-direction: column; align-items: center; gap: 1px; line-height: 1; }
-  .plant-name-row { display: flex; align-items: flex-start; justify-content: space-between; gap: 2px; overflow: hidden; }
+  .plant-name-row { display: flex; align-items: center; justify-content: space-between; gap: 2px; overflow: visible; }
   .plant-dtm { font-size: 0.70rem; color: #9a8a78; font-weight: 300; }
   .plant-qty { font-size: 0.75rem; color: var(--moss); font-weight: 600; }
   .plant-badge { font-size: 0.62rem; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; }
@@ -327,11 +327,10 @@
   .detail-coming-soon { font-style: italic; color: #aaa; font-size: 0.7rem; }
 
   /* ── FROST INDICATORS ── */
-  th.frost-l { position: relative; border-left: 3px solid rgba(0,200,255,0.70) !important; overflow: visible; }
-  #main-table tbody td:nth-child(7),
-  #main-table tbody td:nth-child(23) {
-    border-left: 3px solid rgba(0,200,255,0.70) !important;
-  }
+  /* th.frost-l  = snowflake header cell; td.frost-col = body column blue line.
+     Both are set/cleared dynamically by renderFrostIndicators() — no hardcoded nth-child. */
+  th.frost-l  { position: relative; border-left: 3px solid rgba(0,200,255,0.70) !important; overflow: visible; }
+  td.frost-col { border-left: 3px solid rgba(0,200,255,0.70) !important; }
   .frost-snowflake {
     position: absolute; left: -1px; top: 50%;
     transform: translate(-50%, -50%);
@@ -483,7 +482,7 @@
 
   /* ── MONTH CELLS ── */
   td.hcol { padding: 5px 1px; border-left: 1px solid #ede5d8; min-width: 22px; width: 22px; vertical-align: middle; }
-  td.hcol.month-start { border-left: 2px solid #d5cab8; }
+  td.hcol.month-start { border-left: 2px solid #d5cab8; scroll-snap-align: start; }
   td.hcol.current-half-col { background: rgba(90,160,55,0.26); position: relative; z-index: 1; }
   td.hcol.current-half-col::after,
   th.current-half::after {
@@ -664,9 +663,15 @@
   .snapshot-empty { padding: 10px 12px; font-size: 0.68rem; color: #aaa; font-style: italic; }
 
   /* ── ZONE / LOCATION SETTINGS ── */
-  .zone-display { display: inline-flex; align-items: center; gap: 6px; }
-  .zone-edit-btn { background: none; border: none; cursor: pointer; font-size: 0.78rem; opacity: 0.55; transition: opacity 0.15s; padding: 1px 3px; color: var(--cream); line-height: 1; }
-  .zone-edit-btn:hover { opacity: 1; }
+  .zone-display { display: inline-flex; align-items: center; gap: 6px; flex-wrap: wrap; justify-content: center; }
+  .zone-chip {
+    background: rgba(255,255,255,0.13); border: 1px solid rgba(255,255,255,0.28);
+    color: var(--cream); font-family: 'DM Sans', sans-serif;
+    font-size: 0.75rem; font-weight: 500; letter-spacing: 0.03em;
+    padding: 3px 11px; border-radius: 20px; cursor: pointer;
+    transition: background 0.15s; line-height: 1.6;
+  }
+  .zone-chip:hover { background: rgba(255,255,255,0.24); }
   #zone-modal-overlay { display: none; position: fixed; inset: 0; background: rgba(40,25,15,0.75); z-index: 300; align-items: center; justify-content: center; padding: 20px; }
   #zone-modal-overlay.open { display: flex; }
   .zone-modal { background: var(--cream); border-radius: 14px; padding: 24px; width: 100%; max-width: 380px; box-shadow: 0 24px 60px rgba(0,0,0,0.5); animation: fadeUp 0.25s ease both; }
@@ -694,7 +699,7 @@
 <div class="page-wrap">
   <header>
     <h1>🌱 My Garden Planting Calendar</h1>
-    <p class="zone-display"><span id="zone-display-text">Zone 8b · Portland, OR · 97201</span><button class="zone-edit-btn" onclick="openZoneModal()" title="Change location">✏️</button></p>
+    <p class="zone-display" id="zone-display"></p>
   </header>
   <div class="frost-note">
     <strong>Zone 8b Frost Dates:</strong> Last frost ~<strong>Mar 15</strong> · First fall frost ~<strong>Nov 15</strong> · Growing season ≈ 245 days
@@ -992,247 +997,329 @@ function makeMonths(segments) {
   return arr;
 }
 
+// ══════════════════════════════════════════════════════════════
+// FROST DATES BY USDA ZONE  (average last spring / first fall frost)
+// lf = [month1indexed, day], ff = [month1indexed, day]
+// null = frost-free zone (full year growing)
+// ══════════════════════════════════════════════════════════════
+const FROST_DATES = {
+  '1a':  { lf:[6,1],  ff:[9,1]  }, '1b':  { lf:[5,15], ff:[9,15] },
+  '2a':  { lf:[5,15], ff:[9,15] }, '2b':  { lf:[5,1],  ff:[9,30] },
+  '3a':  { lf:[5,15], ff:[9,15] }, '3b':  { lf:[5,1],  ff:[10,1] },
+  '4a':  { lf:[5,1],  ff:[10,1] }, '4b':  { lf:[4,15], ff:[10,15]},
+  '5a':  { lf:[4,15], ff:[10,15]}, '5b':  { lf:[4,1],  ff:[10,31]},
+  '6a':  { lf:[4,1],  ff:[10,31]}, '6b':  { lf:[3,15], ff:[11,15]},
+  '7a':  { lf:[3,31], ff:[11,15]}, '7b':  { lf:[3,1],  ff:[11,30]},
+  '8a':  { lf:[3,1],  ff:[11,30]}, '8b':  { lf:[3,15], ff:[11,15]},
+  '9a':  { lf:[2,15], ff:[12,15]}, '9b':  { lf:[2,1],  ff:[12,31]},
+  '10a': { lf:[1,31], ff:[12,31]}, '10b': { lf:null,   ff:null   },
+  '11a': { lf:null,   ff:null   }, '11b': { lf:null,   ff:null   },
+  '12a': { lf:null,   ff:null   }, '12b': { lf:null,   ff:null   },
+  '13a': { lf:null,   ff:null   }, '13b': { lf:null,   ff:null   },
+};
+
+// Convert a frost date entry to a half-month slot index (0–23)
+function dateToSlot(m1, d) { return (m1 - 1) * 2 + (d > 15 ? 1 : 0); }
+
+// Return { lf, ff } slot indices for the currently saved zone
+function getZoneFrostSlots(zoneOverride) {
+  const zone = zoneOverride || (getZoneSettings ? getZoneSettings().zone : null) || '8b';
+  const fd   = FROST_DATES[zone] || FROST_DATES['8b'];
+  if (!fd.lf) return { lf: 0, ff: 23 };   // frost-free: full growing year
+  return { lf: dateToSlot(fd.lf[0], fd.lf[1]), ff: dateToSlot(fd.ff[0], fd.ff[1]) };
+}
+
+// Build the 24-slot months array from frost-relative phase definitions
+// Each phase: { type: string|array, anchor: 'lastFrost'|'firstFrost', startOff: int, endOff: int }
+function phasesToMonths(phases, lf, ff) {
+  const arr = Array(24).fill(null);
+  phases.forEach(({ type, anchor, startOff, endOff }) => {
+    const base = anchor === 'firstFrost' ? ff : lf;
+    const s = Math.max(0, Math.min(23, base + startOff));
+    const e = Math.max(0, Math.min(23, base + endOff));
+    for (let i = s; i <= e; i++) arr[i] = type;
+  });
+  return arr;
+}
+
+// Get computed months array for a plant name + variety in the current zone
+function getPlantMonths(plantName, variety) {
+  const db = PLANT_DATABASE[plantName];
+  if (!db) return Array(24).fill(null);
+  const varEntry = (variety && db.varieties && db.varieties[variety]) ? db.varieties[variety] : null;
+  const phases   = (varEntry && varEntry.phases) ? varEntry.phases
+                 : (db.default && db.default.phases)  ? db.default.phases
+                 : null;
+  if (!phases) {
+    // Legacy fallback: return pre-computed months if no phases defined
+    return (varEntry && varEntry.months) || (db.default && db.default.months) || Array(24).fill(null);
+  }
+  const { lf, ff } = getZoneFrostSlots();
+  return phasesToMonths(phases, lf, ff);
+}
+
+// Recompute and persist months for every saved plant (call after zone change)
+function recomputeAllMonths() {
+  const plants = getPlants();
+  let changed = false;
+  plants.forEach(p => {
+    const newMonths = getPlantMonths(p.name, p.variety);
+    if (JSON.stringify(newMonths) !== JSON.stringify(p.months)) {
+      p.months  = newMonths;
+      changed   = true;
+    }
+  });
+  if (changed) savePlants(plants);
+}
+
 const PLANT_DATABASE = {
   'Tomato': {
     varieties: {
-      'Roma':            { dtm: '75–80 days', months: makeMonths([[0,6,'indoor'],[7,9,'transplant'],[14,19,'harvest']]) },
-      'Cherokee Purple': { dtm: '80–90 days', months: makeMonths([[0,6,'indoor'],[7,9,'transplant'],[14,19,'harvest']]) },
-      'Cherry':          { dtm: '60–70 days', months: makeMonths([[0,6,'indoor'],[7,9,'transplant'],[14,19,'harvest']]) },
-      'Beefsteak':       { dtm: '85–95 days', months: makeMonths([[0,6,'indoor'],[7,9,'transplant'],[14,19,'harvest']]) },
-      'San Marzano':           { dtm: '80–90 days', months: makeMonths([[0,6,'indoor'],[7,9,'transplant'],[14,19,'harvest']]) },
-      'Amish Paste':           { dtm: '80–85 days', months: makeMonths([[0,6,'indoor'],[7,9,'transplant'],[14,19,'harvest']]) },
-      'Black Krim':            { dtm: '75–90 days', months: makeMonths([[0,6,'indoor'],[7,9,'transplant'],[13,19,'harvest']]) },
-      'Early Girl':            { dtm: '60–69 days', months: makeMonths([[0,6,'indoor'],[7,9,'transplant'],[11,19,'harvest']]) },
-      // — From Tomatoes.rtf —
-      'Arkansas Traveler':     { dtm: '75–80 days', months: makeMonths([[0,6,'indoor'],[7,9,'transplant'],[13,19,'harvest']]) },
-      "Aunt Ruby's German Green": { dtm: '80–85 days', months: makeMonths([[0,6,'indoor'],[7,9,'transplant'],[14,19,'harvest']]) },
-      "Barry's Crazy Cherry":  { dtm: '65–75 days', months: makeMonths([[0,6,'indoor'],[7,9,'transplant'],[11,19,'harvest']]) },
-      'Big Rainbow':           { dtm: '80–90 days', months: makeMonths([[0,6,'indoor'],[7,9,'transplant'],[14,19,'harvest']]) },
-      'Black Cherry':          { dtm: '64–70 days', months: makeMonths([[0,6,'indoor'],[7,9,'transplant'],[11,19,'harvest']]) },
-      'Black Strawberry':      { dtm: '70–75 days', months: makeMonths([[0,6,'indoor'],[7,9,'transplant'],[12,19,'harvest']]) },
-      'Blue Beauty':           { dtm: '75–80 days', months: makeMonths([[0,6,'indoor'],[7,9,'transplant'],[13,19,'harvest']]) },
-      'Blue Beech':            { dtm: '78–85 days', months: makeMonths([[0,6,'indoor'],[7,9,'transplant'],[13,19,'harvest']]) },
-      // — From Plum Tomatoes.rtf —
-      'Federle':               { dtm: '80–85 days', months: makeMonths([[0,6,'indoor'],[7,9,'transplant'],[14,19,'harvest']]) },
-      'Hungarian Heart':       { dtm: '65–75 days', months: makeMonths([[0,6,'indoor'],[7,9,'transplant'],[11,19,'harvest']]) },
-      'Jersey Devil':          { dtm: '80–85 days', months: makeMonths([[0,6,'indoor'],[7,9,'transplant'],[14,19,'harvest']]) },
-      'Opalka':                { dtm: '75–80 days', months: makeMonths([[0,6,'indoor'],[7,9,'transplant'],[13,19,'harvest']]) },
-      'Rio Grande':            { dtm: '70–75 days', months: makeMonths([[0,6,'indoor'],[7,9,'transplant'],[12,19,'harvest']]) },
-      'Speckled Roman':        { dtm: '78–85 days', months: makeMonths([[0,6,'indoor'],[7,9,'transplant'],[13,19,'harvest']]) },
-      'Striped Roman':         { dtm: '78–85 days', months: makeMonths([[0,6,'indoor'],[7,9,'transplant'],[13,19,'harvest']]) },
+      'Roma':            { dtm: '75–80 days',   phases: [{type:'indoor',anchor:'lastFrost',startOff:-4,endOff:2},{type:'transplant',anchor:'lastFrost',startOff:3,endOff:5},{type:'harvest',anchor:'lastFrost',startOff:10,endOff:15}] },
+      'Cherokee Purple': { dtm: '80–90 days',   phases: [{type:'indoor',anchor:'lastFrost',startOff:-4,endOff:2},{type:'transplant',anchor:'lastFrost',startOff:3,endOff:5},{type:'harvest',anchor:'lastFrost',startOff:10,endOff:15}] },
+      'Cherry':          { dtm: '60–70 days',   phases: [{type:'indoor',anchor:'lastFrost',startOff:-4,endOff:2},{type:'transplant',anchor:'lastFrost',startOff:3,endOff:5},{type:'harvest',anchor:'lastFrost',startOff:7,endOff:15}] },
+      'Beefsteak':       { dtm: '85–95 days',   phases: [{type:'indoor',anchor:'lastFrost',startOff:-4,endOff:2},{type:'transplant',anchor:'lastFrost',startOff:3,endOff:5},{type:'harvest',anchor:'lastFrost',startOff:10,endOff:15}] },
+      'San Marzano':     { dtm: '80–90 days',   phases: [{type:'indoor',anchor:'lastFrost',startOff:-4,endOff:2},{type:'transplant',anchor:'lastFrost',startOff:3,endOff:5},{type:'harvest',anchor:'lastFrost',startOff:10,endOff:15}] },
+      'Amish Paste':     { dtm: '80–85 days',   phases: [{type:'indoor',anchor:'lastFrost',startOff:-4,endOff:2},{type:'transplant',anchor:'lastFrost',startOff:3,endOff:5},{type:'harvest',anchor:'lastFrost',startOff:10,endOff:15}] },
+      'Black Krim':      { dtm: '75–90 days',   phases: [{type:'indoor',anchor:'lastFrost',startOff:-4,endOff:2},{type:'transplant',anchor:'lastFrost',startOff:3,endOff:5},{type:'harvest',anchor:'lastFrost',startOff:9,endOff:15}] },
+      'Early Girl':      { dtm: '60–69 days',   phases: [{type:'indoor',anchor:'lastFrost',startOff:-4,endOff:2},{type:'transplant',anchor:'lastFrost',startOff:3,endOff:5},{type:'harvest',anchor:'lastFrost',startOff:7,endOff:15}] },
+      'Arkansas Traveler':           { dtm: '75–80 days',  phases: [{type:'indoor',anchor:'lastFrost',startOff:-4,endOff:2},{type:'transplant',anchor:'lastFrost',startOff:3,endOff:5},{type:'harvest',anchor:'lastFrost',startOff:9,endOff:15}] },
+      "Aunt Ruby's German Green":    { dtm: '80–85 days',  phases: [{type:'indoor',anchor:'lastFrost',startOff:-4,endOff:2},{type:'transplant',anchor:'lastFrost',startOff:3,endOff:5},{type:'harvest',anchor:'lastFrost',startOff:10,endOff:15}] },
+      "Barry's Crazy Cherry":        { dtm: '65–75 days',  phases: [{type:'indoor',anchor:'lastFrost',startOff:-4,endOff:2},{type:'transplant',anchor:'lastFrost',startOff:3,endOff:5},{type:'harvest',anchor:'lastFrost',startOff:7,endOff:15}] },
+      'Big Rainbow':                 { dtm: '80–90 days',  phases: [{type:'indoor',anchor:'lastFrost',startOff:-4,endOff:2},{type:'transplant',anchor:'lastFrost',startOff:3,endOff:5},{type:'harvest',anchor:'lastFrost',startOff:10,endOff:15}] },
+      'Black Cherry':                { dtm: '64–70 days',  phases: [{type:'indoor',anchor:'lastFrost',startOff:-4,endOff:2},{type:'transplant',anchor:'lastFrost',startOff:3,endOff:5},{type:'harvest',anchor:'lastFrost',startOff:7,endOff:15}] },
+      'Black Strawberry':            { dtm: '70–75 days',  phases: [{type:'indoor',anchor:'lastFrost',startOff:-4,endOff:2},{type:'transplant',anchor:'lastFrost',startOff:3,endOff:5},{type:'harvest',anchor:'lastFrost',startOff:8,endOff:15}] },
+      'Blue Beauty':                 { dtm: '75–80 days',  phases: [{type:'indoor',anchor:'lastFrost',startOff:-4,endOff:2},{type:'transplant',anchor:'lastFrost',startOff:3,endOff:5},{type:'harvest',anchor:'lastFrost',startOff:9,endOff:15}] },
+      'Blue Beech':                  { dtm: '78–85 days',  phases: [{type:'indoor',anchor:'lastFrost',startOff:-4,endOff:2},{type:'transplant',anchor:'lastFrost',startOff:3,endOff:5},{type:'harvest',anchor:'lastFrost',startOff:9,endOff:15}] },
+      'Federle':                     { dtm: '80–85 days',  phases: [{type:'indoor',anchor:'lastFrost',startOff:-4,endOff:2},{type:'transplant',anchor:'lastFrost',startOff:3,endOff:5},{type:'harvest',anchor:'lastFrost',startOff:10,endOff:15}] },
+      'Hungarian Heart':             { dtm: '65–75 days',  phases: [{type:'indoor',anchor:'lastFrost',startOff:-4,endOff:2},{type:'transplant',anchor:'lastFrost',startOff:3,endOff:5},{type:'harvest',anchor:'lastFrost',startOff:7,endOff:15}] },
+      'Jersey Devil':                { dtm: '80–85 days',  phases: [{type:'indoor',anchor:'lastFrost',startOff:-4,endOff:2},{type:'transplant',anchor:'lastFrost',startOff:3,endOff:5},{type:'harvest',anchor:'lastFrost',startOff:10,endOff:15}] },
+      'Opalka':                      { dtm: '75–80 days',  phases: [{type:'indoor',anchor:'lastFrost',startOff:-4,endOff:2},{type:'transplant',anchor:'lastFrost',startOff:3,endOff:5},{type:'harvest',anchor:'lastFrost',startOff:9,endOff:15}] },
+      'Rio Grande':                  { dtm: '70–75 days',  phases: [{type:'indoor',anchor:'lastFrost',startOff:-4,endOff:2},{type:'transplant',anchor:'lastFrost',startOff:3,endOff:5},{type:'harvest',anchor:'lastFrost',startOff:8,endOff:15}] },
+      'Speckled Roman':              { dtm: '78–85 days',  phases: [{type:'indoor',anchor:'lastFrost',startOff:-4,endOff:2},{type:'transplant',anchor:'lastFrost',startOff:3,endOff:5},{type:'harvest',anchor:'lastFrost',startOff:9,endOff:15}] },
+      'Striped Roman':               { dtm: '78–85 days',  phases: [{type:'indoor',anchor:'lastFrost',startOff:-4,endOff:2},{type:'transplant',anchor:'lastFrost',startOff:3,endOff:5},{type:'harvest',anchor:'lastFrost',startOff:9,endOff:15}] },
     },
-    default: { dtm: '70–90 days', months: makeMonths([[0,6,'indoor'],[7,9,'transplant'],[14,19,'harvest']]) }
+    default: { dtm: '70–90 days', phases: [{type:'indoor',anchor:'lastFrost',startOff:-4,endOff:2},{type:'transplant',anchor:'lastFrost',startOff:3,endOff:5},{type:'harvest',anchor:'lastFrost',startOff:10,endOff:15}] }
   },
   'Pepper': {
     varieties: {
-      'Jalapeño':  { dtm: '70–85 days', months: makeMonths([[0,5,'indoor'],[7,9,'transplant'],[14,19,'harvest']]) },
-      'Shishito':  { dtm: '60–75 days', months: makeMonths([[0,5,'indoor'],[7,9,'transplant'],[14,19,'harvest']]) },
-      'Serrano':   { dtm: '75–90 days', months: makeMonths([[0,5,'indoor'],[7,9,'transplant'],[14,19,'harvest']]) },
-      'Bell':      { dtm: '70–85 days', months: makeMonths([[0,5,'indoor'],[7,9,'transplant'],[14,19,'harvest']]) },
-      'Habanero':  { dtm: '100–120 days', months: makeMonths([[0,5,'indoor'],[7,9,'transplant'],[14,19,'harvest']]) },
+      'Jalapeño': { dtm: '70–85 days',   phases: [{type:'indoor',anchor:'lastFrost',startOff:-4,endOff:1},{type:'transplant',anchor:'lastFrost',startOff:3,endOff:5},{type:'harvest',anchor:'lastFrost',startOff:10,endOff:15}] },
+      'Shishito': { dtm: '60–75 days',   phases: [{type:'indoor',anchor:'lastFrost',startOff:-4,endOff:1},{type:'transplant',anchor:'lastFrost',startOff:3,endOff:5},{type:'harvest',anchor:'lastFrost',startOff:10,endOff:15}] },
+      'Serrano':  { dtm: '75–90 days',   phases: [{type:'indoor',anchor:'lastFrost',startOff:-4,endOff:1},{type:'transplant',anchor:'lastFrost',startOff:3,endOff:5},{type:'harvest',anchor:'lastFrost',startOff:10,endOff:15}] },
+      'Bell':     { dtm: '70–85 days',   phases: [{type:'indoor',anchor:'lastFrost',startOff:-4,endOff:1},{type:'transplant',anchor:'lastFrost',startOff:3,endOff:5},{type:'harvest',anchor:'lastFrost',startOff:10,endOff:15}] },
+      'Habanero': { dtm: '100–120 days', phases: [{type:'indoor',anchor:'lastFrost',startOff:-4,endOff:1},{type:'transplant',anchor:'lastFrost',startOff:3,endOff:5},{type:'harvest',anchor:'lastFrost',startOff:10,endOff:15}] },
     },
-    default: { dtm: '70–90 days', months: makeMonths([[0,5,'indoor'],[7,9,'transplant'],[14,19,'harvest']]) }
+    default: { dtm: '70–90 days', phases: [{type:'indoor',anchor:'lastFrost',startOff:-4,endOff:1},{type:'transplant',anchor:'lastFrost',startOff:3,endOff:5},{type:'harvest',anchor:'lastFrost',startOff:10,endOff:15}] }
   },
   'Peas': {
     varieties: {
-      'Sugar Snap': { dtm: '60–70 days', months: makeMonths([[2,5,'direct'],[6,11,'harvest'],[14,15,'direct'],[18,21,'harvest']]) },
-      'Snow Pea':   { dtm: '55–70 days', months: makeMonths([[2,5,'direct'],[6,11,'harvest'],[14,15,'direct'],[18,21,'harvest']]) },
-      'Shelling':   { dtm: '70–80 days', months: makeMonths([[2,5,'direct'],[6,11,'harvest'],[14,15,'direct'],[18,21,'harvest']]) },
+      'Sugar Snap': { dtm: '60–70 days', phases: [{type:'direct',anchor:'lastFrost',startOff:-2,endOff:1},{type:'harvest',anchor:'lastFrost',startOff:2,endOff:7},{type:'direct',anchor:'firstFrost',startOff:-6,endOff:-5},{type:'harvest',anchor:'firstFrost',startOff:-2,endOff:1}] },
+      'Snow Pea':   { dtm: '55–70 days', phases: [{type:'direct',anchor:'lastFrost',startOff:-2,endOff:1},{type:'harvest',anchor:'lastFrost',startOff:2,endOff:7},{type:'direct',anchor:'firstFrost',startOff:-6,endOff:-5},{type:'harvest',anchor:'firstFrost',startOff:-2,endOff:1}] },
+      'Shelling':   { dtm: '70–80 days', phases: [{type:'direct',anchor:'lastFrost',startOff:-2,endOff:1},{type:'harvest',anchor:'lastFrost',startOff:2,endOff:7},{type:'direct',anchor:'firstFrost',startOff:-6,endOff:-5},{type:'harvest',anchor:'firstFrost',startOff:-2,endOff:1}] },
     },
-    default: { dtm: '60–80 days', months: makeMonths([[2,5,'direct'],[6,11,'harvest'],[14,15,'direct'],[18,21,'harvest']]) }
+    default: { dtm: '60–80 days', phases: [{type:'direct',anchor:'lastFrost',startOff:-2,endOff:1},{type:'harvest',anchor:'lastFrost',startOff:2,endOff:7},{type:'direct',anchor:'firstFrost',startOff:-6,endOff:-5},{type:'harvest',anchor:'firstFrost',startOff:-2,endOff:1}] }
   },
   'Lettuce': {
     varieties: {
-      'Mix':        { dtm: '45–60 days', months: makeMonths([[0,3,'indoor'],[4,7,'transplant'],[8,11,'harvest'],[14,17,'transplant'],[18,21,'harvest']]) },
-      'Butterhead': { dtm: '55–75 days', months: makeMonths([[0,3,'indoor'],[4,7,'transplant'],[8,11,'harvest'],[14,17,'transplant'],[18,21,'harvest']]) },
-      'Romaine':    { dtm: '70–75 days', months: makeMonths([[0,3,'indoor'],[4,7,'transplant'],[8,11,'harvest'],[14,17,'transplant'],[18,21,'harvest']]) },
+      'Mix':        { dtm: '45–60 days', phases: [{type:'indoor',anchor:'lastFrost',startOff:-4,endOff:-1},{type:'transplant',anchor:'lastFrost',startOff:0,endOff:3},{type:'harvest',anchor:'lastFrost',startOff:4,endOff:7},{type:'transplant',anchor:'firstFrost',startOff:-6,endOff:-3},{type:'harvest',anchor:'firstFrost',startOff:-2,endOff:1}] },
+      'Butterhead': { dtm: '55–75 days', phases: [{type:'indoor',anchor:'lastFrost',startOff:-4,endOff:-1},{type:'transplant',anchor:'lastFrost',startOff:0,endOff:3},{type:'harvest',anchor:'lastFrost',startOff:4,endOff:7},{type:'transplant',anchor:'firstFrost',startOff:-6,endOff:-3},{type:'harvest',anchor:'firstFrost',startOff:-2,endOff:1}] },
+      'Romaine':    { dtm: '70–75 days', phases: [{type:'indoor',anchor:'lastFrost',startOff:-4,endOff:-1},{type:'transplant',anchor:'lastFrost',startOff:0,endOff:3},{type:'harvest',anchor:'lastFrost',startOff:4,endOff:7},{type:'transplant',anchor:'firstFrost',startOff:-6,endOff:-3},{type:'harvest',anchor:'firstFrost',startOff:-2,endOff:1}] },
     },
-    default: { dtm: '45–75 days', months: makeMonths([[0,3,'indoor'],[4,7,'transplant'],[8,11,'harvest'],[14,17,'transplant'],[18,21,'harvest']]) }
+    default: { dtm: '45–75 days', phases: [{type:'indoor',anchor:'lastFrost',startOff:-4,endOff:-1},{type:'transplant',anchor:'lastFrost',startOff:0,endOff:3},{type:'harvest',anchor:'lastFrost',startOff:4,endOff:7},{type:'transplant',anchor:'firstFrost',startOff:-6,endOff:-3},{type:'harvest',anchor:'firstFrost',startOff:-2,endOff:1}] }
   },
   'Carrots': {
     varieties: {
-      'Kyoto Red':    { dtm: '70–80 days', months: makeMonths([[4,7,'direct'],[10,13,'harvest'],[14,15,'direct'],[18,23,'harvest']]) },
-      'Imperator 58': { dtm: '75–80 days', months: makeMonths([[4,7,'direct'],[10,13,'harvest'],[14,15,'direct'],[18,23,'harvest']]) },
+      'Kyoto Red':    { dtm: '70–80 days', phases: [{type:'direct',anchor:'lastFrost',startOff:0,endOff:3},{type:'harvest',anchor:'lastFrost',startOff:6,endOff:9},{type:'direct',anchor:'firstFrost',startOff:-6,endOff:-5},{type:'harvest',anchor:'firstFrost',startOff:-2,endOff:3}] },
+      'Imperator 58': { dtm: '75–80 days', phases: [{type:'direct',anchor:'lastFrost',startOff:0,endOff:3},{type:'harvest',anchor:'lastFrost',startOff:6,endOff:9},{type:'direct',anchor:'firstFrost',startOff:-6,endOff:-5},{type:'harvest',anchor:'firstFrost',startOff:-2,endOff:3}] },
     },
-    default: { dtm: '70–80 days', months: makeMonths([[4,7,'direct'],[10,13,'harvest'],[14,15,'direct'],[18,23,'harvest']]) }
+    default: { dtm: '70–80 days', phases: [{type:'direct',anchor:'lastFrost',startOff:0,endOff:3},{type:'harvest',anchor:'lastFrost',startOff:6,endOff:9},{type:'direct',anchor:'firstFrost',startOff:-6,endOff:-5},{type:'harvest',anchor:'firstFrost',startOff:-2,endOff:3}] }
   },
   'Celery': {
     varieties: {
-      'Utah 52-70': { dtm: '100–130 days', months: makeMonths([[2,4,'indoor'],[5,9,'transplant'],[12,19,'harvest']]) },
+      'Utah 52-70': { dtm: '100–130 days', phases: [{type:'indoor',anchor:'lastFrost',startOff:-2,endOff:0},{type:'transplant',anchor:'lastFrost',startOff:1,endOff:5},{type:'harvest',anchor:'lastFrost',startOff:8,endOff:15}] },
     },
-    default: { dtm: '80–120 days', months: makeMonths([[2,4,'indoor'],[5,9,'transplant'],[12,19,'harvest']]) }
+    default: { dtm: '80–120 days', phases: [{type:'indoor',anchor:'lastFrost',startOff:-2,endOff:0},{type:'transplant',anchor:'lastFrost',startOff:1,endOff:5},{type:'harvest',anchor:'lastFrost',startOff:8,endOff:15}] }
   },
   'Beans': {
     varieties: {
-      'Purple String':    { dtm: '50–60 days', months: makeMonths([[7,9,'direct'],[12,15,'harvest']]) },
-      'Green Bush':       { dtm: '50–60 days', months: makeMonths([[7,9,'direct'],[12,15,'harvest']]) },
-      'Pole Bean':        { dtm: '60–70 days', months: makeMonths([[7,9,'direct'],[12,15,'harvest']]) },
-      'Blue Lake 274':    { dtm: '55–65 days', months: makeMonths([[7,9,'direct'],[12,15,'harvest']]) },
-      'Royalty Purple Pod':{ dtm: '50–60 days', months: makeMonths([[7,9,'direct'],[12,15,'harvest']]) },
+      'Purple String':     { dtm: '50–60 days', phases: [{type:'direct',anchor:'lastFrost',startOff:3,endOff:5},{type:'harvest',anchor:'lastFrost',startOff:8,endOff:11}] },
+      'Green Bush':        { dtm: '50–60 days', phases: [{type:'direct',anchor:'lastFrost',startOff:3,endOff:5},{type:'harvest',anchor:'lastFrost',startOff:8,endOff:11}] },
+      'Pole Bean':         { dtm: '60–70 days', phases: [{type:'direct',anchor:'lastFrost',startOff:3,endOff:5},{type:'harvest',anchor:'lastFrost',startOff:8,endOff:11}] },
+      'Blue Lake 274':     { dtm: '55–65 days', phases: [{type:'direct',anchor:'lastFrost',startOff:3,endOff:5},{type:'harvest',anchor:'lastFrost',startOff:8,endOff:11}] },
+      'Royalty Purple Pod':{ dtm: '50–60 days', phases: [{type:'direct',anchor:'lastFrost',startOff:3,endOff:5},{type:'harvest',anchor:'lastFrost',startOff:8,endOff:11}] },
     },
-    default: { dtm: '50–70 days', months: makeMonths([[7,9,'direct'],[12,15,'harvest']]) }
+    default: { dtm: '50–70 days', phases: [{type:'direct',anchor:'lastFrost',startOff:3,endOff:5},{type:'harvest',anchor:'lastFrost',startOff:8,endOff:11}] }
   },
   'Cucumbers': {
     varieties: {
-      'Slicing':              { dtm: '55–65 days', months: makeMonths([[6,6,'indoor'],[9,11,'transplant'],[12,17,'harvest']]) },
-      'Pickling':             { dtm: '50–55 days', months: makeMonths([[6,6,'indoor'],[9,11,'transplant'],[12,17,'harvest']]) },
-      'Arkansas Little Leaf': { dtm: '50–59 days', months: makeMonths([[6,6,'indoor'],[9,11,'transplant'],[12,17,'harvest']]) },
-      'Armenian':             { dtm: '60–69 days', months: makeMonths([[6,6,'indoor'],[9,11,'transplant'],[12,17,'harvest']]) },
-      'Beit Alpha':           { dtm: '55–65 days', months: makeMonths([[6,6,'indoor'],[9,11,'transplant'],[12,17,'harvest']]) },
-      'Boston Pickling':      { dtm: '50–59 days', months: makeMonths([[6,6,'indoor'],[9,11,'transplant'],[12,17,'harvest']]) },
+      'Slicing':              { dtm: '55–65 days', phases: [{type:'indoor',anchor:'lastFrost',startOff:2,endOff:2},{type:'transplant',anchor:'lastFrost',startOff:5,endOff:7},{type:'harvest',anchor:'lastFrost',startOff:8,endOff:13}] },
+      'Pickling':             { dtm: '50–55 days', phases: [{type:'indoor',anchor:'lastFrost',startOff:2,endOff:2},{type:'transplant',anchor:'lastFrost',startOff:5,endOff:7},{type:'harvest',anchor:'lastFrost',startOff:8,endOff:13}] },
+      'Arkansas Little Leaf': { dtm: '50–59 days', phases: [{type:'indoor',anchor:'lastFrost',startOff:2,endOff:2},{type:'transplant',anchor:'lastFrost',startOff:5,endOff:7},{type:'harvest',anchor:'lastFrost',startOff:8,endOff:13}] },
+      'Armenian':             { dtm: '60–69 days', phases: [{type:'indoor',anchor:'lastFrost',startOff:2,endOff:2},{type:'transplant',anchor:'lastFrost',startOff:5,endOff:7},{type:'harvest',anchor:'lastFrost',startOff:8,endOff:13}] },
+      'Beit Alpha':           { dtm: '55–65 days', phases: [{type:'indoor',anchor:'lastFrost',startOff:2,endOff:2},{type:'transplant',anchor:'lastFrost',startOff:5,endOff:7},{type:'harvest',anchor:'lastFrost',startOff:8,endOff:13}] },
+      'Boston Pickling':      { dtm: '50–59 days', phases: [{type:'indoor',anchor:'lastFrost',startOff:2,endOff:2},{type:'transplant',anchor:'lastFrost',startOff:5,endOff:7},{type:'harvest',anchor:'lastFrost',startOff:8,endOff:13}] },
     },
-    default: { dtm: '50–70 days', months: makeMonths([[6,6,'indoor'],[9,11,'transplant'],[12,17,'harvest']]) }
+    default: { dtm: '50–70 days', phases: [{type:'indoor',anchor:'lastFrost',startOff:2,endOff:2},{type:'transplant',anchor:'lastFrost',startOff:5,endOff:7},{type:'harvest',anchor:'lastFrost',startOff:8,endOff:13}] }
   },
   'Onions': {
-    varieties: {},
-    default: { dtm: '100–120 days', months: makeMonths([[0,3,'indoor'],[4,7,'transplant'],[12,15,'harvest']]) }
+    varieties: {
+      'Walla Walla': { dtm: '125 days',      phases: [{type:'indoor',anchor:'lastFrost',startOff:-4,endOff:-1},{type:'transplant',anchor:'lastFrost',startOff:0,endOff:3},{type:'harvest',anchor:'lastFrost',startOff:8,endOff:11}] },
+      'Red':         { dtm: '100–115 days',  phases: [{type:'indoor',anchor:'lastFrost',startOff:-4,endOff:-1},{type:'transplant',anchor:'lastFrost',startOff:0,endOff:3},{type:'harvest',anchor:'lastFrost',startOff:8,endOff:11}] },
+      'Yellow':      { dtm: '100–120 days',  phases: [{type:'indoor',anchor:'lastFrost',startOff:-4,endOff:-1},{type:'transplant',anchor:'lastFrost',startOff:0,endOff:3},{type:'harvest',anchor:'lastFrost',startOff:8,endOff:11}] },
+    },
+    default: { dtm: '100–120 days', phases: [{type:'indoor',anchor:'lastFrost',startOff:-4,endOff:-1},{type:'transplant',anchor:'lastFrost',startOff:0,endOff:3},{type:'harvest',anchor:'lastFrost',startOff:8,endOff:11}] }
   },
   'Garlic': {
     varieties: {
-      'Hardneck': { dtm: '240–270 days', months: makeMonths([[11,13,'harvest'],[19,21,'transplant']]) },
-      'Softneck': { dtm: '240–260 days', months: makeMonths([[11,13,'harvest'],[19,21,'transplant']]) },
+      'Hardneck': { dtm: '240–270 days', phases: [{type:'harvest',anchor:'lastFrost',startOff:7,endOff:9},{type:'transplant',anchor:'firstFrost',startOff:-1,endOff:1}] },
+      'Softneck': { dtm: '240–260 days', phases: [{type:'harvest',anchor:'lastFrost',startOff:7,endOff:9},{type:'transplant',anchor:'firstFrost',startOff:-1,endOff:1}] },
     },
-    default: { dtm: '240–270 days', months: makeMonths([[11,13,'harvest'],[19,21,'transplant']]) }
+    default: { dtm: '240–270 days', phases: [{type:'harvest',anchor:'lastFrost',startOff:7,endOff:9},{type:'transplant',anchor:'firstFrost',startOff:-1,endOff:1}] }
   },
   'Shallots': {
     varieties: {},
-    default: { dtm: '90–120 days', months: makeMonths([[0,3,'indoor'],[4,7,'transplant'],[11,13,'harvest']]) }
+    default: { dtm: '90–120 days', phases: [{type:'indoor',anchor:'lastFrost',startOff:-4,endOff:-1},{type:'transplant',anchor:'lastFrost',startOff:0,endOff:3},{type:'harvest',anchor:'lastFrost',startOff:7,endOff:9}] }
   },
   'Basil': {
     varieties: {
-      'Sweet':   { dtm: '24–30 days', months: makeMonths([[4,7,'indoor'],[8,9,'transplant'],[9,17,'harvest']]) },
-      'Thai':    { dtm: '30–45 days', months: makeMonths([[4,7,'indoor'],[8,9,'transplant'],[9,17,'harvest']]) },
-      'Purple':  { dtm: '30–45 days', months: makeMonths([[4,7,'indoor'],[8,9,'transplant'],[9,17,'harvest']]) },
+      'Sweet':  { dtm: '24–30 days', phases: [{type:'indoor',anchor:'lastFrost',startOff:0,endOff:3},{type:'transplant',anchor:'lastFrost',startOff:4,endOff:5},{type:'harvest',anchor:'lastFrost',startOff:5,endOff:13}] },
+      'Thai':   { dtm: '30–45 days', phases: [{type:'indoor',anchor:'lastFrost',startOff:0,endOff:3},{type:'transplant',anchor:'lastFrost',startOff:4,endOff:5},{type:'harvest',anchor:'lastFrost',startOff:5,endOff:13}] },
+      'Purple': { dtm: '30–45 days', phases: [{type:'indoor',anchor:'lastFrost',startOff:0,endOff:3},{type:'transplant',anchor:'lastFrost',startOff:4,endOff:5},{type:'harvest',anchor:'lastFrost',startOff:5,endOff:13}] },
     },
-    default: { dtm: '24–45 days', months: makeMonths([[4,7,'indoor'],[8,9,'transplant'],[9,17,'harvest']]) }
+    default: { dtm: '24–45 days', phases: [{type:'indoor',anchor:'lastFrost',startOff:0,endOff:3},{type:'transplant',anchor:'lastFrost',startOff:4,endOff:5},{type:'harvest',anchor:'lastFrost',startOff:5,endOff:13}] }
   },
   'Marigolds': {
     varieties: {
-      'French': { dtm: '50–60 days to bloom', months: makeMonths([[4,7,'indoor'],[8,9,'transplant'],[10,18,'bloom']]) },
-      'African':{ dtm: '60–70 days to bloom', months: makeMonths([[4,7,'indoor'],[8,9,'transplant'],[10,18,'bloom']]) },
+      'French': { dtm: '50–60 days to bloom', phases: [{type:'indoor',anchor:'lastFrost',startOff:0,endOff:3},{type:'transplant',anchor:'lastFrost',startOff:4,endOff:5},{type:'bloom',anchor:'lastFrost',startOff:6,endOff:14}] },
+      'African':{ dtm: '60–70 days to bloom', phases: [{type:'indoor',anchor:'lastFrost',startOff:0,endOff:3},{type:'transplant',anchor:'lastFrost',startOff:4,endOff:5},{type:'bloom',anchor:'lastFrost',startOff:6,endOff:14}] },
     },
-    default: { dtm: '50–70 days to bloom', months: makeMonths([[4,7,'indoor'],[8,9,'transplant'],[10,18,'bloom']]) }
+    default: { dtm: '50–70 days to bloom', phases: [{type:'indoor',anchor:'lastFrost',startOff:0,endOff:3},{type:'transplant',anchor:'lastFrost',startOff:4,endOff:5},{type:'bloom',anchor:'lastFrost',startOff:6,endOff:14}] }
   },
   'Kale': {
     varieties: {},
-    default: { dtm: '55–75 days', months: makeMonths([[0,3,'indoor'],[4,7,'transplant'],[8,13,'harvest'],[14,17,'transplant'],[18,21,'harvest']]) }
+    default: { dtm: '55–75 days', phases: [{type:'indoor',anchor:'lastFrost',startOff:-4,endOff:-1},{type:'transplant',anchor:'lastFrost',startOff:0,endOff:3},{type:'harvest',anchor:'lastFrost',startOff:4,endOff:9},{type:'transplant',anchor:'firstFrost',startOff:-6,endOff:-3},{type:'harvest',anchor:'firstFrost',startOff:-2,endOff:1}] }
   },
   'Zucchini': {
     varieties: {},
-    default: { dtm: '50–65 days', months: makeMonths([[7,9,'transplant'],[12,17,'harvest']]) }
+    default: { dtm: '50–65 days', phases: [{type:'transplant',anchor:'lastFrost',startOff:3,endOff:5},{type:'harvest',anchor:'lastFrost',startOff:8,endOff:13}] }
   },
   'Squash': {
     varieties: {
-      'Butternut': { dtm: '100–110 days', months: makeMonths([[7,9,'transplant'],[14,19,'harvest']]) },
-      'Delicata':  { dtm: '95–100 days', months: makeMonths([[7,9,'transplant'],[14,19,'harvest']]) },
-      'Acorn':     { dtm: '80–90 days', months: makeMonths([[7,9,'transplant'],[14,19,'harvest']]) },
+      'Butternut': { dtm: '100–110 days', phases: [{type:'transplant',anchor:'lastFrost',startOff:3,endOff:5},{type:'harvest',anchor:'lastFrost',startOff:10,endOff:15}] },
+      'Delicata':  { dtm: '95–100 days',  phases: [{type:'transplant',anchor:'lastFrost',startOff:3,endOff:5},{type:'harvest',anchor:'lastFrost',startOff:10,endOff:15}] },
+      'Acorn':     { dtm: '80–90 days',   phases: [{type:'transplant',anchor:'lastFrost',startOff:3,endOff:5},{type:'harvest',anchor:'lastFrost',startOff:10,endOff:15}] },
     },
-    default: { dtm: '80–110 days', months: makeMonths([[7,9,'transplant'],[14,19,'harvest']]) }
+    default: { dtm: '80–110 days', phases: [{type:'transplant',anchor:'lastFrost',startOff:3,endOff:5},{type:'harvest',anchor:'lastFrost',startOff:10,endOff:15}] }
   },
   'Radishes': {
     varieties: {},
-    default: { dtm: '22–25 days', months: makeMonths([[4,11,'direct'],[6,13,'harvest'],[14,17,'direct'],[16,19,'harvest']]) }
+    default: { dtm: '22–25 days', phases: [{type:'direct',anchor:'lastFrost',startOff:0,endOff:7},{type:'harvest',anchor:'lastFrost',startOff:2,endOff:9},{type:'direct',anchor:'firstFrost',startOff:-6,endOff:-3},{type:'harvest',anchor:'firstFrost',startOff:-4,endOff:-1}] }
   },
   'Beets': {
     varieties: {},
-    default: { dtm: '55–70 days', months: makeMonths([[2,7,'direct'],[8,13,'harvest'],[14,17,'direct'],[18,21,'harvest']]) }
+    default: { dtm: '55–70 days', phases: [{type:'direct',anchor:'lastFrost',startOff:-2,endOff:3},{type:'harvest',anchor:'lastFrost',startOff:4,endOff:9},{type:'direct',anchor:'firstFrost',startOff:-6,endOff:-3},{type:'harvest',anchor:'firstFrost',startOff:-2,endOff:1}] }
   },
-  // ── NEW ADDITIONS ──
-  // Source: Portland Nursery Veggie Calendar (Willamette Valley)
   'Green Onions': {
     varieties: {
-      'Scallion': { dtm: '60–80 days', months: makeMonths([[2,9,'direct'],[6,15,'harvest'],[16,19,'direct'],[18,21,'harvest']]) },
+      'Scallion': { dtm: '60–80 days', phases: [{type:'direct',anchor:'lastFrost',startOff:-2,endOff:5},{type:'harvest',anchor:'lastFrost',startOff:2,endOff:11},{type:'direct',anchor:'firstFrost',startOff:-4,endOff:-1},{type:'harvest',anchor:'firstFrost',startOff:-2,endOff:1}] },
     },
-    default: { dtm: '60–80 days', months: makeMonths([[2,9,'direct'],[6,15,'harvest'],[16,19,'direct'],[18,21,'harvest']]) }
+    default: { dtm: '60–80 days', phases: [{type:'direct',anchor:'lastFrost',startOff:-2,endOff:5},{type:'harvest',anchor:'lastFrost',startOff:2,endOff:11},{type:'direct',anchor:'firstFrost',startOff:-4,endOff:-1},{type:'harvest',anchor:'firstFrost',startOff:-2,endOff:1}] }
   },
   'Spinach': {
     varieties: {
-      'Savoy':     { dtm: '40–50 days', months: makeMonths([[2,7,'direct'],[6,11,'harvest'],[14,17,'direct'],[18,21,'harvest']]) },
-      'Flat Leaf': { dtm: '38–45 days', months: makeMonths([[2,7,'direct'],[6,11,'harvest'],[14,17,'direct'],[18,21,'harvest']]) },
+      'Savoy':     { dtm: '40–50 days', phases: [{type:'direct',anchor:'lastFrost',startOff:-2,endOff:3},{type:'harvest',anchor:'lastFrost',startOff:2,endOff:7},{type:'direct',anchor:'firstFrost',startOff:-6,endOff:-3},{type:'harvest',anchor:'firstFrost',startOff:-2,endOff:1}] },
+      'Flat Leaf': { dtm: '38–45 days', phases: [{type:'direct',anchor:'lastFrost',startOff:-2,endOff:3},{type:'harvest',anchor:'lastFrost',startOff:2,endOff:7},{type:'direct',anchor:'firstFrost',startOff:-6,endOff:-3},{type:'harvest',anchor:'firstFrost',startOff:-2,endOff:1}] },
     },
-    default: { dtm: '40–50 days', months: makeMonths([[2,7,'direct'],[6,11,'harvest'],[14,17,'direct'],[18,21,'harvest']]) }
+    default: { dtm: '40–50 days', phases: [{type:'direct',anchor:'lastFrost',startOff:-2,endOff:3},{type:'harvest',anchor:'lastFrost',startOff:2,endOff:7},{type:'direct',anchor:'firstFrost',startOff:-6,endOff:-3},{type:'harvest',anchor:'firstFrost',startOff:-2,endOff:1}] }
   },
   'Cilantro': {
     varieties: {},
-    // Direct sow Mar–May and Aug–Sep; bolts in heat so two short windows
-    default: { dtm: '45–70 days', months: makeMonths([[4,9,'direct'],[8,13,'harvest'],[14,17,'direct'],[16,19,'harvest']]) }
+    default: { dtm: '45–70 days', phases: [{type:'direct',anchor:'lastFrost',startOff:0,endOff:5},{type:'harvest',anchor:'lastFrost',startOff:4,endOff:9},{type:'direct',anchor:'firstFrost',startOff:-6,endOff:-3},{type:'harvest',anchor:'firstFrost',startOff:-4,endOff:-1}] }
   },
   'Cabbage': {
     varieties: {
-      'Green':    { dtm: '80–180 days', months: makeMonths([[0,3,'indoor'],[4,7,'transplant'],[10,13,'harvest'],[14,17,'transplant'],[18,21,'harvest']]) },
-      'Red':      { dtm: '80–180 days', months: makeMonths([[0,3,'indoor'],[4,7,'transplant'],[10,13,'harvest'],[14,17,'transplant'],[18,21,'harvest']]) },
-      'Savoy':    { dtm: '80–120 days', months: makeMonths([[0,3,'indoor'],[4,7,'transplant'],[10,13,'harvest'],[14,17,'transplant'],[18,21,'harvest']]) },
-      'Napa':     { dtm: '70–80 days',  months: makeMonths([[0,3,'indoor'],[4,7,'transplant'],[10,13,'harvest'],[14,17,'transplant'],[18,21,'harvest']]) },
-      'Earliana': { dtm: '60 days',     months: makeMonths([[0,3,'indoor'],[4,7,'transplant'],[9,11,'harvest'],[14,17,'transplant'],[17,19,'harvest']]) },
+      'Green':    { dtm: '80–180 days', phases: [{type:'indoor',anchor:'lastFrost',startOff:-4,endOff:-1},{type:'transplant',anchor:'lastFrost',startOff:0,endOff:3},{type:'harvest',anchor:'lastFrost',startOff:6,endOff:9},{type:'transplant',anchor:'firstFrost',startOff:-6,endOff:-3},{type:'harvest',anchor:'firstFrost',startOff:-2,endOff:1}] },
+      'Red':      { dtm: '80–180 days', phases: [{type:'indoor',anchor:'lastFrost',startOff:-4,endOff:-1},{type:'transplant',anchor:'lastFrost',startOff:0,endOff:3},{type:'harvest',anchor:'lastFrost',startOff:6,endOff:9},{type:'transplant',anchor:'firstFrost',startOff:-6,endOff:-3},{type:'harvest',anchor:'firstFrost',startOff:-2,endOff:1}] },
+      'Savoy':    { dtm: '80–120 days', phases: [{type:'indoor',anchor:'lastFrost',startOff:-4,endOff:-1},{type:'transplant',anchor:'lastFrost',startOff:0,endOff:3},{type:'harvest',anchor:'lastFrost',startOff:6,endOff:9},{type:'transplant',anchor:'firstFrost',startOff:-6,endOff:-3},{type:'harvest',anchor:'firstFrost',startOff:-2,endOff:1}] },
+      'Napa':     { dtm: '70–80 days',  phases: [{type:'indoor',anchor:'lastFrost',startOff:-4,endOff:-1},{type:'transplant',anchor:'lastFrost',startOff:0,endOff:3},{type:'harvest',anchor:'lastFrost',startOff:6,endOff:9},{type:'transplant',anchor:'firstFrost',startOff:-6,endOff:-3},{type:'harvest',anchor:'firstFrost',startOff:-2,endOff:1}] },
+      'Earliana': { dtm: '60 days',     phases: [{type:'indoor',anchor:'lastFrost',startOff:-4,endOff:-1},{type:'transplant',anchor:'lastFrost',startOff:0,endOff:3},{type:'harvest',anchor:'lastFrost',startOff:5,endOff:7},{type:'transplant',anchor:'firstFrost',startOff:-6,endOff:-3},{type:'harvest',anchor:'firstFrost',startOff:-3,endOff:-1}] },
     },
-    default: { dtm: '80–180 days', months: makeMonths([[0,3,'indoor'],[4,7,'transplant'],[10,13,'harvest'],[14,17,'transplant'],[18,21,'harvest']]) }
+    default: { dtm: '80–180 days', phases: [{type:'indoor',anchor:'lastFrost',startOff:-4,endOff:-1},{type:'transplant',anchor:'lastFrost',startOff:0,endOff:3},{type:'harvest',anchor:'lastFrost',startOff:6,endOff:9},{type:'transplant',anchor:'firstFrost',startOff:-6,endOff:-3},{type:'harvest',anchor:'firstFrost',startOff:-2,endOff:1}] }
   },
   'Cauliflower': {
     varieties: {
-      'White':        { dtm: '55–100 days', months: makeMonths([[0,3,'indoor'],[4,7,'transplant'],[10,13,'harvest'],[14,17,'transplant'],[18,21,'harvest']]) },
-      'Purple':       { dtm: '70–80 days',  months: makeMonths([[0,3,'indoor'],[4,7,'transplant'],[10,13,'harvest'],[14,17,'transplant'],[18,21,'harvest']]) },
-      'Romanesco':    { dtm: '75–100 days', months: makeMonths([[0,3,'indoor'],[4,7,'transplant'],[10,13,'harvest'],[14,17,'transplant'],[18,21,'harvest']]) },
-      'Igloo':        { dtm: '50–60 days',  months: makeMonths([[0,3,'indoor'],[4,7,'transplant'],[10,13,'harvest'],[14,17,'transplant'],[18,21,'harvest']]) },
-      'Early Snowball':{ dtm: '55–65 days', months: makeMonths([[0,3,'indoor'],[4,7,'transplant'],[10,13,'harvest'],[14,17,'transplant'],[18,21,'harvest']]) },
+      'White':         { dtm: '55–100 days', phases: [{type:'indoor',anchor:'lastFrost',startOff:-4,endOff:-1},{type:'transplant',anchor:'lastFrost',startOff:0,endOff:3},{type:'harvest',anchor:'lastFrost',startOff:6,endOff:9},{type:'transplant',anchor:'firstFrost',startOff:-6,endOff:-3},{type:'harvest',anchor:'firstFrost',startOff:-2,endOff:1}] },
+      'Purple':        { dtm: '70–80 days',  phases: [{type:'indoor',anchor:'lastFrost',startOff:-4,endOff:-1},{type:'transplant',anchor:'lastFrost',startOff:0,endOff:3},{type:'harvest',anchor:'lastFrost',startOff:6,endOff:9},{type:'transplant',anchor:'firstFrost',startOff:-6,endOff:-3},{type:'harvest',anchor:'firstFrost',startOff:-2,endOff:1}] },
+      'Romanesco':     { dtm: '75–100 days', phases: [{type:'indoor',anchor:'lastFrost',startOff:-4,endOff:-1},{type:'transplant',anchor:'lastFrost',startOff:0,endOff:3},{type:'harvest',anchor:'lastFrost',startOff:6,endOff:9},{type:'transplant',anchor:'firstFrost',startOff:-6,endOff:-3},{type:'harvest',anchor:'firstFrost',startOff:-2,endOff:1}] },
+      'Igloo':         { dtm: '50–60 days',  phases: [{type:'indoor',anchor:'lastFrost',startOff:-4,endOff:-1},{type:'transplant',anchor:'lastFrost',startOff:0,endOff:3},{type:'harvest',anchor:'lastFrost',startOff:6,endOff:9},{type:'transplant',anchor:'firstFrost',startOff:-6,endOff:-3},{type:'harvest',anchor:'firstFrost',startOff:-2,endOff:1}] },
+      'Early Snowball':{ dtm: '55–65 days',  phases: [{type:'indoor',anchor:'lastFrost',startOff:-4,endOff:-1},{type:'transplant',anchor:'lastFrost',startOff:0,endOff:3},{type:'harvest',anchor:'lastFrost',startOff:6,endOff:9},{type:'transplant',anchor:'firstFrost',startOff:-6,endOff:-3},{type:'harvest',anchor:'firstFrost',startOff:-2,endOff:1}] },
     },
-    default: { dtm: '55–100 days', months: makeMonths([[0,3,'indoor'],[4,7,'transplant'],[10,13,'harvest'],[14,17,'transplant'],[18,21,'harvest']]) }
+    default: { dtm: '55–100 days', phases: [{type:'indoor',anchor:'lastFrost',startOff:-4,endOff:-1},{type:'transplant',anchor:'lastFrost',startOff:0,endOff:3},{type:'harvest',anchor:'lastFrost',startOff:6,endOff:9},{type:'transplant',anchor:'firstFrost',startOff:-6,endOff:-3},{type:'harvest',anchor:'firstFrost',startOff:-2,endOff:1}] }
   },
   'Strawberries': {
     varieties: {
-      'June-bearing':    { dtm: 'Year 2+ harvest', months: makeMonths([[2,5,'transplant'],[10,15,'harvest']]) },
-      'Ever-bearing':    { dtm: '60 days',          months: makeMonths([[2,5,'transplant'],[8,17,'harvest']]) },
-      'Day-neutral':     { dtm: '60 days',          months: makeMonths([[2,5,'transplant'],[8,17,'harvest']]) },
-      'Albion':          { dtm: '90–99 days',        months: makeMonths([[2,7,'transplant'],[10,19,'harvest']]) },
+      'June-bearing': { dtm: 'Year 2+ harvest', phases: [{type:'transplant',anchor:'lastFrost',startOff:-2,endOff:1},{type:'harvest',anchor:'lastFrost',startOff:6,endOff:11}] },
+      'Ever-bearing': { dtm: '60 days',          phases: [{type:'transplant',anchor:'lastFrost',startOff:-2,endOff:1},{type:'harvest',anchor:'lastFrost',startOff:4,endOff:13}] },
+      'Day-neutral':  { dtm: '60 days',          phases: [{type:'transplant',anchor:'lastFrost',startOff:-2,endOff:1},{type:'harvest',anchor:'lastFrost',startOff:4,endOff:13}] },
+      'Albion':       { dtm: '90–99 days',        phases: [{type:'transplant',anchor:'lastFrost',startOff:-2,endOff:3},{type:'harvest',anchor:'lastFrost',startOff:6,endOff:15}] },
     },
-    // Portland Nursery: plant bare root Feb–Apr; ever-bearing harvests Jun–Oct
-    default: { dtm: '60+ days', months: makeMonths([[2,5,'transplant'],[8,17,'harvest']]) }
+    default: { dtm: '60+ days', phases: [{type:'transplant',anchor:'lastFrost',startOff:-2,endOff:1},{type:'harvest',anchor:'lastFrost',startOff:4,endOff:13}] }
   },
   'Artichoke': {
     varieties: {
-      'Green Globe': { dtm: '85–100 days from transplant', months: makeMonths([[0,3,'indoor'],[4,7,'transplant'],[8,13,'harvest']]) },
+      'Green Globe': { dtm: '85–100 days from transplant', phases: [{type:'indoor',anchor:'lastFrost',startOff:-4,endOff:-1},{type:'transplant',anchor:'lastFrost',startOff:0,endOff:3},{type:'harvest',anchor:'lastFrost',startOff:4,endOff:9}] },
     },
-    // Zone 8b perennial; start indoors Jan–Feb, transplant Mar–Apr, harvest May–Jul
-    default: { dtm: '85–100 days from transplant', months: makeMonths([[0,3,'indoor'],[4,7,'transplant'],[8,13,'harvest']]) }
+    default: { dtm: '85–100 days from transplant', phases: [{type:'indoor',anchor:'lastFrost',startOff:-4,endOff:-1},{type:'transplant',anchor:'lastFrost',startOff:0,endOff:3},{type:'harvest',anchor:'lastFrost',startOff:4,endOff:9}] }
   },
-  // ── FLOWERS (Zone 8b) ──
   'Zinnias': {
     varieties: {
-      'Envy': { dtm: '75–90 days to bloom', months: makeMonths([[1,3,'indoor'],[6,9,['direct','transplant']],[10,19,'bloom']]) },
+      'Envy': { dtm: '75–90 days to bloom', phases: [{type:'indoor',anchor:'lastFrost',startOff:-3,endOff:-1},{type:'transplant',anchor:'lastFrost',startOff:2,endOff:5},{type:'bloom',anchor:'lastFrost',startOff:6,endOff:15}] },
     },
-    default: { dtm: '75–90 days to bloom', months: makeMonths([[1,3,'indoor'],[6,9,['direct','transplant']],[10,19,'bloom']]) }
+    default: { dtm: '75–90 days to bloom', phases: [{type:'indoor',anchor:'lastFrost',startOff:-3,endOff:-1},{type:'transplant',anchor:'lastFrost',startOff:2,endOff:5},{type:'bloom',anchor:'lastFrost',startOff:6,endOff:15}] }
   },
   'Sunflowers': {
     varieties: {
-      'Autumn Beauty': { dtm: '75–85 days to bloom', months: makeMonths([[4,5,'indoor'],[6,9,'direct'],[12,17,'bloom']]) },
+      'Autumn Beauty': { dtm: '75–85 days to bloom', phases: [{type:'indoor',anchor:'lastFrost',startOff:0,endOff:1},{type:'direct',anchor:'lastFrost',startOff:2,endOff:5},{type:'bloom',anchor:'lastFrost',startOff:8,endOff:13}] },
     },
-    default: { dtm: '75–85 days to bloom', months: makeMonths([[4,5,'indoor'],[6,9,'direct'],[12,17,'bloom']]) }
+    default: { dtm: '75–85 days to bloom', phases: [{type:'indoor',anchor:'lastFrost',startOff:0,endOff:1},{type:'direct',anchor:'lastFrost',startOff:2,endOff:5},{type:'bloom',anchor:'lastFrost',startOff:8,endOff:13}] }
   },
   'Dahlias': {
     varieties: {
-      'Arabian Night':    { dtm: '100–109 days to bloom', months: makeMonths([[6,9,'transplant'],[12,19,'bloom']]) },
-      'Bishop\'s Children': { dtm: '84–98 days to bloom', months: makeMonths([[4,5,'indoor'],[6,9,'transplant'],[12,19,'bloom']]) },
+      'Arabian Night':      { dtm: '100–109 days to bloom', phases: [{type:'transplant',anchor:'lastFrost',startOff:2,endOff:5},{type:'bloom',anchor:'lastFrost',startOff:8,endOff:15}] },
+      "Bishop's Children":  { dtm: '84–98 days to bloom',   phases: [{type:'indoor',anchor:'lastFrost',startOff:0,endOff:1},{type:'transplant',anchor:'lastFrost',startOff:2,endOff:5},{type:'bloom',anchor:'lastFrost',startOff:8,endOff:15}] },
     },
-    // Plant tubers after last frost (late Apr in Zone 8b); perennializes in Zone 8b if mulched
-    default: { dtm: '84–109 days to bloom', months: makeMonths([[6,9,'transplant'],[12,19,'bloom']]) }
+    default: { dtm: '84–109 days to bloom', phases: [{type:'transplant',anchor:'lastFrost',startOff:2,endOff:5},{type:'bloom',anchor:'lastFrost',startOff:8,endOff:15}] }
   },
   'Hydrangea': {
     varieties: {},
-    // Perennial shrub — plant spring or fall; blooms June–September in Zone 8b
-    default: { dtm: 'Perennial shrub', months: makeMonths([[4,7,'transplant'],[10,17,'bloom']]) }
+    default: { dtm: 'Perennial shrub', phases: [{type:'transplant',anchor:'lastFrost',startOff:0,endOff:3},{type:'bloom',anchor:'lastFrost',startOff:6,endOff:13}] }
   },
   'Carnation': {
     varieties: {},
-    // Start indoors Feb–Mar; transplant May; blooms Jun–Sep in Zone 8b
-    default: { dtm: '90–120 days to bloom', months: makeMonths([[2,5,'indoor'],[8,9,'transplant'],[10,17,'bloom']]) }
+    default: { dtm: '90–120 days to bloom', phases: [{type:'indoor',anchor:'lastFrost',startOff:-2,endOff:1},{type:'transplant',anchor:'lastFrost',startOff:4,endOff:5},{type:'bloom',anchor:'lastFrost',startOff:6,endOff:13}] }
   },
-  // ── VEGETABLES (Zone 8b) ──
   'Potatoes': {
     varieties: {
-      'Yukon Gold':      { dtm: '70–90 days', months: makeMonths([[4,7,'direct'],[12,17,'harvest']]) },
-      'Adirondack Red':  { dtm: '80–90 days', months: makeMonths([[4,7,'direct'],[12,17,'harvest']]) },
+      'Yukon Gold':     { dtm: '70–90 days', phases: [{type:'direct',anchor:'lastFrost',startOff:0,endOff:3},{type:'harvest',anchor:'lastFrost',startOff:8,endOff:13}] },
+      'Adirondack Red': { dtm: '80–90 days', phases: [{type:'direct',anchor:'lastFrost',startOff:0,endOff:3},{type:'harvest',anchor:'lastFrost',startOff:8,endOff:13}] },
     },
-    // Zone 8b: plant seed potatoes Mar–May; harvest Jul–Sep when foliage dies back
-    default: { dtm: '70–90 days', months: makeMonths([[4,7,'direct'],[12,17,'harvest']]) }
+    default: { dtm: '70–90 days', phases: [{type:'direct',anchor:'lastFrost',startOff:0,endOff:3},{type:'harvest',anchor:'lastFrost',startOff:8,endOff:13}] }
+  },
+  'Chives': {
+    varieties: {},
+    default: { dtm: '30–60 days to harvest', phases: [{type:'direct',anchor:'lastFrost',startOff:-2,endOff:2},{type:'harvest',anchor:'lastFrost',startOff:2,endOff:15}] }
+  },
+  'Peonies': {
+    varieties: {},
+    default: { dtm: 'Perennial — year 2–3+ blooms', phases: [{type:'transplant',anchor:'firstFrost',startOff:-1,endOff:1},{type:'bloom',anchor:'lastFrost',startOff:4,endOff:7}] }
+  },
+  'Tulips': {
+    varieties: {},
+    default: { dtm: 'Spring bulb — blooms year 1', phases: [{type:'transplant',anchor:'firstFrost',startOff:-1,endOff:1},{type:'bloom',anchor:'lastFrost',startOff:2,endOff:5}] }
+  },
+  'Ranunculus': {
+    varieties: {},
+    default: { dtm: '90 days to bloom', phases: [{type:'transplant',anchor:'firstFrost',startOff:-1,endOff:1},{type:'transplant',anchor:'lastFrost',startOff:-2,endOff:0},{type:'bloom',anchor:'lastFrost',startOff:2,endOff:5}] }
   },
 };
 
@@ -1250,6 +1337,8 @@ const PLANT_CATEGORIES = {
   'Green Onions': 'herb', 'Cilantro': 'herb',
   'Marigolds': 'flower', 'Zinnias': 'flower', 'Sunflowers': 'flower',
   'Dahlias': 'flower', 'Hydrangea': 'flower', 'Carnation': 'flower',
+  'Peonies': 'flower', 'Tulips': 'flower', 'Ranunculus': 'flower',
+  'Chives': 'herb',
   'Potatoes': 'vegetable',
   'Strawberries': 'fruit',
   'Artichoke': 'vegetable',
@@ -1260,7 +1349,7 @@ const PLANT_CATEGORIES = {
 // Edit care-data.json to update plant care info without touching
 // this file. Data is cached in localStorage after first fetch.
 // ══════════════════════════════════════════════════════════════
-const CARE_DATA_VERSION = '3';   // bump this to force a cache refresh
+const CARE_DATA_VERSION = '4';   // bump this to force a cache refresh
 let VERDANTLY_CARE = {};
 
 (async function loadCareData() {
@@ -2010,21 +2099,21 @@ const STATUS_CONFIG = {
 };
 
 const DEFAULT_PLANTS = [
-  { id:'peas',           name:'Peas',      variety:'Sugar Snap',    dtm:'60–70 days',          bed:'a', status:'planted',   maybe:false, months: PLANT_DATABASE['Peas'].varieties['Sugar Snap'].months },
-  { id:'lettuce',        name:'Lettuce',   variety:'Mix',           dtm:'45–60 days',          bed:'a', status:'planted',   maybe:false, months: PLANT_DATABASE['Lettuce'].varieties['Mix'].months },
-  { id:'carrots',        name:'Carrots',   variety:null,            dtm:'70–80 days',          bed:'a', status:'planted',   maybe:false, months: PLANT_DATABASE['Carrots'].default.months },
-  { id:'cucumbers',      name:'Cucumbers', variety:null,            dtm:'50–70 days',          bed:'a', status:'undecided', maybe:true,  months: PLANT_DATABASE['Cucumbers'].default.months },
-  { id:'tomato-roma',    name:'Tomato',    variety:'Roma',          dtm:'75–80 days',          bed:'b', status:'willplant', maybe:false, months: PLANT_DATABASE['Tomato'].varieties['Roma'].months },
-  { id:'tomato-cherokee',name:'Tomato',    variety:'Cherokee Purple',dtm:'80–90 days',         bed:'b', status:'willplant', maybe:false, months: PLANT_DATABASE['Tomato'].varieties['Cherokee Purple'].months },
-  { id:'beans',          name:'Beans',     variety:'Purple String', dtm:'50–60 days',          bed:'b', status:'planted',   maybe:false, months: PLANT_DATABASE['Beans'].varieties['Purple String'].months },
-  { id:'onions',         name:'Onions',    variety:null,            dtm:'100–120 days',        bed:'c', status:'planted',   maybe:false, months: PLANT_DATABASE['Onions'].default.months },
-  { id:'garlic',         name:'Garlic',    variety:null,            dtm:'240–270 days',        bed:'c', status:'planted',   maybe:false, months: PLANT_DATABASE['Garlic'].default.months },
-  { id:'shallots',       name:'Shallots',  variety:null,            dtm:'90–120 days',         bed:'c', status:'planted',   maybe:false, months: PLANT_DATABASE['Shallots'].default.months },
-  { id:'jalapeno',       name:'Pepper',    variety:'Jalapeño',      dtm:'70–85 days',          bed:'d', status:'willplant', maybe:false, months: PLANT_DATABASE['Pepper'].varieties['Jalapeño'].months },
-  { id:'shishito',       name:'Pepper',    variety:'Shishito',      dtm:'60–75 days',          bed:'d', status:'willplant', maybe:false, months: PLANT_DATABASE['Pepper'].varieties['Shishito'].months },
-  { id:'serrano',        name:'Pepper',    variety:'Serrano',       dtm:'75–90 days',          bed:'d', status:'willplant', maybe:false, months: PLANT_DATABASE['Pepper'].varieties['Serrano'].months },
-  { id:'marigolds',      name:'Marigolds', variety:null,            dtm:'50–60 days to bloom', bed:'companion', status:'willplant', maybe:false, months: PLANT_DATABASE['Marigolds'].default.months },
-  { id:'basil',          name:'Basil',     variety:null,            dtm:'24–30 days',          bed:'companion', status:'willplant', maybe:false, months: PLANT_DATABASE['Basil'].default.months },
+  { id:'peas',           name:'Peas',      variety:'Sugar Snap',    dtm:'60–70 days',          bed:'a', status:'planted',   maybe:false, months: getPlantMonths('Peas', 'Sugar Snap') },
+  { id:'lettuce',        name:'Lettuce',   variety:'Mix',           dtm:'45–60 days',          bed:'a', status:'planted',   maybe:false, months: getPlantMonths('Lettuce', 'Mix') },
+  { id:'carrots',        name:'Carrots',   variety:null,            dtm:'70–80 days',          bed:'a', status:'planted',   maybe:false, months: getPlantMonths('Carrots', null) },
+  { id:'cucumbers',      name:'Cucumbers', variety:null,            dtm:'50–70 days',          bed:'a', status:'undecided', maybe:true,  months: getPlantMonths('Cucumbers', null) },
+  { id:'tomato-roma',    name:'Tomato',    variety:'Roma',          dtm:'75–80 days',          bed:'b', status:'willplant', maybe:false, months: getPlantMonths('Tomato', 'Roma') },
+  { id:'tomato-cherokee',name:'Tomato',    variety:'Cherokee Purple',dtm:'80–90 days',         bed:'b', status:'willplant', maybe:false, months: getPlantMonths('Tomato', 'Cherokee Purple') },
+  { id:'beans',          name:'Beans',     variety:'Purple String', dtm:'50–60 days',          bed:'b', status:'planted',   maybe:false, months: getPlantMonths('Beans', 'Purple String') },
+  { id:'onions',         name:'Onions',    variety:null,            dtm:'100–120 days',        bed:'c', status:'planted',   maybe:false, months: getPlantMonths('Onions', null) },
+  { id:'garlic',         name:'Garlic',    variety:null,            dtm:'240–270 days',        bed:'c', status:'planted',   maybe:false, months: getPlantMonths('Garlic', null) },
+  { id:'shallots',       name:'Shallots',  variety:null,            dtm:'90–120 days',         bed:'c', status:'planted',   maybe:false, months: getPlantMonths('Shallots', null) },
+  { id:'jalapeno',       name:'Pepper',    variety:'Jalapeño',      dtm:'70–85 days',          bed:'d', status:'willplant', maybe:false, months: getPlantMonths('Pepper', 'Jalapeño') },
+  { id:'shishito',       name:'Pepper',    variety:'Shishito',      dtm:'60–75 days',          bed:'d', status:'willplant', maybe:false, months: getPlantMonths('Pepper', 'Shishito') },
+  { id:'serrano',        name:'Pepper',    variety:'Serrano',       dtm:'75–90 days',          bed:'d', status:'willplant', maybe:false, months: getPlantMonths('Pepper', 'Serrano') },
+  { id:'marigolds',      name:'Marigolds', variety:null,            dtm:'50–60 days to bloom', bed:'companion', status:'willplant', maybe:false, months: getPlantMonths('Marigolds', null) },
+  { id:'basil',          name:'Basil',     variety:null,            dtm:'24–30 days',          bed:'companion', status:'willplant', maybe:false, months: getPlantMonths('Basil', null) },
 ];
 
 function getPlants() {
@@ -2037,7 +2126,7 @@ function getPlants() {
       if (!db) return p;
       const entry = (p.variety && db.varieties && db.varieties[p.variety]) || db.default;
       if (!entry) return p;
-      return { ...p, months: entry.months };
+      return { ...p, months: getPlantMonths(p.name, p.variety) };
     });
   } catch(e) { return DEFAULT_PLANTS; }
 }
@@ -2124,6 +2213,7 @@ function setViewMode(mode) {
     o.classList.toggle('active', o.dataset.view === mode)
   );
   render();
+  requestAnimationFrame(() => scrollToCurrentMonth('smooth'));
 }
 
 function toggleBedCollapse(bedId) {
@@ -2526,17 +2616,11 @@ function render() {
     wrap.scrollLeft = savedScrollLeft;
   }
 
-  // One-time: scroll horizontally so today's column is centered on initial load.
-  // Deferred via double-rAF so clientWidth is readable after the browser has painted.
+  // One-time: scroll to current month on initial load.
+  // Double-rAF ensures layout is fully painted before we measure cell widths.
   if (!_hasScrolledToToday && wrap) {
-    _hasScrolledToToday = true; // set immediately so re-renders don't queue multiple scrolls
-    requestAnimationFrame(() => requestAnimationFrame(() => {
-      const now    = new Date();
-      const cellW  = 22;
-      // Align the start of the current month to the left edge of the visible area (past the sticky name col)
-      const target = now.getMonth() * 2 * cellW;
-      wrap.scrollLeft = Math.max(0, target);
-    }));
+    _hasScrolledToToday = true;
+    requestAnimationFrame(() => requestAnimationFrame(() => scrollToCurrentMonth('auto')));
   }
 }
 
@@ -2668,7 +2752,7 @@ function updateVariety(plantId, variety) {
   const db = PLANT_DATABASE[plant.name];
   if (db) {
     const varData = (variety && db.varieties && db.varieties[variety]) ? db.varieties[variety] : db.default;
-    plant.months = varData.months;
+    plant.months = getPlantMonths(plant.name, variety);
     plant.dtm    = varData.dtm;
   }
   savePlants(plants); render(); toggleDetail(plantId);
@@ -2816,13 +2900,29 @@ function removeBed(bedId) {
 function showFrostTip(e, type) {
   e.stopPropagation();
   const tip = document.getElementById('frost-tooltip');
-  const flakeSrc = document.querySelector('.frost-snowflake img')?.src || '';
+  const flakeSrc = document.querySelector('.frost-snowflake img')?.src || window._frostFlakeSrc || '';
   const flakeHtml = flakeSrc
     ? `<img src="${flakeSrc}" style="width:1rem;height:1rem;vertical-align:middle;margin-right:5px;opacity:0.9;">`
     : '❄';
-  tip.innerHTML = type === 'spring'
-    ? `${flakeHtml}<strong>Last Spring Frost</strong><br>~March 15 · Zone 8b · Portland, OR`
-    : `${flakeHtml}<strong>First Fall Frost</strong><br>~November 15 · Zone 8b · Portland, OR`;
+
+  // Build dynamic label from saved zone settings
+  const s    = getZoneSettings();
+  const zone = s.zone || '8b';
+  const fd   = FROST_DATES[zone] || FROST_DATES['8b'];
+  const MO   = ['','Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const loc  = (s.city && s.state) ? ` · ${s.city}, ${s.state}` : '';
+
+  let label;
+  if (!fd.lf) {
+    label = `Frost-free year-round · Zone ${zone}${loc}`;
+  } else if (type === 'spring') {
+    label = `~${MO[fd.lf[0]]} ${fd.lf[1]} · Zone ${zone}${loc}`;
+  } else {
+    label = `~${MO[fd.ff[0]]} ${fd.ff[1]} · Zone ${zone}${loc}`;
+  }
+
+  const title = type === 'spring' ? 'Last Spring Frost' : 'First Fall Frost';
+  tip.innerHTML = `${flakeHtml}<strong>${title}</strong><br>${label}`;
 
   // Render offscreen first so we can measure actual size
   tip.style.left    = '-9999px';
@@ -3468,34 +3568,26 @@ document.addEventListener('click', function(e) {
   document.querySelectorAll('#main-table tbody').forEach(tb => tb.classList.remove('has-open-panel'));
 });
 
-// ── One-time migration: refresh months for direct-sow plants so stored
-//    'transplant' phases update to 'direct' after the database change ──
-(function migrateDirectSow() {
-  const DIRECT_SOW = new Set(['Peas','Carrots','Beans','Radishes','Beets','Green Onions','Spinach','Cilantro']);
-  const plants = getPlants();
-  let changed = false;
-  plants.forEach(p => {
-    if (!DIRECT_SOW.has(p.name)) return;
-    const db = PLANT_DATABASE[p.name];
-    if (!db) return;
-    const fresh = (p.variety && db.varieties && db.varieties[p.variety])
-      ? db.varieties[p.variety].months
-      : db.default.months;
-    p.months = fresh.slice();
-    changed = true;
-  });
-  if (changed) savePlants(plants);
-})();
+// ZONE_KEY must be declared before any function that calls getZoneSettings() runs.
+// If declared after the init sequence, it sits in the Temporal Dead Zone and every
+// getZoneSettings() call silently fails, returning Portland 8b defaults forever.
+const ZONE_KEY = 'garden_zone_v1';
 
+// Cache snowflake image src from hardcoded HTML before it gets replaced
+window._frostFlakeSrc = document.querySelector('.frost-snowflake img')?.src || '';
+
+recomputeAllMonths();
 render();
 initSheetDrag();
 initMonthSnap();
 renderZoneDisplay();
+renderFrostNote();
+renderFrostIndicators();
 
 // ══════════════════════════════════════════════════════════════
 // ZONE / LOCATION SETTINGS
 // ══════════════════════════════════════════════════════════════
-const ZONE_KEY = 'garden_zone_v1';
+// (ZONE_KEY is declared above the init sequence to avoid the Temporal Dead Zone)
 
 function getZoneSettings() {
   try {
@@ -3505,12 +3597,91 @@ function getZoneSettings() {
 }
 
 function renderZoneDisplay() {
-  const s   = getZoneSettings();
-  const el  = document.getElementById('zone-display-text');
+  const s  = getZoneSettings();
+  const el = document.getElementById('zone-display');
   if (!el) return;
-  const loc = (s.city && s.state) ? ` · ${s.city}, ${s.state}` : '';
-  const zip = s.zip ? ` · ${s.zip}` : '';
-  el.textContent = `Zone ${s.zone}${loc}${zip}`;
+  el.innerHTML = '';
+
+  function makeChip(label) {
+    const btn = document.createElement('button');
+    btn.className   = 'zone-chip';
+    btn.textContent = label;
+    btn.onclick     = openZoneModal;
+    el.appendChild(btn);
+  }
+
+  makeChip(`Zone ${s.zone || '8b'}`);
+  if (s.city && s.state) makeChip(`${s.city}, ${s.state}`);
+  else if (s.zip)        makeChip(s.zip);
+}
+
+function renderFrostIndicators() {
+  const ths = Array.from(document.querySelectorAll('thead tr.half-row th:not(.corner)'));
+
+  // Always clear stale header frost marks and body frost-col lines first,
+  // so switching to any zone (including frost-free) leaves a clean state.
+  ths.forEach((th, i) => {
+    th.classList.remove('frost-l');
+    th.innerHTML = i % 2 === 0 ? 'E' : 'L';
+  });
+  document.querySelectorAll('#main-table tbody td.frost-col')
+          .forEach(td => td.classList.remove('frost-col'));
+
+  if (!ths.length) return;
+
+  // Check if the current zone is frost-free (null lf in FROST_DATES).
+  // Must check FROST_DATES directly — getZoneFrostSlots() returns { lf:0, ff:23 } for
+  // frost-free zones, and lf=0 would otherwise pass the ">= 0" guard and draw indicators.
+  const zone = (typeof getZoneSettings === 'function' ? getZoneSettings().zone : null) || '8b';
+  const fd   = FROST_DATES[zone] || FROST_DATES['8b'];
+  if (!fd.lf) return; // frost-free zone — no indicators at all
+
+  const { lf, ff } = getZoneFrostSlots();
+
+  const src = window._frostFlakeSrc || '';
+  function snowflake(type) {
+    return src
+      ? `<span class="frost-snowflake" onclick="showFrostTip(event,'${type}')"><img src="${src}"></span>`
+      : `<span class="frost-snowflake" onclick="showFrostTip(event,'${type}')">❄</span>`;
+  }
+
+  // Header: snowflake + blue left border on the correct th
+  if (lf >= 0 && lf < ths.length) {
+    ths[lf].classList.add('frost-l');
+    ths[lf].innerHTML = snowflake('spring');
+  }
+  if (ff >= 0 && ff < ths.length && ff !== lf) {
+    ths[ff].classList.add('frost-l');
+    ths[ff].innerHTML = snowflake('fall');
+  }
+
+  // Body: add frost-col to the matching td.hcol in every plant row.
+  // Row layout: td (name, nth-child 1) + 24 td.hcol (nth-child 2–25).
+  // Slot index `n` → nth-child(n + 2).
+  document.querySelectorAll(`#main-table tbody td.hcol:nth-child(${lf + 2})`)
+          .forEach(td => td.classList.add('frost-col'));
+  if (ff !== lf) {
+    document.querySelectorAll(`#main-table tbody td.hcol:nth-child(${ff + 2})`)
+            .forEach(td => td.classList.add('frost-col'));
+  }
+}
+
+function renderFrostNote() {
+  const zone = (getZoneSettings ? getZoneSettings().zone : null) || '8b';
+  const fd   = FROST_DATES[zone];
+  const el   = document.querySelector('.frost-note');
+  if (!el || !fd) return;
+  const MO = ['','Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  if (!fd.lf) {
+    el.innerHTML = `<strong>Zone ${zone}:</strong> Frost-free year-round · warm-season crops can grow all year`;
+    return;
+  }
+  const lfStr  = `${MO[fd.lf[0]]} ${fd.lf[1]}`;
+  const ffStr  = `${MO[fd.ff[0]]} ${fd.ff[1]}`;
+  const lfDay  = (fd.lf[0] - 1) * 30.5 + fd.lf[1];
+  const ffDay  = (fd.ff[0] - 1) * 30.5 + fd.ff[1];
+  const season = Math.round(ffDay - lfDay);
+  el.innerHTML = `<strong>Zone ${zone} Frost Dates:</strong> Last frost ~<strong>${lfStr}</strong> · First fall frost ~<strong>${ffStr}</strong> · Growing season ≈ ${season} days`;
 }
 
 function openZoneModal() {
@@ -3590,26 +3761,44 @@ function saveZoneSettings() {
     const manualZone = document.getElementById('zone-manual-select').value;
     const zip        = document.getElementById('zone-zip-input').value.trim();
     if (!manualZone) { alert('Please select a zone or look up your ZIP code first.'); return; }
-    const existing   = getZoneSettings();
-    settings = { zip: zip || existing.zip || '', zone: manualZone, city: existing.city || '', state: existing.state || '' };
-    // If ZIP changed, clear city/state (stale)
-    if (zip && zip !== existing.zip) { settings.city = ''; settings.state = ''; }
+    // Manual zone select — always clear city/state (no ZIP lookup = location unknown)
+    settings = { zip: zip || '', zone: manualZone, city: '', state: '' };
   }
   localStorage.setItem(ZONE_KEY, JSON.stringify(settings));
-  renderZoneDisplay();
+  recomputeAllMonths();
+  render();               // rebuild table first — must come before renderFrostIndicators()
+  renderZoneDisplay();    // update zone chips in header
+  renderFrostNote();      // update frost date sentence
+  renderFrostIndicators(); // re-stamp snowflakes on the freshly rendered table
   closeZoneModal();
+}
+
+function scrollToCurrentMonth(behavior) {
+  const wrap = document.querySelector('.table-wrap');
+  if (!wrap) return;
+  // Measure actual rendered cell width from the DOM — avoids hardcoded 22px being slightly off
+  const firstDataTh = document.querySelector('thead tr.half-row th:not(.corner)');
+  const cellW  = firstDataTh ? firstDataTh.getBoundingClientRect().width : 22;
+  const target = new Date().getMonth() * 2 * cellW;
+  wrap.scrollTo({ left: Math.max(0, target), behavior: behavior || 'auto' });
 }
 
 function initMonthSnap() {
   const wrap = document.querySelector('.table-wrap');
   if (!wrap) return;
-  const cellW = 22, monthW = cellW * 2; // 44px per full month
+
   function snapToNearestMonth() {
+    // Measure actual rendered cell width each time — avoids stale hardcoded values
+    const firstDataTh = document.querySelector('thead tr.half-row th:not(.corner)');
+    const cellW  = firstDataTh ? firstDataTh.getBoundingClientRect().width : 22;
+    const monthW = cellW * 2;
+    if (monthW < 1) return;
     const nearest = Math.round(wrap.scrollLeft / monthW) * monthW;
     if (Math.abs(wrap.scrollLeft - nearest) > 1) {
       wrap.scrollTo({ left: nearest, behavior: 'smooth' });
     }
   }
+
   // Use scrollend if available (Chrome 114+, Firefox 109+, Safari 17.4+)
   // Fall back to debounce for older browsers
   if ('onscrollend' in window) {
