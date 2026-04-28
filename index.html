@@ -90,11 +90,7 @@
   .legend-emoji-icon { font-size: 0.85rem; width: 22px; text-align: center; flex-shrink: 0; }
 
   .calendar-outer { background: var(--cream); border-radius: 16px; overflow: hidden; box-shadow: 0 20px 60px rgba(0,0,0,0.4); animation: fadeUp 0.7s 0.1s ease both; }
-  /* Two-container scroll: outer handles vertical (overflow-x:hidden prevents horizontal drift),
-     inner handles horizontal only.  This makes vertical and horizontal scroll independent
-     so a vertical swipe can never push the calendar left/right. */
-  .table-outer { overflow-y: auto; overflow-x: hidden; max-height: 68vh; -webkit-overflow-scrolling: touch; }
-  .table-wrap  { overflow-x: auto; overflow-y: visible; }
+  .table-wrap { overflow: auto; max-height: 68vh; -webkit-overflow-scrolling: touch; }
 
   table { border-collapse: collapse; width: 100%; min-width: 900px; table-layout: fixed; }
 
@@ -737,7 +733,6 @@
   </div>
 
   <div class="calendar-outer">
-    <div class="table-outer">
     <div class="table-wrap">
       <table id="main-table">
         <thead>
@@ -778,7 +773,6 @@
         <tbody id="calendar-body"></tbody>
       </table>
     </div>
-    </div><!-- /.table-outer -->
 
     <div class="bottom-legend">
       <strong>Column guide:</strong> <strong>E</strong> = Early (1st–15th) · <strong>L</strong> = Late (16th–end) ·
@@ -2240,12 +2234,10 @@ function toggleBedCollapse(bedId) {
 // RENDER
 // ══════════════════════════════════════════════════════════════
 function render() {
-  // Save scroll position before rebuilding DOM.
-  // .table-outer handles vertical scroll; .table-wrap handles horizontal.
-  const wrapOuter = document.querySelector('.table-outer');
-  const wrap      = document.querySelector('.table-wrap');
-  const savedScrollTop  = wrapOuter ? wrapOuter.scrollTop  : 0;
-  const savedScrollLeft = wrap      ? wrap.scrollLeft       : 0;
+  // Save scroll position before rebuilding DOM
+  const wrap = document.querySelector('.table-wrap');
+  const savedScrollTop  = wrap ? wrap.scrollTop  : 0;
+  const savedScrollLeft = wrap ? wrap.scrollLeft : 0;
 
   // Current date calculations for column highlight + today tick
   const _now          = new Date();
@@ -2619,8 +2611,10 @@ function render() {
   }
 
   // Restore scroll position (prevents jump when qty/status/bed changes trigger re-render)
-  if (wrapOuter) wrapOuter.scrollTop  = savedScrollTop;
-  if (wrap)      wrap.scrollLeft      = savedScrollLeft;
+  if (wrap) {
+    wrap.scrollTop  = savedScrollTop;
+    wrap.scrollLeft = savedScrollLeft;
+  }
 
   // One-time: scroll to current month on initial load.
   // Double-rAF ensures layout is fully painted before we measure cell widths.
@@ -3301,7 +3295,7 @@ function openBedEditPopover(bedId, triggerEl) {
   _repositionBep();
 
   // Close if table scrolls; reposition on page scroll or mobile zoom
-  document.querySelector('.table-outer')?.addEventListener('scroll', closeBedEditPopover, { once: true });
+  document.querySelector('.table-wrap')?.addEventListener('scroll', closeBedEditPopover, { once: true });
   window.addEventListener('scroll', _repositionBep);
   window.visualViewport?.addEventListener('scroll', _repositionBep);
   window.visualViewport?.addEventListener('resize', _repositionBep);
@@ -3339,7 +3333,7 @@ function saveBedEdit() {
 function closeBedEditPopover() {
   document.getElementById('bed-edit-popover').classList.remove('open');
   document.removeEventListener('click', _bepOutsideClick);
-  document.querySelector('.table-outer')?.removeEventListener('scroll', closeBedEditPopover);
+  document.querySelector('.table-wrap')?.removeEventListener('scroll', closeBedEditPopover);
   window.removeEventListener('scroll', _repositionBep);
   window.visualViewport?.removeEventListener('scroll', _repositionBep);
   window.visualViewport?.removeEventListener('resize', _repositionBep);
@@ -3790,9 +3784,6 @@ function scrollToCurrentMonth(behavior) {
 }
 
 function initMonthSnap() {
-  // .table-wrap handles horizontal scroll only; .table-outer handles vertical.
-  // Because the two containers are independent, vertical scrolling physically
-  // cannot move the horizontal position — no axis-detection JS needed.
   const wrap = document.querySelector('.table-wrap');
   if (!wrap) return;
 
