@@ -90,7 +90,11 @@
   .legend-emoji-icon { font-size: 0.85rem; width: 22px; text-align: center; flex-shrink: 0; }
 
   .calendar-outer { background: var(--cream); border-radius: 16px; overflow: hidden; box-shadow: 0 20px 60px rgba(0,0,0,0.4); animation: fadeUp 0.7s 0.1s ease both; }
-  .table-wrap { overflow: auto; max-height: 68vh; -webkit-overflow-scrolling: touch; }
+  /* Two-container scroll: outer handles vertical (overflow-x:hidden prevents horizontal drift),
+     inner handles horizontal only.  This makes vertical and horizontal scroll independent
+     so a vertical swipe can never push the calendar left/right. */
+  .table-outer { overflow-y: auto; overflow-x: hidden; max-height: 68vh; -webkit-overflow-scrolling: touch; }
+  .table-wrap  { overflow-x: auto; overflow-y: visible; }
 
   table { border-collapse: collapse; width: 100%; min-width: 900px; table-layout: fixed; }
 
@@ -733,6 +737,7 @@
   </div>
 
   <div class="calendar-outer">
+    <div class="table-outer">
     <div class="table-wrap">
       <table id="main-table">
         <thead>
@@ -773,6 +778,7 @@
         <tbody id="calendar-body"></tbody>
       </table>
     </div>
+    </div><!-- /.table-outer -->
 
     <div class="bottom-legend">
       <strong>Column guide:</strong> <strong>E</strong> = Early (1st–15th) · <strong>L</strong> = Late (16th–end) ·
@@ -2234,10 +2240,12 @@ function toggleBedCollapse(bedId) {
 // RENDER
 // ══════════════════════════════════════════════════════════════
 function render() {
-  // Save scroll position before rebuilding DOM
-  const wrap = document.querySelector('.table-wrap');
-  const savedScrollTop  = wrap ? wrap.scrollTop  : 0;
-  const savedScrollLeft = wrap ? wrap.scrollLeft : 0;
+  // Save scroll position before rebuilding DOM.
+  // .table-outer handles vertical scroll; .table-wrap handles horizontal.
+  const wrapOuter = document.querySelector('.table-outer');
+  const wrap      = document.querySelector('.table-wrap');
+  const savedScrollTop  = wrapOuter ? wrapOuter.scrollTop  : 0;
+  const savedScrollLeft = wrap      ? wrap.scrollLeft       : 0;
 
   // Current date calculations for column highlight + today tick
   const _now          = new Date();
@@ -2611,10 +2619,8 @@ function render() {
   }
 
   // Restore scroll position (prevents jump when qty/status/bed changes trigger re-render)
-  if (wrap) {
-    wrap.scrollTop  = savedScrollTop;
-    wrap.scrollLeft = savedScrollLeft;
-  }
+  if (wrapOuter) wrapOuter.scrollTop  = savedScrollTop;
+  if (wrap)      wrap.scrollLeft      = savedScrollLeft;
 
   // One-time: scroll to current month on initial load.
   // Double-rAF ensures layout is fully painted before we measure cell widths.
@@ -3295,7 +3301,7 @@ function openBedEditPopover(bedId, triggerEl) {
   _repositionBep();
 
   // Close if table scrolls; reposition on page scroll or mobile zoom
-  document.querySelector('.table-wrap')?.addEventListener('scroll', closeBedEditPopover, { once: true });
+  document.querySelector('.table-outer')?.addEventListener('scroll', closeBedEditPopover, { once: true });
   window.addEventListener('scroll', _repositionBep);
   window.visualViewport?.addEventListener('scroll', _repositionBep);
   window.visualViewport?.addEventListener('resize', _repositionBep);
@@ -3333,7 +3339,7 @@ function saveBedEdit() {
 function closeBedEditPopover() {
   document.getElementById('bed-edit-popover').classList.remove('open');
   document.removeEventListener('click', _bepOutsideClick);
-  document.querySelector('.table-wrap')?.removeEventListener('scroll', closeBedEditPopover);
+  document.querySelector('.table-outer')?.removeEventListener('scroll', closeBedEditPopover);
   window.removeEventListener('scroll', _repositionBep);
   window.visualViewport?.removeEventListener('scroll', _repositionBep);
   window.visualViewport?.removeEventListener('resize', _repositionBep);
@@ -3784,65 +3790,25 @@ function scrollToCurrentMonth(behavior) {
 }
 
 function initMonthSnap() {
+  // .table-wrap handles horizontal scroll only; .table-outer handles vertical.
+  // Because the two containers are independent, vertical scrolling physically
+  // cannot move the horizontal position — no axis-detection JS needed.
   const wrap = document.querySelector('.table-wrap');
   if (!wrap) return;
 
-  function getMeasuredMonthW() {
-    const th = document.querySelector('thead tr.half-row th:not(.corner)');
-    const w  = th ? th.getBoundingClientRect().width : 22;
-    return w * 2;
-  }
-
-  function nearestSnap(scrollLeft) {
-    const mw = getMeasuredMonthW();
-    return mw > 0 ? Math.round(scrollLeft / mw) * mw : scrollLeft;
-  }
-
-  // ── Touch: prevent horizontal drift during vertical swipes ──────────────
-  // The browser's scroll compositor runs off-main-thread, so setting scrollLeft
-  // on every touchmove causes visible per-frame jank.  Instead we detect the
-  // dominant axis once (first ~6px of movement), snap scrollLeft a single time,
-  // then set overflow-x:hidden for the rest of the gesture — one style change,
-  // zero per-frame fighting.
-  let touchStartX = 0, touchStartY = 0, axisDecided = false;
-
-  wrap.addEventListener('touchstart', e => {
-    touchStartX  = e.touches[0].clientX;
-    touchStartY  = e.touches[0].clientY;
-    axisDecided  = false;
-    wrap.style.overflowX = ''; // restore from any previous gesture
-  }, { passive: true });
-
-  wrap.addEventListener('touchmove', e => {
-    if (axisDecided) return;
-    const dx = Math.abs(e.touches[0].clientX - touchStartX);
-    const dy = Math.abs(e.touches[0].clientY - touchStartY);
-    if (dx < 6 && dy < 6) return; // not enough movement to decide yet
-
-    axisDecided = true;
-    if (dy > dx) {
-      // Vertical swipe: snap once to clean position, then freeze horizontal
-      wrap.scrollLeft  = nearestSnap(wrap.scrollLeft);
-      wrap.style.overflowX = 'hidden';
-    }
-    // Horizontal swipe: leave overflow alone, let it scroll freely
-  }, { passive: true });
-
-  wrap.addEventListener('touchend', () => {
-    axisDecided          = false;
-    wrap.style.overflowX = ''; // always restore so horizontal swipes still work
-  }, { passive: true });
-
-  // ── After horizontal scroll ends: snap to nearest month boundary ──────────
   function snapToNearestMonth() {
-    const nearest = nearestSnap(wrap.scrollLeft);
+    const th = document.querySelector('thead tr.half-row th:not(.corner)');
+    const cellW  = th ? th.getBoundingClientRect().width : 22;
+    const monthW = cellW * 2;
+    if (monthW < 1) return;
+    const nearest = Math.round(wrap.scrollLeft / monthW) * monthW;
     if (Math.abs(wrap.scrollLeft - nearest) > 1) {
       wrap.scrollTo({ left: nearest, behavior: 'smooth' });
     }
   }
 
-  // scrollend fires once per gesture on Chrome 114+, Firefox 109+, Safari 17.4+
-  // fall back to debounced scroll for older browsers
+  // scrollend fires once per gesture (Chrome 114+, Firefox 109+, Safari 17.4+)
+  // fall back to debounce for older browsers
   if ('onscrollend' in window) {
     wrap.addEventListener('scrollend', snapToNearestMonth);
   } else {
