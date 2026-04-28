@@ -3787,27 +3787,76 @@ function initMonthSnap() {
   const wrap = document.querySelector('.table-wrap');
   if (!wrap) return;
 
+  function getMeasuredMonthW() {
+    const th = document.querySelector('thead tr.half-row th:not(.corner)');
+    const w  = th ? th.getBoundingClientRect().width : 22;
+    return w * 2;
+  }
+
+  function nearestSnap(scrollLeft) {
+    const mw = getMeasuredMonthW();
+    return mw > 0 ? Math.round(scrollLeft / mw) * mw : scrollLeft;
+  }
+
+  // ── Touch: lock horizontal axis during vertical swipes ────────────────────
+  // When the user scrolls vertically the browser can drift the horizontal
+  // position too.  We detect the dominant axis on the first ~5px of movement
+  // and, for vertical swipes, hard-lock scrollLeft to the snapped position so
+  // the columns never slide while the user is reading up/down.
+  let touchStartX    = 0;
+  let touchStartY    = 0;
+  let lockedLeft     = null;   // null = unlocked; number = locked px
+  let axisDecided    = false;
+
+  wrap.addEventListener('touchstart', e => {
+    touchStartX = e.touches[0].clientX;
+    touchStartY = e.touches[0].clientY;
+    lockedLeft  = null;
+    axisDecided = false;
+  }, { passive: true });
+
+  wrap.addEventListener('touchmove', e => {
+    const dx = Math.abs(e.touches[0].clientX - touchStartX);
+    const dy = Math.abs(e.touches[0].clientY - touchStartY);
+
+    if (!axisDecided && (dx > 5 || dy > 5)) {
+      axisDecided = true;
+      if (dy > dx) {
+        // Vertical swipe — snap and lock horizontal now
+        lockedLeft = nearestSnap(wrap.scrollLeft);
+      }
+      // Horizontal swipe — leave lockedLeft null (free scrolling)
+    }
+
+    if (lockedLeft !== null) {
+      // Keep scrollLeft pinned for the entire vertical drag
+      wrap.scrollLeft = lockedLeft;
+    }
+  }, { passive: true });
+
+  wrap.addEventListener('touchend', () => {
+    lockedLeft  = null;
+    axisDecided = false;
+  }, { passive: true });
+
+  // ── After horizontal scroll ends: snap to nearest month boundary ──────────
   function snapToNearestMonth() {
-    // Measure actual rendered cell width each time — avoids stale hardcoded values
-    const firstDataTh = document.querySelector('thead tr.half-row th:not(.corner)');
-    const cellW  = firstDataTh ? firstDataTh.getBoundingClientRect().width : 22;
-    const monthW = cellW * 2;
-    if (monthW < 1) return;
-    const nearest = Math.round(wrap.scrollLeft / monthW) * monthW;
+    if (lockedLeft !== null) return; // don't fight an active vertical drag
+    const nearest = nearestSnap(wrap.scrollLeft);
     if (Math.abs(wrap.scrollLeft - nearest) > 1) {
       wrap.scrollTo({ left: nearest, behavior: 'smooth' });
     }
   }
 
-  // Use scrollend if available (Chrome 114+, Firefox 109+, Safari 17.4+)
-  // Fall back to debounce for older browsers
+  // scrollend fires once per gesture on Chrome 114+, Firefox 109+, Safari 17.4+
+  // fall back to debounced scroll for older browsers
   if ('onscrollend' in window) {
     wrap.addEventListener('scrollend', snapToNearestMonth);
   } else {
     let snapTimer;
     wrap.addEventListener('scroll', () => {
       clearTimeout(snapTimer);
-      snapTimer = setTimeout(snapToNearestMonth, 200);
+      snapTimer = setTimeout(snapToNearestMonth, 220);
     });
   }
 }
