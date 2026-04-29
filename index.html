@@ -327,12 +327,29 @@
   .detail-coming-soon { font-style: italic; color: #aaa; font-size: 0.7rem; }
 
   /* ── FROST INDICATORS ── */
-  /* th.frost-l  = snowflake header cell; td.frost-col = body column blue line.
-     Both are set/cleared dynamically by renderFrostIndicators() — no hardcoded nth-child. */
-  th.frost-l  { position: relative; border-left: 3px solid rgba(0,200,255,0.70) !important; overflow: visible; }
-  td.frost-col { border-left: 3px solid rgba(0,200,255,0.70) !important; }
+  /* Frost lines use the same fluid-position technique as the today tick:
+     --frost-lf-pos and --frost-ff-pos are percentages (0–100%) set on #main-table
+     by renderFrostIndicators(), computed with the same (day-0.5)/daysInMonth formula.
+     ::after pseudo-elements draw a 2px blue line at that exact position inside each
+     frost column cell, so Feb 15 sits at the E/L boundary, March 15 near the right
+     edge of the E column, etc. */
+  th.frost-lf, th.frost-ff { position: relative; overflow: visible; }
+  td.frost-lf, td.frost-ff { position: relative; }
+
+  th.frost-lf::after, td.frost-lf::after {
+    content: ''; position: absolute; top: 0; bottom: 0; width: 2px;
+    background: rgba(0,200,255,0.75);
+    left: calc(var(--frost-lf-pos, 50%) - 1px);
+    pointer-events: none; z-index: 10;
+  }
+  th.frost-ff::after, td.frost-ff::after {
+    content: ''; position: absolute; top: 0; bottom: 0; width: 2px;
+    background: rgba(0,200,255,0.75);
+    left: calc(var(--frost-ff-pos, 50%) - 1px);
+    pointer-events: none; z-index: 10;
+  }
   .frost-snowflake {
-    position: absolute; left: -1px; top: 50%;
+    position: absolute; top: 50%;
     transform: translate(-50%, -50%);
     width: 1.44rem; height: 1.44rem;
     cursor: pointer; z-index: 20;
@@ -3618,51 +3635,71 @@ function renderZoneDisplay() {
 function renderFrostIndicators() {
   const ths = Array.from(document.querySelectorAll('thead tr.half-row th:not(.corner)'));
 
-  // Always clear stale header frost marks and body frost-col lines first,
-  // so switching to any zone (including frost-free) leaves a clean state.
+  // Always clear stale frost marks so zone changes (including to frost-free) leave a clean state.
+  // Also removes legacy frost-l class that may be present on initial hard-coded HTML.
   ths.forEach((th, i) => {
-    th.classList.remove('frost-l');
+    th.classList.remove('frost-lf', 'frost-ff', 'frost-l');
     th.innerHTML = i % 2 === 0 ? 'E' : 'L';
   });
-  document.querySelectorAll('#main-table tbody td.frost-col')
-          .forEach(td => td.classList.remove('frost-col'));
+  document.querySelectorAll('#main-table tbody td.frost-lf, #main-table tbody td.frost-ff')
+          .forEach(td => td.classList.remove('frost-lf', 'frost-ff'));
 
   if (!ths.length) return;
 
-  // Check if the current zone is frost-free (null lf in FROST_DATES).
-  // Must check FROST_DATES directly — getZoneFrostSlots() returns { lf:0, ff:23 } for
-  // frost-free zones, and lf=0 would otherwise pass the ">= 0" guard and draw indicators.
+  // Check FROST_DATES directly for frost-free zones (getZoneFrostSlots returns lf:0
+  // for frost-free, which would pass a ">= 0" guard and incorrectly draw indicators)
   const zone = (typeof getZoneSettings === 'function' ? getZoneSettings().zone : null) || '8b';
   const fd   = FROST_DATES[zone] || FROST_DATES['8b'];
-  if (!fd.lf) return; // frost-free zone — no indicators at all
+  if (!fd.lf) return; // frost-free zone — no indicators
 
   const { lf, ff } = getZoneFrostSlots();
 
-  const src = window._frostFlakeSrc || '';
-  function snowflake(type) {
-    return src
-      ? `<span class="frost-snowflake" onclick="showFrostTip(event,'${type}')"><img src="${src}"></span>`
-      : `<span class="frost-snowflake" onclick="showFrostTip(event,'${type}')">❄</span>`;
+  // ── Fluid position within column — same formula as the today tick ────────
+  // (day - 0.5) / daysInMonth gives fractional position through the month (0→1).
+  // Then scale to 0→1 within the early (0–15) or late (16–end) half-column.
+  // Result: Feb 15 → 100% (right at the E/L split), Mar 15 → ~94% in Mar-E, etc.
+  function frostPos(monthIdx1, day) {
+    const isLate      = day > 15;
+    const daysInMonth = new Date(new Date().getFullYear(), monthIdx1, 0).getDate();
+    const dayFrac     = (day - 0.5) / daysInMonth;
+    const halfFrac    = isLate ? (dayFrac - 0.5) * 2 : dayFrac * 2;
+    return Math.min(100, Math.max(0, halfFrac * 100)).toFixed(1) + '%';
   }
 
-  // Header: snowflake + blue left border on the correct th
+  const lfPos = frostPos(fd.lf[0], fd.lf[1]);
+  const ffPos = frostPos(fd.ff[0], fd.ff[1]);
+
+  // Push positions as CSS variables — ::after pseudo-elements on frost cells use them
+  const table = document.getElementById('main-table');
+  if (table) {
+    table.style.setProperty('--frost-lf-pos', lfPos);
+    table.style.setProperty('--frost-ff-pos', ffPos);
+  }
+
+  // Snowflake HTML — left is set inline to match the ::after line position
+  const src = window._frostFlakeSrc || '';
+  function snowflake(type, posPercent) {
+    const inner = src ? `<img src="${src}">` : '❄';
+    return `<span class="frost-snowflake" onclick="showFrostTip(event,'${type}')" style="left:${posPercent}">${inner}</span>`;
+  }
+
+  // Header cells — class drives the ::after line; innerHTML adds the clickable snowflake
   if (lf >= 0 && lf < ths.length) {
-    ths[lf].classList.add('frost-l');
-    ths[lf].innerHTML = snowflake('spring');
+    ths[lf].classList.add('frost-lf');
+    ths[lf].innerHTML = snowflake('spring', lfPos);
   }
   if (ff >= 0 && ff < ths.length && ff !== lf) {
-    ths[ff].classList.add('frost-l');
-    ths[ff].innerHTML = snowflake('fall');
+    ths[ff].classList.add('frost-ff');
+    ths[ff].innerHTML = snowflake('fall', ffPos);
   }
 
-  // Body: add frost-col to the matching td.hcol in every plant row.
-  // Row layout: td (name, nth-child 1) + 24 td.hcol (nth-child 2–25).
-  // Slot index `n` → nth-child(n + 2).
+  // Body cells — class drives the ::after line (no snowflake in body, just the line)
+  // Row layout: td (name, nth-child 1) + 24 td.hcol (nth-child 2–25) → slot n = nth-child(n+2)
   document.querySelectorAll(`#main-table tbody td.hcol:nth-child(${lf + 2})`)
-          .forEach(td => td.classList.add('frost-col'));
+          .forEach(td => td.classList.add('frost-lf'));
   if (ff !== lf) {
     document.querySelectorAll(`#main-table tbody td.hcol:nth-child(${ff + 2})`)
-            .forEach(td => td.classList.add('frost-col'));
+            .forEach(td => td.classList.add('frost-ff'));
   }
 }
 
