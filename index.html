@@ -333,20 +333,40 @@
      ::after pseudo-elements draw a 2px blue line at that exact position inside each
      frost column cell, so Feb 15 sits at the E/L boundary, March 15 near the right
      edge of the E column, etc. */
-  th.frost-lf, th.frost-ff { position: relative; overflow: visible; }
-  td.frost-lf, td.frost-ff { position: relative; }
+  /* Header frost cells: z-index 21 > adjacent th z-index 20 so the snowflake
+     paints on top of the neighbouring "L" cell; overflow:visible lets it overflow */
+  th.frost-lf, th.frost-ff { position: relative; overflow: visible; z-index: 21 !important; }
 
-  th.frost-lf::after, td.frost-lf::after {
+  /* Body frost cells: overflow:hidden clips the ::after to cell bounds;
+     combined with z-index:1 below, the sticky name column (z-index:2) stays on top */
+  td.frost-lf, td.frost-ff { position: relative; overflow: hidden; }
+
+  /* Header frost lines — z-index 10 (above cell content, well below corner z-index 35) */
+  th.frost-lf::after {
     content: ''; position: absolute; top: 0; bottom: 0; width: 2px;
     background: rgba(0,200,255,0.75);
     left: calc(var(--frost-lf-pos, 50%) - 1px);
     pointer-events: none; z-index: 10;
   }
-  th.frost-ff::after, td.frost-ff::after {
+  th.frost-ff::after {
     content: ''; position: absolute; top: 0; bottom: 0; width: 2px;
     background: rgba(0,200,255,0.75);
     left: calc(var(--frost-ff-pos, 50%) - 1px);
     pointer-events: none; z-index: 10;
+  }
+  /* Body frost lines — z-index 1 so sticky name column (z-index:2) paints on top
+     when the frost cell scrolls behind it */
+  td.frost-lf::after {
+    content: ''; position: absolute; top: 0; bottom: 0; width: 2px;
+    background: rgba(0,200,255,0.75);
+    left: calc(var(--frost-lf-pos, 50%) - 1px);
+    pointer-events: none; z-index: 1;
+  }
+  td.frost-ff::after {
+    content: ''; position: absolute; top: 0; bottom: 0; width: 2px;
+    background: rgba(0,200,255,0.75);
+    left: calc(var(--frost-ff-pos, 50%) - 1px);
+    pointer-events: none; z-index: 1;
   }
   .frost-snowflake {
     position: absolute; top: 50%;
@@ -3824,28 +3844,89 @@ function initMonthSnap() {
   const wrap = document.querySelector('.table-wrap');
   if (!wrap) return;
 
-  function snapToNearestMonth() {
+  function getMonthW() {
     const th = document.querySelector('thead tr.half-row th:not(.corner)');
-    const cellW  = th ? th.getBoundingClientRect().width : 22;
-    const monthW = cellW * 2;
-    if (monthW < 1) return;
-    const nearest = Math.round(wrap.scrollLeft / monthW) * monthW;
-    if (Math.abs(wrap.scrollLeft - nearest) > 1) {
-      wrap.scrollTo({ left: nearest, behavior: 'smooth' });
-    }
+    return th ? th.getBoundingClientRect().width * 2 : 44;
+  }
+  function nearestSnap(x) {
+    const mw = getMonthW();
+    return mw > 0 ? Math.round(x / mw) * mw : x;
   }
 
-  // scrollend fires once per gesture (Chrome 114+, Firefox 109+, Safari 17.4+)
-  // fall back to debounce for older browsers
-  if ('onscrollend' in window) {
-    wrap.addEventListener('scrollend', snapToNearestMonth);
-  } else {
-    let snapTimer;
-    wrap.addEventListener('scroll', () => {
-      clearTimeout(snapTimer);
-      snapTimer = setTimeout(snapToNearestMonth, 220);
-    });
+  // ── Single-axis touch scroll ───────────────────────────────────────────────
+  // On the first ~6px of movement we detect the dominant direction and commit
+  // to that axis for the entire gesture.  We call e.preventDefault() (requires
+  // passive:false) to suppress the browser's built-in 2D scroll, then apply
+  // scrollTop or scrollLeft manually.  A rAF momentum loop after touchend gives
+  // a natural glide feel; horizontal momentum ends with a snap to month boundary.
+
+  let startX = 0, startY = 0, lastX = 0, lastY = 0;
+  let touchAxis = null;   // 'x' | 'y' | null
+  let velX = 0, velY = 0;
+  let momentumId = null;
+
+  function stopMomentum() {
+    if (momentumId) { cancelAnimationFrame(momentumId); momentumId = null; }
   }
+
+  wrap.addEventListener('touchstart', e => {
+    stopMomentum();
+    startX = lastX = e.touches[0].clientX;
+    startY = lastY = e.touches[0].clientY;
+    touchAxis = null;
+    velX = velY = 0;
+  }, { passive: true });
+
+  wrap.addEventListener('touchmove', e => {
+    const cx = e.touches[0].clientX;
+    const cy = e.touches[0].clientY;
+
+    if (!touchAxis) {
+      const dx = Math.abs(cx - startX);
+      const dy = Math.abs(cy - startY);
+      if (dx < 6 && dy < 6) return; // not enough movement yet
+      touchAxis = dx > dy ? 'x' : 'y';
+    }
+
+    e.preventDefault(); // block browser's 2D scroll — must have passive:false
+
+    const dx = cx - lastX;
+    const dy = cy - lastY;
+    if (touchAxis === 'y') { wrap.scrollTop  -= dy; velY = dy; }
+    else                   { wrap.scrollLeft -= dx; velX = dx; }
+    lastX = cx; lastY = cy;
+  }, { passive: false });
+
+  wrap.addEventListener('touchend', () => {
+    const axis = touchAxis;
+    touchAxis = null;
+    if (!axis) return;
+
+    if (axis === 'x') {
+      // Horizontal momentum → decelerate → snap to month boundary
+      let vx = velX;
+      function momentumX() {
+        vx *= 0.92;
+        if (Math.abs(vx) < 0.5) {
+          wrap.scrollTo({ left: nearestSnap(wrap.scrollLeft), behavior: 'smooth' });
+          momentumId = null; return;
+        }
+        wrap.scrollLeft -= vx;
+        momentumId = requestAnimationFrame(momentumX);
+      }
+      momentumId = requestAnimationFrame(momentumX);
+    } else {
+      // Vertical momentum → decelerate naturally
+      let vy = velY;
+      function momentumY() {
+        vy *= 0.92;
+        if (Math.abs(vy) < 0.5) { momentumId = null; return; }
+        wrap.scrollTop -= vy;
+        momentumId = requestAnimationFrame(momentumY);
+      }
+      momentumId = requestAnimationFrame(momentumY);
+    }
+  }, { passive: true });
 }
 </script>
 </body>
