@@ -90,7 +90,7 @@
   .legend-emoji-icon { font-size: 0.85rem; width: 22px; text-align: center; flex-shrink: 0; }
 
   .calendar-outer { background: var(--cream); border-radius: 16px; overflow: hidden; box-shadow: 0 20px 60px rgba(0,0,0,0.4); animation: fadeUp 0.7s 0.1s ease both; }
-  .table-wrap { overflow: auto; max-height: 68vh; -webkit-overflow-scrolling: touch; touch-action: pan-y; }
+  .table-wrap { overflow: auto; max-height: 68vh; -webkit-overflow-scrolling: touch; }
 
   table { border-collapse: collapse; width: 100%; min-width: 900px; table-layout: fixed; }
 
@@ -3841,12 +3841,12 @@ function scrollToCurrentMonth(behavior) {
 }
 
 function initMonthSnap() {
-  // Strategy: CSS touch-action:pan-y lets the browser handle vertical scroll
-  // natively on the compositor thread (buttery smooth, zero JS involvement).
-  // Horizontal navigation is handled separately as a swipe gesture — on touchend
-  // we detect a horizontal swipe and programmatically scroll to the next/prev month.
-  // This completely eliminates diagonal drift: the browser physically cannot
-  // scroll horizontally during a touch (touch-action:pan-y blocks it at compositor level).
+  // Strategy: allow native 2D scroll (smooth, compositor-thread) but always
+  // realign to a month boundary after the gesture ends.
+  // Key insight: if horizontal drift is SMALL (accidental during vertical scroll),
+  // snap instantly with no animation — imperceptible to the eye.
+  // If drift is LARGE (intentional horizontal scroll), animate smoothly to the
+  // nearest month — satisfying snap feel.
   const wrap = document.querySelector('.table-wrap');
   if (!wrap) return;
 
@@ -3855,50 +3855,29 @@ function initMonthSnap() {
     return th ? th.getBoundingClientRect().width * 2 : 44;
   }
 
-  function snapToMonth(offset = 0) {
-    const mw = getMonthWidth();
+  function snapAfterScroll() {
+    const mw     = getMonthWidth();
     if (mw < 1) return;
-    const current = Math.round(wrap.scrollLeft / mw);
-    const target  = Math.max(0, (current + offset)) * mw;
-    wrap.scrollTo({ left: target, behavior: 'smooth' });
+    const target = Math.round(wrap.scrollLeft / mw) * mw;
+    const drift  = Math.abs(wrap.scrollLeft - target);
+    if (drift < 2) return; // already aligned
+
+    if (drift < mw * 0.35) {
+      // Small drift — correct instantly (no animation), looks seamless
+      wrap.scrollLeft = target;
+    } else {
+      // Large drift — intentional horizontal scroll, animate to nearest month
+      wrap.scrollTo({ left: target, behavior: 'smooth' });
+    }
   }
 
-  // ── touch: swipe left/right to change month ────────────────
-  let touchStartX = 0, touchStartY = 0;
-
-  wrap.addEventListener('touchstart', e => {
-    touchStartX = e.touches[0].clientX;
-    touchStartY = e.touches[0].clientY;
-  }, { passive: true });
-
-  wrap.addEventListener('touchend', e => {
-    const dx = e.changedTouches[0].clientX - touchStartX;
-    const dy = Math.abs(e.changedTouches[0].clientY - touchStartY);
-    const absDx = Math.abs(dx);
-    // Only treat as horizontal swipe if clearly more horizontal than vertical
-    // and has enough travel distance to be intentional (> 40px)
-    if (absDx > 40 && absDx > dy * 1.5) {
-      const mw      = getMonthWidth();
-      const months  = Math.max(1, Math.round(absDx / mw));
-      const dir     = dx < 0 ? 1 : -1; // swipe left = go forward (positive offset)
-      snapToMonth(dir * months);
-    }
-  }, { passive: true });
-
-  // ── mouse / trackpad: snap after horizontal scroll settles ─
-  // (touch-action:pan-y has no effect on mouse wheel / trackpad)
-  let inTouch = false;
-  wrap.addEventListener('touchstart', () => { inTouch = true;  }, { passive: true });
-  wrap.addEventListener('touchend',   () => { inTouch = false; }, { passive: true });
-
+  // ── scrollend: fires after momentum fully settles (iOS 16+, Chrome) ──
   if ('onscrollend' in window) {
-    wrap.addEventListener('scrollend', () => { if (!inTouch) snapToMonth(); });
+    wrap.addEventListener('scrollend', snapAfterScroll);
   } else {
+    // Fallback: debounce for older browsers
     let t;
-    wrap.addEventListener('scroll', () => {
-      if (inTouch) return;
-      clearTimeout(t); t = setTimeout(() => snapToMonth(), 220);
-    });
+    wrap.addEventListener('scroll', () => { clearTimeout(t); t = setTimeout(snapAfterScroll, 200); });
   }
 }
 </script>
