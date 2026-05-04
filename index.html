@@ -90,7 +90,7 @@
   .legend-emoji-icon { font-size: 0.85rem; width: 22px; text-align: center; flex-shrink: 0; }
 
   .calendar-outer { background: var(--cream); border-radius: 16px; overflow: hidden; box-shadow: 0 20px 60px rgba(0,0,0,0.4); animation: fadeUp 0.7s 0.1s ease both; }
-  .table-wrap { overflow: auto; max-height: 68vh; -webkit-overflow-scrolling: touch; }
+  .table-wrap { overflow: auto; max-height: 68vh; -webkit-overflow-scrolling: touch; touch-action: pan-y; }
 
   table { border-collapse: collapse; width: 100%; min-width: 900px; table-layout: fixed; }
 
@@ -3841,84 +3841,63 @@ function scrollToCurrentMonth(behavior) {
 }
 
 function initMonthSnap() {
+  // Strategy: CSS touch-action:pan-y lets the browser handle vertical scroll
+  // natively on the compositor thread (buttery smooth, zero JS involvement).
+  // Horizontal navigation is handled separately as a swipe gesture — on touchend
+  // we detect a horizontal swipe and programmatically scroll to the next/prev month.
+  // This completely eliminates diagonal drift: the browser physically cannot
+  // scroll horizontally during a touch (touch-action:pan-y blocks it at compositor level).
   const wrap = document.querySelector('.table-wrap');
   if (!wrap) return;
 
-  // ── helpers ────────────────────────────────────────────────
-  function getSnapLeft() {
+  function getMonthWidth() {
     const th = document.querySelector('thead tr.half-row th:not(.corner)');
-    const mw = th ? th.getBoundingClientRect().width * 2 : 44;
-    if (mw < 1) return wrap.scrollLeft;
-    return Math.round(wrap.scrollLeft / mw) * mw;
-  }
-  function snapNow() {
-    const target = getSnapLeft();
-    if (Math.abs(wrap.scrollLeft - target) > 1) {
-      wrap.scrollTo({ left: target, behavior: 'smooth' });
-    }
+    return th ? th.getBoundingClientRect().width * 2 : 44;
   }
 
-  // ── touch state ────────────────────────────────────────────
-  let inTouch       = false;
-  let lockedAxis    = null;   // 'x' | 'y' once determined
-  let lockedScrollL = 0;      // scrollLeft to enforce when axis=y
-  let lockedScrollT = 0;      // scrollTop  to enforce when axis=x
-  let didScrollX    = false;  // did horizontal movement happen this touch?
+  function snapToMonth(offset = 0) {
+    const mw = getMonthWidth();
+    if (mw < 1) return;
+    const current = Math.round(wrap.scrollLeft / mw);
+    const target  = Math.max(0, (current + offset)) * mw;
+    wrap.scrollTo({ left: target, behavior: 'smooth' });
+  }
 
-  wrap.addEventListener('touchstart', () => {
-    inTouch       = true;
-    lockedAxis    = null;
-    didScrollX    = false;
-    lockedScrollL = wrap.scrollLeft;
-    lockedScrollT = wrap.scrollTop;
+  // ── touch: swipe left/right to change month ────────────────
+  let touchStartX = 0, touchStartY = 0;
+
+  wrap.addEventListener('touchstart', e => {
+    touchStartX = e.touches[0].clientX;
+    touchStartY = e.touches[0].clientY;
   }, { passive: true });
 
-  wrap.addEventListener('touchend', () => {
-    inTouch = false;
-    // Only snap-to-month when a horizontal gesture actually occurred
-    if (didScrollX) setTimeout(snapNow, 50);
-    lockedAxis = null;
-    didScrollX = false;
-  }, { passive: true });
-
-  // ── axis lock via scroll event ─────────────────────────────
-  // The browser compositor has already moved the element by the time
-  // 'scroll' fires, but correcting here means only one frame of drift —
-  // much less noticeable than passive:false blocking every frame.
-  wrap.addEventListener('scroll', () => {
-    if (!inTouch) return;
-
-    const curL = wrap.scrollLeft;
-    const curT = wrap.scrollTop;
-
-    // Determine dominant axis from cumulative deltas (needs >6 px to commit)
-    if (lockedAxis === null) {
-      const dx = Math.abs(curL - lockedScrollL);
-      const dy = Math.abs(curT - lockedScrollT);
-      if (dx > 6 || dy > 6) {
-        lockedAxis = dx >= dy ? 'x' : 'y';
-        // Snap the lock position to a clean month boundary when locking y-axis
-        if (lockedAxis === 'y') lockedScrollL = getSnapLeft();
-      }
-    }
-
-    // Enforce: clamp the off-axis position back to where it was locked
-    if (lockedAxis === 'y') {
-      if (Math.abs(curL - lockedScrollL) > 1) wrap.scrollLeft = lockedScrollL;
-    } else if (lockedAxis === 'x') {
-      if (Math.abs(curT - lockedScrollT) > 1) wrap.scrollTop = lockedScrollT;
-      didScrollX = true;
+  wrap.addEventListener('touchend', e => {
+    const dx = e.changedTouches[0].clientX - touchStartX;
+    const dy = Math.abs(e.changedTouches[0].clientY - touchStartY);
+    const absDx = Math.abs(dx);
+    // Only treat as horizontal swipe if clearly more horizontal than vertical
+    // and has enough travel distance to be intentional (> 40px)
+    if (absDx > 40 && absDx > dy * 1.5) {
+      const mw      = getMonthWidth();
+      const months  = Math.max(1, Math.round(absDx / mw));
+      const dir     = dx < 0 ? 1 : -1; // swipe left = go forward (positive offset)
+      snapToMonth(dir * months);
     }
   }, { passive: true });
 
   // ── mouse / trackpad: snap after horizontal scroll settles ─
+  // (touch-action:pan-y has no effect on mouse wheel / trackpad)
+  let inTouch = false;
+  wrap.addEventListener('touchstart', () => { inTouch = true;  }, { passive: true });
+  wrap.addEventListener('touchend',   () => { inTouch = false; }, { passive: true });
+
   if ('onscrollend' in window) {
-    wrap.addEventListener('scrollend', () => { if (!inTouch) snapNow(); });
+    wrap.addEventListener('scrollend', () => { if (!inTouch) snapToMonth(); });
   } else {
     let t;
     wrap.addEventListener('scroll', () => {
       if (inTouch) return;
-      clearTimeout(t); t = setTimeout(snapNow, 220);
+      clearTimeout(t); t = setTimeout(() => snapToMonth(), 220);
     });
   }
 }
