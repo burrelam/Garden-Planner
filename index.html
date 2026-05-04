@@ -3841,91 +3841,42 @@ function scrollToCurrentMonth(behavior) {
 }
 
 function initMonthSnap() {
+  // 100% native scroll — no passive:false, no manual scrollTop/scrollLeft during
+  // touchmove. Native scroll runs on the GPU compositor thread with zero JS latency,
+  // giving buttery smoothness. We only correct scrollLeft AFTER the finger lifts
+  // (touchend) or after a scroll gesture settles (scrollend / debounce).
   const wrap = document.querySelector('.table-wrap');
   if (!wrap) return;
 
-  function getMonthW() {
-    const th = document.querySelector('thead tr.half-row th:not(.corner)');
-    return th ? th.getBoundingClientRect().width * 2 : 44;
-  }
-  function nearestSnap(x) {
-    const mw = getMonthW();
-    return mw > 0 ? Math.round(x / mw) * mw : x;
-  }
-
-  // ── Single-axis touch scroll ───────────────────────────────────────────────
-  // On the first ~6px of movement we detect the dominant direction and commit
-  // to that axis for the entire gesture.  We call e.preventDefault() (requires
-  // passive:false) to suppress the browser's built-in 2D scroll, then apply
-  // scrollTop or scrollLeft manually.  A rAF momentum loop after touchend gives
-  // a natural glide feel; horizontal momentum ends with a snap to month boundary.
-
-  let startX = 0, startY = 0, lastX = 0, lastY = 0;
-  let touchAxis = null;   // 'x' | 'y' | null
-  let velX = 0, velY = 0;
-  let momentumId = null;
-
-  function stopMomentum() {
-    if (momentumId) { cancelAnimationFrame(momentumId); momentumId = null; }
+  function snapNow() {
+    const th  = document.querySelector('thead tr.half-row th:not(.corner)');
+    const mw  = th ? th.getBoundingClientRect().width * 2 : 44;
+    if (mw < 1) return;
+    const target = Math.round(wrap.scrollLeft / mw) * mw;
+    if (Math.abs(wrap.scrollLeft - target) > 1) {
+      wrap.scrollTo({ left: target, behavior: 'smooth' });
+    }
   }
 
+  // Snap to nearest month after any horizontal scroll settles
+  if ('onscrollend' in window) {
+    wrap.addEventListener('scrollend', snapNow);
+  } else {
+    let t;
+    wrap.addEventListener('scroll', () => { clearTimeout(t); t = setTimeout(snapNow, 220); });
+  }
+
+  // After a vertical swipe, correct any horizontal drift that crept in.
+  // 80 ms delay lets iOS momentum begin before we snap.
+  let startX = 0, startY = 0;
   wrap.addEventListener('touchstart', e => {
-    stopMomentum();
-    startX = lastX = e.touches[0].clientX;
-    startY = lastY = e.touches[0].clientY;
-    touchAxis = null;
-    velX = velY = 0;
+    startX = e.touches[0].clientX;
+    startY = e.touches[0].clientY;
   }, { passive: true });
-
-  wrap.addEventListener('touchmove', e => {
-    const cx = e.touches[0].clientX;
-    const cy = e.touches[0].clientY;
-
-    if (!touchAxis) {
-      const dx = Math.abs(cx - startX);
-      const dy = Math.abs(cy - startY);
-      if (dx < 6 && dy < 6) return; // not enough movement yet
-      touchAxis = dx > dy ? 'x' : 'y';
-    }
-
-    e.preventDefault(); // block browser's 2D scroll — must have passive:false
-
-    const dx = cx - lastX;
-    const dy = cy - lastY;
-    if (touchAxis === 'y') { wrap.scrollTop  -= dy; velY = dy; }
-    else                   { wrap.scrollLeft -= dx; velX = dx; }
-    lastX = cx; lastY = cy;
-  }, { passive: false });
-
-  wrap.addEventListener('touchend', () => {
-    const axis = touchAxis;
-    touchAxis = null;
-    if (!axis) return;
-
-    if (axis === 'x') {
-      // Horizontal momentum → decelerate → snap to month boundary
-      let vx = velX;
-      function momentumX() {
-        vx *= 0.92;
-        if (Math.abs(vx) < 0.5) {
-          wrap.scrollTo({ left: nearestSnap(wrap.scrollLeft), behavior: 'smooth' });
-          momentumId = null; return;
-        }
-        wrap.scrollLeft -= vx;
-        momentumId = requestAnimationFrame(momentumX);
-      }
-      momentumId = requestAnimationFrame(momentumX);
-    } else {
-      // Vertical momentum → decelerate naturally
-      let vy = velY;
-      function momentumY() {
-        vy *= 0.92;
-        if (Math.abs(vy) < 0.5) { momentumId = null; return; }
-        wrap.scrollTop -= vy;
-        momentumId = requestAnimationFrame(momentumY);
-      }
-      momentumId = requestAnimationFrame(momentumY);
-    }
+  wrap.addEventListener('touchend', e => {
+    const dx = Math.abs(e.changedTouches[0].clientX - startX);
+    const dy = Math.abs(e.changedTouches[0].clientY - startY);
+    if (dy > dx) setTimeout(snapNow, 80);
   }, { passive: true });
 }
 </script>
