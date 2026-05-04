@@ -3841,43 +3841,86 @@ function scrollToCurrentMonth(behavior) {
 }
 
 function initMonthSnap() {
-  // 100% native scroll — no passive:false, no manual scrollTop/scrollLeft during
-  // touchmove. Native scroll runs on the GPU compositor thread with zero JS latency,
-  // giving buttery smoothness. We only correct scrollLeft AFTER the finger lifts
-  // (touchend) or after a scroll gesture settles (scrollend / debounce).
   const wrap = document.querySelector('.table-wrap');
   if (!wrap) return;
 
+  // ── helpers ────────────────────────────────────────────────
+  function getSnapLeft() {
+    const th = document.querySelector('thead tr.half-row th:not(.corner)');
+    const mw = th ? th.getBoundingClientRect().width * 2 : 44;
+    if (mw < 1) return wrap.scrollLeft;
+    return Math.round(wrap.scrollLeft / mw) * mw;
+  }
   function snapNow() {
-    const th  = document.querySelector('thead tr.half-row th:not(.corner)');
-    const mw  = th ? th.getBoundingClientRect().width * 2 : 44;
-    if (mw < 1) return;
-    const target = Math.round(wrap.scrollLeft / mw) * mw;
+    const target = getSnapLeft();
     if (Math.abs(wrap.scrollLeft - target) > 1) {
       wrap.scrollTo({ left: target, behavior: 'smooth' });
     }
   }
 
-  // Snap to nearest month after any horizontal scroll settles
+  // ── touch state ────────────────────────────────────────────
+  let inTouch       = false;
+  let lockedAxis    = null;   // 'x' | 'y' once determined
+  let lockedScrollL = 0;      // scrollLeft to enforce when axis=y
+  let lockedScrollT = 0;      // scrollTop  to enforce when axis=x
+  let didScrollX    = false;  // did horizontal movement happen this touch?
+
+  wrap.addEventListener('touchstart', () => {
+    inTouch       = true;
+    lockedAxis    = null;
+    didScrollX    = false;
+    lockedScrollL = wrap.scrollLeft;
+    lockedScrollT = wrap.scrollTop;
+  }, { passive: true });
+
+  wrap.addEventListener('touchend', () => {
+    inTouch = false;
+    // Only snap-to-month when a horizontal gesture actually occurred
+    if (didScrollX) setTimeout(snapNow, 50);
+    lockedAxis = null;
+    didScrollX = false;
+  }, { passive: true });
+
+  // ── axis lock via scroll event ─────────────────────────────
+  // The browser compositor has already moved the element by the time
+  // 'scroll' fires, but correcting here means only one frame of drift —
+  // much less noticeable than passive:false blocking every frame.
+  wrap.addEventListener('scroll', () => {
+    if (!inTouch) return;
+
+    const curL = wrap.scrollLeft;
+    const curT = wrap.scrollTop;
+
+    // Determine dominant axis from cumulative deltas (needs >6 px to commit)
+    if (lockedAxis === null) {
+      const dx = Math.abs(curL - lockedScrollL);
+      const dy = Math.abs(curT - lockedScrollT);
+      if (dx > 6 || dy > 6) {
+        lockedAxis = dx >= dy ? 'x' : 'y';
+        // Snap the lock position to a clean month boundary when locking y-axis
+        if (lockedAxis === 'y') lockedScrollL = getSnapLeft();
+      }
+    }
+
+    // Enforce: clamp the off-axis position back to where it was locked
+    if (lockedAxis === 'y') {
+      if (Math.abs(curL - lockedScrollL) > 1) wrap.scrollLeft = lockedScrollL;
+    } else if (lockedAxis === 'x') {
+      if (Math.abs(curT - lockedScrollT) > 1) wrap.scrollTop = lockedScrollT;
+      didScrollX = true;
+    }
+  }, { passive: true });
+
+  // ── mouse / trackpad: snap after horizontal scroll settles ─
   if ('onscrollend' in window) {
-    wrap.addEventListener('scrollend', snapNow);
+    wrap.addEventListener('scrollend', () => { if (!inTouch) snapNow(); });
   } else {
     let t;
-    wrap.addEventListener('scroll', () => { clearTimeout(t); t = setTimeout(snapNow, 220); });
+    wrap.addEventListener('scroll', () => {
+      if (inTouch) return;
+      clearTimeout(t); t = setTimeout(snapNow, 220);
+    });
   }
-
-  // After a vertical swipe, correct any horizontal drift that crept in.
-  // 80 ms delay lets iOS momentum begin before we snap.
-  let startX = 0, startY = 0;
-  wrap.addEventListener('touchstart', e => {
-    startX = e.touches[0].clientX;
-    startY = e.touches[0].clientY;
-  }, { passive: true });
-  wrap.addEventListener('touchend', e => {
-    const dx = Math.abs(e.changedTouches[0].clientX - startX);
-    const dy = Math.abs(e.changedTouches[0].clientY - startY);
-    if (dy > dx) setTimeout(snapNow, 80);
-  }, { passive: true });
 }
 </script>
 </body>
