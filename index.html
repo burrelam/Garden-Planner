@@ -3841,12 +3841,6 @@ function scrollToCurrentMonth(behavior) {
 }
 
 function initMonthSnap() {
-  // Strategy: allow native 2D scroll (smooth, compositor-thread) but always
-  // realign to a month boundary after the gesture ends.
-  // Key insight: if horizontal drift is SMALL (accidental during vertical scroll),
-  // snap instantly with no animation — imperceptible to the eye.
-  // If drift is LARGE (intentional horizontal scroll), animate smoothly to the
-  // nearest month — satisfying snap feel.
   const wrap = document.querySelector('.table-wrap');
   if (!wrap) return;
 
@@ -3854,30 +3848,68 @@ function initMonthSnap() {
     const th = document.querySelector('thead tr.half-row th:not(.corner)');
     return th ? th.getBoundingClientRect().width * 2 : 44;
   }
-
-  function snapAfterScroll() {
-    const mw     = getMonthWidth();
-    if (mw < 1) return;
-    const target = Math.round(wrap.scrollLeft / mw) * mw;
-    const drift  = Math.abs(wrap.scrollLeft - target);
-    if (drift < 2) return; // already aligned
-
-    if (drift < mw * 0.35) {
-      // Small drift — correct instantly (no animation), looks seamless
-      wrap.scrollLeft = target;
-    } else {
-      // Large drift — intentional horizontal scroll, animate to nearest month
+  function nearestMonthLeft() {
+    const mw = getMonthWidth();
+    return mw < 1 ? wrap.scrollLeft : Math.round(wrap.scrollLeft / mw) * mw;
+  }
+  function snapSmooth() {
+    const target = nearestMonthLeft();
+    if (Math.abs(wrap.scrollLeft - target) > 2) {
       wrap.scrollTo({ left: target, behavior: 'smooth' });
     }
   }
 
-  // ── scrollend: fires after momentum fully settles (iOS 16+, Chrome) ──
+  // ── touch axis detection + horizontal lock ─────────────────
+  // We track cumulative scroll deltas (not touch pixel deltas, which are
+  // unreliable with passive listeners) so the axis is determined by what
+  // the scroller actually moved, not finger angle.
+  let inTouch       = false;
+  let axis          = null;    // 'x' | 'y'
+  let scrollBase    = { l: 0, t: 0 }; // scrollLeft/Top at touchstart
+  let lockedLeft    = 0;       // scrollLeft to hold during a y-axis gesture
+
+  wrap.addEventListener('touchstart', () => {
+    inTouch    = true;
+    axis       = null;
+    scrollBase = { l: wrap.scrollLeft, t: wrap.scrollTop };
+    lockedLeft = nearestMonthLeft(); // snap-to-month as the lock point
+  }, { passive: true });
+
+  wrap.addEventListener('touchend', () => {
+    inTouch = false;
+    if (axis !== 'y') snapSmooth(); // snap after horizontal gesture
+    axis = null;
+  }, { passive: true });
+
+  // scroll fires every frame the element moves — use it to:
+  // 1) determine axis from actual scroll deltas
+  // 2) enforce the lock by writing scrollLeft back each frame
+  wrap.addEventListener('scroll', () => {
+    if (!inTouch) return;
+
+    const dxAbs = Math.abs(wrap.scrollLeft - scrollBase.l);
+    const dyAbs = Math.abs(wrap.scrollTop  - scrollBase.t);
+
+    if (axis === null && (dxAbs > 4 || dyAbs > 4)) {
+      axis = dxAbs > dyAbs ? 'x' : 'y';
+      if (axis === 'y') lockedLeft = nearestMonthLeft();
+    }
+
+    // Hold scrollLeft steady during vertical scroll
+    if (axis === 'y' && wrap.scrollLeft !== lockedLeft) {
+      wrap.scrollLeft = lockedLeft;
+    }
+  }, { passive: true });
+
+  // ── mouse / trackpad snap after scroll settles ─────────────
   if ('onscrollend' in window) {
-    wrap.addEventListener('scrollend', snapAfterScroll);
+    wrap.addEventListener('scrollend', () => { if (!inTouch) snapSmooth(); });
   } else {
-    // Fallback: debounce for older browsers
     let t;
-    wrap.addEventListener('scroll', () => { clearTimeout(t); t = setTimeout(snapAfterScroll, 200); });
+    wrap.addEventListener('scroll', () => {
+      if (inTouch) return;
+      clearTimeout(t); t = setTimeout(snapSmooth, 200);
+    });
   }
 }
 </script>
