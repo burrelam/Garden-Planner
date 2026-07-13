@@ -1,0 +1,116 @@
+@import url("https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap");
+
+:root {
+  --ink: #F2F5F2;
+  --paper: #14181A;
+  --panel: #1D2224;
+  --mist: #323A3C;
+  --sage: #7FC793;
+  --amber: #E8B563;
+  --clay: #E08562;
+  --rust: #D97B5E;
+
+  --font-display: "Fraunces", serif;
+  --font-body: "Inter", sans-serif;
+  --font-mono: "IBM Plex Mono", monospace;
+
+  --status-ideal: var(--sage);
+  --status-close: var(--amber);
+  --status-warn: var(--clay);
+  --status-over: var(--rust);
+
+  --radius: 10px;
+  --gap: 1rem;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+}
+
+body {
+  background-color: var(--paper);
+  background-image: radial-gradient(var(--mist) 1px, transparent 1px);
+  background-size: 22px 22px;
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+h1, h2, h3, .display {
+  font-family: var(--font-display);
+  font-weight: 600;
+  margin: 0 0 0.5rem;
+}
+
+.mono, table, input, select, textarea {
+  font-family: var(--font-mono);
+}
+
+a {
+  color: var(--sage);
+}
+
+button {
+  font-family: var(--font-body);
+  font-weight: 600;
+  background: var(--sage);
+  color: var(--paper);
+  border: none;
+  border-radius: var(--radius);
+  padding: 0.6rem 1.1rem;
+  cursor: pointer;
+}
+
+button.secondary {
+  background: var(--panel);
+  color: var(--ink);
+  border: 1px solid var(--mist);
+}
+
+button.danger {
+  background: var(--rust);
+  color: var(--paper);
+}
+
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+input, select, textarea {
+  background: var(--panel);
+  color: var(--ink);
+  border: 1px solid var(--mist);
+  border-radius: var(--radius);
+  padding: 0.5rem 0.6rem;
+  font-size: 0.95rem;
+}
+
+input:focus, select:focus, textarea:focus {
+  outline: 2px solid var(--sage);
+  outline-offset: 1px;
+}
+
+.status-dot {
+  display: inline-block;
+  width: 0.7em;
+  height: 0.7em;
+  border-radius: 50%;
+  margin-right: 0.4em;
+}
+.status-dot.at_ideal, .status-dot.at_target, .status-dot.in_range { background: var(--status-ideal); }
+.status-dot.close_to_min, .status-dot.close_to_max, .status-dot.below_target { background: var(--status-close); }
+.status-dot.below_min { background: var(--status-warn); }
+.status-dot.over_max, .status-dot.surplus { background: var(--status-over); }
+
+.status-text.at_ideal, .status-text.at_target, .status-text.in_range { color: var(--status-ideal); }
+.status-text.close_to_min, .status-text.close_to_max, .status-text.below_target { color: var(--status-close); }
+.status-text.below_min { color: var(--status-warn); }
+.status-text.over_max, .status-text.surplus { color: var(--status-over); }

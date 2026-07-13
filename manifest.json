@@ -1,0 +1,13 @@
+{
+  "name": "Panda FitTracker",
+  "short_name": "FitTracker",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#14181A",
+  "theme_color": "#14181A",
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png" }
+  ]
+}

@@ -1,0 +1,192 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Panda FitTracker — formula tests</title>
+<style>
+  body { font-family: monospace; background: #14181A; color: #F2F5F2; padding: 2rem; }
+  .pass { color: #7FC793; }
+  .fail { color: #D97B5E; font-weight: bold; }
+  li { margin-bottom: 0.35rem; }
+</style>
+</head>
+<body>
+<h1>Formula test results</h1>
+<ul id="results"></ul>
+<p id="summary"></p>
+<script type="module">
+import {
+  trueDeficit, projectedEodTdee, currentDeficit, projectedEodDeficit,
+  sevenDayCurrent, sevenDayEodProjected, remaining, grossCaloriesRemaining,
+  restDayAutoUpgrade, statusForMetric, statusForDeficit,
+  bmi, bmiBandsInLbs, paceFromDeficit,
+} from "./js/formulas.js";
+import { parseMacroPaste } from "./js/macroPaste.js";
+
+const results = [];
+function assertEqual(name, actual, expected) {
+  const pass = JSON.stringify(actual) === JSON.stringify(expected);
+  results.push({ name, pass, actual, expected });
+}
+function assertTrue(name, actual) {
+  results.push({ name, pass: actual === true, actual, expected: true });
+}
+
+// --- Sign convention: negative = deficit (good), positive = surplus ---
+assertEqual("trueDeficit: gross 1500, active 400, resting 1690 -> deficit of 590 (negative)",
+  trueDeficit(1500, 400, 1690), -590);
+assertEqual("trueDeficit: gross 2200, active 200, resting 1690 -> surplus of 310 (positive)",
+  trueDeficit(2200, 200, 1690), 310);
+
+// --- Projected EOD TDEE / Deficit must always be >= as negative as Current Deficit ---
+{
+  const baseline = 1690;
+  const grossSoFar = 900, activeSoFar = 200, restingSoFar = 1000;
+  const cur = currentDeficit(grossSoFar, activeSoFar, restingSoFar);
+  const eodTdee = projectedEodTdee(baseline, activeSoFar);
+  const projEod = projectedEodDeficit(grossSoFar, eodTdee);
+  assertEqual("currentDeficit(900,200,1000) = -300", cur, -300);
+  assertEqual("projectedEodTdee(1690,200) = 1890", eodTdee, 1890);
+  assertEqual("projectedEodDeficit(900,1890) = -990", projEod, -990);
+  assertTrue("Projected EOD Deficit is <= Current Deficit (more or equally negative)", projEod <= cur);
+}
+
+// --- Remaining: daily deficit target -375, max -500 ---
+assertEqual("remaining(-450, -375, -500): between ideal and max -> ideal, room to eat",
+  remaining(-450, -375, -500), { label: "75 to eat", status: "at_target" });
+assertEqual("remaining(-300, -375, -500): less negative than target -> OVER, below-target status",
+  remaining(-300, -375, -500), { label: "OVER by 75", status: "below_target" });
+assertEqual("remaining(-600, -375, -500): more negative than ideal -> still 'to eat' label, over-max status",
+  remaining(-600, -375, -500), { label: "225 to eat", status: "over_max" });
+assertEqual("remaining(50, -375, -500): positive/closer to zero -> OVER label, surplus status",
+  remaining(50, -375, -500), { label: "OVER by 425", status: "surplus" });
+
+// --- Remaining: weekly deficit target -2625, max -3500 ---
+assertEqual("remaining(-3000, -2625, -3500): weekly ideal band",
+  remaining(-3000, -2625, -3500), { label: "375 to eat", status: "at_target" });
+assertEqual("remaining(-2000, -2625, -3500): weekly below target",
+  remaining(-2000, -2625, -3500), { label: "OVER by 625", status: "below_target" });
+
+// --- statusForDeficit exact boundary checks ---
+assertEqual("statusForDeficit(0, ideal -375 max -500) = below_target (0 is not > 0, so not surplus)",
+  statusForDeficit(0, { ideal: -375, max: -500 }), "below_target");
+assertEqual("statusForDeficit(-375, ideal -375 max -500) = at_target (boundary inclusive)",
+  statusForDeficit(-375, { ideal: -375, max: -500 }), "at_target");
+assertEqual("statusForDeficit(-500, ideal -375 max -500) = at_target (boundary inclusive)",
+  statusForDeficit(-500, { ideal: -375, max: -500 }), "at_target");
+assertEqual("statusForDeficit(-501, ideal -375 max -500) = over_max",
+  statusForDeficit(-501, { ideal: -375, max: -500 }), "over_max");
+assertEqual("statusForDeficit(1, ideal -375 max -500) = surplus",
+  statusForDeficit(1, { ideal: -375, max: -500 }), "surplus");
+
+// --- grossCaloriesRemaining ---
+assertEqual("grossCaloriesRemaining(1200, 1825) = room left",
+  grossCaloriesRemaining(1200, 1825), { label: "625", over: false });
+assertEqual("grossCaloriesRemaining(1900, 1825) = OVER",
+  grossCaloriesRemaining(1900, 1825), { label: "OVER by 75", over: true });
+
+// --- 7-day rollups: untracked days count as 0, tracked count reported ---
+{
+  // 6 prior days: 3 tracked with real deficits, 3 untracked (null)
+  const past = [-400, -350, null, -500, null, null];
+  const today = -420;
+  const { total, trackedCount } = sevenDayCurrent(past, today, true);
+  assertEqual("sevenDayCurrent total sums tracked days + 0 for untracked + today",
+    total, -400 + -350 + 0 + -500 + 0 + 0 + -420);
+  assertEqual("sevenDayCurrent trackedCount = 3 prior tracked + today = 4",
+    trackedCount, 4);
+}
+
+// --- Rest-day auto-upgrade ---
+assertTrue("restDayAutoUpgrade(301, 'rest') triggers upgrade", restDayAutoUpgrade(301, "rest"));
+assertEqual("restDayAutoUpgrade(300, 'rest') does NOT trigger (must EXCEED 300)",
+  restDayAutoUpgrade(300, "rest"), false);
+assertEqual("restDayAutoUpgrade(500, 'workout') irrelevant on workout days",
+  restDayAutoUpgrade(500, "workout"), false);
+
+// --- statusForMetric: protein target min 80 ideal 120 max 150, tolerance 5g ---
+const proteinThresholds = { min: 80, ideal: 120, max: 150 };
+assertEqual("statusForMetric(120, protein, 5) = at_ideal (exact)",
+  statusForMetric(120, proteinThresholds, 5), "at_ideal");
+assertEqual("statusForMetric(151, protein, 5) = over_max",
+  statusForMetric(151, proteinThresholds, 5), "over_max");
+assertEqual("statusForMetric(70, protein, 5) = below_min (70 < 80*0.9=72)",
+  statusForMetric(70, proteinThresholds, 5), "below_min");
+assertEqual("statusForMetric(75, protein, 5) = close_to_min (within 10% below 80)",
+  statusForMetric(75, proteinThresholds, 5), "close_to_min");
+assertEqual("statusForMetric(140, protein, 5, isMidDay=true) = close_to_max (>=150*0.9=135)",
+  statusForMetric(140, proteinThresholds, 5, true), "close_to_max");
+assertEqual("statusForMetric(140, protein, 5, isMidDay=false) = in_range (close-to-max hidden at EOD)",
+  statusForMetric(140, proteinThresholds, 5, false), "in_range");
+
+// --- statusForMetric: calories, tolerance 100kcal ---
+const workoutCalThresholds = { min: 1700, ideal: 1825, max: 1950 };
+assertEqual("statusForMetric(1900, calories, 100) = at_ideal (within 100 of 1825)",
+  statusForMetric(1900, workoutCalThresholds, 100), "at_ideal");
+assertEqual("statusForMetric(1730, calories, 100) = at_ideal (95 away from 1825, within 100 tolerance)",
+  statusForMetric(1730, workoutCalThresholds, 100), "at_ideal");
+
+// --- macroPaste parser ---
+{
+  const markdown = `| Item | Cal | Protein | Carbs | Fat | Fiber |
+|---|---|---|---|---|---|
+| Salmon fillet | 300 | 42 | 0 | 14 | 0 |
+| Brown rice | 160 | 4 | 34 | 1 | 2 |
+| **Total** | **460** | **46** | **34** | **15** | **2** |
+Let me know if you'd like anything else!`;
+  const parsed = parseMacroPaste(markdown);
+  assertEqual("markdown table: parses 2 items, skips header/separator/total/signoff",
+    parsed.length, 2);
+  assertEqual("markdown table: first row values",
+    parsed[0], { description: "Salmon fillet", calories: 300, protein_g: 42, carbs_g: 0, fat_g: 14, fiber_g: 0 });
+}
+{
+  const tabbed = "Item\tCal\tProtein\tCarbs\tFat\tFiber\nGreek yogurt\t150\t15\t8\t4\t0\nBanana\t105\t1\t27\t0\t3\nTotal\t255\t16\t35\t4\t3";
+  const parsed = parseMacroPaste(tabbed);
+  assertEqual("tab-separated: parses 2 items, skips header/total",
+    parsed.length, 2);
+  assertEqual("tab-separated: second row values",
+    parsed[1], { description: "Banana", calories: 105, protein_g: 1, carbs_g: 27, fat_g: 0, fiber_g: 3 });
+}
+{
+  // iOS paste workaround: each row individually wrapped in a code block
+  const codeBlockWrapped = "```\nSalmon fillet\t300\t42\t0\t14\t0\n```\n```\nBrown rice\t160\t4\t34\t1\t2\n```";
+  const parsed = parseMacroPaste(codeBlockWrapped);
+  assertEqual("code-block-wrapped rows: fences stripped, 2 items parsed",
+    parsed.length, 2);
+  assertEqual("code-block-wrapped rows: values intact",
+    parsed[0], { description: "Salmon fillet", calories: 300, protein_g: 42, carbs_g: 0, fat_g: 14, fiber_g: 0 });
+}
+assertEqual("empty input yields no rows", parseMacroPaste("").length, 0);
+
+// --- BMI / bands / pace ---
+{
+  const b = bmi(135, 64);
+  assertTrue("bmi(135, 64) is approximately 23.17 (normal range)", Math.abs(b - 23.169) < 0.01);
+}
+{
+  const bands = bmiBandsInLbs(64);
+  assertTrue("bmiBandsInLbs(64).underweightMax ~107.8", Math.abs(bands.underweightMax - 107.79) < 0.1);
+  assertTrue("bmiBandsInLbs(64).normalMax ~145.7", Math.abs(bands.normalMax - 145.66) < 0.1);
+  assertTrue("bmiBandsInLbs(64).overweightMax ~174.8", Math.abs(bands.overweightMax - 174.79) < 0.1);
+}
+assertEqual("paceFromDeficit(-3500) = 1 lb lost", paceFromDeficit(-3500), 1);
+assertEqual("paceFromDeficit(-7000) = 2 lbs lost", paceFromDeficit(-7000), 2);
+assertEqual("paceFromDeficit(3500) = -1 (surplus -> weight gain)", paceFromDeficit(3500), -1);
+assertEqual("paceFromDeficit(0) = 0", paceFromDeficit(0), 0);
+
+// --- render ---
+const list = document.getElementById("results");
+let passCount = 0;
+for (const r of results) {
+  const li = document.createElement("li");
+  li.className = r.pass ? "pass" : "fail";
+  li.textContent = `${r.pass ? "PASS" : "FAIL"} — ${r.name}` +
+    (r.pass ? "" : ` | actual: ${JSON.stringify(r.actual)} expected: ${JSON.stringify(r.expected)}`);
+  list.appendChild(li);
+  if (r.pass) passCount++;
+}
+document.getElementById("summary").textContent = `${passCount}/${results.length} passed`;
+</script>
+</body>
+</html>
