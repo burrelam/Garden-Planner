@@ -1,0 +1,13 @@
+{
+  "name": "GardenBuddy",
+  "short_name": "GardenBuddy",
+  "description": "Your private garden planting planner.",
+  "start_url": "/planner",
+  "display": "standalone",
+  "background_color": "#F5F0E8",
+  "theme_color": "#4A5E3A",
+  "icons": [
+    { "src": "/brand/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "/brand/icon-512.png", "sizes": "512x512", "type": "image/png" }
+  ]
+}

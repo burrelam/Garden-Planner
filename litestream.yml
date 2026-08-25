@@ -1,0 +1,11 @@
+# Production continuously copies SQLite changes to its private Tigris bucket.
+# Staging starts without Litestream unless the same five AWS/Tigris secrets are provided there too.
+dbs:
+  - path: /data/gardenbuddy.db
+    replicas:
+      - type: s3
+        endpoint: $AWS_ENDPOINT_URL_S3
+        bucket: $BUCKET_NAME
+        path: gardenbuddy.db
+        access-key-id: $AWS_ACCESS_KEY_ID
+        secret-access-key: $AWS_SECRET_ACCESS_KEY
