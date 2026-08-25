@@ -24,6 +24,8 @@ Then open `http://localhost:3000`.
 
 Start with [docs/code-tour.md](docs/code-tour.md). It explains which files own the interface, data, security, migrations, plant facts, and deployments in plain language. Source comments explain the important boundaries and the reasons behind security or data choices.
 
+For a new development machine, Claude Code, Fly access, staging releases, production promotion, and backup drills, follow [Amanda’s onboarding guide](docs/amanda-onboarding.md).
+
 ## Commands
 
 | Command                         | Purpose                                                   |
