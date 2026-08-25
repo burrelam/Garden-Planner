@@ -10,8 +10,9 @@ WORKDIR /app
 ENV NODE_ENV=production
 ARG APP_REVISION=unknown
 ENV APP_REVISION=$APP_REVISION
-COPY --from=build /app/node_modules ./node_modules
-COPY --from=build /app/package.json ./package.json
+COPY package.json package-lock.json ./
+# Runtime receives only packages the server actually needs; test/build tooling stays behind.
+RUN npm ci --omit=dev
 COPY --from=build /app/dist ./dist
 COPY --from=build /app/server ./server
 COPY --from=build /app/src/shared ./src/shared

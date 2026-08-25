@@ -34,6 +34,7 @@
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
     "react-router-dom": "^7.9.1",
+    "tsx": "4.23.12",
     "zod": "^4.1.11"
   },
   "devDependencies": {
@@ -47,7 +48,6 @@
     "drizzle-kit": "^0.31.4",
     "prettier": "3.9.6",
     "sharp": "0.34.5",
-    "tsx": "^4.20.5",
     "typescript": "^5.9.2",
     "vite": "^7.1.7",
     "vitest": "^3.2.4"
