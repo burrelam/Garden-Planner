@@ -19,6 +19,7 @@ COPY --from=build /app/src/shared ./src/shared
 COPY --from=build /app/drizzle ./drizzle
 COPY --from=build /app/litestream.yml ./litestream.yml
 COPY --from=build /app/scripts/start-container.sh ./scripts/start-container.sh
+COPY --from=build /app/scripts/reset-staging.ts ./scripts/reset-staging.ts
 RUN chmod +x ./scripts/start-container.sh
 EXPOSE 3000
 CMD ["./scripts/start-container.sh"]
