@@ -10,6 +10,11 @@ WORKDIR /app
 ENV NODE_ENV=production
 ARG APP_REVISION=unknown
 ENV APP_REVISION=$APP_REVISION
+# Litestream connects to Tigris over HTTPS. Debian's slim image intentionally omits
+# the trusted certificate bundle, so install it before any backup or restore attempt.
+RUN apt-get update \
+  && apt-get install --yes --no-install-recommends ca-certificates \
+  && rm -rf /var/lib/apt/lists/*
 COPY package.json package-lock.json ./
 # Runtime receives only packages the server actually needs; test/build tooling stays behind.
 RUN npm ci --omit=dev
