@@ -1,5 +1,6 @@
 # GardenBuddy release guardrails
 
+- `original-planner/` is Amanda's byte-for-byte historical snapshot. Do not edit, format, import from, or deploy its original `index.html`, `care-data.json`, or `README.md` unless the owner explicitly asks to replace the archive. Active GardenBuddy work lives at the repository root.
 - Work on a feature branch. Never mix changes from `origin/dev` into this project unless the owner explicitly asks.
 - Run `npm run check` before staging.
 - Deploy a clean committed candidate with `npm run deploy:staging`.

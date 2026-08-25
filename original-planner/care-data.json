@@ -1,0 +1,1908 @@
+{
+  "Tomato": {
+    "default": {
+      "sun":   "Full sun (6–8 hrs/day)",
+      "water": "Moderate; deep water, keep foliage dry",
+      "soil":  "Well-drained, fertile loam with organic matter · pH 6.0–6.8",
+      "frost": "Frost-tender; soil 60°F+ required",
+      "tips": [
+        "Start indoors 6–8 weeks before last frost (late Jan–Feb for Zone 8b)",
+        "Bury stems deeply at transplant — up to the top 2 sets of leaves",
+        "Stake or cage all indeterminate varieties early, before plants need it",
+        "Remove suckers for 1–2 leader training; more leaders = more fruit but smaller",
+        "Switch to low-nitrogen fertilizer once flowering begins",
+        "Water deeply and consistently — irregular watering causes blossom end rot"
+      ],
+      "harvest": [
+        "Harvest when fully colored and slightly soft to gentle pressure",
+        "Twist gently or cut stem — don't pull or yank",
+        "Morning harvest preserves the best flavor",
+        "Green tomatoes at season's end ripen indoors in a cool, dark spot (not touching)"
+      ],
+      "companions": [
+        "✅ Basil — improves flavor and repels aphids & whiteflies",
+        "✅ Marigolds — deter nematodes and pest insects",
+        "✅ Carrots — loosen soil around tomato roots",
+        "✅ Parsley — attracts beneficial predatory insects",
+        "❌ Fennel — inhibits tomato growth",
+        "❌ Brassicas (cabbage, broccoli) — compete heavily for nutrients",
+        "❌ Corn — shares the corn earworm/tomato fruitworm pest"
+      ],
+      "pests": [
+        "Tomato hornworms — handpick or use Bt spray; check undersides of leaves",
+        "Aphids cluster on new growth — knock off with water or insecticidal soap",
+        "Blossom end rot = calcium/watering issue, not a disease — water consistently",
+        "Space plants and prune lower leaves for airflow to reduce early & late blight"
+      ],
+      "safe": "⚠️ Leaves & stems are toxic to cats & dogs — fruits are safe"
+    },
+    "varieties": {
+      "Roma": {
+        "spacing": "18–24 inches apart",
+        "height":  "Determinate — 3–4 feet tall",
+        "harvest": [
+          "Determinate variety — most fruits ripen at once; excellent for canning runs",
+          "Harvest when fully red and slightly soft — typically 75–80 days",
+          "Dense, meaty flesh with few seeds — ideal for paste, sauce, and drying"
+        ]
+      },
+      "Cherokee Purple": {
+        "spacing": "24–36 inches apart",
+        "height":  "Indeterminate — up to 5 feet tall",
+        "harvest": [
+          "Deep reddish-purple skin with dark green shoulders signals ripeness",
+          "Harvest at ~80 days — fruits feel firm with slight give; 8–10 oz each",
+          "Complex smoky-sweet flavor — best fresh-sliced or in small-batch premium sauce"
+        ]
+      },
+      "Cherry": {
+        "spacing": "18–24 inches apart",
+        "height":  "Indeterminate — 4–6 feet tall",
+        "harvest": [
+          "Harvest when fully colored and easily detaches with a gentle pull",
+          "Check plants daily — cherry tomatoes ripen fast and crack if left too long",
+          "Most productive of all types; expect hundreds of fruits per plant per season"
+        ]
+      },
+      "Beefsteak": {
+        "spacing": "24–36 inches apart",
+        "height":  "Indeterminate — up to 6 feet tall",
+        "harvest": [
+          "Large fruits up to 2 lbs — support heavy branches early to prevent snapping",
+          "Harvest at 85–95 days when fully red and just yielding to pressure",
+          "Meaty, low-seed flesh — the classic summer slicing tomato"
+        ]
+      },
+      "San Marzano": {
+        "spacing": "24–36 inches apart",
+        "height":  "Indeterminate — 4–5 ft; stake/trellis",
+        "harvest": [
+          "Harvest elongated 3–5 oz fruits when fully deep red and firm — ~80–90 days",
+          "Sweeter, less acidic than Roma; thicker flesh and fewer seeds",
+          "The gold standard for pasta sauce, pizza sauce, and canning",
+          "Open-pollinated heirloom — save seeds for next year"
+        ]
+      },
+      "Amish Paste": {
+        "spacing": "18–24 inches apart",
+        "height":  "Indeterminate vine — up to 8 ft",
+        "harvest": [
+          "Large oxheart-shaped fruits 6–8 oz — among the biggest paste tomatoes",
+          "Harvest at full red color around 80 days from transplant",
+          "Sweeter than most paste varieties — excellent fresh, roasted, or in sauce",
+          "Dense flesh cooks down beautifully; naturally thin sauce base — reduce to taste"
+        ]
+      },
+      "Black Krim": {
+        "spacing": "24–36 inches apart",
+        "height":  "Indeterminate — up to 5 feet tall",
+        "harvest": [
+          "Harvest when dark red-purple with green shoulders at 4–5 inches — ~80 days",
+          "Rich, sweet flavor with a natural salty edge and subtle smokiness",
+          "Excellent disease resistance: Fusarium, Verticillium, Late Blight, TMV",
+          "Striking dark color adds drama to salads and caprese; great for fresh eating"
+        ]
+      },
+      "Early Girl": {
+        "spacing": "18–24 inches apart",
+        "height":  "Indeterminate — 3–8 feet tall",
+        "harvest": [
+          "Earliest full-size slicer — harvest starts just 50–60 days after transplant",
+          "Globe-shaped fruits 4–5 oz; vibrant red with balanced sweet flavor",
+          "Outstanding disease resistance: Fusarium (R1&2), Verticillium, Nematodes + more",
+          "Check plants daily once ripening begins; harvest in cool mornings for best flavor"
+        ]
+      },
+      "Arkansas Traveler": {
+        "spacing": "24–36 inches apart",
+        "height":  "Indeterminate — up to 5 feet tall",
+        "harvest": [
+          "Medium-sized pink fruits 6–8 oz; harvest at ~75–80 days from transplant",
+          "Heat-tolerant heirloom known for setting fruit even in hot, humid summers",
+          "Mild, low-acid flavor — great for fresh eating; resists cracking"
+        ]
+      },
+      "Aunt Ruby's German Green": {
+        "spacing": "24–36 inches apart",
+        "height":  "Indeterminate — up to 5 feet tall",
+        "harvest": [
+          "Large beefsteak fruits 1–2 lbs; harvest when green-yellow with a slight give — ~80–85 days",
+          "Unique fruity, sweet, complex flavor — one of the most distinctive heirlooms",
+          "Color stays green-yellow when ripe; don't wait for red — smell and feel to judge"
+        ]
+      },
+      "Barry's Crazy Cherry": {
+        "spacing": "18–24 inches apart",
+        "height":  "Indeterminate — 5–6 feet tall",
+        "harvest": [
+          "Clusters of small red cherry fruits; harvest 65–75 days from transplant",
+          "Sweet, prolific producer — excellent for snacking and salads",
+          "Pick when fully colored and detaches easily with a gentle tug"
+        ]
+      },
+      "Big Rainbow": {
+        "spacing": "24–36 inches apart",
+        "height":  "Indeterminate — 5–6 feet tall",
+        "harvest": [
+          "Huge bicolored fruits 1–2 lbs with red and yellow streaks — ~80–90 days",
+          "Low-acid, sweet, fruity flavor with beautiful interior marbling",
+          "One of the most stunning heirlooms on the plate; great for showcasing at harvest"
+        ]
+      },
+      "Black Cherry": {
+        "spacing": "18–24 inches apart",
+        "height":  "Indeterminate — 6–8 ft; vigorous",
+        "harvest": [
+          "Rich, deep red-purple cherry fruits; harvest 64–70 days from transplant",
+          "Complex, rich flavor with a sweet-tart balance — one of the best cherry types",
+          "Very vigorous plant — prune suckers to keep manageable; stake firmly"
+        ]
+      },
+      "Black Strawberry": {
+        "spacing": "18–24 inches apart",
+        "height":  "Indeterminate — 4–6 feet tall",
+        "harvest": [
+          "Small elongated dark red-purple fruits; harvest at ~70–75 days",
+          "Sweet and rich with a hint of smokiness similar to Black Cherry",
+          "Striking appearance — black-red skin deepens to strawberry-red at blossom end"
+        ]
+      },
+      "Blue Beauty": {
+        "spacing": "24–36 inches apart",
+        "height":  "Indeterminate — 4–5 feet tall",
+        "harvest": [
+          "Large beefsteak fruits with striking blue-purple shoulders; harvest ~75–80 days",
+          "Mild, sweet flavor with excellent meaty texture; high in anthocyanins",
+          "Blue color on sun-exposed skin fades to red as fruit fully ripens"
+        ]
+      },
+      "Blue Beech": {
+        "spacing": "18–24 inches apart",
+        "height":  "Indeterminate — 4–5 feet tall",
+        "harvest": [
+          "Small paste-type plum fruits with blue-purple skin; harvest ~78–85 days",
+          "Dense, meaty flesh with excellent flavor for its small size",
+          "Versatile paste tomato — great for roasting, sauce, or fresh eating"
+        ]
+      },
+      "Federle": {
+        "spacing": "18–24 inches apart",
+        "height":  "Indeterminate — 4–6 feet tall",
+        "harvest": [
+          "Long, slender plum fruits 4–6 oz; harvest at ~80–85 days from transplant",
+          "Excellent meaty flesh with very few seeds — outstanding for sauce and drying",
+          "Productive heirloom; fruits hold well on the vine without cracking"
+        ]
+      },
+      "Hungarian Heart": {
+        "spacing": "24–36 inches apart",
+        "height":  "Indeterminate — 5–6 feet tall",
+        "harvest": [
+          "Large oxheart-shaped plum fruits 10–16 oz; harvest ~65–75 days",
+          "One of the earliest large paste tomatoes — meaty, nearly seedless flesh",
+          "Sweet, mild flavor; superb for thick sauce without long cooking times"
+        ]
+      },
+      "Jersey Devil": {
+        "spacing": "18–24 inches apart",
+        "height":  "Indeterminate — 4–5 feet tall",
+        "harvest": [
+          "Long pointed horn-shaped fruits 4–6 oz; harvest ~80–85 days",
+          "Very meaty with thick walls and small seed cavities — excellent for paste",
+          "Prolific producer; fruits stay firm and resist cracking through wet seasons"
+        ]
+      },
+      "Opalka": {
+        "spacing": "18–24 inches apart",
+        "height":  "Indeterminate — 4–6 feet tall",
+        "harvest": [
+          "Long, tapered paste fruits 4–5 oz; harvest ~75–80 days",
+          "Polish heirloom with rich flavor and dense, dry flesh — ideal for sauce",
+          "Considered one of the finest paste tomatoes for flavor; rarely found in stores"
+        ]
+      },
+      "Rio Grande": {
+        "spacing": "18–24 inches apart",
+        "height":  "Determinate — 3–4 feet tall",
+        "harvest": [
+          "Determinate plum tomato — most fruits ripen together for a canning harvest",
+          "Firm, meaty 4–6 oz fruits; harvest ~70–75 days from transplant",
+          "Crack-resistant and heat-tolerant; reliable production in Pacific Northwest summers"
+        ]
+      },
+      "Speckled Roman": {
+        "spacing": "18–24 inches apart",
+        "height":  "Indeterminate — 4–5 feet tall",
+        "harvest": [
+          "Beautiful orange-red elongated fruits with yellow stripes; harvest ~78–85 days",
+          "Excellent sweet flavor for a paste type — equally good fresh or in sauce",
+          "A cross between Antique Roman and Banana Legs — colorful addition to any garden"
+        ]
+      },
+      "Striped Roman": {
+        "spacing": "18–24 inches apart",
+        "height":  "Indeterminate — 4–5 feet tall",
+        "harvest": [
+          "Elongated paste fruits with striking red-orange and yellow stripes; ~78–85 days",
+          "Meaty flesh with excellent balanced flavor — versatile for sauce or fresh eating",
+          "Beautiful presentation at harvest; fruits hold well and resist cracking"
+        ]
+      }
+    }
+  },
+
+  "Pepper": {
+    "default": {
+      "sun":   "Full sun (6–8 hrs/day)",
+      "water": "Moderate; avoid waterlogging",
+      "soil":  "Well-drained, fertile loam with organic matter · pH 6.0–6.8",
+      "frost": "Frost-tender; soil 60°F+ required",
+      "tips": [
+        "Start indoors 6–8 weeks before last frost (late Jan–Feb for Zone 8b)",
+        "Pepper seeds germinate slowly — keep soil at 80–90°F; use a heat mat",
+        "Transplant with ideal transplants showing buds but no open flowers",
+        "Pinch first flowers on young plants to encourage bushier, more productive growth",
+        "Avoid excess nitrogen — it pushes foliage at the expense of fruit",
+        "Mulch around the base to retain moisture and regulate soil temperature"
+      ],
+      "harvest": [
+        "Most peppers can be harvested green or left to ripen to full color",
+        "Cut with scissors or pruners — pulling can snap branches",
+        "Regular harvesting encourages continuous fruit set throughout the season",
+        "Flavor deepens and sweetens as peppers ripen from green to red"
+      ],
+      "companions": [
+        "✅ Basil — repels aphids and spider mites; improves flavor",
+        "✅ Marigolds — deter nematodes and aphids",
+        "✅ Carrots — loosen soil without competing heavily",
+        "✅ Spinach — low-growing ground cover that retains soil moisture",
+        "❌ Fennel — allelopathic; inhibits pepper growth",
+        "❌ Brassicas — compete for nutrients and attract shared pests"
+      ],
+      "pests": [
+        "Aphids — especially on new growth; knock off with water or insecticidal soap",
+        "Pepper hornworms — handpick; check leaf undersides for eggs",
+        "Bacterial leaf spot — avoid overhead watering; improve airflow",
+        "Blossom end rot — caused by inconsistent watering or calcium deficiency"
+      ],
+      "safe": "⚠️ Capsaicin can irritate pets — hot varieties especially; wear gloves when handling"
+    },
+    "varieties": {
+      "Jalapeño": {
+        "spacing": "18–24 inches apart",
+        "height":  "Upright bush — 2–3 feet tall",
+        "harvest": [
+          "Harvest green at 3 inches for fresh heat, or leave to ripen red for sweeter, deeper flavor",
+          "First harvest 60–80 days from transplant; produces continuously until frost",
+          "Thick flesh ideal for stuffing, pickling, smoking (chipotle), or slicing onto nachos",
+          "Heat level can be tuned by watering — consistent moisture = milder; stress = hotter"
+        ]
+      },
+      "Shishito": {
+        "spacing": "12–18 inches apart",
+        "height":  "Compact bush — 18 inches; container-friendly",
+        "harvest": [
+          "Harvest at 60–75 days when slender and wrinkled green; don't wait for color change",
+          "About 1 in 10 peppers will surprise with unexpected heat (100–1,000 Scoville)",
+          "Best flash-fried or blistered in a hot pan; also excellent pickled or stir-fried",
+          "Thin skin cooks fast — harvest regularly to keep the plant producing all season"
+        ]
+      },
+      "Serrano": {
+        "spacing": "18–24 inches apart",
+        "height":  "Upright bush — 18–24 inches tall",
+        "harvest": [
+          "Harvest green at 1–4 inches for peak heat; ripens yellow, orange, then red",
+          "First harvest 75–90 days; 3–5× hotter than jalapeño (10,000–25,000 Scoville)",
+          "Thin skin means no need to peel — ideal for fresh salsas, hot sauces, and pico",
+          "Very prolific producer; a single plant yields 50+ peppers per season"
+        ]
+      },
+      "Bell": {
+        "spacing": "18–24 inches apart",
+        "height":  "Upright bush — 2–3 feet tall",
+        "harvest": [
+          "Harvest green at full size (70–85 days) or leave to ripen to red, yellow, or orange",
+          "Ripe peppers are sweeter, higher in vitamin C, and more flavorful than green",
+          "Thick walls ideal for stuffing, roasting, or raw in salads",
+          "Support heavy-fruiting branches early to prevent snapping"
+        ]
+      },
+      "Habanero": {
+        "spacing": "18–24 inches apart",
+        "height":  "Upright bush — 2–3 feet tall",
+        "harvest": [
+          "Harvest when fully colored (orange, red, or chocolate) at 100–120 days",
+          "Extremely hot (100,000–350,000 Scoville) — wear gloves when harvesting and processing",
+          "Fruity, floral aroma distinguishes habanero heat from other hot peppers",
+          "Store fresh up to 2 weeks; excellent for hot sauce, drying, or freezing"
+        ]
+      }
+    }
+  },
+
+  "Cucumbers": {
+    "default": {
+      "sun":   "Full sun (6–8 hrs/day)",
+      "water": "Moderate; keep evenly moist",
+      "soil":  "Well-drained, fertile loam · pH 6.0–7.0",
+      "frost": "Frost-tender; after last frost",
+      "tips": [
+        "Start indoors in early April (cucumbers need warm soil — don't rush it)",
+        "Transplant when soil consistently reaches 65°F — usually late April/May in Zone 8b",
+        "Trellis vines to save ground space and improve airflow",
+        "Water at the base; wet foliage encourages powdery mildew",
+        "Feed every 2–3 weeks with balanced organic fertilizer after flowering begins"
+      ],
+      "harvest": [
+        "Harvest in the morning when fruits are firm and cool",
+        "Use scissors or a knife — pulling can damage vines",
+        "Most varieties ready 50–70 days after transplanting",
+        "Pick frequently — regular harvesting keeps plants productive",
+        "Select a variety below for size and timing specifics"
+      ],
+      "companions": [
+        "✅ Marigolds — repel cucumber beetles and aphids",
+        "✅ Beans — fix nitrogen; improve soil for heavy feeders",
+        "✅ Dill (young) — attracts beneficial insects",
+        "✅ Sunflowers — provide trellis support and attract pollinators",
+        "❌ Sage — inhibits cucumber growth",
+        "❌ Potatoes — share blight susceptibility"
+      ],
+      "pests": [
+        "Most modern varieties resist Powdery Mildew & Cucumber Mosaic Virus",
+        "Watch for cucumber beetles and spider mites",
+        "Good airflow from trellising greatly reduces disease pressure"
+      ],
+      "safe": "🐱 🐶 🐴 Non-toxic to cats, dogs & horses (ASPCA)"
+    },
+    "varieties": {
+      "Slicing": {
+        "spacing": "18–24 inches apart",
+        "height":  "Vines to 4–5 feet with support",
+        "harvest": [
+          "Harvest when 6–8 inches long and dark green",
+          "Pick every 2–3 days — frequent harvest keeps plant productive",
+          "Avoid letting fruits yellow; signals the plant to stop producing"
+        ]
+      },
+      "Pickling": {
+        "spacing": "12–18 inches apart",
+        "height":  "Compact vines to 3–4 feet",
+        "harvest": [
+          "Harvest at 3–6 inches for best pickling texture",
+          "Pick every 1–2 days at peak season — these set fruit fast",
+          "Smaller fruits (3 in) = crunchier whole pickles; larger (5–6 in) = spears"
+        ]
+      },
+      "Arkansas Little Leaf": {
+        "spacing": "12 inches apart (container-friendly)",
+        "height":  "Very compact — 12–24 inches",
+        "harvest": [
+          "Harvest at 3–6 inches for pickling size",
+          "Sets fruit without pollination — expect prolific yields",
+          "Check every 2–3 days; small vines fruit heavily"
+        ]
+      },
+      "Armenian": {
+        "spacing": "18–24 inches apart with trellis",
+        "height":  "Vigorous vine to 4 feet — trellis recommended",
+        "harvest": [
+          "Harvest at 6–8 inches for best flavor and texture",
+          "Can grow to 10+ inches — still edible but gets seedy",
+          "Thin skin — no peeling needed; great fresh or in salads"
+        ]
+      },
+      "Beit Alpha": {
+        "spacing": "12–18 inches apart",
+        "height":  "Compact vine — 5–8 inches tall",
+        "harvest": [
+          "Harvest at 5–6 inches for peak eating quality",
+          "Thin, spineless skin — no peeling needed",
+          "Pick every 1–2 days; parthenocarpic variety sets fruit prolifically"
+        ]
+      },
+      "Boston Pickling": {
+        "spacing": "12–18 inches apart",
+        "height":  "Vines to 4 feet — support recommended",
+        "harvest": [
+          "Harvest at 3–6 inches depending on pickle style",
+          "Pick daily or every other day to extend season through late summer",
+          "Thin skin absorbs pickling brine exceptionally well"
+        ]
+      }
+    }
+  },
+
+  "Zinnias": {
+    "default": {
+      "sun":   "Full sun (6–8 hrs/day)",
+      "water": "Moderate; water at base only",
+      "soil":  "Well-drained, average fertility · pH 6.0–7.0",
+      "frost": "Frost-tender annual; after last frost",
+      "tips": [
+        "Start indoors 4–6 weeks before last frost, or direct sow after frost danger passes",
+        "Thin seedlings to 12–18 inches apart for best air circulation",
+        "Pinch growing tips when 8–12 inches tall to encourage bushiness and more blooms",
+        "Deadhead spent flowers regularly to extend blooming season into fall",
+        "Avoid overhead watering — powdery mildew is the main enemy of zinnias"
+      ],
+      "harvest": [
+        "Cut flowers in the morning when temperatures are cool",
+        "Harvest when petals are fully open but before pollen shows at center",
+        "Cut long stems just above a leaf node — the plant will branch and rebloom",
+        "Change vase water every 2 days; zinnias can last 7–12 days as cut flowers"
+      ],
+      "companions": [
+        "✅ Marigolds — fellow pest repellers; great color companions",
+        "✅ Cucumbers & squash — attract pollinators that benefit nearby vegetables",
+        "✅ Basil — aromatic deterrent to aphids; both love heat",
+        "✅ Cosmos — extend the season; similar care needs",
+        "❌ Fennel — inhibits growth of nearby plants including zinnias"
+      ],
+      "pests": [
+        "Powdery mildew — most common issue; space plants well and water at base",
+        "Spider mites in hot, dry weather — spray undersides of leaves with water",
+        "Japanese beetles — hand-pick in the morning when they are sluggish"
+      ],
+      "safe": "🐱 🐶 Non-toxic to cats and dogs (ASPCA)"
+    },
+    "varieties": {
+      "Envy": {
+        "spacing": "12–18 inches apart",
+        "height":  "24–36 inches tall",
+        "harvest": [
+          "Unique lime-green blooms — harvest at full petal extension for longest vase life",
+          "Green color intensifies in cooler weather; fades slightly in high heat",
+          "Excellent cut flower — holds well for 7–10 days in a vase"
+        ]
+      }
+    }
+  },
+
+  "Sunflowers": {
+    "default": {
+      "sun":   "Full sun (6–8 hrs/day)",
+      "water": "Low–moderate; drought-tolerant",
+      "soil":  "Well-drained, moderately fertile · pH 6.0–7.5",
+      "frost": "Frost-tender; sow after last frost",
+      "tips": [
+        "Direct sow in place — sunflowers dislike transplanting (taproot tears easily)",
+        "Sow seeds 1 inch deep; thin to final spacing once 6 inches tall",
+        "Stake tall varieties (over 4 feet) in windy locations before heads form",
+        "Side-dress with low-nitrogen fertilizer at bud stage to encourage large heads",
+        "Plant in succession every 2–3 weeks for blooms from July through September"
+      ],
+      "harvest": [
+        "For cut flowers: harvest when outer petals just begin to open, before pollen drops",
+        "For seeds: wait until the back of the head turns brown and petals fully drop",
+        "Cover drying seed heads with a paper bag to protect from birds",
+        "Dry seed heads face-down in a warm, airy space for 1–2 weeks before storing"
+      ],
+      "companions": [
+        "✅ Cucumbers — sunflowers provide a natural trellis and attract pollinators",
+        "✅ Squash & melons — shade the soil and reduce moisture loss",
+        "✅ Basil — aromatic pest deterrent planted at base",
+        "✅ Corn — classic Three Sisters companion; share structural support",
+        "❌ Potatoes — sunflowers may inhibit potato growth",
+        "❌ Pole beans — compete for light and structure"
+      ],
+      "pests": [
+        "Sunflower moths — inspect seed heads and remove larvae by hand",
+        "Aphids on new growth — knock off with a strong water spray",
+        "Birds love the seeds — net or bag heads if saving seed",
+        "Downy mildew in cool, wet springs — ensure good drainage and airflow"
+      ],
+      "safe": "🐱 🐶 🐴 Non-toxic to cats, dogs & horses (ASPCA)"
+    },
+    "varieties": {
+      "Autumn Beauty": {
+        "spacing": "12–24 inches apart",
+        "height":  "5–8 feet tall — stake in wind",
+        "harvest": [
+          "Multi-branching variety — expect many smaller 4–6 inch blooms in warm gold, red, and bronze",
+          "Cut stems early in the morning just as outer petals unfurl",
+          "Excellent for bouquets — each plant produces 10–20 stems through the season"
+        ]
+      }
+    }
+  },
+
+  "Dahlias": {
+    "default": {
+      "sun":   "Full sun; afternoon shade OK in heat",
+      "water": "Moderate–high; reduce in fall",
+      "soil":  "Well-drained, rich loam · pH 6.0–7.0; amend with compost at planting",
+      "frost": "Frost-tender tubers; mulch Zone 8b",
+      "tips": [
+        "Plant tubers 4–6 inches deep with the eye (bud) facing up after last frost (late April in Zone 8b)",
+        "Do not water until green shoots appear — tubers rot easily in cold, wet soil",
+        "Pinch growing tips at 12 inches to encourage branching and more blooms",
+        "Stake medium and tall varieties at planting time before roots are established",
+        "In Zone 8b, tubers can overwinter in ground with 4–6 inches of mulch after frost kills tops"
+      ],
+      "harvest": [
+        "Cut stems in the morning; immediately place in cool water for best vase life",
+        "Harvest blooms when fully open — dahlias do not continue to open after cutting",
+        "Sear cut ends briefly over a flame or in boiling water to extend vase life to 5–7 days",
+        "Deadhead spent blooms regularly to keep plants producing into fall"
+      ],
+      "companions": [
+        "✅ Marigolds — repel aphids and nematodes around tubers",
+        "✅ Basil — aromatic deterrent to aphids and thrips",
+        "✅ Cosmos — similar care; extends the seasonal display",
+        "✅ Zinnias — great heat-loving companions for full-sun borders",
+        "❌ Fennel — allelopathic; inhibits nearby plant growth"
+      ],
+      "pests": [
+        "Aphids and thrips — spray with insecticidal soap at first sign",
+        "Powdery mildew in late summer — improve airflow; avoid overhead watering",
+        "Earwigs damage petals — set beer traps or damp newspaper traps at night",
+        "Slugs on young shoots — apply iron phosphate bait at soil level"
+      ],
+      "safe": "⚠️ Mildly irritating to cats and dogs — avoid ingestion (ASPCA)"
+    },
+    "varieties": {
+      "Arabian Night": {
+        "spacing": "18–24 inches apart",
+        "height":  "36–40 inches tall",
+        "harvest": [
+          "Deep maroon-black decorative dahlia — one of the darkest available",
+          "Blooms are 3–4 inches across; long stems make excellent cut flowers",
+          "Harvest when petals are fully open; lasts 5–7 days in a vase"
+        ]
+      },
+      "Bishop's Children": {
+        "spacing": "24 inches apart",
+        "height":  "42 inches tall",
+        "harvest": [
+          "Seed-grown mix of vibrant reds, oranges, and purples with dark chocolate foliage",
+          "Single-flowered blooms 2–3 inches across — excellent for pollinators",
+          "Blooms freely without deadheading; harvest semi-open for best vase life"
+        ]
+      }
+    }
+  },
+
+  "Potatoes": {
+    "default": {
+      "sun":   "Full sun (6–8 hrs/day)",
+      "water": "Moderate; reduce as vines die back",
+      "soil":  "Loose, well-drained, slightly acidic · pH 5.0–6.5; avoid freshly limed soil",
+      "frost": "Foliage tender; tubers harden with age",
+      "tips": [
+        "Plant certified disease-free seed potatoes cut into 2 oz pieces with at least one eye each",
+        "Allow cut pieces to cure for 1–2 days before planting to prevent rot",
+        "Plant in trenches 4 inches deep; hill soil up around stems as plants grow to prevent greening",
+        "Stop watering when foliage yellows and falls over — this signals tubers are mature",
+        "In Zone 8b: plant mid-March to mid-May; harvest July through September"
+      ],
+      "harvest": [
+        "New potatoes: harvest 2–3 weeks after flowering begins while skins are thin",
+        "Storage potatoes: wait until foliage fully dies back, then wait another 2 weeks",
+        "Cure storage potatoes at 50–60°F in high humidity for 1–2 weeks before storing",
+        "Store in a cool, dark, well-ventilated location; check regularly for rot",
+        "⚠️ Green skin or sprouts contain solanine — always discard green or sprouted potatoes"
+      ],
+      "companions": [
+        "✅ Beans — fix nitrogen in soil; interplant between rows",
+        "✅ Horseradish — planted at corners of the bed, deters Colorado potato beetles",
+        "✅ Marigolds — planted nearby, repel nematodes and some insects",
+        "❌ Tomatoes — same family (Solanaceae); share blight and pest pressure",
+        "❌ Cucumbers — share susceptibility to blight; keep separated",
+        "❌ Fennel — inhibits growth of most vegetables including potatoes",
+        "❌ Sunflowers — may inhibit potato development"
+      ],
+      "pests": [
+        "Colorado potato beetle — hand-pick adults and egg clusters; use row covers on young plants",
+        "Late blight (Phytophthora) — most serious disease; plant resistant varieties; avoid overhead water",
+        "Wireworms — rotate crops; avoid planting in sod ground for 2+ years",
+        "Scab — keep soil pH at or below 6.0; avoid fresh manure at planting time"
+      ],
+      "safe": "⚠️ TOXIC — green potato flesh, sprouts, and leaves contain solanine; always discard green potatoes"
+    },
+    "varieties": {
+      "Yukon Gold": {
+        "spacing": "12″ apart; rows 2–3 ft",
+        "height":  "18–24 inches tall",
+        "harvest": [
+          "Classic yellow-fleshed all-purpose potato — ready in 70–90 days",
+          "Excellent flavor even as new potatoes (harvest ~60 days after planting)",
+          "Medium-sized tubers with thin skin — does not store as long as russets; use within 3 months"
+        ]
+      },
+      "Adirondack Red": {
+        "spacing": "10–12″ apart; rows 2–3 ft",
+        "height":  "18–24 inches tall",
+        "harvest": [
+          "Vibrant red skin and pink-red flesh — retains color when cooked",
+          "Ready in 80–90 days; scab-resistant variety (great for Zone 8b wet springs)",
+          "Best for boiling and roasting; flesh stays firm and colorful"
+        ]
+      }
+    }
+  },
+
+  "Carrots": {
+    "default": {
+      "sun":   "Full sun (6–8 hrs/day)",
+      "water": "Moderate; keep evenly moist — especially during germination",
+      "soil":  "Deep, loose, stone-free sandy loam · pH 6.0–6.8; no fresh manure",
+      "frost": "Hardy; tolerates frost; can overwinter in ground under mulch",
+      "tips": [
+        "Direct sow — carrots strongly dislike transplanting",
+        "Sow seeds ¼ inch deep; germination takes 14–21 days — keep soil moist the whole time",
+        "Thin to 2–3 inches apart once seedlings are 2 inches tall; crowded roots fork and twist",
+        "Avoid fresh manure or high-nitrogen fertilizer — causes hairy, forked roots",
+        "Mulch lightly to retain moisture and prevent green shoulders (bitter flavor)",
+        "In Zone 8b: direct sow March–June and again in July for fall harvest"
+      ],
+      "harvest": [
+        "Harvest when shoulders are ½–¾ inch diameter at soil surface",
+        "Loosen soil with a fork before pulling to avoid snapping",
+        "Flavor sweetens after a light frost — leave in ground and harvest through fall",
+        "Twist off tops immediately after harvest to prevent roots from drying out"
+      ],
+      "companions": [
+        "✅ Onions & leeks — deter carrot fly with strong scent",
+        "✅ Rosemary & sage — aromatic deterrents to carrot fly",
+        "✅ Tomatoes — carrots loosen soil around tomato roots; mutually beneficial",
+        "❌ Dill (mature) — inhibits carrot growth when fully grown",
+        "❌ Parsley — same family; can cross-attract shared pests"
+      ],
+      "pests": [
+        "Carrot fly — use row covers at sowing; avoid thinning in still air (scent attracts flies)",
+        "Aphids — knock off with water; encourage ladybugs and lacewings nearby",
+        "Wireworms — rotate planting area; avoid ground that was recently sod"
+      ],
+      "safe": "🐱 🐶 Non-toxic to cats and dogs (ASPCA)"
+    },
+    "varieties": {
+      "Kyoto Red": {
+        "spacing": "2–3 inches apart; rows 12 inches",
+        "height":  "Tops 12–18 inches; roots 6–8 inches",
+        "harvest": [
+          "Japanese heirloom with deep red-orange skin and flesh — color holds when cooked",
+          "Harvest at 70–80 days when 6–8 inches long; flavor is sweet and mild",
+          "Excellent for roasting, juicing, and pickling — striking color in any dish"
+        ]
+      },
+      "Imperator 58": {
+        "spacing": "2–3 inches apart; rows 12 inches",
+        "height":  "Tops 18 inches; roots 8–9 inches",
+        "harvest": [
+          "Long, tapered classic carrot — the grocery-store standard for good reason",
+          "Harvest at 75–80 days when 8–9 inches; needs deep, loose soil to grow straight",
+          "Excellent flavor and stores well; great for juicing, snacking, and cooking"
+        ]
+      }
+    }
+  },
+
+  "Celery": {
+    "default": {
+      "sun":   "Full sun to partial shade (4–6 hrs minimum)",
+      "water": "High; needs consistently moist soil throughout the season",
+      "soil":  "Rich, moisture-retentive loam · pH 6.0–7.0; heavy feeder — amend with compost",
+      "frost": "Hardy to light frost; Zone 8b winters manageable with mulch",
+      "tips": [
+        "Start indoors 10–12 weeks before last frost — one of the longest-season crops",
+        "Seeds need light to germinate — press onto soil surface, don't cover",
+        "Transplant carefully; celery roots are sensitive — use deep cells or soil blocks",
+        "Mulch heavily around plants to retain the consistent moisture celery demands",
+        "Side-dress with compost or balanced fertilizer every 3–4 weeks during the season",
+        "Blanch stalks for milder flavor: wrap stems with cardboard or mound soil for 2 weeks before harvest"
+      ],
+      "harvest": [
+        "Harvest outer stalks first once they reach 12 inches — plants continue producing",
+        "Cut full heads at the base when stalks are firm and tight",
+        "Harvest before a hard freeze — light frost actually sweetens stalks",
+        "Refrigerate immediately; celery loses crispness quickly at room temperature"
+      ],
+      "companions": [
+        "✅ Tomatoes — celery repels the white cabbage butterfly near brassicas and tomatoes",
+        "✅ Leeks — strong scents deter shared insect pests",
+        "✅ Cabbage & brassicas — celery is said to improve their growth",
+        "❌ Parsley & parsnips — same family; compete and attract shared pests",
+        "❌ Corn — competes for nutrients without benefit"
+      ],
+      "pests": [
+        "Celery leaf miner — remove affected leaves; use row covers early in season",
+        "Aphids — inspect new growth weekly; spray with insecticidal soap as needed",
+        "Carrot fly — same pest as carrots; use row covers or companion planting",
+        "Fusarium wilt — rotate planting areas; choose resistant varieties like Utah 52-70"
+      ],
+      "safe": "🐱 🐶 Non-toxic to cats and dogs"
+    },
+    "varieties": {
+      "Utah 52-70": {
+        "spacing": "8–10 inches apart; rows 18–24 inches",
+        "height":  "18–24 inches tall",
+        "harvest": [
+          "Classic green celery with crisp, stringless stalks — the home garden standard",
+          "Harvest at 100–130 days when stalks are 12–18 inches and firm",
+          "Excellent fusarium wilt resistance — ideal for Pacific Northwest wet springs",
+          "Strong flavor and aroma; great fresh, cooked, or for stock"
+        ]
+      }
+    }
+  },
+
+  "Beans": {
+    "default": {
+      "sun":   "Full sun (6–8 hrs/day)",
+      "water": "Moderate; water at soil level — wet foliage causes bean rust and mold",
+      "soil":  "Well-drained, moderately fertile · pH 6.0–7.0; don't over-fertilize with nitrogen",
+      "frost": "Frost-tender; sow only after last frost and soil is 60°F+",
+      "tips": [
+        "Direct sow in place — beans dislike transplanting",
+        "Don't soak seeds before planting (can cause rot); just sow directly into moist soil",
+        "Inoculate seed with rhizobium bacteria for best nitrogen fixation in new beds",
+        "Do not add nitrogen fertilizer — beans fix their own; excess nitrogen = foliage, no pods",
+        "Pick regularly — the more you harvest, the more the plant produces",
+        "In Zone 8b: sow May through July for continuous harvests into September"
+      ],
+      "harvest": [
+        "Harvest when pods are firm, crisp, and snap cleanly — before seeds swell visibly",
+        "Pick every 2–3 days at peak season to keep plants productive",
+        "Harvest in the morning when pods are crisp and temperatures are cool",
+        "Beans past their prime become tough and stringy — compost them and keep picking"
+      ],
+      "companions": [
+        "✅ Carrots — loosen soil; don't compete heavily with nitrogen-fixing beans",
+        "✅ Cucumbers — compatible warm-season companions",
+        "✅ Marigolds — deter bean beetles and aphids",
+        "✅ Squash — classic Three Sisters combination with corn",
+        "❌ Onions & garlic — inhibit bean growth (and vice versa)",
+        "❌ Fennel — allelopathic; inhibits beans and most vegetables"
+      ],
+      "pests": [
+        "Mexican bean beetle — handpick egg clusters on leaf undersides; use row covers early",
+        "Aphids — especially on tender new growth; spray with water or insecticidal soap",
+        "Spider mites in hot, dry weather — increase watering; spray leaf undersides",
+        "Bean rust (fungal) — avoid overhead watering; increase airflow between plants"
+      ],
+      "safe": "🐱 🐶 Non-toxic to cats and dogs when cooked; raw kidney beans contain lectin — always cook"
+    },
+    "varieties": {
+      "Blue Lake 274": {
+        "spacing": "4–6 inches apart; rows 18 inches",
+        "height":  "Bush bean — 18–24 inches tall",
+        "harvest": [
+          "The gold standard bush bean — straight, stringless 6-inch pods with excellent flavor",
+          "Harvest at 55–65 days when pods are pencil-thin and snap cleanly",
+          "Very productive and concentrated harvest — ideal for canning and freezing",
+          "One of the most disease-resistant bush beans available; reliable in wet PNW summers"
+        ]
+      },
+      "Royalty Purple Pod": {
+        "spacing": "4–6 inches apart; rows 18 inches",
+        "height":  "Bush bean — 18–20 inches tall",
+        "harvest": [
+          "Striking purple pods turn green when cooked — easy visual marker for harvest readiness",
+          "Harvest at 50–60 days when pods are 5–6 inches; bright purple means they're ready",
+          "Exceptional cold tolerance — can be sown 2 weeks earlier than most beans",
+          "Mild, sweet flavor; pods stay tender longer on the plant than most green beans"
+        ]
+      },
+      "Purple String": {
+        "spacing": "4–6 inches apart; rows 18 inches",
+        "height":  "Bush bean — 18–20 inches tall",
+        "harvest": [
+          "Purple pods turn green when cooked; harvest when 5–6 inches at 50–60 days",
+          "Excellent cold tolerance for early season planting in Zone 8b",
+          "Crisp, sweet flavor — great fresh or lightly steamed"
+        ]
+      }
+    }
+  },
+
+  "Cauliflower": {
+    "default": {
+      "sun":   "Full sun (6–8 hrs/day)",
+      "water": "Moderate–high; consistent moisture — irregular watering causes hollow or split heads",
+      "soil":  "Rich, well-drained loam · pH 6.0–7.0; calcium-rich; heavy feeder",
+      "frost": "Hardy to light frost; cool weather produces the best, tightest heads",
+      "tips": [
+        "Start indoors 4–6 weeks before transplant; or start late summer for fall crop",
+        "Transplant in cool weather — heat stress causes premature heading and poor quality",
+        "Blanch white varieties: tie outer leaves over the developing curd when 2–3 inches across",
+        "Check heads daily once curd appears — can go from perfect to over-mature in days",
+        "Side-dress with balanced fertilizer at transplant and again at head formation",
+        "In Zone 8b: spring transplant Feb–Mar; fall transplant July–Aug"
+      ],
+      "harvest": [
+        "Harvest when head is firm, tight, and 6–8 inches across — before curds begin to separate",
+        "Cut head with a sharp knife leaving a few outer leaves for protection",
+        "Refrigerate immediately; peak freshness lasts 3–5 days",
+        "Over-mature heads turn creamy or brown and develop a ricey texture — harvest on time"
+      ],
+      "companions": [
+        "✅ Celery — said to improve cauliflower growth and deter white cabbage butterfly",
+        "✅ Dill & chamomile — attract beneficial insects; improve brassica health",
+        "✅ Onions — deter aphids and imported cabbageworm",
+        "❌ Strawberries — compete and may stunt each other",
+        "❌ Tomatoes — compete heavily; different fertility needs"
+      ],
+      "pests": [
+        "Imported cabbageworm & cabbage loopers — inspect undersides of leaves weekly; use Bt spray",
+        "Aphids — especially under leaves; blast with water or spray insecticidal soap",
+        "Clubroot — avoid planting brassicas in same spot more than once every 4 years",
+        "Downy mildew — improve airflow; avoid overhead watering in cool, wet weather"
+      ],
+      "safe": "🐱 🐶 Non-toxic to cats and dogs"
+    },
+    "varieties": {
+      "Igloo": {
+        "spacing": "18 inches apart; rows 24 inches",
+        "height":  "18–24 inches tall",
+        "harvest": [
+          "Compact, early white head — ideal for small gardens and containers",
+          "Harvest at 50–60 days when head is 6 inches and tight",
+          "Self-blanching leaves wrap naturally over curd — less maintenance than older varieties",
+          "Excellent for Zone 8b spring crop; handles cool, rainy conditions well"
+        ]
+      },
+      "Early Snowball": {
+        "spacing": "18 inches apart; rows 24 inches",
+        "height":  "18 inches tall",
+        "harvest": [
+          "Classic heirloom — compact 6-inch white heads with excellent flavor",
+          "Harvest at 55–65 days; one of the earliest reliable cauliflower varieties",
+          "Great for spring and fall planting; adapts well to Pacific Northwest climate",
+          "Blanch by tying outer leaves over curd as it develops for brightest white color"
+        ]
+      }
+    }
+  },
+
+  "Cabbage": {
+    "default": {
+      "sun":   "Full sun (6–8 hrs/day)",
+      "water": "Moderate; consistent moisture — irregular watering causes heads to split",
+      "soil":  "Rich, well-drained loam · pH 6.0–7.5; heavy feeder; amend with compost",
+      "frost": "Very hardy — improves in flavor after light frost (cold converts starch to sugar)",
+      "tips": [
+        "Start indoors 4–6 weeks before transplant date",
+        "Firm the soil well around transplants — cabbage needs a stable root zone",
+        "Side-dress with nitrogen-rich fertilizer (blood meal or fish emulsion) when heads begin to form",
+        "Watch for splitting as heads mature — harvest promptly or slice through the root to slow growth",
+        "In Zone 8b: spring transplant Feb–Mar; fall transplant July–Aug for winter harvest"
+      ],
+      "harvest": [
+        "Harvest when head feels firm and solid when squeezed — outer leaves may yellow slightly",
+        "Cut at the base with a sharp knife, leaving the lowest leaves to potentially produce small side heads",
+        "Refrigerate unwashed; heads keep 1–2 weeks in the crisper",
+        "Spring cabbage has lighter, looser heads; fall/winter types are denser and store longer"
+      ],
+      "companions": [
+        "✅ Dill — attracts beneficial wasps that prey on cabbage caterpillars",
+        "✅ Celery — deters white cabbage butterfly; mutually beneficial",
+        "✅ Onions & marigolds — deter aphids and imported cabbageworm",
+        "❌ Strawberries — inhibit each other's growth",
+        "❌ Tomatoes — compete heavily for nutrients; different growing conditions"
+      ],
+      "pests": [
+        "Imported cabbageworm — most common pest; use Bt spray or row covers from transplant",
+        "Cabbage aphids — grey-green and clustered; knock off with water, follow with soap spray",
+        "Root maggots — use brassica collars at soil level to prevent fly egg-laying",
+        "Slugs — especially on young transplants; use iron phosphate bait at soil level"
+      ],
+      "safe": "🐱 🐶 Non-toxic to cats and dogs"
+    },
+    "varieties": {
+      "Earliana": {
+        "spacing": "18 inches apart; rows 24 inches",
+        "height":  "12–18 inches tall",
+        "harvest": [
+          "Early-maturing heirloom — compact 3–4 lb heads ready in just 60 days",
+          "Excellent for spring planting; matures before summer heat sets in",
+          "Tender, mild flavor — best for fresh eating, slaws, and quick-pickled preparations",
+          "Harvest while still firm; early cabbage splits faster than storage types — don't delay"
+        ]
+      }
+    }
+  },
+
+  "Artichoke": {
+    "default": {
+      "sun":   "Full sun (6–8 hrs/day)",
+      "water": "Moderate–high; deep, regular watering; reduce in late fall",
+      "soil":  "Rich, well-drained loam · pH 6.0–7.0; mulch heavily to retain moisture",
+      "frost": "Hardy to Zone 7; crowns survive Zone 8b winters with 4–6 inches of mulch",
+      "tips": [
+        "Start indoors in January; transplant outdoors March–April after hardening off",
+        "Perennial in Zone 8b — cut stalks back to 12 inches after frost kills the tops",
+        "Mulch crowns heavily each winter to protect from hard freezes",
+        "Divide overcrowded clumps every 3–4 years to maintain vigor and production",
+        "Side-dress with compost each spring as new growth emerges",
+        "First-year plants produce lightly; full production starts in year 2"
+      ],
+      "harvest": [
+        "Harvest buds before scales begin to open — once they splay, bud is past peak",
+        "Cut stem 1–2 inches below the bud head with a sharp knife",
+        "Primary (terminal) bud harvested first, followed by smaller side buds",
+        "Harvest season runs May–July in Zone 8b; cut buds promptly to encourage more"
+      ],
+      "companions": [
+        "✅ Sunflowers — attract pollinators and provide wind protection",
+        "✅ Tarragon — said to improve artichoke flavor and deter pests",
+        "✅ Peas — fix nitrogen early in season before artichokes take over space",
+        "❌ Potatoes — compete for space and nutrients in a perennial bed"
+      ],
+      "pests": [
+        "Aphids — appear in dense clusters in spring; knock off with water, follow with soap spray",
+        "Artichoke plume moth — inspect inside buds; handpick larvae; use Bt if severe",
+        "Snails & slugs — especially on young spring growth; use iron phosphate bait",
+        "Botrytis (gray mold) — ensure good airflow; avoid overhead watering in cool weather"
+      ],
+      "safe": "🐱 🐶 Non-toxic to cats and dogs; artichoke hearts are safe for humans"
+    },
+    "varieties": {
+      "Green Globe": {
+        "spacing": "4–6 feet apart (large perennial plant)",
+        "height":  "3–5 feet tall; 4–6 feet wide at maturity",
+        "harvest": [
+          "The classic artichoke — large, globe-shaped buds 3–5 inches across",
+          "Harvest 85–100 days from transplant when bud is tight and compact",
+          "Established plants (year 2+) produce 6–10 primary buds plus side shoots per season",
+          "Standard for steaming, roasting, and stuffing; rich, nutty flavor when harvested fresh"
+        ]
+      }
+    }
+  },
+
+  "Peas": {
+    "default": {
+      "sun":   "Full sun (6–8 hrs/day)",
+      "water": "Low–moderate; consistent moisture through pod development",
+      "soil":  "Well-drained, fertile loam · pH 6.0–7.5; don't over-fertilize — peas fix their own nitrogen",
+      "frost": "Very cold hardy — tolerates frost and light freezes; one of the first seeds in ground each year",
+      "tips": [
+        "Direct sow — peas strongly dislike transplanting; sow 1 inch deep, 4 inches apart, rows 24 inches",
+        "Plant as early as soil is workable in late Feb–Mar in Zone 8b — they prefer cold soil",
+        "Provide sturdy trellis support at planting — Sugar Snap vines reach 4–6 feet tall",
+        "Inoculate seeds with rhizobium pea inoculant for best nitrogen fixation in new beds",
+        "Succession sow every 2–3 weeks through April for extended harvest window",
+        "Stop sowing once daytime temps reliably exceed 75°F — heat kills flowers and ends production"
+      ],
+      "harvest": [
+        "Harvest Sugar Snap pods when peas are visibly plump inside and pods are 3–4 inches — about 60–70 days",
+        "Eat the entire pod — Sugar Snap is fully edible and best eaten the same day as harvest",
+        "Pick every 1–2 days at peak; leaving mature pods on the vine signals the plant to stop flowering",
+        "Morning harvest gives the sweetest, crispest flavor before afternoon heat builds"
+      ],
+      "companions": [
+        "✅ Carrots — classic companion; peas and carrots have complementary root depths",
+        "✅ Radishes — deter pea aphids and make good use of shared space early season",
+        "✅ Marigolds — deter aphids; good border planting alongside pea rows",
+        "✅ Spinach & lettuce — share cool-season timing; grow well in the same bed",
+        "❌ Onions & garlic — inhibit pea growth (confirmed allelopathic interaction)",
+        "❌ Fennel — allelopathic; inhibits peas and most vegetables"
+      ],
+      "pests": [
+        "Aphids and spider mites — early spring planting usually avoids peak pest pressure",
+        "Powdery mildew resistant — Sugar Snap varieties bred for strong resistance",
+        "Pea wilt resistant — modern varieties hold up well in Pacific Northwest wet springs",
+        "Birds and mice eat seeds — cover rows with netting or fleece until germinated"
+      ],
+      "safe": "🐱 🐶 Non-toxic to cats and dogs; pea pods and tendrils are safe for humans"
+    },
+    "varieties": {
+      "Sugar Snap": {
+        "spacing": "4 inches apart; rows 24 inches; needs trellis",
+        "height":  "Vining — 4–6 feet tall; requires sturdy trellis",
+        "harvest": [
+          "The original edible-pod pea — harvest when pods are 3–4 inches and peas visibly plump",
+          "60–70 days from sowing; eat pod and pea together, raw or lightly cooked",
+          "Won the 1979 AAS award — still the gold standard for flavor and productivity",
+          "Freeze beautifully — blanch 2 minutes and freeze for winter stir-fries and soups"
+        ]
+      },
+      "Snow Pea": {
+        "spacing": "3–4 inches apart; rows 18–24 inches",
+        "height":  "Semi-vining — 18–30 inches; light support recommended",
+        "harvest": [
+          "Harvest flat pods before peas inside develop — 55–70 days from sowing",
+          "Pods should be bright green and crisp; peas barely visible inside",
+          "Classic stir-fry pea — thin walls cook in seconds; also excellent raw",
+          "Pick daily at peak; like Sugar Snaps, regular harvest extends production"
+        ]
+      },
+      "Shelling": {
+        "spacing": "3–4 inches apart; rows 18–24 inches",
+        "height":  "Bush to semi-vining — 18–30 inches",
+        "harvest": [
+          "Harvest when pods are plump and bright green — 70–80 days; pods are not edible",
+          "Shell immediately after harvest for sweetest flavor; sugars convert to starch quickly",
+          "Excellent for fresh eating, freezing, and soups; classic English pea variety type",
+          "Blanch and freeze the same day for peas that taste garden-fresh through winter"
+        ]
+      }
+    }
+  },
+
+  "Onions": {
+    "default": {
+      "sun":   "Full sun (6–8 hrs/day)",
+      "water": "Moderate; consistent moisture through bulb development; reduce as tops dry down",
+      "soil":  "Well-drained, fertile loam · pH 6.0–7.0; avoid compacted or clay-heavy soil",
+      "frost": "Cold hardy; transplants tolerate light frost; plant early spring after last hard freeze",
+      "tips": [
+        "Long-day varieties (like Walla Walla) need 14+ hours of daylight to form bulbs — well-suited for Zone 8b",
+        "Start transplants indoors 6–8 weeks before last frost; sow seeds shallowly, cover with ¼ inch of soil",
+        "Transplant when seedlings are pencil-thick; clip tops to 5 inches at transplant to reduce transplant shock",
+        "Space 4 inches apart for full-size bulbs; 2 inches apart for green onion / scallion harvest",
+        "Harvest green tops for scallion use once stems reach 8 inches tall — a bonus early harvest",
+        "Stop watering once tops begin to fall over naturally — this signals bulbs are mature and ready to cure"
+      ],
+      "harvest": [
+        "Harvest when green tops dry, turn yellow, and fall over — typically 100–125 days from transplant",
+        "Loosen soil around bulbs with a fork rather than pulling; cure flat in a warm, airy spot for 2–3 weeks",
+        "Cured bulbs store 1–6 months depending on variety; sweet varieties like Walla Walla store shortest",
+        "Green tops can be cut as scallions from 90 days once stems reach 8 inches"
+      ],
+      "companions": [
+        "✅ Carrots — strong onion scent deters carrot fly; complementary root depths",
+        "✅ Lettuce & spinach — low-growing companions that fill space between onion rows",
+        "✅ Basil & dill — aromatic deterrents to onion fly and thrips",
+        "✅ Brassicas (broccoli, cabbage) — onions deter aphids and imported cabbageworm",
+        "❌ Peas & beans — allelopathic interaction; inhibit each other's growth",
+        "❌ Fennel — inhibits most vegetables including onions"
+      ],
+      "pests": [
+        "Onion fly / maggot — use row covers from transplant; no-dig beds reduce fly access",
+        "Thrips — especially in hot, dry weather; spray with water or insecticidal soap",
+        "Downy mildew — avoid overhead watering in cool, wet springs; improve airflow",
+        "Neck rot — ensure bulbs are fully cured before storing; store in a dry, ventilated space"
+      ],
+      "safe": "⚠️ Toxic to cats and dogs — all alliums (onion, garlic, leek) contain thiosulphate; keep pets away"
+    },
+    "varieties": {
+      "Walla Walla": {
+        "spacing": "4–6 inches apart; rows 12–18 inches",
+        "height":  "Tops 14–24 inches tall; bulbs 3–6 inches across",
+        "harvest": [
+          "Washington's signature sweet onion — harvest at 125 days from transplants when tops bow and dry",
+          "95% water content and remarkably low acidity — sweet enough to eat fresh like an apple",
+          "Exceptional for grilling, BBQ dishes, onion rings, and fresh salads",
+          "Green tops can be cut as scallions at 90–100 days once stems reach 8 inches",
+          "Sweet variety stores only 1–2 months — use soon after curing rather than long storage"
+        ]
+      },
+      "Red": {
+        "spacing": "4–6 inches apart; rows 12–18 inches",
+        "height":  "Tops 18–24 inches tall; bulbs 2–4 inches across",
+        "harvest": [
+          "Mild-pungent red-skinned bulb with deep purple rings — ready in 100–115 days",
+          "Harvest when tops dry and fall over; cure 2–3 weeks before storing",
+          "Excellent raw in salads and sandwiches; mellows and sweetens when caramelized",
+          "Stores 3–6 months when well-cured in a cool, dry, ventilated space"
+        ]
+      }
+    }
+  },
+
+  "Strawberries": {
+    "default": {
+      "sun":   "Full sun (6–8 hrs/day)",
+      "water": "Moderate; consistent moisture",
+      "soil":  "Well-drained, fertile loam · pH 5.5–6.5",
+      "frost": "Hardy zones 4–9; tolerates light frost",
+      "tips": [
+        "Pinch blossoms until July 1st in first year — strengthens roots for better future yields",
+        "Remove runners to keep energy focused on fruit production",
+        "Day-neutral varieties produce regardless of day length — harvest June through October",
+        "Mulch crowns after first frost to protect through winter",
+        "Renovate beds annually after harvest — thin plants and refresh mulch"
+      ],
+      "harvest": [
+        "Harvest daily once berries turn fully red — check under leaves for hidden fruits",
+        "Refrigerate immediately in a single layer to prevent bruising",
+        "Everbearing season runs June through October in Zone 8b",
+        "Morning harvest gives the best flavor and longest shelf life"
+      ],
+      "companions": [
+        "✅ Borage — deters aphids, attracts pollinators; said to improve flavor",
+        "✅ Thyme — repels worms; improves fruit flavor",
+        "✅ Marigolds — repel nematodes and aphids",
+        "❌ Fennel — allelopathic; inhibits strawberry growth",
+        "❌ Brassicas — compete for nutrients"
+      ],
+      "pests": [
+        "Birds — net plants when berries begin to color",
+        "Slugs — use iron phosphate bait at soil level",
+        "Albion resists Anthracnose, Powdery Mildew, and Verticillium Wilt",
+        "Phytophthora crown rot — ensure excellent drainage; avoid overwatering"
+      ],
+      "safe": "🐱 🐶 Non-toxic to cats and dogs; fruit safe for humans"
+    },
+    "varieties": {
+      "Albion": {
+        "spacing": "12–18 inches apart",
+        "height":  "12 inches tall",
+        "harvest": [
+          "Day-neutral everbearing hybrid — large, firm, conical berries with exceptional sweetness",
+          "Harvest from June through October; pick daily as berries ripen fully red",
+          "Strong disease resistance: Anthracnose, Powdery Mildew, Verticillium Wilt",
+          "Performs well in both hot dry summers and cool maritime climates"
+        ]
+      }
+    }
+  },
+
+  "Garlic": {
+    "default": {
+      "sun":   "Full sun (6–8 hrs/day)",
+      "water": "Low–moderate; consistent moisture through spring, reduce as scapes emerge in June",
+      "soil":  "Well-drained, fertile loam · pH 6.0–7.0; amend with compost at planting; avoid heavy clay",
+      "frost": "Very hardy — plant in fall, overwinters in ground; bulbs develop through winter and spring",
+      "tips": [
+        "Plant cloves 2 inches deep, pointed end up, flat base down — spacing 6 inches apart, rows 12 inches",
+        "Break heads into individual cloves just before planting; plant the largest cloves for best bulbs",
+        "Mulch 3–4 inches deep after planting to insulate roots and suppress winter weeds",
+        "In Zone 8b: plant Oct–Nov after first frost; harvest June–July when lower 3–4 leaves have browned",
+        "Hardneck: cut the curly scape in early June to redirect energy to the bulb — scapes are delicious sautéed",
+        "Stop watering when bottom leaves start to yellow — stop entirely 2 weeks before harvest"
+      ],
+      "harvest": [
+        "Harvest when 3–4 of the lower leaves have turned brown and fallen (5–6 green leaves remaining)",
+        "Loosen soil carefully with a fork — pulling can break the neck and shorten storage life",
+        "Cure in a warm, well-ventilated, shaded spot for 3–4 weeks until wrapper skins are papery",
+        "Hardneck stores 4–6 months; Softneck stores 6–12 months in cool, dry conditions"
+      ],
+      "companions": [
+        "✅ Carrots — garlic repels carrot fly; excellent interplant",
+        "✅ Tomatoes — garlic deters aphids and spider mites near tomato roots",
+        "✅ Roses — classic companion; repels aphids and fungal diseases",
+        "✅ Beets & lettuce — fill space between garlic rows; compatible root depths",
+        "❌ Peas & beans — allelopathic; garlic and alliums inhibit legume growth",
+        "❌ Asparagus — competes and inhibits each other over years"
+      ],
+      "pests": [
+        "Onion fly / bulb mites — use row covers; plant in well-drained beds; rotate every 3 years",
+        "White rot — most serious fungal disease; avoid infected soil; no cure once present",
+        "Botrytis (neck rot) — cure bulbs thoroughly before storing; don't store damaged bulbs",
+        "Wireworms — rotate planting area; avoid ground recently converted from sod"
+      ],
+      "safe": "⚠️ Toxic to cats and dogs — all alliums contain thiosulphate; keep pets away"
+    },
+    "varieties": {
+      "Hardneck": {
+        "spacing": "6 inches apart; rows 12 inches",
+        "height":  "18–24 inches tall; sends up a scape in early summer",
+        "harvest": [
+          "Cut the curling scape in early June — it's edible and redirecting energy grows a bigger bulb",
+          "Harvest July when 3–4 lower leaves have dried; hardneck cloves are larger and easier to peel",
+          "Stores 4–6 months — shorter than softneck but richer, more complex flavor",
+          "Varieties: Chesnok Red, Spanish Roja, Music, Metechi — all excellent for Pacific Northwest"
+        ]
+      },
+      "Softneck": {
+        "spacing": "6 inches apart; rows 12 inches",
+        "height":  "12–18 inches tall; no scape produced",
+        "harvest": [
+          "Harvest when 5–6 lower leaves have browned — slightly earlier than hardneck",
+          "The braid-able type — softer stems allow traditional garlic braiding for storage",
+          "Stores 6–12 months; most commercial grocery garlic is softneck for this reason",
+          "Varieties: Inchelium Red, Silverskin, California Late — excellent long-storage options"
+        ]
+      }
+    }
+  },
+
+  "Shallots": {
+    "default": {
+      "sun":   "Full sun (6–8 hrs/day)",
+      "water": "Moderate; consistent moisture through bulb development; reduce as tops yellow",
+      "soil":  "Well-drained, fertile loam · pH 6.0–7.0; light, loose soil for best bulb development",
+      "frost": "Hardy to Zone 4; cold-tolerant; can be planted early spring or in fall like garlic",
+      "tips": [
+        "Plant sets (small bulbs) 1 inch deep, pointed end up, 6 inches apart, rows 12 inches",
+        "Each set multiplies into a cluster of 8–12 shallots by harvest — one becomes many",
+        "Can also start from seed indoors 8–10 weeks before last frost, like onions",
+        "Harvest green tops as scallions once 6–8 inches tall for fresh use throughout spring",
+        "Stop watering once tops begin to fall over and yellow — this signals bulbing is complete"
+      ],
+      "harvest": [
+        "Harvest when tops dry and fall over — typically 90–120 days from planting",
+        "Lift clusters with a fork; separate and cure in a warm, airy spot for 2–3 weeks",
+        "Cured shallots store 6–8 months in a cool, dry, ventilated space",
+        "Reserve the smallest bulbs for replanting next season"
+      ],
+      "companions": [
+        "✅ Carrots — shallot scent deters carrot fly; excellent interplant",
+        "✅ Lettuce & spinach — low-growing companions that fill space between rows",
+        "✅ Tomatoes — aromatic deterrent to aphids and spider mites",
+        "✅ Brassicas — shallots deter aphids and imported cabbageworm",
+        "❌ Peas & beans — allelopathic; alliums inhibit legume growth",
+        "❌ Fennel — inhibits most vegetables including alliums"
+      ],
+      "pests": [
+        "Onion thrips — spray with water or insecticidal soap; worst in hot, dry weather",
+        "Onion fly — use row covers from planting; no-dig beds help reduce access",
+        "Downy mildew — avoid overhead watering; improve airflow through thinning",
+        "Neck rot — ensure bulbs are fully dry before storing; never store damp bulbs"
+      ],
+      "safe": "⚠️ Toxic to cats and dogs — all alliums contain thiosulphate; keep pets away"
+    },
+    "varieties": {}
+  },
+
+  "Basil": {
+    "default": {
+      "sun":   "Full sun (6–8 hrs/day); at least 6 hours required",
+      "water": "Moderate; keep evenly moist but never waterlogged — basil hates wet feet",
+      "soil":  "Well-drained, fertile loam · pH 6.0–7.0; warm soil is essential (60°F+)",
+      "frost": "Extremely frost-tender — even a light frost kills basil; don't rush planting",
+      "tips": [
+        "Start indoors 4–6 weeks after last frost date — basil needs warm conditions to thrive",
+        "Transplant only when nights are reliably above 50°F; Zone 8b: late May is safe",
+        "Pinch flowering tops as soon as they appear — bolting ends leaf production",
+        "Pinch above a leaf pair to encourage two new branches each time you harvest",
+        "Water at the base; wet leaves lead to fungal spots and poor flavor",
+        "Grow multiple plants — succession sow every 3–4 weeks for continuous fresh harvest"
+      ],
+      "harvest": [
+        "Harvest in the morning for maximum essential oil content and flavor",
+        "Pinch stems just above a leaf pair — the plant will branch and produce more leaves",
+        "Never harvest more than one-third of the plant at once",
+        "Leaves are best used fresh — heat destroys the volatile oils quickly",
+        "Preserve by freezing in olive oil in ice cube trays; refrigerating blackens leaves"
+      ],
+      "companions": [
+        "✅ Tomatoes — classic companion; basil improves flavor and repels aphids and whiteflies",
+        "✅ Peppers — shares heat-loving conditions; deters aphids and spider mites",
+        "✅ Marigolds — together they form a strong aromatic pest deterrent border",
+        "✅ Asparagus — said to repel asparagus beetle",
+        "❌ Sage — basil and sage are said to inhibit each other when closely planted",
+        "❌ Fennel — allelopathic; inhibits most plants including basil"
+      ],
+      "pests": [
+        "Aphids — especially on new growth; knock off with water spray or insecticidal soap",
+        "Japanese beetles — hand-pick in the morning; use row covers on young plants",
+        "Fusarium wilt — soilborne; use fresh soil each year; choose resistant varieties",
+        "Downy mildew — improved airflow and morning watering at soil level prevents most cases"
+      ],
+      "safe": "🐱 🐶 Non-toxic to cats and dogs (ASPCA)"
+    },
+    "varieties": {
+      "Sweet": {
+        "spacing": "10–12 inches apart",
+        "height":  "18–24 inches tall",
+        "harvest": [
+          "The classic Genovese-type basil — large, glossy, intensely aromatic leaves",
+          "Harvest leaves from the top 2–3 sets as soon as plants are 6 inches tall",
+          "Produces abundantly June through September in Zone 8b — pinch flowers aggressively",
+          "The gold standard for pesto, caprese, and Italian cooking"
+        ]
+      },
+      "Thai": {
+        "spacing": "10–12 inches apart",
+        "height":  "12–18 inches tall",
+        "harvest": [
+          "Spicy, anise-clove flavor — more heat-tolerant than sweet basil; flowers later",
+          "Purple stems and flower bracts with small green leaves; very ornamental",
+          "Harvest regularly to delay bolting; flowers are edible and attractive to bees",
+          "Essential for Thai curries, stir-fries, and Vietnamese pho"
+        ]
+      },
+      "Purple": {
+        "spacing": "10–12 inches apart",
+        "height":  "18–24 inches tall",
+        "harvest": [
+          "Deep purple-black leaves with a slightly spicier flavor than sweet basil",
+          "Dramatic in the garden; excellent for infused vinegars and visual garnishes",
+          "More prone to bolting than green types — pinch flowers even more diligently",
+          "Flavor holds when cooked better than sweet basil; great in pestos and salads"
+        ]
+      }
+    }
+  },
+
+  "Marigolds": {
+    "default": {
+      "sun":   "Full sun (6–8 hrs/day)",
+      "water": "Low–moderate; drought-tolerant once established; avoid overhead watering",
+      "soil":  "Well-drained, average fertility · pH 6.0–7.5; overly rich soil = fewer blooms",
+      "frost": "Frost-tender annual; transplant after last frost when soil is warm",
+      "tips": [
+        "Start indoors 4–6 weeks before last frost, or direct sow after frost danger passes",
+        "Pinch growing tips at 6 inches to encourage bushier plants and more blooms",
+        "Deadhead spent flowers regularly — it dramatically extends the blooming season",
+        "Plant as a border around vegetable beds for maximum pest-deterrent effect",
+        "French marigolds (dwarf) work best for companion planting close to vegetables",
+        "African marigolds (tall) are best for cutting and back-of-border use"
+      ],
+      "harvest": [
+        "Cut flowers in the morning when temperatures are cool and petals are fully open",
+        "Cut stems long, just above a leaf node — the plant will branch and rebloom",
+        "French marigolds: petals edible in salads and as garnish (mild, citrusy flavor)",
+        "African marigolds last 7–10 days in a vase; recut stems every 2–3 days"
+      ],
+      "companions": [
+        "✅ Tomatoes — repel nematodes and whiteflies; classic vegetable bed companion",
+        "✅ Peppers & eggplant — deter aphids and nematodes; shares heat-loving timing",
+        "✅ Beans — Mexican bean beetle deterrent when planted nearby",
+        "✅ Cucumbers & squash — attract pollinators; repel cucumber beetles",
+        "❌ Fennel — allelopathic; inhibits marigolds and most neighboring plants"
+      ],
+      "pests": [
+        "Spider mites in hot, dry conditions — increase watering; spray leaf undersides",
+        "Aphids on new growth — spray with water or insecticidal soap at first sign",
+        "Slugs on young transplants — apply iron phosphate bait at soil level",
+        "Botrytis (gray mold) in cool, wet weather — improve airflow; avoid overhead watering"
+      ],
+      "safe": "🐱 🐶 Non-toxic to cats and dogs (ASPCA)"
+    },
+    "varieties": {
+      "French": {
+        "spacing": "8–10 inches apart",
+        "height":  "Compact — 6–18 inches tall",
+        "harvest": [
+          "Compact dwarf plants ideal for vegetable bed borders and container growing",
+          "Prolific bloomer — produces hundreds of small 1–2 inch flowers per plant",
+          "Best type for close companion planting; fit between tomato, pepper, and bean rows",
+          "Deadhead every few days; plants bloom non-stop from May through frost"
+        ]
+      },
+      "African": {
+        "spacing": "12–18 inches apart",
+        "height":  "Tall — 18–36 inches; excellent cut flower",
+        "harvest": [
+          "Large bold 3–4 inch pompom flowers in bright orange and yellow",
+          "Best for back of border, cutting gardens, and tall companion use near corn",
+          "Harvest when outer petals just begin to unfurl for longest vase life",
+          "Most effective for nematode suppression — plant densely as a cover crop pre-season"
+        ]
+      }
+    }
+  },
+
+  "Kale": {
+    "default": {
+      "sun":   "Full sun to partial shade (4–6 hrs minimum); afternoon shade appreciated in heat",
+      "water": "Moderate; consistent moisture — dry conditions cause tough, bitter leaves",
+      "soil":  "Rich, well-drained loam · pH 6.0–7.5; heavy feeder; amend with compost",
+      "frost": "Very cold hardy — frost sweetens flavor (converts starch to sugar); survives to Zone 7",
+      "tips": [
+        "Start indoors 4–6 weeks before transplant for spring; direct sow July–Aug for fall/winter harvest",
+        "Transplant in cool weather — heat stress makes leaves tough and bitter",
+        "Side-dress with nitrogen-rich fertilizer (fish emulsion or blood meal) every 3–4 weeks",
+        "Harvest outer leaves first — always leave the growing central bud intact for continued production",
+        "Fall kale is sweeter and more productive than spring; consider it primarily a fall/winter crop",
+        "In Zone 8b: kale can produce all winter long without any protection"
+      ],
+      "harvest": [
+        "Harvest when leaves are 8–12 inches long — smaller leaves are more tender",
+        "Always pick the lowest outer leaves, working your way up as the plant grows",
+        "Morning harvest gives the most tender, flavorful leaves",
+        "After a frost, wait 24 hours — leaves sweeten dramatically and are worth the wait",
+        "Kale stores well refrigerated for 5–7 days; massage raw leaves to tenderize them for salads"
+      ],
+      "companions": [
+        "✅ Onions — deter aphids and imported cabbageworm",
+        "✅ Marigolds — repel cabbage moths and nematodes",
+        "✅ Dill & chamomile — attract parasitic wasps and hover flies that prey on caterpillars",
+        "✅ Celery — deters white cabbage butterfly; mutually beneficial",
+        "❌ Tomatoes — compete heavily for nutrients; different fertility needs",
+        "❌ Strawberries — inhibit each other's growth when closely planted"
+      ],
+      "pests": [
+        "Imported cabbageworm & cabbage looper — inspect leaf undersides weekly; use Bt spray",
+        "Aphids — especially grey-green cabbage aphids; blast with water, then soap spray",
+        "Cabbage root maggot — use brassica collars at soil line; rotate annually",
+        "Harlequin bugs in summer — hand-pick egg clusters; use row covers during peak pressure"
+      ],
+      "safe": "🐱 🐶 Non-toxic to cats and dogs"
+    },
+    "varieties": {}
+  },
+
+  "Zucchini": {
+    "default": {
+      "sun":   "Full sun (6–8 hrs/day)",
+      "water": "Moderate–high; consistent moisture; water at base to avoid powdery mildew",
+      "soil":  "Rich, well-drained loam · pH 6.0–7.0; amend with compost; heavy feeder",
+      "frost": "Frost-tender; transplant after last frost when soil reaches 60°F",
+      "tips": [
+        "Start indoors 3–4 weeks before last frost; transplant carefully — squash roots are sensitive",
+        "Or direct sow after last frost — zucchini germinates fast in warm soil",
+        "Plant in hills (2–3 plants) or single plants with 24–36 inches of space each",
+        "Hand-pollinate early blooms in cool weather — use a brush or transfer pollen between male and female flowers",
+        "Check plants daily at peak season — fruits go from ideal to enormous overnight",
+        "Remove any zucchini that reaches baseball-bat size to keep plant producing"
+      ],
+      "harvest": [
+        "Harvest when fruits are 6–8 inches long for best flavor and texture — earlier is better",
+        "Check plants every 1–2 days at peak season; zucchini grows rapidly",
+        "Use a sharp knife or pruners — don't twist or pull, which can damage the vine",
+        "Flowers are edible — harvest male flowers (no small fruit at base) for stuffing or frying"
+      ],
+      "companions": [
+        "✅ Marigolds — repel squash vine borers, aphids, and nematodes",
+        "✅ Nasturtiums — trap crop for aphids; edible flowers attract pollinators",
+        "✅ Beans — fix nitrogen; classic Three Sisters companion",
+        "✅ Dill — attracts beneficial insects that prey on squash pests",
+        "❌ Potatoes — share blight susceptibility; avoid planting nearby",
+        "❌ Fennel — allelopathic; inhibits zucchini and most vegetables"
+      ],
+      "pests": [
+        "Squash vine borer — most destructive pest; use row covers until flowering; inject Bt into stems if found",
+        "Powdery mildew — most common late-season issue; improve airflow; choose resistant varieties",
+        "Squash bugs — hand-pick egg clusters (bronze, metallic-looking) from leaf undersides",
+        "Cucumber beetles — use row covers early; yellow-green beetles spread bacterial wilt"
+      ],
+      "safe": "🐱 🐶 Non-toxic to cats and dogs"
+    },
+    "varieties": {}
+  },
+
+  "Squash": {
+    "default": {
+      "sun":   "Full sun (6–8 hrs/day)",
+      "water": "Moderate; consistent moisture; reduce as fruits mature and vines die back",
+      "soil":  "Rich, well-drained loam · pH 6.0–7.0; heavy feeder — amend with compost at planting",
+      "frost": "Frost-tender; transplant after last frost; harvest before hard freeze",
+      "tips": [
+        "Start indoors 3–4 weeks before last frost, or direct sow after last frost",
+        "Give vining types plenty of room — butternut and acorn vines can spread 6–10 feet",
+        "Mulch around plants to retain moisture and suppress weeds as vines spread",
+        "Hand-pollinate if fruit set is poor — transfer pollen from male to female flowers",
+        "Cure winter squash after harvest: leave in warm, dry spot 2 weeks to harden skin"
+      ],
+      "harvest": [
+        "Summer squash: harvest young at 6–8 inches; check daily at peak",
+        "Winter squash: wait until skin cannot be dented with a fingernail and stem dries",
+        "Cut with 2–3 inches of stem attached — stemless squash rots faster in storage",
+        "Cured winter squash stores 3–6 months in a cool, dry location"
+      ],
+      "companions": [
+        "✅ Beans — fix nitrogen; classic Three Sisters planting",
+        "✅ Corn — provides vertical structure; Three Sisters combination",
+        "✅ Nasturtiums — trap crop for aphids; living mulch under vines",
+        "✅ Marigolds — deter squash beetles and nematodes",
+        "❌ Potatoes — share disease susceptibility; avoid proximity",
+        "❌ Fennel — inhibits squash and most vegetables"
+      ],
+      "pests": [
+        "Squash vine borer — most destructive; use row covers through flowering; check stems for frass",
+        "Powdery mildew — nearly universal late season; resistant varieties help most",
+        "Squash bugs — hand-pick egg masses from leaf undersides weekly",
+        "Cucumber beetles — yellow-green beetles spread bacterial wilt; use row covers early"
+      ],
+      "safe": "🐱 🐶 Non-toxic to cats and dogs"
+    },
+    "varieties": {
+      "Butternut": {
+        "spacing": "36 inches apart; vines spread 6–8 feet",
+        "height":  "Trailing vine — 6–10 feet long",
+        "harvest": [
+          "Harvest at 100–110 days when skin is uniformly tan-beige and stem begins to cork",
+          "Cure 10–14 days at 80–85°F; stores 4–6 months in cool, dry conditions",
+          "Sweet, nutty orange flesh — excellent for soups, roasting, and purees",
+          "One of the best storing and most versatile winter squashes for home gardeners"
+        ]
+      },
+      "Delicata": {
+        "spacing": "24–36 inches apart; semi-bush type",
+        "height":  "Compact semi-bush — vines 3–5 feet",
+        "harvest": [
+          "Harvest at 95–100 days when cream-colored skin shows defined green stripes and firm feel",
+          "Smaller fruits 6–9 inches — fewer seeds and thin, edible skin when roasted",
+          "Stores 2–3 months; shorter than butternut but excellent flavor",
+          "Sweet, creamy flesh — often called 'the best-tasting winter squash' by chefs"
+        ]
+      },
+      "Acorn": {
+        "spacing": "24–36 inches apart; semi-bush type",
+        "height":  "Semi-vining — 4–6 foot spread",
+        "harvest": [
+          "Harvest at 80–90 days when dark green skin shows first hints of orange at the base",
+          "Cut with 1 inch of stem; stores 1–2 months (shorter shelf life than butternut)",
+          "Mildly sweet, tender flesh — ideal for halving, stuffing, and baking whole",
+          "Reliable early producer — first winter squash ready to harvest in Zone 8b"
+        ]
+      }
+    }
+  },
+
+  "Radishes": {
+    "default": {
+      "sun":   "Full sun to partial shade; tolerates more shade than most vegetables",
+      "water": "Moderate; consistent moisture prevents tough, pithy roots and cracking",
+      "soil":  "Well-drained, loose, stone-free sandy loam · pH 6.0–7.0; avoid compaction",
+      "frost": "Hardy and frost-tolerant; one of the fastest crops from seed to harvest",
+      "tips": [
+        "Direct sow in place — radishes strongly dislike transplanting",
+        "Sow seeds ½ inch deep; thin to 2–3 inches apart once seedlings are 1 inch tall",
+        "Succession sow every 10–14 days from March through May, then again Aug–Sept",
+        "Radishes bolt quickly in heat — avoid summer sowing; they're strictly a cool-season crop",
+        "Use as a trap crop for flea beetles — they prefer radish to most other vegetables",
+        "French Breakfast and Cherry Belle: harvest in 22–28 days; don't leave in ground past maturity"
+      ],
+      "harvest": [
+        "Harvest at ¾ to 1 inch diameter — check by gently uncovering the shoulder",
+        "Overripe radishes become pithy, hollow, and burning-hot — harvest on time",
+        "Twist off tops immediately after harvest to prevent moisture loss",
+        "Store refrigerated up to 1 week in a bag with slightly damp paper towel"
+      ],
+      "companions": [
+        "✅ Carrots — radishes mark rows and loosen soil; harvest before carrots need space",
+        "✅ Peas & beans — fast-maturing radishes are harvested before beans compete",
+        "✅ Cucumbers & squash — radishes deter cucumber beetles and squash vine borers",
+        "✅ Lettuce & spinach — share cool-season timing; same sowing conditions",
+        "❌ Hyssop — said to inhibit radish growth",
+        "❌ Turnips — same family; attract shared pests when planted together"
+      ],
+      "pests": [
+        "Flea beetles — tiny jumping beetles make small holes in leaves; row covers prevent access",
+        "Cabbage root maggot — use brassica collars or sand around base of plants",
+        "Aphids — less common than on other brassicas; knock off with water spray",
+        "Slugs — especially on spring sowings; apply iron phosphate bait at soil level"
+      ],
+      "safe": "🐱 🐶 Non-toxic to cats and dogs"
+    },
+    "varieties": {}
+  },
+
+  "Beets": {
+    "default": {
+      "sun":   "Full sun (6–8 hrs/day); tolerates partial shade",
+      "water": "Moderate; consistent moisture — dry spells cause tough, woody roots",
+      "soil":  "Deep, loose, stone-free loam · pH 6.0–7.0; avoid acidic soil below 6.0",
+      "frost": "Hardy to light frost; seeds germinate in cool soil; overwintering possible in Zone 8b",
+      "tips": [
+        "Direct sow — beets strongly dislike transplanting; sow seeds 1 inch deep, 3 inches apart",
+        "Each beet 'seed' is actually a cluster of 2–3 seeds — thin to strongest seedling at 3 inches",
+        "Pre-soak seeds 24 hours before planting to speed germination in cool spring soil",
+        "Succession sow every 3 weeks from March through June, and again in August for fall harvest",
+        "Young thinnings are delicious as microgreens — eat what you thin",
+        "In Zone 8b: fall-sown beets can overwinter under mulch for early spring harvest"
+      ],
+      "harvest": [
+        "Harvest when roots are 1½ to 3 inches across — check by uncovering the shoulder",
+        "Don't let beets grow too large — over 3 inches they become woody and less sweet",
+        "Twist off tops leaving 1 inch of stem — prevents bleeding and maintains color",
+        "Beet greens are edible — harvest outer leaves freely without disturbing roots",
+        "Store roots refrigerated for 2–4 weeks; greens last 3–4 days"
+      ],
+      "companions": [
+        "✅ Onions & garlic — strong scents deter pests that damage beet roots",
+        "✅ Lettuce — low-growing companion; shares cool-season timing perfectly",
+        "✅ Brassicas (broccoli, cabbage) — beets fill ground-level space between taller brassicas",
+        "✅ Bush beans — compatible spacing; beans fix nitrogen beets appreciate",
+        "❌ Pole beans — tall climbing beans shade beets too heavily",
+        "❌ Fennel — allelopathic; inhibits beet growth and root development"
+      ],
+      "pests": [
+        "Leaf miners — winding white trails in leaves; remove affected leaves; use row covers",
+        "Aphids — less common than other crops; knock off with water if found",
+        "Flea beetles — small holes in leaves; row covers on young seedlings prevent damage",
+        "Cercospora leaf spot (fungal) — avoid overhead watering; rotate crops annually"
+      ],
+      "safe": "🐱 🐶 Non-toxic to cats and dogs; beet greens safe for humans"
+    },
+    "varieties": {}
+  },
+
+  "Spinach": {
+    "default": {
+      "sun":   "Full sun to partial shade; tolerates more shade in spring heat",
+      "water": "Moderate; consistent moisture — drought stress causes premature bolting",
+      "soil":  "Rich, well-drained loam · pH 6.5–7.5; slightly higher pH than most vegetables",
+      "frost": "Very cold hardy — germinates in near-freezing soil; survives to 20°F; finest flavor after frost",
+      "tips": [
+        "Direct sow 4–6 weeks before last frost in spring; sow again in late August for fall",
+        "Sow seeds ½ inch deep, 2 inches apart; thin to 4–6 inches for full-size leaves",
+        "Succession sow every 2 weeks through April for extended spring harvest",
+        "Spinach bolts quickly in heat and long days — choose bolt-resistant varieties for spring",
+        "Fall spinach is sweeter, slower to bolt, and more productive than spring; prioritize it",
+        "In Zone 8b: fall sowing in August produces through November and overwinters for spring"
+      ],
+      "harvest": [
+        "Harvest outer leaves once plants have 6+ leaves — always leave the growing center intact",
+        "Or cut the whole plant 1 inch above soil level — it may resprout for a second harvest",
+        "Morning harvest gives the sweetest, most tender leaves",
+        "At first sign of a flower stalk (bolting) — harvest entire plant immediately; flavor declines fast"
+      ],
+      "companions": [
+        "✅ Strawberries — spinach fills space between rows; shade from strawberry leaves is welcome",
+        "✅ Peas — classic cool-season companions; peas fix nitrogen spinach appreciates",
+        "✅ Radishes — deter leaf miners; same sowing conditions and timing",
+        "✅ Garlic & onions — aromatic deterrents to aphids that target spinach",
+        "❌ Fennel — inhibits spinach growth when planted nearby",
+        "❌ Beets — same family (Chenopodiaceae); share diseases and some pests"
+      ],
+      "pests": [
+        "Leaf miners — white squiggly trails in leaves; remove affected leaves; row covers prevent flies",
+        "Aphids — especially in early spring; knock off with water; encourage ladybugs",
+        "Downy mildew — choose resistant varieties; avoid overhead watering in cool, humid weather",
+        "Slugs — especially on young seedlings; apply iron phosphate bait at soil level"
+      ],
+      "safe": "🐱 🐶 Non-toxic to cats and dogs; raw spinach safe for humans in moderation"
+    },
+    "varieties": {
+      "Savoy": {
+        "spacing": "4–6 inches apart; rows 12 inches",
+        "height":  "6–12 inches tall; crinkled leaves",
+        "harvest": [
+          "Deeply crinkled, dark green leaves — excellent texture for salads and sautéing",
+          "Harvest outer leaves at 45–50 days; cold-hardy through Zone 4",
+          "Crinkled surface traps grit — wash thoroughly before use",
+          "Bloomsdale Long Standing is the classic savoy; excellent bolt resistance for spring"
+        ]
+      },
+      "Flat Leaf": {
+        "spacing": "4–6 inches apart; rows 12 inches",
+        "height":  "6–10 inches tall; smooth broad leaves",
+        "harvest": [
+          "Smooth, broad, dark green leaves — easier to wash than savoy types",
+          "Harvest outer leaves at 38–45 days; slightly less cold-hardy than savoy",
+          "Excellent for juicing, smoothies, and fresh salads",
+          "Preferred by commercial growers for ease of processing; great for home use too"
+        ]
+      }
+    }
+  },
+
+  "Cilantro": {
+    "default": {
+      "sun":   "Full sun to partial shade; afternoon shade extends harvest season in warm weather",
+      "water": "Low–moderate; drought-tolerant; consistent moisture slows bolting",
+      "soil":  "Well-drained, moderately fertile loam · pH 6.2–6.8",
+      "frost": "Hardy to light frost; best sown in cool weather when bolting risk is lowest",
+      "tips": [
+        "Direct sow in place — cilantro dislikes transplanting; sow seeds ¼ inch deep, 6 inches apart",
+        "Succession sow every 2–3 weeks March through May, then again in late August",
+        "Cilantro bolts very quickly in heat and long days — most spring sowings will run to seed by June",
+        "Let some plants go to seed (coriander) — seeds are a spice, and plants self-sow prolifically",
+        "Fall sowings in late August are often the most productive; plants overwinter in Zone 8b",
+        "Crush a leaf to test flavor — some people have a genetic sensitivity (tastes like soap)"
+      ],
+      "harvest": [
+        "Harvest outer leaves once plants have 4+ true leaves — young leaves have the best flavor",
+        "Harvest in the morning before volatile oils disperse in the afternoon heat",
+        "At first sign of a flower stalk — harvest the feathery top leaves; they're more delicate and flavorful",
+        "Let some plants flower for coriander seed harvest; collect seeds when tan-brown and before they drop"
+      ],
+      "companions": [
+        "✅ Spinach & lettuce — cool-season companions that share sowing conditions",
+        "✅ Tomatoes & peppers — flowers attract beneficial insects that prey on tomato pests",
+        "✅ Beans — cilantro flowers attract predatory wasps that control bean aphids",
+        "✅ Anise — said to improve cilantro germination when planted nearby",
+        "❌ Fennel — compete for space; fennel's allelopathic properties can affect cilantro",
+        "❌ Lavender — conflicting moisture needs; cilantro prefers more regular watering"
+      ],
+      "pests": [
+        "Aphids — on new growth and flower heads; knock off with water; minimal pest pressure",
+        "Whiteflies — occasional; yellow sticky traps; insecticidal soap if severe",
+        "Cilantro is generally low-maintenance; most issues come from bolting, not pests"
+      ],
+      "safe": "🐱 🐶 Non-toxic to cats and dogs (ASPCA)"
+    },
+    "varieties": {}
+  },
+
+  "Green Onions": {
+    "default": {
+      "sun":   "Full sun (6–8 hrs/day); tolerates light shade",
+      "water": "Moderate; consistent moisture — dry soil causes tough, stringy stems",
+      "soil":  "Well-drained, fertile loam · pH 6.0–7.0; loose soil for best stem development",
+      "frost": "Hardy to light frost; spring and fall sowings work well in Zone 8b",
+      "tips": [
+        "Direct sow ½ inch deep, 1 inch apart, rows 12 inches; thin to 2 inches for full-size scallions",
+        "Succession sow every 2–3 weeks from March through May and again Aug–Sept for year-round supply",
+        "Can also regrow from kitchen scraps — save root ends in a glass of water or plant directly",
+        "Harvest as scallions (pencil-thin, 6–8 inches tall) or leave to develop fuller bunching onions",
+        "In Zone 8b: fall sowings overwinter and are among the first harvests of spring"
+      ],
+      "harvest": [
+        "Harvest when stems are pencil-thick and 6–8 inches tall — typically 60–80 days from sowing",
+        "Cut at soil level with scissors; the plant will often resprout for a second cut",
+        "Or pull entire clump; separate and use immediately for freshest flavor",
+        "Refrigerate in a glass of water for up to 1 week; tops stay crisp and fresh"
+      ],
+      "companions": [
+        "✅ Carrots — aromatic scent deters carrot fly; excellent interplant",
+        "✅ Lettuce & radishes — share cool-season timing; fill space between rows",
+        "✅ Tomatoes — deterrent to aphids and spider mites at base of plants",
+        "✅ Brassicas — deter aphids and imported cabbageworm",
+        "❌ Peas & beans — allelopathic; alliums inhibit legume root nodule development",
+        "❌ Fennel — inhibits most vegetables including alliums"
+      ],
+      "pests": [
+        "Onion thrips — yellow or silver streaking on leaves; spray with water or insecticidal soap",
+        "Onion fly — less common on fast-growing scallion types than bulbing onions",
+        "Downy mildew — avoid overhead watering; improve airflow by correct spacing",
+        "Aphids — occasional; knock off with water spray"
+      ],
+      "safe": "⚠️ Toxic to cats and dogs — all alliums contain thiosulphate; keep pets away"
+    },
+    "varieties": {
+      "Scallion": {
+        "spacing": "1–2 inches apart; rows 12 inches",
+        "height":  "8–12 inches tall",
+        "harvest": [
+          "The classic bunching onion — harvest as soon as stems reach pencil thickness at 6–8 inches",
+          "Evergreen Bunching is the standard variety — mild flavor, excellent cold tolerance",
+          "Harvest whole plant or cut at soil level for regrowth; multiple cuts per sowing possible",
+          "Excellent raw as garnish, in Asian dishes, salads, and as a quick flavor base"
+        ]
+      }
+    }
+  },
+
+  "Chives": {
+    "default": {
+      "sun":   "Full sun to partial shade; 4–6 hrs minimum for good growth",
+      "water": "Low–moderate; drought-tolerant once established; avoid waterlogging",
+      "soil":  "Well-drained, moderately fertile loam · pH 6.0–7.0; tolerates poor soil better than most herbs",
+      "frost": "Very cold hardy perennial — dies back in winter but re-emerges reliably each spring",
+      "tips": [
+        "Direct sow or transplant in early spring; chives are slow from seed — starting from a division or plug is faster",
+        "Snip leaves with scissors to ½ inch above soil — the plant will regrow vigorously",
+        "Divide clumps every 3 years to maintain vigor and prevent overcrowding",
+        "Let some flowers develop — purple blooms are edible, attractive to pollinators, and stunning",
+        "In Zone 8b: clumps re-emerge in late February and can be harvested March through December",
+        "Chive flowers make beautiful garnishes and can be added to herb vinegars"
+      ],
+      "harvest": [
+        "Harvest by cutting stems to ½–1 inch above the soil — new growth follows in 2–3 weeks",
+        "Morning harvest gives the most intense flavor and best shelf life",
+        "Use fresh — chives lose much of their flavor when cooked; add at the very end",
+        "Flowers are edible and have a milder onion flavor than the leaves",
+        "Refrigerate wrapped in damp paper towel up to 1 week; or freeze chopped in olive oil"
+      ],
+      "companions": [
+        "✅ Carrots — chive scent deters carrot fly; excellent row companion",
+        "✅ Tomatoes — repels aphids; improves flavor when planted nearby",
+        "✅ Roses — classic companion; reduces aphid pressure and fungal diseases",
+        "✅ Brassicas — aromatic deterrent to cabbage moth and aphids",
+        "❌ Peas & beans — allelopathic; chives (allium) inhibit legume growth",
+        "❌ Fennel — allelopathic; inhibits chives and most neighboring plants"
+      ],
+      "pests": [
+        "Onion thrips — occasional; spray with water or insecticidal soap if found",
+        "Aphids — rare on chives; the aromatic oils are a natural repellent",
+        "Rust (orange pustules on leaves) — improve airflow; avoid overhead watering",
+        "Chives are generally one of the most pest-free herbs in the garden"
+      ],
+      "safe": "⚠️ Toxic to cats and dogs — all alliums contain thiosulphate; keep pets away"
+    },
+    "varieties": {}
+  },
+
+  "Peonies": {
+    "default": {
+      "sun":   "Full sun (6 hrs minimum); afternoon shade acceptable in hot summers",
+      "water": "Moderate; deep watering weekly once established; reduce in fall",
+      "soil":  "Well-drained, fertile loam · pH 6.0–7.0; amend with compost and bone meal at planting",
+      "frost": "Hardy to Zone 3; cold winters actually improve bloom performance — need vernalization",
+      "tips": [
+        "Plant bare roots in fall (Oct–Nov) with eyes no more than 1–2 inches below soil surface — too deep = no blooms",
+        "Peonies are permanent — choose their location carefully; they thrive undisturbed for 30+ years",
+        "Do not cut back foliage until after frost — leaves feed the tuber through fall for next year's blooms",
+        "Stake or use peony rings before blooms open — heavy flowers flop in rain without support",
+        "In Zone 8b: peonies bloom May–June; they need the cold winters to vernalize and set flower buds",
+        "Young plants bloom lightly in years 1–2; full spectacular bloom begins in year 3"
+      ],
+      "harvest": [
+        "Cut blooms when buds are soft and showing color but petals are still closed (marshmallow stage)",
+        "Harvest in the morning into cool water; immediately refrigerate to extend vase life",
+        "Sear cut ends briefly in boiling water or over flame to extend vase life to 7–10 days",
+        "Peonies can be stored as tight buds in the refrigerator for 4–6 weeks — perfect for events"
+      ],
+      "companions": [
+        "✅ Alliums (decorative onion) — bloom simultaneously; beautiful color contrast",
+        "✅ Salvia — shares well-drained soil preference; extends the bloom season",
+        "✅ Roses — classic cottage garden pairing; similar care requirements",
+        "✅ Lady's Mantle — low-growing edging plant that hides dying peony foliage",
+        "❌ Tulips & bulbs — competing root zones when planted too close; give peonies 3 feet clearance"
+      ],
+      "pests": [
+        "Botrytis blight (gray mold) — most common; wilting black stems in spring; remove affected parts; improve airflow",
+        "Ants on buds — they harvest nectar and do no harm; do not spray",
+        "Phytophthora blight — soggy soil causes crown rot; ensure excellent drainage",
+        "Thrips on flowers — cause streaking on petals; use insecticidal soap if severe"
+      ],
+      "safe": "⚠️ Mildly toxic to cats and dogs — can cause vomiting and diarrhea if ingested (ASPCA)"
+    },
+    "varieties": {}
+  },
+
+  "Tulips": {
+    "default": {
+      "sun":   "Full sun (6+ hrs/day); spring sun is critical before canopy trees leaf out",
+      "water": "Low; bulbs rot in wet soil — good drainage is non-negotiable",
+      "soil":  "Well-drained, sandy or loamy soil · pH 6.0–7.0; never plant in clay without amendment",
+      "frost": "Fully hardy bulbs; need cold winter vernalization to bloom; plant in fall",
+      "tips": [
+        "Plant bulbs 6–8 inches deep, pointed end up, in October–November in Zone 8b",
+        "Add sharp sand or grit to planting holes if your soil drains slowly",
+        "In mild Zone 8b winters, tulips may need pre-chilling: store bulbs in refrigerator (not freezer) for 6 weeks before planting",
+        "Let foliage die back naturally after bloom — do not cut green leaves; they recharge the bulb",
+        "In Pacific Northwest wet winters, consider lifting and storing bulbs after foliage dies back for better repeat bloom",
+        "Treat as annuals for guaranteed performance — replant fresh bulbs each fall for the showiest display"
+      ],
+      "harvest": [
+        "Cut stems at an angle when petals are just beginning to show color but before fully open",
+        "Immediately place in cool water in a dark room for 24 hours — they condition beautifully",
+        "Tulips continue to grow in the vase — cut stems ½ inch daily to maintain water uptake",
+        "Vase life 5–10 days; keep away from direct sunlight and fruit (ethylene gas shortens life)"
+      ],
+      "companions": [
+        "✅ Forget-me-nots — classic cottage pairing; blue flowers perfectly complement tulip colors",
+        "✅ Pansies — overlap in spring bloom time; fill space between tulip stems",
+        "✅ Alliums — bloom just after tulips fade; extend the seasonal display seamlessly",
+        "✅ Hostas — emerge as tulip foliage fades, hiding the dying leaves naturally",
+        "❌ Tulip bulbs near shallow-rooted annuals — don't disturb roots when planting summer annuals"
+      ],
+      "pests": [
+        "Squirrels and voles — bury wire mesh baskets around bulbs; plant with daffodils (toxic to rodents) as deterrent",
+        "Tulip fire (Botrytis) — most serious disease; remove and destroy affected plants; don't replant in same spot",
+        "Aphids — remove with water spray; less serious on tulips than on vegetables",
+        "Slugs on emerging foliage in spring — apply iron phosphate bait at soil level"
+      ],
+      "safe": "⚠️ Toxic to cats and dogs — bulbs and flowers can cause drooling, vomiting, and cardiac issues (ASPCA)"
+    },
+    "varieties": {}
+  },
+
+  "Ranunculus": {
+    "default": {
+      "sun":   "Full sun (6+ hrs/day); cool morning sun ideal — afternoon shade appreciated",
+      "water": "Moderate; consistent moisture during growth; reduce sharply after flowers fade",
+      "soil":  "Well-drained, fertile, light loam · pH 6.0–7.0; heavy clay causes corm rot",
+      "frost": "Semi-hardy corms; Zone 8b can plant in fall (October) or late winter (February)",
+      "tips": [
+        "Pre-soak corms (octopus-shaped, tentacles down) in cool water for 4 hours before planting",
+        "Plant corms 2 inches deep, claws-down, 6 inches apart in fall (Oct) or late winter (Feb–Mar)",
+        "Fall planting in Zone 8b overwinters under light mulch and blooms March–May",
+        "Late winter planting blooms April–June — slightly later but avoids any cold-snap risk",
+        "After bloom and foliage yellows, lift and dry corms in a shaded, airy spot; store cool and dry until fall",
+        "In Zone 8b, corms can also stay in well-drained ground with light mulch in mild winters"
+      ],
+      "harvest": [
+        "Cut stems when buds are just beginning to open — they continue to open beautifully in the vase",
+        "Harvest in the morning into cool water; ranunculus are among the finest cut flowers",
+        "Vase life 7–10 days; recut stems every 2 days and change water to maximize longevity",
+        "Multi-petaled blooms resemble roses — layers of tissue-thin petals open over several days"
+      ],
+      "companions": [
+        "✅ Anemones — bloom simultaneously in spring; excellent color companions in a cutting garden",
+        "✅ Sweet peas — share cool-season bloom; beautiful for mixed spring arrangements",
+        "✅ Tulips — similar fall planting time; complementary heights and colors in spring",
+        "✅ Pansies — fill space between emerging ranunculus stems in early spring"
+      ],
+      "pests": [
+        "Powdery mildew — most common issue late in season; improve airflow; water at base only",
+        "Aphids on stems and buds — spray with water; follow with insecticidal soap if severe",
+        "Slugs on emerging shoots — apply iron phosphate bait at soil level in early spring",
+        "Crown rot — almost always caused by overwatering or poorly drained soil; prioritize drainage"
+      ],
+      "safe": "⚠️ Toxic to cats, dogs, and horses — all parts contain ranunculin; keep pets away (ASPCA)"
+    },
+    "varieties": {}
+  }
+}

@@ -2,6 +2,10 @@
 
 You do not need to understand every file at once. Follow one feature from what the gardener sees, through the API, into the database.
 
+## Before the tour: two deliberately separate versions
+
+The active hosted GardenBuddy code lives at the repository root. Amanda's exact original single-file planner lives in `original-planner/` with its original care data and README. It still runs by opening `original-planner/index.html`, but it is a protected historical snapshot—not an input to the hosted app. Builds, deployments, and formatting exclude that directory, and a checksum test catches accidental edits.
+
 ## 1. Where the screen comes from
 
 `src/main.tsx` is the tiny front door. It places `<App />` into the empty `root` element in `index.html`.

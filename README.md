@@ -2,6 +2,12 @@
 
 GardenBuddy is a private, phone-friendly garden planner for a shared Western Oregon garden. It turns the original single HTML file into a React application backed by a Fastify API and persistent SQLite database.
 
+## Amanda's original planner is preserved
+
+The exact pre-modernization `index.html`, `care-data.json`, and `README.md` live in [original-planner](original-planner/). They remain a standalone, runnable historical snapshot and are deliberately excluded from hosted builds and automatic formatting. See [the archive note](original-planner/ABOUT.md) for the boundary and integrity checks.
+
+The hosted GardenBuddy application lives at the repository root. Its reviewed catalog does not import unsupported claims from the archived care data.
+
 ## Run it locally
 
 ```bash

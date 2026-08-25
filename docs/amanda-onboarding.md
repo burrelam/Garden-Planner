@@ -28,6 +28,10 @@ Never put a Fly token, passphrase, Argon2 hash, session secret, cookie, database
 
 Staging contains resettable sample data. Production is reserved for Amanda’s real garden and must never be copied into staging.
 
+### Where Amanda's original version lives
+
+The original standalone planner is preserved in `original-planner/`. Its `index.html`, `care-data.json`, and `README.md` match the last pre-modernization `main` commit byte-for-byte. You can still open that `index.html` locally, but normal Claude sessions should treat the directory as read-only. The hosted GardenBuddy app is the code at the repository root, and deployment tooling excludes the archive.
+
 ## 1. Owner setup Jesse performs once
 
 Amanda should use her own GitHub and Fly.io accounts. Do not share Jesse’s account, browser session, access token, or SSH keys.
@@ -188,6 +192,8 @@ npm run brand:icons
 - `npm run brand:icons` regenerates PNG and Apple icons from the production SVG.
 
 Read [the friendly code tour](code-tour.md) before making a first change.
+
+Do not ask formatters or Claude to “clean up everything” inside `original-planner/`. Its checksum test intentionally fails if one of Amanda's three original files changes.
 
 ## 5. Start Claude Code correctly
 
