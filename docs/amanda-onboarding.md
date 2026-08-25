@@ -26,7 +26,7 @@ Never put a Fly token, passphrase, Argon2 hash, session secret, cookie, database
 | Fly organization         | `personal` / “Jesse Miller”                                              |
 | Fly region               | `sjc` (San Jose, the closest currently available Fly region to Portland) |
 
-Staging contains resettable sample data. Production is reserved for Amanda’s real garden and must never be copied into staging.
+Staging contains a resettable copy of Amanda’s committed original garden: 15 plants across Bed A, Bed B, Bed C, Bed D, Companions, and Unassigned. Production contains her live garden. They begin from the same reviewed migration seed, but remain separate databases; never copy later production edits into staging.
 
 ### Where Amanda's original version lives
 
@@ -327,9 +327,9 @@ Record the complete SHA printed by the script. Amanda then opens the permanent s
 
 Approval means: “I approve staging SHA `<full SHA>` for production.” A URL or “looks good” without the SHA is not sufficient.
 
-### Reset staging sample data
+### Reset staging to Amanda's original garden
 
-This intentionally deletes all current staging changes and staging history, then restores the sample garden:
+This intentionally deletes all current staging changes and staging history, then restores the 15 plants and six beds committed from Amanda's original planner:
 
 ```bash
 fly ssh console \
@@ -375,20 +375,16 @@ fly logs --app gardenbuddy-jm
 
 The production revision must equal the approved staging SHA.
 
-## 10. First production garden import
+## 10. First production garden verification
 
-Before importing:
+The first hosted release seeds Amanda's committed original garden atomically, so production does not start empty and never receives invented demo records. Verify:
 
-1. Export the original local planner JSON from the old planner.
-2. Keep a second untouched copy somewhere safe.
-3. Open production—not staging—and confirm Settings says `production` with the approved SHA.
-4. Open Settings → Import or export and choose the v1 JSON.
-5. Review the preview counts and custom plant list.
-6. Enter/confirm ZIP, hardiness zone, last spring frost, and first fall frost.
-7. Complete the atomic import.
-8. Reload and verify beds, plants, varieties, quantities, statuses, custom plants, and DTM overrides.
+1. Open production—not staging—and confirm Settings says `production` with the approved SHA.
+2. Confirm there are 15 plants and six beds: Bed A–D, Companions, and Unassigned.
+3. Spot-check Sugar Snap peas in Bed A, both tomato varieties in Bed B, the three peppers in Bed D, and marigolds plus basil in Companions.
+4. Reload and confirm the same data remains.
 
-Computed old month arrays are intentionally ignored. GardenBuddy derives new timing from reviewed rules and explicit frost dates. Import starts a fresh server-side history.
+If Amanda has a newer v1 browser export containing changes made after the committed version, keep an untouched backup and use Settings → Import or export. Preview it before importing. Computed old month arrays are intentionally ignored; GardenBuddy preserves personal fields and derives new timing from reviewed rules and explicit frost dates. Import starts a fresh server-side history.
 
 ## 11. Passphrase and session rotation
 

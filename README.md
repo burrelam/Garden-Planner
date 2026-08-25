@@ -34,15 +34,16 @@ For a new development machine, Claude Code, Fly access, staging releases, produc
 
 ## Commands
 
-| Command                         | Purpose                                                   |
-| ------------------------------- | --------------------------------------------------------- |
-| `npm run dev`                   | Run the API and website with live reload                  |
-| `npm run check`                 | Type-check, build, and run the automated tests            |
-| `npm run test:e2e`              | Test desktop, iPhone/WebKit, and Android/Chromium layouts |
-| `npm run auth:hash -- "phrase"` | Create an Argon2id hash for a Fly secret                  |
-| `npm run seed:staging`          | Reset sample data; refuses unless `APP_ENV=staging`       |
-| `npm run deploy:staging`        | Validate and deploy one clean committed SHA               |
-| `npm run promote:production`    | Guard and promote the phone-approved staging SHA          |
+| Command                         | Purpose                                                        |
+| ------------------------------- | -------------------------------------------------------------- |
+| `npm run dev`                   | Run the API and website with live reload                       |
+| `npm run check`                 | Type-check, build, and run the automated tests                 |
+| `npm run test:e2e`              | Test desktop, iPhone/WebKit, and Android/Chromium layouts      |
+| `npm run auth:hash -- "phrase"` | Create an Argon2id hash for a Fly secret                       |
+| `npm run seed:staging`          | Reset staging to Amanda's committed original garden            |
+| `npm run seed:amanda`           | Explicitly seed Amanda's garden; production needs confirmation |
+| `npm run deploy:staging`        | Validate and deploy one clean committed SHA                    |
+| `npm run promote:production`    | Guard and promote the phone-approved staging SHA               |
 
 ## Architecture
 
@@ -59,8 +60,8 @@ For a new development machine, Claude Code, Fly access, staging releases, produc
 
 Staging and production are separate Fly apps, secrets, Machines, volumes, and databases:
 
-- `https://gardenbuddy-jm-staging.fly.dev` — resettable sample garden for phone approval
-- `https://gardenbuddy-jm.fly.dev` — real garden; kept empty until the initial v1 JSON import
+- `https://gardenbuddy-jm-staging.fly.dev` — resettable copy of Amanda's committed garden for phone approval
+- `https://gardenbuddy-jm.fly.dev` — Amanda's production garden
 
 Fly no longer lists its Portland region, so both configs use San Jose (`sjc`), the nearest currently available region.
 

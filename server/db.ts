@@ -5,7 +5,7 @@ import { migrate } from "drizzle-orm/better-sqlite3/migrator";
 import { mkdirSync } from "node:fs";
 import { dirname } from "node:path";
 import { GardenStateSchema, type GardenState } from "../src/shared/model";
-import { createEmptyGarden, createSampleGarden } from "./state";
+import { createAmandaGarden } from "./state";
 import { gardens, sessions, snapshots } from "./schema";
 
 // Database behavior lives together here so transactions and SQLite safety settings are not
@@ -23,11 +23,9 @@ export function openDatabase(
   migrate(db, { migrationsFolder: "./drizzle" });
   const existing = db.select().from(gardens).where(eq(gardens.id, 1)).get();
   if (!existing) {
-    // Staging is deliberately realistic; production stays empty until the owner imports her real garden.
-    const state =
-      process.env.APP_ENV === "production"
-        ? createEmptyGarden()
-        : createSampleGarden();
+    // Every fresh environment starts from Amanda's real committed garden. There
+    // is no separate demo garden that can accidentally reach staging or production.
+    const state = createAmandaGarden();
     db.insert(gardens)
       .values({
         id: 1,

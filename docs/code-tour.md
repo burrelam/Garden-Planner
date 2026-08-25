@@ -49,7 +49,7 @@ The active hosted GardenBuddy code lives at the repository root. Amanda's exact 
 
 `server/db.ts` opens SQLite in WAL mode, runs Drizzle migrations, and owns transactions. A garden update and its history snapshot happen together: either both succeed or neither does. Its compare-and-swap revision check is what stops stale devices from winning.
 
-`server/state.ts` creates realistic staging data and translates the old v1 export. It preserves personal plants, varieties, quantities, bed choices, and DTM overrides while ignoring old computed calendar cells.
+`server/state.ts` records Amanda's 15 committed plants and six beds in the old v1 shape, then translates that seed and any later v1 export through one migration path. It preserves personal plants, varieties, quantities, bed choices, and DTM overrides while ignoring old computed calendar cells. There is no invented demo garden.
 
 `drizzle/` contains ordered SQL migrations. These files are committed so a fresh database and an existing production database reach the same schema predictably.
 

@@ -6,6 +6,7 @@
   background: #f5f0e8;
   color: #2a1f16;
   font-family: "DM Sans", sans-serif;
+  overflow-x: hidden;
 }
 :global(button),
 :global(input),
@@ -44,6 +45,7 @@
 :global(input),
 :global(select) {
   width: 100%;
+  min-width: 0;
   min-height: 42px;
   padding: 9px 11px;
   border: 1px solid #b8a992;
@@ -111,6 +113,9 @@
   background: #dfe9cd;
   color: #2d4524;
 }
+.navIcon {
+  display: none;
+}
 .brand {
   display: flex;
   align-items: center;
@@ -130,6 +135,10 @@
   width: min(1500px, 100%);
   margin: 0 auto;
   padding: clamp(30px, 5vw, 72px) clamp(16px, 4vw, 56px) 80px;
+}
+.page > *,
+.pageHead > * {
+  min-width: 0;
 }
 .pageHead {
   display: flex;
@@ -235,157 +244,333 @@
   background: #e4edd6;
   color: #314227;
 }
+
+.plannerPage {
+  width: 100%;
+  max-width: none;
+  min-height: calc(100vh - 72px);
+  color: #f5f0e8;
+  background:
+    radial-gradient(ellipse at 20% 0%, rgba(91, 72, 47, 0.85), transparent 58%),
+    radial-gradient(
+      ellipse at 85% 100%,
+      rgba(74, 94, 58, 0.42),
+      transparent 52%
+    ),
+    #3d2b1f;
+}
+.plannerPage > * {
+  width: min(1500px, 100%);
+  margin-inline: auto;
+}
+.plannerPage .pageHead h1 {
+  color: #f5f0e8;
+  font-size: clamp(2rem, 5vw, 3.2rem);
+}
+.plannerPage .pageHead p:not(.eyebrow) {
+  color: #b5cc8e;
+}
+.plannerPage .actions select {
+  background: rgba(255, 250, 242, 0.96);
+}
+.plannerPage .actions button:not(.primary) {
+  border-color: rgba(255, 255, 255, 0.28);
+  background: rgba(255, 255, 255, 0.12);
+  color: #f5f0e8;
+}
 .warning {
   background: #fae6bc;
   color: #5c4214;
 }
 
+.frostNote {
+  padding: 9px 16px;
+  margin-bottom: 12px;
+  border: 1px solid rgba(120, 180, 220, 0.32);
+  border-radius: 8px;
+  background: rgba(120, 180, 220, 0.12);
+  color: #c5e1f2;
+  text-align: center;
+  font-size: 0.78rem;
+  letter-spacing: 0.025em;
+}
+.legendDisclosure {
+  width: fit-content !important;
+  margin-bottom: 12px;
+  color: #f5f0e8;
+}
+.legendDisclosure summary {
+  width: fit-content;
+  margin-inline: auto;
+  padding: 7px 13px;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 7px;
+  background: rgba(255, 255, 255, 0.1);
+  cursor: pointer;
+  list-style: none;
+  text-transform: uppercase;
+  font-size: 0.69rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+}
 .legend {
   display: flex;
   flex-wrap: wrap;
-  gap: 16px;
-  font-size: 0.82rem;
-  color: #6a5a4d;
-  margin-bottom: 12px;
+  justify-content: center;
+  gap: 12px 20px;
+  padding: 14px 16px;
+  margin-top: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.08);
+  color: #f5f0e8;
+  font-size: 0.78rem;
 }
 .legend span {
   display: flex;
-  gap: 6px;
+  gap: 7px;
   align-items: center;
 }
 .legend i {
-  width: 14px;
-  height: 9px;
-  border-radius: 8px;
+  width: 25px;
+  height: 12px;
+  flex: 0 0 auto;
+  border-radius: 3px;
+}
+.scrollHint {
+  margin: 0 0 8px;
+  color: rgba(245, 240, 232, 0.74);
+  text-align: center;
+  font-size: 0.73rem;
 }
 .calendar {
   width: 100%;
-  overflow-x: auto;
+  max-height: 68vh;
+  overflow: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
   border: 1px solid #cfc1ae;
-  border-radius: 18px;
+  border-radius: 16px 16px 0 0;
   background: #fffaf2;
-  box-shadow: 0 7px 30px rgba(61, 43, 31, 0.07);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.34);
 }
 .calendarGrid {
-  min-width: 1220px;
+  min-width: 1320px;
   display: grid;
-  grid-template-columns: 265px repeat(12, minmax(78px, 1fr));
+  grid-template-columns: 360px repeat(24, minmax(40px, 1fr));
 }
-.monthHead {
-  min-height: 48px;
+.monthHead,
+.halfHead {
+  position: sticky;
+  z-index: 10;
   display: grid;
   place-items: center;
-  background: #ede5d8;
-  border-bottom: 1px solid #cfc1ae;
-  border-right: 1px solid #ded3c4;
+  color: #f5f0e8;
+  border-left: 1px solid rgba(255, 255, 255, 0.08);
   font-weight: 700;
+}
+.monthHead {
+  top: 0;
+  grid-column: span 2;
+  min-height: 34px;
+  background: #4a5e3a;
+  text-transform: uppercase;
+  font-size: 0.72rem;
+  letter-spacing: 0.06em;
+}
+.halfHead {
+  top: 34px;
+  min-height: 24px;
+  background: #3d5230;
+  font-size: 0.58rem;
+  font-weight: 500;
+}
+.currentHead {
+  color: #c8e49b;
+  background: #35492b;
+}
+.frostHead {
+  color: #b8daf0;
+  border-left: 2px solid rgba(82, 177, 229, 0.85);
 }
 .stickyPlant {
   position: sticky;
   left: 0;
-  z-index: 3;
+  z-index: 4;
+  min-width: 0;
   background: #fffaf2;
   border-right: 1px solid #cfc1ae;
 }
-.monthHead.stickyPlant {
-  z-index: 5;
-  place-items: center start;
-  padding-left: 18px;
-  background: #e5ddcf;
+.monthCorner {
+  top: 0;
+  z-index: 20;
+  grid-column: span 1;
+  grid-row: span 2;
+  align-content: center;
+  justify-items: start;
+  padding-left: 16px;
+  background: #4a5e3a;
 }
+.monthCorner small {
+  color: #b5cc8e;
+  font-size: 0.62rem;
+  font-weight: 500;
+}
+.calendarGroup,
 .calendarRow {
   display: contents;
 }
+.groupRow {
+  grid-column: 1 / -1;
+  position: sticky;
+  top: 58px;
+  z-index: 8;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  min-height: 31px;
+  padding: 5px 12px;
+  color: white;
+  box-shadow: inset 0 -1px rgba(0, 0, 0, 0.12);
+}
+.groupRow span {
+  position: sticky;
+  left: 12px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.groupRow small {
+  position: sticky;
+  left: 120px;
+  opacity: 0.78;
+}
 .calendarRow > div {
-  min-height: 94px;
+  min-height: 88px;
   border-bottom: 1px solid #e2d7c7;
 }
-.calendarRow:last-child > div {
-  border-bottom: 0;
-}
 .plantRowTitle {
-  padding: 12px 12px 4px;
   display: grid;
+  min-width: 0;
+  padding: 10px 12px 3px;
 }
 .plantRowTitle a {
-  font-weight: 700;
+  overflow: hidden;
   color: #3d2b1f;
+  font:
+    700 1rem "Playfair Display",
+    serif;
   text-decoration: none;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
-.plantRowTitle span {
+.plantRowTitle span,
+.plantRowTitle small {
+  overflow: hidden;
   color: #77675a;
-  font-size: 0.75rem;
+  font-size: 0.72rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.plantRowTitle small {
   margin-top: 2px;
+  color: #4a5e3a;
 }
 .rowControls {
   display: flex;
   gap: 4px;
-  padding: 4px 10px 10px;
+  padding: 3px 10px 9px;
+}
+.rowControls button,
+.rowControls select,
+.rowControls input {
+  min-height: 28px;
+  height: 28px;
+  padding: 2px 6px;
+  border-radius: 5px;
+  font-size: 0.7rem;
 }
 .rowControls button {
-  min-height: 27px;
-  height: 27px;
-  padding: 2px 7px;
-  border-radius: 6px;
-  font-size: 0.7rem;
+  flex: 0 0 auto;
 }
 .rowControls select {
-  min-height: 27px;
-  height: 27px;
-  padding: 2px 5px;
-  border-radius: 6px;
-  font-size: 0.7rem;
   width: 78px;
 }
 .rowControls input {
-  min-height: 27px;
-  height: 27px;
-  padding: 2px 4px;
-  border-radius: 6px;
-  font-size: 0.7rem;
-  width: 42px;
+  width: 43px;
 }
 .rowControls select:nth-of-type(2) {
-  width: 75px;
+  width: 83px;
 }
-.dangerLink {
+.mobileEdit {
+  display: none;
+}
+.dangerLink,
+.dangerButton {
   color: #914338;
 }
-.monthCell {
+.dangerButton {
+  border-color: #c98f86;
+  background: #fff4f1;
+}
+.slotCell {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 3px;
-  padding: 20px 3px;
+  padding: 18px 3px;
   border-right: 1px solid #e2d7c7;
 }
-.monthCell span {
+.slotCell span {
   min-width: 0;
-  border-radius: 8px;
+  border-radius: 3px;
   background: #eee7dd;
-  position: relative;
 }
-.monthCell .indoor,
 .indoor {
-  background: #b9b3cf;
+  background: #d4543a !important;
 }
-.monthCell .transplant,
 .transplant {
-  background: #c4704a;
+  background: #e8c96d !important;
 }
-.monthCell .direct,
 .direct {
-  background: #b5cc8e;
+  background: #e8872a !important;
 }
-.monthCell .harvest,
-.monthCell .bloom,
 .harvest {
-  background: #e8c96d;
+  background: #3a6b2a !important;
 }
-.monthCell .frost::after {
-  content: "";
-  position: absolute;
-  inset: -14px auto -14px 50%;
-  border-left: 2px dashed rgba(60, 86, 127, 0.55);
+.bloom {
+  background: #d4729a !important;
+}
+.frostColumn {
+  border-left: 2px solid rgba(82, 177, 229, 0.72);
+}
+.currentColumn {
+  background: rgba(181, 204, 142, 0.18);
+}
+.calendarGuide {
+  padding: 9px 14px;
+  margin: 0 auto 22px !important;
+  border-radius: 0 0 12px 12px;
+  background: #ede6d6;
+  color: #78695c;
+  font-size: 0.7rem;
+  text-align: center;
+}
+.sheetSubtitle {
+  margin: -8px 0 18px;
+  color: #77675a;
+  font-style: italic;
+}
+.sheetFields {
+  display: grid;
+  grid-template-columns: 0.55fr 1fr;
+  gap: 12px;
+}
+.sheetBed {
+  grid-column: 1 / -1;
+}
+.sheetReorder {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
 }
 .empty {
   border: 1px dashed #a99882;
@@ -409,6 +594,7 @@
   max-height: 90vh;
   overflow: auto;
   background: #fffaf2;
+  color: #2a1f16;
   border-radius: 22px;
   padding: 30px;
   box-shadow: 0 30px 80px rgba(0, 0, 0, 0.25);
@@ -472,6 +658,8 @@
   gap: 18px;
 }
 .panel {
+  min-width: 0;
+  overflow-wrap: anywhere;
   background: #fffaf2;
   border: 1px solid #d1c4b3;
   border-radius: 18px;
@@ -532,6 +720,9 @@
 .sourceLinks {
   font-size: 0.8rem;
   color: #6d5e52;
+}
+.sourceLinks a {
+  overflow-wrap: anywhere;
 }
 .settingsGrid .panel:nth-child(1),
 .settingsGrid .panel:nth-child(3) {
@@ -595,38 +786,177 @@
 
 @media (max-width: 760px) {
   .header {
-    align-items: flex-start;
-    padding: 8px 12px 0;
-    display: block;
+    position: relative;
+    min-height: 58px;
+    padding: 6px 14px;
+    display: flex;
+    align-items: center;
+    backdrop-filter: none;
   }
   .brand {
     width: fit-content;
-    margin-bottom: 2px;
+    margin: 0;
+    font-size: 1.2rem;
   }
   .brand img {
-    width: 38px;
-    height: 38px;
+    width: 42px;
+    height: 42px;
   }
   .header nav {
+    position: fixed;
+    inset: auto 0 0;
+    z-index: 40;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0;
     width: 100%;
-    padding-bottom: 7px;
+    min-height: calc(62px + env(safe-area-inset-bottom));
+    padding: 5px 6px env(safe-area-inset-bottom);
+    overflow: visible;
+    border-top: 1px solid #cfc1ae;
+    background: rgba(245, 240, 232, 0.98);
+    box-shadow: 0 -8px 24px rgba(61, 43, 31, 0.1);
+    backdrop-filter: blur(14px);
   }
   .header nav a {
-    padding: 7px 11px;
-    font-size: 0.86rem;
+    display: grid;
+    place-items: center;
+    align-content: center;
+    gap: 1px;
+    min-width: 0;
+    min-height: 52px;
+    padding: 4px 2px;
+    border-radius: 9px;
+    font-size: 0.71rem;
+    line-height: 1.1;
+  }
+  .navIcon {
+    display: block;
+    font-size: 1.25rem;
+    line-height: 1;
   }
   .page {
-    padding-top: 28px;
+    padding: 24px 14px calc(88px + env(safe-area-inset-bottom));
   }
   .pageHead {
     display: block;
+    margin-bottom: 22px;
+  }
+  .pageHead h1 {
+    font-size: 2rem;
+  }
+  .pageHead p {
+    font-size: 0.96rem;
   }
   .actions {
-    justify-content: flex-start;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    width: 100%;
     margin-top: 18px;
   }
   .actions > * {
-    flex: 1 1 120px;
+    width: 100%;
+    min-width: 0 !important;
+  }
+  .actions .primary:last-child {
+    grid-column: 1 / -1;
+  }
+  .plannerPage {
+    min-height: calc(100svh - 58px);
+    padding-top: 28px;
+  }
+  .plannerPage .pageHead {
+    text-align: center;
+  }
+  .plannerPage .pageHead h1 {
+    font-size: clamp(1.85rem, 9vw, 2.35rem);
+  }
+  .plannerPage .eyebrow {
+    color: #b5cc8e !important;
+  }
+  .frostNote {
+    padding: 8px 10px;
+    font-size: 0.69rem;
+    line-height: 1.5;
+  }
+  .legendDisclosure {
+    max-width: 100%;
+  }
+  .legend {
+    justify-content: flex-start;
+    gap: 10px 12px;
+    font-size: 0.72rem;
+  }
+  .scrollHint {
+    padding-inline: 8px;
+    font-size: 0.67rem;
+  }
+  .calendar {
+    max-height: 62svh;
+    min-height: 390px;
+    border-radius: 12px 12px 0 0;
+  }
+  .calendarGrid {
+    min-width: 1076px;
+    grid-template-columns: 164px repeat(24, 38px);
+  }
+  .calendarRow > div {
+    min-height: 98px;
+  }
+  .calendarRow > .stickyPlant {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 34px;
+    align-items: stretch;
+  }
+  .plantRowTitle {
+    padding: 9px 7px;
+    align-content: center;
+  }
+  .plantRowTitle a {
+    font-size: 1.05rem;
+  }
+  .plantRowTitle span {
+    font-size: 0.68rem;
+    font-style: italic;
+  }
+  .plantRowTitle small {
+    font-size: 0.66rem;
+  }
+  .desktopControls {
+    display: none;
+  }
+  .mobileEdit {
+    display: grid;
+    min-width: 0;
+    min-height: 0;
+    height: auto;
+    padding: 6px 2px;
+    border: 0;
+    border-left: 1px solid #ded3c4;
+    border-radius: 0;
+    background: #f1eadf;
+    color: #4a5e3a;
+    font-size: 0.61rem;
+  }
+  .mobileEdit span:last-child {
+    font-size: 1.5rem;
+    line-height: 1;
+  }
+  .monthCorner {
+    padding-left: 9px;
+  }
+  .groupRow {
+    padding-left: 8px;
+  }
+  .groupRow span {
+    left: 8px;
+  }
+  .groupRow small {
+    left: 100px;
+  }
+  .calendarGuide {
+    padding: 8px 10px;
+    font-size: 0.65rem;
   }
   .detailGrid,
   .settingsGrid,
@@ -643,16 +973,32 @@
   .dialog {
     width: 100%;
     max-height: 88vh;
+    overscroll-behavior: contain;
     border-radius: 22px 22px 0 0;
     padding: 28px 20px calc(28px + env(safe-area-inset-bottom));
   }
+  .sheetFields,
+  .sheetReorder {
+    grid-template-columns: 1fr 1fr;
+  }
+  .sheetBed {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 380px) {
+  .page {
+    padding-inline: 10px;
+  }
   .calendarGrid {
-    grid-template-columns: 220px repeat(12, 78px);
+    min-width: 1048px;
+    grid-template-columns: 152px repeat(24, 37.333px);
   }
-  .rowControls {
-    overflow: hidden;
+  .sheetFields,
+  .sheetReorder {
+    grid-template-columns: 1fr;
   }
-  .rowControls select {
-    width: 68px;
+  .sheetBed {
+    grid-column: auto;
   }
 }

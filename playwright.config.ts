@@ -8,7 +8,8 @@ export default defineConfig({
   reporter: "list",
   use: { baseURL: "http://127.0.0.1:3000", trace: "retain-on-failure" },
   webServer: {
-    command: "APP_ENV=development DATABASE_PATH=./data/playwright.db npm start",
+    command:
+      "APP_ENV=development LOGIN_RATE_LIMIT_MAX=1000 DATABASE_PATH=./data/playwright.db npm run test:e2e:server",
     url: "http://127.0.0.1:3000/api/health",
     reuseExistingServer: !process.env.CI,
     timeout: 60_000,

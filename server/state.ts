@@ -1,5 +1,5 @@
 import { randomUUID } from "node:crypto";
-import { catalog, findCatalogPlant } from "../src/shared/catalog";
+import { findCatalogPlant } from "../src/shared/catalog";
 import {
   GardenStateSchema,
   LegacyExportSchema,
@@ -11,48 +11,180 @@ import {
 
 const bedColors = ["#4A5E3A", "#C4704A", "#E8C96D", "#7B8E65", "#A36B4F"];
 
-export function createSampleGarden(): GardenState {
-  const beds = [
-    { id: "bed-south", label: "South bed", color: "#C4704A", sortOrder: 0 },
-    { id: "bed-kitchen", label: "Kitchen bed", color: "#4A5E3A", sortOrder: 1 },
-  ];
-  const entries = ["tomato", "peas", "lettuce", "basil", "marigold"].map(
-    (plantId, index) => {
-      const plant = catalog.find((candidate) => candidate.id === plantId)!;
-      return {
-        id: randomUUID(),
-        plantId,
-        name: plant.commonName,
-        variety: plant.cultivars[0]?.name ?? null,
-        dtm: plant.daysToMaturity.value,
-        qty: plantId === "tomato" ? 4 : 1,
-        bedId: index < 2 ? "bed-south" : "bed-kitchen",
-        status: index === 4 ? ("willplant" as const) : ("planted" as const),
-        sortOrder: index,
-      };
+// This is Amanda's committed garden from the original planner—not invented demo
+// content. Keeping it in the legacy shape makes the production seed exercise the
+// exact same validated migration path as a browser-exported v1 backup.
+export const amandaLegacyGarden: LegacyExport = {
+  version: 1,
+  beds: [
+    { id: "a", label: "Bed A", color: "#4a7a9b" },
+    { id: "b", label: "Bed B", color: "#7a5e9b" },
+    { id: "c", label: "Bed C", color: "#9b7a3a" },
+    { id: "d", label: "Bed D", color: "#4a9b6a" },
+    { id: "companion", label: "Companions", color: "#9b4a6a" },
+    { id: "unassigned", label: "Unassigned", color: "#888888" },
+  ],
+  plants: [
+    {
+      id: "peas",
+      name: "Peas",
+      variety: "Sugar Snap",
+      dtm: "60–70 days",
+      qty: 1,
+      bed: "a",
+      status: "planted",
     },
-  );
+    {
+      id: "lettuce",
+      name: "Lettuce",
+      variety: "Mix",
+      dtm: "45–60 days",
+      qty: 1,
+      bed: "a",
+      status: "planted",
+    },
+    {
+      id: "carrots",
+      name: "Carrots",
+      variety: null,
+      dtm: "70–80 days",
+      qty: 1,
+      bed: "a",
+      status: "planted",
+    },
+    {
+      id: "cucumbers",
+      name: "Cucumbers",
+      variety: null,
+      dtm: "50–70 days",
+      qty: 1,
+      bed: "a",
+      status: "undecided",
+    },
+    {
+      id: "tomato-roma",
+      name: "Tomato",
+      variety: "Roma",
+      dtm: "75–80 days",
+      qty: 1,
+      bed: "b",
+      status: "willplant",
+    },
+    {
+      id: "tomato-cherokee",
+      name: "Tomato",
+      variety: "Cherokee Purple",
+      dtm: "80–90 days",
+      qty: 1,
+      bed: "b",
+      status: "willplant",
+    },
+    {
+      id: "beans",
+      name: "Beans",
+      variety: "Purple String",
+      dtm: "50–60 days",
+      qty: 1,
+      bed: "b",
+      status: "planted",
+    },
+    {
+      id: "onions",
+      name: "Onions",
+      variety: null,
+      dtm: "100–120 days",
+      qty: 1,
+      bed: "c",
+      status: "planted",
+    },
+    {
+      id: "garlic",
+      name: "Garlic",
+      variety: null,
+      dtm: "240–270 days",
+      qty: 1,
+      bed: "c",
+      status: "planted",
+    },
+    {
+      id: "shallots",
+      name: "Shallots",
+      variety: null,
+      dtm: "90–120 days",
+      qty: 1,
+      bed: "c",
+      status: "planted",
+    },
+    {
+      id: "jalapeno",
+      name: "Pepper",
+      variety: "Jalapeño",
+      dtm: "70–85 days",
+      qty: 1,
+      bed: "d",
+      status: "willplant",
+    },
+    {
+      id: "shishito",
+      name: "Pepper",
+      variety: "Shishito",
+      dtm: "60–75 days",
+      qty: 1,
+      bed: "d",
+      status: "willplant",
+    },
+    {
+      id: "serrano",
+      name: "Pepper",
+      variety: "Serrano",
+      dtm: "75–90 days",
+      qty: 1,
+      bed: "d",
+      status: "willplant",
+    },
+    {
+      id: "marigolds",
+      name: "Marigolds",
+      variety: null,
+      dtm: "50–60 days to bloom",
+      qty: 1,
+      bed: "companion",
+      status: "willplant",
+    },
+    {
+      id: "basil",
+      name: "Basil",
+      variety: null,
+      dtm: "24–30 days",
+      qty: 1,
+      bed: "companion",
+      status: "willplant",
+    },
+  ],
+  customVarieties: {},
+};
+
+export function createEmptyGarden(): GardenState {
   return GardenStateSchema.parse({
     version: 2,
     revision: 0,
     garden: {
       id: "primary",
-      name: "Our garden",
-      zip: "",
+      name: "My Garden",
+      zip: "97201",
       hardinessZone: "8b",
       timezone: "America/Los_Angeles",
       lastFrost: "2026-03-15",
       firstFrost: "2026-11-15",
     },
-    beds,
-    entries,
+    beds: [],
+    entries: [],
     customVarieties: {},
   });
 }
 
-export function createEmptyGarden(): GardenState {
-  const sample = createSampleGarden();
-  return { ...sample, beds: [], entries: [] };
+export function createAmandaGarden(): GardenState {
+  return mapLegacyExport(amandaLegacyGarden, createEmptyGarden().garden);
 }
 
 export function mapLegacyExport(

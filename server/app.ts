@@ -125,7 +125,17 @@ export async function buildApp(options: AppOptions = {}) {
   });
   app.post(
     "/api/session",
-    { config: { rateLimit: { max: 10, timeWindow: "15 minutes" } } },
+    {
+      config: {
+        // Browser tests exercise login repeatedly from one loopback address.
+        // Hosted environments keep the strict default; only the explicit test
+        // process raises it so the suite does not test its own traffic pattern.
+        rateLimit: {
+          max: Number(process.env.LOGIN_RATE_LIMIT_MAX ?? 10),
+          timeWindow: "15 minutes",
+        },
+      },
+    },
     async (request, reply) => {
       const { passphrase } = LoginSchema.parse(request.body);
       const hash = process.env.APP_PASSPHRASE_HASH;
@@ -190,12 +200,10 @@ export async function buildApp(options: AppOptions = {}) {
       const next = GardenStateSchema.parse(request.body);
       const saved = writeGarden(database, expected, next, "Garden updated");
       if (!saved)
-        return reply
-          .code(409)
-          .send({
-            error: "Garden changed on another device",
-            current: readGarden(database),
-          });
+        return reply.code(409).send({
+          error: "Garden changed on another device",
+          current: readGarden(database),
+        });
       reply.header("ETag", `"${saved.revision}"`);
       return saved;
     },

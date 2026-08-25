@@ -12,6 +12,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:e2e": "playwright test",
+    "test:e2e:server": "tsx scripts/start-e2e.ts",
     "check": "npm run build && npm test",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
@@ -19,6 +20,7 @@
     "auth:hash": "tsx scripts/hash-passphrase.ts",
     "brand:icons": "tsx scripts/generate-icons.ts",
     "seed:staging": "tsx scripts/reset-staging.ts",
+    "seed:amanda": "tsx scripts/seed-amanda-garden.ts",
     "deploy:staging": "bash scripts/deploy-staging.sh",
     "promote:production": "bash scripts/promote-production.sh"
   },

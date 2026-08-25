@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, type FormEvent } from "react";
+import { useEffect, useMemo, useRef, useState, type FormEvent } from "react";
 import {
   Link,
   NavLink,
@@ -44,6 +44,11 @@ const phaseLabels = {
   direct: "Direct sow",
   harvest: "Harvest",
   bloom: "Bloom",
+};
+const statusLabels: Record<GardenEntry["status"], string> = {
+  planted: "🪴 Planted",
+  willplant: "🪏 Will plant",
+  undecided: "? Undecided",
 };
 
 function Login({ onLogin }: { onLogin: () => void }) {
@@ -109,10 +114,30 @@ function Shell() {
           <span>GardenBuddy</span>
         </Link>
         <nav aria-label="Main navigation">
-          <NavLink to="/planner">Planner</NavLink>
-          <NavLink to="/plants">Plants</NavLink>
-          <NavLink to="/sources">Sources</NavLink>
-          <NavLink to="/settings">Settings</NavLink>
+          <NavLink to="/planner">
+            <span className={styles.navIcon} aria-hidden="true">
+              ▦
+            </span>
+            <span>Planner</span>
+          </NavLink>
+          <NavLink to="/plants">
+            <span className={styles.navIcon} aria-hidden="true">
+              ⌕
+            </span>
+            <span>Plants</span>
+          </NavLink>
+          <NavLink to="/sources">
+            <span className={styles.navIcon} aria-hidden="true">
+              ❧
+            </span>
+            <span>Sources</span>
+          </NavLink>
+          <NavLink to="/settings">
+            <span className={styles.navIcon} aria-hidden="true">
+              ⚙
+            </span>
+            <span>Settings</span>
+          </NavLink>
         </nav>
       </header>
       <GardenProvider>
@@ -160,15 +185,17 @@ function Page({
   intro,
   children,
   actions,
+  className,
 }: {
   eyebrow?: string;
   title: string;
   intro?: string;
   children: React.ReactNode;
   actions?: React.ReactNode;
+  className?: string;
 }) {
   return (
-    <main className={styles.page}>
+    <main className={`${styles.page} ${className ?? ""}`}>
       <div className={styles.pageHead}>
         <div>
           {eyebrow && <p className={styles.eyebrow}>{eyebrow}</p>}
@@ -185,7 +212,24 @@ function Page({
 function Planner() {
   const { state, loading, saving, notice, save } = useGarden();
   const [dialog, setDialog] = useState<"plant" | "bed" | null>(null);
-  const [view, setView] = useState<"order" | "bed" | "status">("order");
+  const [view, setView] = useState<"order" | "bed" | "status">("bed");
+  const [selectedEntryId, setSelectedEntryId] = useState<string | null>(null);
+  const calendarRef = useRef<HTMLElement>(null);
+
+  // Amanda's original planner opened near the current month. Keep a little
+  // earlier context visible while the plant names remain pinned on the left.
+  useEffect(() => {
+    if (!state || !calendarRef.current) return;
+    const now = new Date();
+    const currentSlot = now.getMonth() * 2 + (now.getDate() > 15 ? 1 : 0);
+    const firstSlot =
+      calendarRef.current.querySelector<HTMLElement>("[data-slot='0']");
+    if (!firstSlot) return;
+    calendarRef.current.scrollLeft = Math.max(
+      0,
+      (currentSlot - 2) * firstSlot.getBoundingClientRect().width,
+    );
+  }, [state]);
   if (loading || !state)
     return (
       <Page title="Planner">
@@ -229,11 +273,57 @@ function Planner() {
       ),
     });
   };
+  const removeEntry = async (entry: GardenEntry) => {
+    if (!confirm(`Remove ${entry.name}?`)) return;
+    await save({
+      ...state,
+      entries: state.entries.filter((item) => item.id !== entry.id),
+    });
+    setSelectedEntryId(null);
+  };
+  const bedGroups = state.beds.map((bed) => ({
+    id: bed.id,
+    label: bed.label,
+    color: bed.color,
+    entries: entries.filter((entry) => entry.bedId === bed.id),
+  }));
+  const unmatchedEntries = entries.filter(
+    (entry) => !entry.bedId || !beds.has(entry.bedId),
+  );
+  if (unmatchedEntries.length)
+    bedGroups.push({
+      id: "no-bed",
+      label: "No bed",
+      color: "#888888",
+      entries: unmatchedEntries,
+    });
+  const groups =
+    view === "bed"
+      ? bedGroups
+      : view === "status"
+        ? (["planted", "willplant", "undecided"] as const).map((status) => ({
+            id: status,
+            label: statusLabels[status],
+            color:
+              status === "planted"
+                ? "#4A5E3A"
+                : status === "willplant"
+                  ? "#C4704A"
+                  : "#8A7868",
+            entries: entries.filter((entry) => entry.status === status),
+          }))
+        : [{ id: "order", label: "", color: "#4A5E3A", entries }];
+  const now = new Date();
+  const currentSlot = now.getMonth() * 2 + (now.getDate() > 15 ? 1 : 0);
+  const selectedEntry = state.entries.find(
+    (entry) => entry.id === selectedEntryId,
+  );
   return (
     <Page
+      className={styles.plannerPage}
       eyebrow={state.garden.name}
-      title="Garden planner"
-      intro={`${state.entries.length} plants · last frost ${prettyDate(state.garden.lastFrost)}`}
+      title="My Garden Planting Calendar"
+      intro={`${state.entries.length} plants across ${state.beds.length} garden beds`}
       actions={
         <>
           <select
@@ -262,146 +352,209 @@ function Planner() {
           {notice}
         </p>
       )}
-      <div className={styles.legend}>
-        <span>
-          <i className={styles.indoor} />
-          Start indoors
-        </span>
-        <span>
-          <i className={styles.direct} />
-          Direct sow
-        </span>
-        <span>
-          <i className={styles.transplant} />
-          Transplant
-        </span>
-        <span>
-          <i className={styles.harvest} />
-          Harvest/bloom
-        </span>
-        <span>↓ Frost dates</span>
-        {saving && <span>Saving…</span>}
-      </div>
+      <p className={styles.frostNote}>
+        <strong>Zone {state.garden.hardinessZone} frost dates:</strong> last
+        frost ~<strong>{prettyDate(state.garden.lastFrost)}</strong> · first
+        fall frost ~<strong>{prettyDate(state.garden.firstFrost)}</strong>
+      </p>
+      <details className={styles.legendDisclosure}>
+        <summary>📖 Calendar legend</summary>
+        <div className={styles.legend}>
+          <span>
+            <i className={styles.indoor} />
+            Start seeds indoors
+          </span>
+          <span>
+            <i className={styles.transplant} />
+            Transplant outdoors
+          </span>
+          <span>
+            <i className={styles.direct} />
+            Direct sow outdoors
+          </span>
+          <span>
+            <i className={styles.harvest} />
+            Harvest window
+          </span>
+          <span>
+            <i className={styles.bloom} />
+            Bloom window
+          </span>
+          <span>❄ Frost date</span>
+          {saving && <span>Saving…</span>}
+        </div>
+      </details>
+      <p className={styles.scrollHint}>
+        Swipe sideways for the year · plant names and month headers stay put
+      </p>
       <section
+        ref={calendarRef}
         className={styles.calendar}
         aria-label="Annual planting calendar"
       >
         <div className={styles.calendarGrid}>
-          <div className={`${styles.stickyPlant} ${styles.monthHead}`}>
-            Plant
+          <div
+            className={`${styles.stickyPlant} ${styles.monthHead} ${styles.monthCorner}`}
+          >
+            <strong>Plant</strong>
+            <small>Tap to edit</small>
           </div>
-          {months.map((month) => (
-            <div className={styles.monthHead} key={month}>
+          {months.map((month, index) => (
+            <div
+              className={`${styles.monthHead} ${currentSlot >> 1 === index ? styles.currentHead : ""}`}
+              key={month}
+            >
               {month}
             </div>
           ))}
-          {entries.map((entry) => {
-            const timeline = timelineForEntry(entry, state.garden);
-            return (
-              <div className={styles.calendarRow} key={entry.id}>
-                <div className={styles.stickyPlant}>
-                  <div className={styles.plantRowTitle}>
-                    <Link
-                      to={
-                        entry.plantId ? `/plants/${entry.plantId}` : "/plants"
-                      }
-                    >
-                      {entry.name}
-                    </Link>
-                    <span>
-                      {entry.variety || "No variety"} · {entry.qty}
-                    </span>
-                  </div>
-                  <div className={styles.rowControls}>
-                    <button
-                      aria-label={`Move ${entry.name} up`}
-                      onClick={() => move(entry.id, -1)}
-                    >
-                      ↑
-                    </button>
-                    <button
-                      aria-label={`Move ${entry.name} down`}
-                      onClick={() => move(entry.id, 1)}
-                    >
-                      ↓
-                    </button>
-                    <input
-                      aria-label={`${entry.name} quantity`}
-                      type="number"
-                      min="1"
-                      max="999"
-                      value={entry.qty}
-                      onChange={(event) =>
-                        void updateEntry(entry.id, {
-                          qty: Number(event.target.value),
-                        })
-                      }
-                    />
-                    <select
-                      aria-label={`${entry.name} status`}
-                      value={entry.status}
-                      onChange={(event) =>
-                        void updateEntry(entry.id, {
-                          status: event.target.value as GardenEntry["status"],
-                        })
-                      }
-                    >
-                      <option value="planted">Planted</option>
-                      <option value="willplant">Will plant</option>
-                      <option value="undecided">Undecided</option>
-                    </select>
-                    <select
-                      aria-label={`${entry.name} bed`}
-                      value={entry.bedId ?? ""}
-                      onChange={(event) =>
-                        void updateEntry(entry.id, {
-                          bedId: event.target.value || null,
-                        })
-                      }
-                    >
-                      <option value="">No bed</option>
-                      {state.beds.map((bed) => (
-                        <option value={bed.id} key={bed.id}>
-                          {bed.label}
-                        </option>
-                      ))}
-                    </select>
-                    <button
-                      className={styles.dangerLink}
-                      onClick={() =>
-                        confirm(`Remove ${entry.name}?`) &&
-                        void save({
-                          ...state,
-                          entries: state.entries.filter(
-                            (item) => item.id !== entry.id,
-                          ),
-                        })
-                      }
-                    >
-                      Remove
-                    </button>
-                  </div>
+          {Array.from({ length: 24 }, (_, slot) => (
+            <div
+              className={`${styles.halfHead} ${slot === currentSlot ? styles.currentHead : ""} ${slot === last || slot === first ? styles.frostHead : ""}`}
+              key={`half-${slot}`}
+            >
+              {slot === last || slot === first
+                ? "❄"
+                : slot % 2 === 0
+                  ? "E"
+                  : "L"}
+            </div>
+          ))}
+          {groups.map((group) => (
+            <div className={styles.calendarGroup} key={group.id}>
+              {group.label && (
+                <div
+                  className={styles.groupRow}
+                  style={{ backgroundColor: group.color }}
+                >
+                  <span>{group.label}</span>
+                  <small>
+                    {group.entries.length}{" "}
+                    {group.entries.length === 1 ? "plant" : "plants"}
+                  </small>
                 </div>
-                {Array.from({ length: 12 }, (_, month) => (
-                  <div className={styles.monthCell} key={month}>
-                    {[month * 2, month * 2 + 1].map((slot) => (
-                      <span
-                        key={slot}
-                        title={
-                          timeline[slot].phase
-                            ? phaseLabels[timeline[slot].phase!]
-                            : undefined
-                        }
-                        className={`${timeline[slot].phase ? styles[timeline[slot].phase!] : ""} ${slot === last || slot === first ? styles.frost : ""}`}
-                      />
+              )}
+              {group.entries.map((entry) => {
+                const timeline = timelineForEntry(entry, state.garden);
+                const editLabel = `Edit ${entry.name}${entry.variety ? ` — ${entry.variety}` : ""}`;
+                return (
+                  <div className={styles.calendarRow} key={entry.id}>
+                    <div className={styles.stickyPlant}>
+                      <div className={styles.plantRowTitle}>
+                        <Link
+                          to={
+                            entry.plantId
+                              ? `/plants/${entry.plantId}`
+                              : "/plants"
+                          }
+                        >
+                          {entry.name}
+                        </Link>
+                        <span>
+                          {entry.variety || "No variety"} ·{" "}
+                          {entry.dtm || "Timing not reviewed"}
+                        </span>
+                        <small>
+                          {statusLabels[entry.status]} · qty {entry.qty}
+                        </small>
+                      </div>
+                      <button
+                        className={styles.mobileEdit}
+                        aria-label={editLabel}
+                        onClick={() => setSelectedEntryId(entry.id)}
+                      >
+                        <span>Details</span>
+                        <span aria-hidden="true">›</span>
+                      </button>
+                      <div
+                        className={`${styles.rowControls} ${styles.desktopControls}`}
+                      >
+                        <button
+                          aria-label={`Move ${entry.name} up`}
+                          onClick={() => move(entry.id, -1)}
+                        >
+                          ↑
+                        </button>
+                        <button
+                          aria-label={`Move ${entry.name} down`}
+                          onClick={() => move(entry.id, 1)}
+                        >
+                          ↓
+                        </button>
+                        <input
+                          aria-label={`${entry.name} quantity`}
+                          type="number"
+                          min="1"
+                          max="999"
+                          value={entry.qty}
+                          onChange={(event) =>
+                            void updateEntry(entry.id, {
+                              qty: Number(event.target.value),
+                            })
+                          }
+                        />
+                        <select
+                          aria-label={`${entry.name} status`}
+                          value={entry.status}
+                          onChange={(event) =>
+                            void updateEntry(entry.id, {
+                              status: event.target
+                                .value as GardenEntry["status"],
+                            })
+                          }
+                        >
+                          <option value="planted">Planted</option>
+                          <option value="willplant">Will plant</option>
+                          <option value="undecided">Undecided</option>
+                        </select>
+                        <select
+                          aria-label={`${entry.name} bed`}
+                          value={entry.bedId ?? ""}
+                          onChange={(event) =>
+                            void updateEntry(entry.id, {
+                              bedId: event.target.value || null,
+                            })
+                          }
+                        >
+                          <option value="">No bed</option>
+                          {state.beds.map((bed) => (
+                            <option value={bed.id} key={bed.id}>
+                              {bed.label}
+                            </option>
+                          ))}
+                        </select>
+                        <button
+                          className={styles.dangerLink}
+                          onClick={() => void removeEntry(entry)}
+                        >
+                          Remove
+                        </button>
+                      </div>
+                    </div>
+                    {timeline.map((slot, index) => (
+                      <div
+                        className={`${styles.slotCell} ${index === last || index === first ? styles.frostColumn : ""} ${index === currentSlot ? styles.currentColumn : ""}`}
+                        data-slot={index}
+                        key={index}
+                      >
+                        <span
+                          title={
+                            slot.phase ? phaseLabels[slot.phase] : undefined
+                          }
+                          className={slot.phase ? styles[slot.phase] : ""}
+                        />
+                      </div>
                     ))}
                   </div>
-                ))}
-              </div>
-            );
-          })}
+                );
+              })}
+            </div>
+          ))}
         </div>
       </section>
+      <p className={styles.calendarGuide}>
+        <strong>E</strong> = early month · <strong>L</strong> = late month · tap
+        a plant for status, bed, quantity, and ordering
+      </p>
       {!entries.length && (
         <div className={styles.empty}>
           <h2>Your garden is ready to grow.</h2>
@@ -417,7 +570,130 @@ function Planner() {
       {dialog === "bed" && (
         <BedDialog state={state} close={() => setDialog(null)} save={save} />
       )}
+      {selectedEntry && (
+        <PlantSheet
+          entry={selectedEntry}
+          state={state}
+          close={() => setSelectedEntryId(null)}
+          save={save}
+          move={move}
+          remove={() => void removeEntry(selectedEntry)}
+        />
+      )}
     </Page>
+  );
+}
+
+function PlantSheet({
+  entry,
+  state,
+  close,
+  save,
+  move,
+  remove,
+}: {
+  entry: GardenEntry;
+  state: GardenState;
+  close: () => void;
+  save: (state: GardenState) => Promise<void>;
+  move: (id: string, direction: -1 | 1) => void;
+  remove: () => void;
+}) {
+  const [qty, setQty] = useState(entry.qty);
+  const [status, setStatus] = useState(entry.status);
+  const [bedId, setBedId] = useState(entry.bedId ?? "");
+  const ordered = [...state.entries].sort((a, b) => a.sortOrder - b.sortOrder);
+  const index = ordered.findIndex((item) => item.id === entry.id);
+  const submit = async (event: FormEvent) => {
+    event.preventDefault();
+    await save({
+      ...state,
+      entries: state.entries.map((item) =>
+        item.id === entry.id
+          ? { ...item, qty, status, bedId: bedId || null }
+          : item,
+      ),
+    });
+    close();
+  };
+
+  return (
+    <Dialog title={`${entry.name} details`} close={close}>
+      <p className={styles.sheetSubtitle}>
+        {entry.variety || "No variety"} · {entry.dtm || "Timing not reviewed"}
+      </p>
+      <form onSubmit={submit} className={styles.stack}>
+        <div className={styles.sheetFields}>
+          <label>
+            Quantity
+            <input
+              type="number"
+              min="1"
+              max="999"
+              value={qty}
+              onChange={(event) => setQty(Number(event.target.value))}
+            />
+          </label>
+          <label>
+            Status
+            <select
+              value={status}
+              onChange={(event) =>
+                setStatus(event.target.value as GardenEntry["status"])
+              }
+            >
+              <option value="planted">Planted</option>
+              <option value="willplant">Will plant</option>
+              <option value="undecided">Undecided</option>
+            </select>
+          </label>
+          <label className={styles.sheetBed}>
+            Bed
+            <select
+              value={bedId}
+              onChange={(event) => setBedId(event.target.value)}
+            >
+              <option value="">No bed</option>
+              {state.beds.map((bed) => (
+                <option value={bed.id} key={bed.id}>
+                  {bed.label}
+                </option>
+              ))}
+            </select>
+          </label>
+        </div>
+        <div className={styles.sheetReorder}>
+          <button
+            type="button"
+            disabled={index <= 0}
+            onClick={() => move(entry.id, -1)}
+          >
+            ↑ Move earlier
+          </button>
+          <button
+            type="button"
+            disabled={index < 0 || index >= ordered.length - 1}
+            onClick={() => move(entry.id, 1)}
+          >
+            ↓ Move later
+          </button>
+        </div>
+        {entry.plantId && (
+          <Link className={styles.button} to={`/plants/${entry.plantId}`}>
+            View growing guide
+          </Link>
+        )}
+        <button className={styles.primary}>Save plant</button>
+        <button
+          type="button"
+          className={styles.dangerButton}
+          aria-label={`Remove ${entry.name}`}
+          onClick={remove}
+        >
+          Remove from calendar
+        </button>
+      </form>
+    </Dialog>
   );
 }
 
@@ -430,12 +706,48 @@ function Dialog({
   close: () => void;
   children: React.ReactNode;
 }) {
+  const dialogRef = useRef<HTMLElement>(null);
+  useEffect(() => {
+    const previousOverflow = document.body.style.overflow;
+    const previousFocus = document.activeElement as HTMLElement | null;
+    document.body.style.overflow = "hidden";
+    const focusable = () =>
+      Array.from(
+        dialogRef.current?.querySelectorAll<HTMLElement>(
+          "a[href], button:not(:disabled), input:not(:disabled), select:not(:disabled)",
+        ) ?? [],
+      );
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") close();
+      if (event.key !== "Tab") return;
+      const items = focusable();
+      if (!items.length) return;
+      const first = items[0];
+      const last = items.at(-1)!;
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
+    };
+    document.addEventListener("keydown", onKeyDown);
+    requestAnimationFrame(() => focusable()[0]?.focus());
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      document.removeEventListener("keydown", onKeyDown);
+      previousFocus?.focus();
+    };
+  }, [close]);
+
   return (
     <div
       className={styles.backdrop}
       onMouseDown={(event) => event.target === event.currentTarget && close()}
     >
       <section
+        ref={dialogRef}
         role="dialog"
         aria-modal="true"
         aria-label={title}
@@ -464,7 +776,9 @@ function PlantDialog({
   const [name, setName] = useState("");
   const [variety, setVariety] = useState("");
   const [qty, setQty] = useState(1);
-  const [bedId, setBedId] = useState("");
+  const [bedId, setBedId] = useState(
+    () => state.beds.find((bed) => bed.id === "unassigned")?.id ?? "",
+  );
   const selected = localCatalog.find((plant) => plant.id === plantId);
   const submit = async (event: FormEvent) => {
     event.preventDefault();
