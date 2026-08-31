@@ -1,4 +1,11 @@
-import { useEffect, useMemo, useRef, useState, type FormEvent } from "react";
+import {
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type CSSProperties,
+  type FormEvent,
+} from "react";
 import {
   Link,
   NavLink,
@@ -18,7 +25,7 @@ import type {
   PlantRecord,
   SourceRecord,
 } from "./shared/model";
-import { frostSlot, timelineForEntry } from "./shared/timing";
+import { frostPosition, timelineForEntry } from "./shared/timing";
 import styles from "./App.module.css";
 
 // This file is the visible application. Each named function below is either a whole page
@@ -245,8 +252,16 @@ function Planner() {
         ? a.status.localeCompare(b.status)
         : a.sortOrder - b.sortOrder,
   );
-  const last = frostSlot(state.garden, "lastFrost");
-  const first = frostSlot(state.garden, "firstFrost");
+  const lastFrostPos = frostPosition(state.garden, "lastFrost");
+  const firstFrostPos = frostPosition(state.garden, "firstFrost");
+  const last = lastFrostPos.slot;
+  const first = firstFrostPos.slot;
+  const frostFractionForSlot = (slot: number) =>
+    slot === last
+      ? lastFrostPos.fraction
+      : slot === first
+        ? firstFrostPos.fraction
+        : undefined;
   const updateEntry = (id: string, patch: Partial<GardenEntry>) =>
     save({
       ...state,
@@ -410,6 +425,11 @@ function Planner() {
           {Array.from({ length: 24 }, (_, slot) => (
             <div
               className={`${styles.halfHead} ${slot === currentSlot ? styles.currentHead : ""} ${slot === last || slot === first ? styles.frostHead : ""}`}
+              style={
+                {
+                  "--frost-pos": frostFractionForSlot(slot),
+                } as CSSProperties
+              }
               key={`half-${slot}`}
             >
               {slot === last || slot === first
@@ -533,6 +553,11 @@ function Planner() {
                     {timeline.map((slot, index) => (
                       <div
                         className={`${styles.slotCell} ${index === last || index === first ? styles.frostColumn : ""} ${index === currentSlot ? styles.currentColumn : ""}`}
+                        style={
+                          {
+                            "--frost-pos": frostFractionForSlot(index),
+                          } as CSSProperties
+                        }
                         data-slot={index}
                         key={index}
                       >
