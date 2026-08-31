@@ -1114,6 +1114,14 @@ function Settings({ onLogout }: { onLogout: () => void }) {
   const [history, setHistory] = useState<
     Array<{ id: string; revision: number; reason: string; createdAt: string }>
   >([]);
+  const [zip, setZip] = useState(state?.garden.zip ?? "");
+  const [hardinessZone, setHardinessZone] = useState(
+    state?.garden.hardinessZone ?? "8b",
+  );
+  const [zoneLookup, setZoneLookup] = useState<"idle" | "loading" | "error">(
+    "idle",
+  );
+  const zoneLookupRequest = useRef(0);
   const [importData, setImportData] = useState<unknown>(null);
   const [preview, setPreview] = useState<{
     plants: number;
@@ -1133,6 +1141,13 @@ function Settings({ onLogout }: { onLogout: () => void }) {
     void api.meta().then(setMeta);
     void loadHistory();
   }, []);
+  // The zip/zone fields are controlled (for the auto-fill), so they need to sync
+  // once the garden loads instead of only capturing an initial value at mount.
+  useEffect(() => {
+    if (!state) return;
+    setZip(state.garden.zip);
+    setHardinessZone(state.garden.hardinessZone);
+  }, [state?.revision]);
   if (loading || !state)
     return (
       <Page title="Settings">
@@ -1147,13 +1162,32 @@ function Settings({ onLogout }: { onLogout: () => void }) {
       garden: {
         ...state.garden,
         name: String(data.get("name")),
-        zip: String(data.get("zip")),
-        hardinessZone: String(data.get("hardinessZone")),
+        zip,
+        hardinessZone,
         lastFrost: String(data.get("lastFrost")),
         firstFrost: String(data.get("firstFrost")),
       },
     });
     setMessage("Garden settings saved.");
+  };
+  // Auto-fills the hardiness zone from the ZIP; the zone field stays a normal
+  // input afterward, so typing in it simply overrides the looked-up value.
+  const handleZipChange = (value: string) => {
+    setZip(value);
+    if (!/^\d{5}$/.test(value)) return;
+    const requestId = ++zoneLookupRequest.current;
+    setZoneLookup("loading");
+    api
+      .hardinessZone(value)
+      .then((result) => {
+        if (zoneLookupRequest.current !== requestId) return;
+        setHardinessZone(result.zone);
+        setZoneLookup("idle");
+      })
+      .catch(() => {
+        if (zoneLookupRequest.current !== requestId) return;
+        setZoneLookup("error");
+      });
   };
   // The server validates and previews old JSON before a second, explicit import click can mutate data.
   const fileSelected = async (file?: File) => {
@@ -1196,17 +1230,28 @@ function Settings({ onLogout }: { onLogout: () => void }) {
                   name="zip"
                   inputMode="numeric"
                   pattern="[0-9]{5}"
-                  defaultValue={state.garden.zip}
+                  value={zip}
+                  onChange={(event) => handleZipChange(event.target.value)}
                 />
               </label>
               <label>
                 Hardiness zone
                 <input
                   name="hardinessZone"
-                  defaultValue={state.garden.hardinessZone}
+                  value={hardinessZone}
+                  onChange={(event) => setHardinessZone(event.target.value)}
                 />
               </label>
             </div>
+            {zoneLookup === "loading" && (
+              <p className={styles.muted}>Looking up hardiness zone…</p>
+            )}
+            {zoneLookup === "error" && (
+              <p className={styles.muted}>
+                Couldn't look up that ZIP's hardiness zone. You can type one
+                in directly.
+              </p>
+            )}
             <div className={styles.twoCols}>
               <label>
                 Last spring frost

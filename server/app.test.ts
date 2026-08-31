@@ -11,13 +11,16 @@ afterEach(async () => {
   while (cleanups.length) await cleanups.pop()!();
 });
 
-async function testApp() {
+async function testApp(
+  options: { hardinessZoneLookup?: (zip: string) => Promise<string | null> } = {},
+) {
   const directory = mkdtempSync(join(tmpdir(), "gardenbuddy-test-"));
   const database = openDatabase(join(directory, "garden.db"));
   const app = await buildApp({
     database,
     environment: "development",
     revision: "test-sha",
+    hardinessZoneLookup: options.hardinessZoneLookup,
   });
   cleanups.push(async () => {
     await app.close();
@@ -201,5 +204,44 @@ describe("authenticated garden API", () => {
         })
       ).json(),
     ).toEqual([]);
+  });
+
+  it("looks up a hardiness zone for a valid ZIP", async () => {
+    const { app } = await testApp({
+      hardinessZoneLookup: async (zip) => (zip === "97201" ? "8b" : null),
+    });
+    const token = await login(app);
+    const response = await app.inject({
+      url: "/api/hardiness-zone/97201",
+      cookies: { gardenbuddy_session: token },
+    });
+    expect(response.statusCode).toBe(200);
+    expect(response.json()).toEqual({ zone: "8b" });
+  });
+
+  it("rejects a malformed ZIP", async () => {
+    const { app } = await testApp();
+    const token = await login(app);
+    const response = await app.inject({
+      url: "/api/hardiness-zone/abc",
+      cookies: { gardenbuddy_session: token },
+    });
+    expect(response.statusCode).toBe(400);
+  });
+
+  it("404s when no zone is found for a ZIP", async () => {
+    const { app } = await testApp({ hardinessZoneLookup: async () => null });
+    const token = await login(app);
+    const response = await app.inject({
+      url: "/api/hardiness-zone/00000",
+      cookies: { gardenbuddy_session: token },
+    });
+    expect(response.statusCode).toBe(404);
+  });
+
+  it("requires sign-in for the hardiness zone lookup", async () => {
+    const { app } = await testApp();
+    const response = await app.inject({ url: "/api/hardiness-zone/97201" });
+    expect(response.statusCode).toBe(401);
   });
 });

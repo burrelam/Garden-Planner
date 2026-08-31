@@ -50,6 +50,8 @@ export const api = {
   plant: (id: string) =>
     request<PlantRecord>(`/api/catalog/${encodeURIComponent(id)}`),
   sources: () => request<SourceRecord[]>("/api/sources"),
+  hardinessZone: (zip: string) =>
+    request<{ zone: string }>(`/api/hardiness-zone/${encodeURIComponent(zip)}`),
   history: () =>
     request<
       Array<{ id: string; revision: number; reason: string; createdAt: string }>

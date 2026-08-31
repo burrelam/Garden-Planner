@@ -44,6 +44,16 @@ export interface AppOptions {
   database?: GardenDb;
   environment?: string;
   revision?: string;
+  hardinessZoneLookup?: (zip: string) => Promise<string | null>;
+}
+
+// USDA hardiness zones are keyed by lat/lon, not ZIP; phzmapi.org publishes the
+// standard 2012 USDA raster pre-joined to ZIP codes, which is the accepted approximation.
+async function fetchHardinessZone(zip: string): Promise<string | null> {
+  const response = await fetch(`https://phzmapi.org/${zip}.json`);
+  if (!response.ok) return null;
+  const data = (await response.json()) as { zone?: string };
+  return data.zone ?? null;
 }
 
 export async function buildApp(options: AppOptions = {}) {
@@ -52,6 +62,7 @@ export async function buildApp(options: AppOptions = {}) {
     trustProxy: true,
   });
   const database = options.database ?? openDatabase();
+  const lookupHardinessZone = options.hardinessZoneLookup ?? fetchHardinessZone;
   const environment =
     options.environment ?? process.env.APP_ENV ?? "development";
   const revision = options.revision ?? process.env.APP_REVISION ?? "local";
@@ -275,6 +286,26 @@ export async function buildApp(options: AppOptions = {}) {
     },
   );
   app.get("/api/sources", { preHandler: protectedRoutes }, async () => sources);
+  app.get(
+    "/api/hardiness-zone/:zip",
+    { preHandler: protectedRoutes },
+    async (request: any, reply) => {
+      const zip = request.params.zip;
+      if (!/^\d{5}$/.test(zip))
+        return reply.code(400).send({ error: "ZIP must be 5 digits" });
+      let zone: string | null;
+      try {
+        zone = await lookupHardinessZone(zip);
+      } catch {
+        return reply.code(502).send({ error: "Hardiness zone lookup failed" });
+      }
+      if (!zone)
+        return reply
+          .code(404)
+          .send({ error: "No hardiness zone found for that ZIP" });
+      return { zone };
+    },
+  );
 
   const webRoot = resolve("dist");
   if (existsSync(webRoot)) {
