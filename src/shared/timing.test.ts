@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { GardenSettings, TimingRule } from "./model";
-import { dateToSlot, rulesToTimeline } from "./timing";
+import { dateToSlot, frostPosition, rulesToTimeline } from "./timing";
 
 const garden: GardenSettings = {
   id: "primary",
@@ -31,6 +31,25 @@ describe("garden timing", () => {
     const timeline = rulesToTimeline(rules, garden);
     expect(timeline[5].phase).toBe("transplant");
     expect(timeline[6].phase).toBe("transplant");
+  });
+
+  it("positions a frost date within its half-month slot instead of always at the edge", () => {
+    // Mar 15 is the last day of the early half, so it should sit near the
+    // right edge of Mar-Early (slot 4), not the left edge next to February.
+    expect(frostPosition(garden, "lastFrost")).toEqual({
+      slot: 4,
+      fraction: (15 - 0.5) / 15,
+    });
+    // Nov 15 -> same shape, later slot.
+    expect(frostPosition(garden, "firstFrost")).toEqual({
+      slot: 20,
+      fraction: (15 - 0.5) / 15,
+    });
+    // A late-half date (e.g. the 20th of a 30-day month) should fall partway
+    // across the late column, proportional to its distance from day 16.
+    const lateHalf = frostPosition({ ...garden, lastFrost: "2026-04-20" }, "lastFrost");
+    expect(lateHalf.slot).toBe(7);
+    expect(lateHalf.fraction).toBeCloseTo((20 - 15.5) / (30 - 15));
   });
 
   it("does not use hardiness zone to move frost-relative timing", () => {

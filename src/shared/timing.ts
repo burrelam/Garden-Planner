@@ -60,9 +60,19 @@ export function timelineForEntry(entry: GardenEntry, garden: GardenSettings) {
   return rulesToTimeline(rules, garden);
 }
 
-export function frostSlot(
+// Position within the half-month slot, so a frost date renders where it actually
+// falls (e.g. Mar 15 sits at the boundary of Mar-Early/Mar-Late) instead of always
+// pinning to the slot's left edge.
+export function frostPosition(
   garden: GardenSettings,
   kind: "lastFrost" | "firstFrost",
 ) {
-  return dateToSlot(new Date(`${garden[kind]}T12:00:00Z`));
+  const date = new Date(`${garden[kind]}T12:00:00Z`);
+  const day = date.getUTCDate();
+  const daysInMonth = new Date(
+    Date.UTC(date.getUTCFullYear(), date.getUTCMonth() + 1, 0),
+  ).getUTCDate();
+  const fraction =
+    day > 15 ? (day - 15.5) / (daysInMonth - 15) : (day - 0.5) / 15;
+  return { slot: dateToSlot(date), fraction };
 }

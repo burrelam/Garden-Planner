@@ -391,7 +391,16 @@
 }
 .frostHead {
   color: #b8daf0;
-  border-left: 2px solid rgba(82, 177, 229, 0.85);
+  overflow: hidden;
+}
+.frostHead::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: calc(var(--frost-pos, 0.5) * 100%);
+  width: 2px;
+  background: rgba(82, 177, 229, 0.85);
 }
 .stickyPlant {
   position: sticky;
@@ -540,7 +549,17 @@
   background: #d4729a !important;
 }
 .frostColumn {
-  border-left: 2px solid rgba(82, 177, 229, 0.72);
+  position: relative;
+  overflow: hidden;
+}
+.frostColumn::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: calc(var(--frost-pos, 0.5) * 100%);
+  width: 2px;
+  background: rgba(82, 177, 229, 0.72);
 }
 .currentColumn {
   background: rgba(181, 204, 142, 0.18);
