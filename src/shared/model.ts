@@ -28,7 +28,11 @@ export const GardenSettingsSchema = z.object({
 export const BedSchema = z.object({
   id: z.string().min(1),
   label: z.string().min(1).max(60),
+  // `color` stays the source of truth so existing gardens and exports keep working.
+  // `colorKey` names a swatch in the seasonal palette; when present the bed is
+  // painted from that token instead, so it retints with the theme.
   color: z.string().regex(/^#[0-9a-fA-F]{6}$/),
+  colorKey: z.string().max(40).optional(),
   sortOrder: z.number().int().nonnegative(),
 });
 

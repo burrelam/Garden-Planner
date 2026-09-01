@@ -25,6 +25,19 @@ import type {
   PlantRecord,
   SourceRecord,
 } from "./shared/model";
+import {
+  type BedColorKey,
+  type ThemePreference,
+  BED_COLOR_KEYS,
+  THEMES,
+  applyTheme,
+  bedColorLabel,
+  bedFallbackHex,
+  bedStyle,
+  readThemePreference,
+  resolveTheme,
+  writeThemePreference,
+} from "./theme";
 import { frostPosition, timelineForEntry } from "./shared/timing";
 import styles from "./App.module.css";
 
@@ -113,6 +126,16 @@ function Login({ onLogin }: { onLogin: () => void }) {
 
 function Shell() {
   const navigate = useNavigate();
+  const [themePreference, setThemePreference] =
+    useState<ThemePreference>(readThemePreference);
+  // Re-resolved on every change so "auto" reflects whichever season it is now.
+  useEffect(() => {
+    applyTheme(resolveTheme(themePreference));
+  }, [themePreference]);
+  const chooseTheme = (preference: ThemePreference) => {
+    writeThemePreference(preference);
+    setThemePreference(preference);
+  };
   return (
     <div className={styles.shell}>
       <header className={styles.header}>
@@ -156,6 +179,8 @@ function Shell() {
             path="/settings"
             element={
               <Settings
+                themePreference={themePreference}
+                onChooseTheme={chooseTheme}
                 onLogout={async () => {
                   await api.logout();
                   navigate("/");
@@ -299,7 +324,7 @@ function Planner() {
   const bedGroups = state.beds.map((bed) => ({
     id: bed.id,
     label: bed.label,
-    color: bed.color,
+    style: bedStyle(bed),
     entries: entries.filter((entry) => entry.bedId === bed.id),
   }));
   const unmatchedEntries = entries.filter(
@@ -309,7 +334,10 @@ function Planner() {
     bedGroups.push({
       id: "no-bed",
       label: "No bed",
-      color: "#888888",
+      style: {
+        backgroundColor: "var(--color-text-muted)",
+        color: "var(--color-surface)",
+      },
       entries: unmatchedEntries,
     });
   const groups =
@@ -319,15 +347,28 @@ function Planner() {
         ? (["planted", "willplant", "undecided"] as const).map((status) => ({
             id: status,
             label: statusLabels[status],
-            color:
-              status === "planted"
-                ? "#4A5E3A"
-                : status === "willplant"
-                  ? "#C4704A"
-                  : "#8A7868",
+            style: {
+              backgroundColor:
+                status === "planted"
+                  ? "var(--color-accent)"
+                  : status === "willplant"
+                    ? "var(--color-secondary)"
+                    : "var(--color-text-muted)",
+              color: "var(--color-on-accent)",
+            },
             entries: entries.filter((entry) => entry.status === status),
           }))
-        : [{ id: "order", label: "", color: "#4A5E3A", entries }];
+        : [
+            {
+              id: "order",
+              label: "",
+              style: {
+                backgroundColor: "var(--color-accent)",
+                color: "var(--color-on-accent)",
+              },
+              entries,
+            },
+          ];
   const now = new Date();
   const currentSlot = now.getMonth() * 2 + (now.getDate() > 15 ? 1 : 0);
   const selectedEntry = state.entries.find(
@@ -442,10 +483,7 @@ function Planner() {
           {groups.map((group) => (
             <div className={styles.calendarGroup} key={group.id}>
               {group.label && (
-                <div
-                  className={styles.groupRow}
-                  style={{ backgroundColor: group.color }}
-                >
+                <div className={styles.groupRow} style={group.style}>
                   <span>{group.label}</span>
                   <small>
                     {group.entries.length}{" "}
@@ -908,13 +946,16 @@ function BedDialog({
   save: (state: GardenState) => Promise<void>;
 }) {
   const [label, setLabel] = useState("");
-  const [color, setColor] = useState("#4A5E3A");
+  const [colorKey, setColorKey] = useState<BedColorKey>("deep-fern");
   const submit = async (event: FormEvent) => {
     event.preventDefault();
     const bed: Bed = {
       id: crypto.randomUUID(),
       label,
-      color,
+      // The key drives the colour; the hex is kept so exports and older
+      // readers still see something sensible.
+      color: bedFallbackHex(colorKey),
+      colorKey,
       sortOrder: state.beds.length,
     };
     await save({ ...state, beds: [...state.beds, bed] });
@@ -932,14 +973,51 @@ function BedDialog({
             placeholder="North raised bed"
           />
         </label>
-        <label>
-          Color
-          <input
-            type="color"
-            value={color}
-            onChange={(event) => setColor(event.target.value)}
-          />
-        </label>
+        <fieldset className={styles.bedColorField}>
+          <legend>Colour</legend>
+          <div
+            className={styles.bedSwatches}
+            role="radiogroup"
+            aria-label="Bed colour"
+            onKeyDown={(event) => {
+              // A radiogroup is one tab stop; the arrows move within it.
+              const step =
+                event.key === "ArrowRight" || event.key === "ArrowDown"
+                  ? 1
+                  : event.key === "ArrowLeft" || event.key === "ArrowUp"
+                    ? -1
+                    : 0;
+              if (!step) return;
+              event.preventDefault();
+              const index = BED_COLOR_KEYS.indexOf(colorKey);
+              const next =
+                BED_COLOR_KEYS[
+                  (index + step + BED_COLOR_KEYS.length) % BED_COLOR_KEYS.length
+                ];
+              setColorKey(next);
+              event.currentTarget
+                .querySelector<HTMLButtonElement>(`[data-key="${next}"]`)
+                ?.focus();
+            }}
+          >
+            {BED_COLOR_KEYS.map((key) => (
+              <button
+                key={key}
+                type="button"
+                role="radio"
+                data-key={key}
+                aria-checked={colorKey === key}
+                aria-label={bedColorLabel(key)}
+                title={bedColorLabel(key)}
+                tabIndex={colorKey === key ? 0 : -1}
+                className={styles.bedSwatch}
+                style={{ background: `var(--bed-${key})` }}
+                onClick={() => setColorKey(key)}
+              />
+            ))}
+          </div>
+          <p className={styles.muted}>{bedColorLabel(colorKey)}</p>
+        </fieldset>
         <button className={styles.primary}>Add bed</button>
       </form>
     </Dialog>
@@ -1133,7 +1211,15 @@ function SourceLinks({ ids }: { ids: string[] }) {
   );
 }
 
-function Settings({ onLogout }: { onLogout: () => void }) {
+function Settings({
+  themePreference,
+  onChooseTheme,
+  onLogout,
+}: {
+  themePreference: ThemePreference;
+  onChooseTheme: (preference: ThemePreference) => void;
+  onLogout: () => void;
+}) {
   const { state, loading, save, replace } = useGarden();
   const [meta, setMeta] = useState({ environment: "", revision: "" });
   const [history, setHistory] = useState<
@@ -1242,6 +1328,59 @@ function Settings({ onLogout }: { onLogout: () => void }) {
     >
       <div className={styles.settingsGrid}>
         <section className={styles.panel}>
+          <h2>Appearance</h2>
+          <p className={styles.muted}>
+            GardenBuddy follows the season by default, changing at each equinox
+            and solstice. Pick a season to hold it there instead.
+          </p>
+          <div
+            className={styles.themeChoices}
+            role="radiogroup"
+            aria-label="Theme"
+          >
+            <button
+              type="button"
+              role="radio"
+              aria-checked={themePreference === "auto"}
+              className={styles.themeChoice}
+              onClick={() => onChooseTheme("auto")}
+            >
+              <span
+                className={styles.themeSwatch}
+                data-auto="true"
+                aria-hidden="true"
+              />
+              <span>
+                <strong>Seasonal</strong>
+                <small>
+                  Currently{" "}
+                  {THEMES.find((t) => t.id === resolveTheme("auto"))?.name}
+                </small>
+              </span>
+            </button>
+            {THEMES.map((theme) => (
+              <button
+                key={theme.id}
+                type="button"
+                role="radio"
+                aria-checked={themePreference === theme.id}
+                className={styles.themeChoice}
+                onClick={() => onChooseTheme(theme.id)}
+              >
+                <span
+                  className={styles.themeSwatch}
+                  data-theme-swatch={theme.id}
+                  aria-hidden="true"
+                />
+                <span>
+                  <strong>{theme.name}</strong>
+                  <small>{theme.blurb}</small>
+                </span>
+              </button>
+            ))}
+          </div>
+        </section>
+        <section className={styles.panel}>
           <h2>Garden and growing season</h2>
           <form onSubmit={updateGarden} className={styles.stack}>
             <label>
@@ -1273,8 +1412,8 @@ function Settings({ onLogout }: { onLogout: () => void }) {
             )}
             {zoneLookup === "error" && (
               <p className={styles.muted}>
-                Couldn't look up that ZIP's hardiness zone. You can type one
-                in directly.
+                Couldn't look up that ZIP's hardiness zone. You can type one in
+                directly.
               </p>
             )}
             <div className={styles.twoCols}>

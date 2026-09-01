@@ -27,6 +27,45 @@
       rel="stylesheet"
     />
     <title>GardenBuddy</title>
+    <script>
+      // Stamp the season before first paint, so the app never flashes the
+      // wrong theme. Deliberately duplicates the small amount of logic in
+      // src/theme.ts (seasonForDate / readThemePreference) because this has
+      // to run before any module loads — keep the two in step.
+      (function () {
+        var ids = ["fall", "winter", "spring", "summer", "night"];
+        var preference = "auto";
+        try {
+          var stored = localStorage.getItem("gardenbuddy.theme");
+          if (stored === "auto" || ids.indexOf(stored) > -1)
+            preference = stored;
+        } catch (error) {
+          /* private windows can throw; auto is a fine default */
+        }
+        var theme = preference;
+        if (preference === "auto") {
+          var now = new Date();
+          var month = now.getMonth() + 1;
+          var day = now.getDate();
+          var starts = [
+            [3, 20, "spring"],
+            [6, 21, "summer"],
+            [9, 22, "fall"],
+            [12, 21, "winter"],
+          ];
+          theme = "winter";
+          for (var i = 0; i < starts.length; i++) {
+            if (
+              month > starts[i][0] ||
+              (month === starts[i][0] && day >= starts[i][1])
+            ) {
+              theme = starts[i][2];
+            }
+          }
+        }
+        document.documentElement.dataset.theme = theme;
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>

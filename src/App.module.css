@@ -1,19 +1,360 @@
-:global(:root) {
-  --color-bg: #f3e6d0;
-  --color-surface: #fff8ec;
-  --color-surface-muted: #eee2cf;
-  --color-text: #3d2b1f;
-  --color-text-muted: #7d6a4d;
-  --color-border: #d6c19c;
-  --color-border-strong: #c2a877;
-  --color-accent: #3f5c3a;
-  --color-accent-hover: #2c4227;
-  --color-accent-deep: #24361c;
-  --color-accent-soft: #e3ecd8;
-  --color-accent-light: #c8e49b;
-  --color-terracotta: #c4704a;
-  --color-gold: #e8c96d;
-  --shadow-color: 61, 43, 31;
+/* ============================================================
+   Theme tokens. Fall is the bare :root default, so the
+   app is correct before any preference is read. Each season
+   restates the same contract; nothing below this block should
+   contain a literal colour.
+   Generated from the verified palettes — see docs/themes.md.
+   ============================================================ */
+
+:global(:root),
+:global(:root[data-theme="fall"]) {
+  --color-bg: #e7d3a8;
+  --color-surface: #f5e1bc;
+  --color-surface-muted: #cfb684;
+  --color-text: #382616;
+  --color-text-muted: #6b5636;
+  --color-border: #c4a87a;
+  --color-border-strong: #ac8f5d;
+  --color-field: #d9c295;
+  --color-field-border: #7a6841;
+  --color-field-hint: #5e4e28;
+  --color-accent: #4c5b2a;
+  --color-accent-hover: #37421c;
+  --color-accent-deep: #232c10;
+  --color-accent-soft: #dde2bc;
+  --color-accent-light: #cbd98f;
+  --color-on-accent: #f9eeda;
+  --color-secondary: #93380f;
+  --color-gold: #a66a12;
+  --color-focus: #8f5a0e;
+  --color-inverse-bg: #261a0c;
+  --color-inverse-text: #f0e2c6;
+  --color-inverse-muted: #dad0bc;
+  --color-haze-warm: #5c4620;
+  --color-haze-cool: #4c5b2a;
+  --color-error-fg: #8c352f;
+  --color-error-bg: #fae8e4;
+  --color-warn-fg: #5c4214;
+  --color-warn-bg: #f7e4b4;
+  --color-danger-fg: #91402f;
+  --color-danger-bg: #fff2ec;
+  --color-danger-border: #c68b78;
+  --color-frost: #1f73a8;
+  --color-frost-ink: #9ccdea;
+  --color-now-bg: #cbd98f;
+  --color-now-ink: #232c10;
+  --color-now-wash: rgba(203, 217, 143, 0.42);
+  --stage-indoor: #b54c35;
+  --stage-transplant: #ecd866;
+  --stage-direct: #d88930;
+  --stage-harvest: #478545;
+  --stage-bloom: #b46286;
+  --stage-empty: #E0D7C6;
+  --stage-edge: rgba(56, 38, 22, 0.62);
+  --shadow-color: 56, 38, 22;
+  /* bed colours — 10 families in two tones, retinted per season */
+  --bed-ink-deep: #f0e2c6;
+  --bed-ink-soft: #232c10;
+  --bed-deep-rose: #9d444c;
+  --bed-deep-poppy: #924e2f;
+  --bed-deep-amber: #7c5b1d;
+  --bed-deep-wheat: #5d661e;
+  --bed-deep-lime: #2d6d39;
+  --bed-deep-fern: #036e5b;
+  --bed-deep-teal: #016b75;
+  --bed-deep-sky: #06688e;
+  --bed-deep-iris: #535c9e;
+  --bed-deep-plum: #8d497d;
+  --bed-soft-rose: #e29396;
+  --bed-soft-poppy: #da9a7d;
+  --bed-soft-amber: #c5a370;
+  --bed-soft-wheat: #a9ad71;
+  --bed-soft-lime: #82b586;
+  --bed-soft-fern: #60b8a2;
+  --bed-soft-teal: #46b7c4;
+  --bed-soft-sky: #64b1de;
+  --bed-soft-iris: #a1a4de;
+  --bed-soft-plum: #d196c1;
+}
+
+:global(:root[data-theme="winter"]) {
+  --color-bg: #d8e6f3;
+  --color-surface: #f5fafe;
+  --color-surface-muted: #c6d2dd;
+  --color-text: #1d2b3a;
+  --color-text-muted: #55677b;
+  --color-border: #a8bfd4;
+  --color-border-strong: #8ba6c0;
+  --color-field: #cddce7;
+  --color-field-border: #707b84;
+  --color-field-hint: #556068;
+  --color-accent: #1f5478;
+  --color-accent-hover: #16405f;
+  --color-accent-deep: #041f33;
+  --color-accent-soft: #bcd9f5;
+  --color-accent-light: #a8cde8;
+  --color-on-accent: #f5fafe;
+  --color-secondary: #963049;
+  --color-gold: #ddb877;
+  --color-focus: #8a5a12;
+  --color-inverse-bg: #101a26;
+  --color-inverse-text: #e9eff5;
+  --color-inverse-muted: #c0cdda;
+  --color-haze-warm: #2c3f55;
+  --color-haze-cool: #1f5478;
+  --color-error-fg: #8e3038;
+  --color-error-bg: #f7e1e3;
+  --color-warn-fg: #5a4318;
+  --color-warn-bg: #f6e7c4;
+  --color-danger-fg: #90343e;
+  --color-danger-bg: #fdf1f2;
+  --color-danger-border: #c68f97;
+  --color-frost: #0e8fa8;
+  --color-frost-ink: #b4ddf5;
+  --color-now-bg: #a8cde8;
+  --color-now-ink: #041f33;
+  --color-now-wash: rgba(168, 205, 232, 0.46);
+  --stage-indoor: #af4b40;
+  --stage-transplant: #d3c266;
+  --stage-direct: #c88132;
+  --stage-harvest: #4a7847;
+  --stage-bloom: #91547e;
+  --stage-empty: #ECEEF0;
+  --stage-edge: rgba(29, 43, 58, 0.62);
+  --shadow-color: 29, 43, 58;
+  /* bed colours — 10 families in two tones, retinted per season */
+  --bed-ink-deep: #e9eff5;
+  --bed-ink-soft: #041f33;
+  --bed-deep-rose: #954148;
+  --bed-deep-poppy: #8b4b2d;
+  --bed-deep-amber: #76571c;
+  --bed-deep-wheat: #59601e;
+  --bed-deep-lime: #2c6837;
+  --bed-deep-fern: #026857;
+  --bed-deep-teal: #02666f;
+  --bed-deep-sky: #056388;
+  --bed-deep-iris: #4f5795;
+  --bed-deep-plum: #864577;
+  --bed-soft-rose: #e79598;
+  --bed-soft-poppy: #de9c7e;
+  --bed-soft-amber: #c9a670;
+  --bed-soft-wheat: #abb072;
+  --bed-soft-lime: #83b888;
+  --bed-soft-fern: #5fbba5;
+  --bed-soft-teal: #43bbc8;
+  --bed-soft-sky: #64b4e3;
+  --bed-soft-iris: #a4a6e2;
+  --bed-soft-plum: #d598c5;
+}
+
+:global(:root[data-theme="spring"]) {
+  --color-bg: #d6e9a8;
+  --color-surface: #ecf8ce;
+  --color-surface-muted: #c1d992;
+  --color-text: #2a3a1e;
+  --color-text-muted: #506542;
+  --color-border: #b4ce94;
+  --color-border-strong: #9bb87a;
+  --color-field: #cbdaa7;
+  --color-field-border: #6f7c50;
+  --color-field-hint: #536137;
+  --color-accent: #356524;
+  --color-accent-hover: #254a18;
+  --color-accent-deep: #17330f;
+  --color-accent-soft: #c4e6c6;
+  --color-accent-light: #b6e285;
+  --color-on-accent: #ecf8ce;
+  --color-secondary: #a82a5e;
+  --color-gold: #dcb412;
+  --color-focus: #7e6a0a;
+  --color-inverse-bg: #18260f;
+  --color-inverse-text: #eff5e3;
+  --color-inverse-muted: #d3dcc3;
+  --color-haze-warm: #4a5a30;
+  --color-haze-cool: #3f7a2e;
+  --color-error-fg: #8c3330;
+  --color-error-bg: #f9e4e1;
+  --color-warn-fg: #57451a;
+  --color-warn-bg: #f7ebc2;
+  --color-danger-fg: #8f3f38;
+  --color-danger-bg: #fff3f0;
+  --color-danger-border: #c79289;
+  --color-frost: #1e7fb8;
+  --color-frost-ink: #a8d6ef;
+  --color-now-bg: #b6e285;
+  --color-now-ink: #17330f;
+  --color-now-wash: rgba(182, 226, 133, 0.46);
+  --stage-indoor: #d0543a;
+  --stage-transplant: #f3de45;
+  --stage-direct: #ea9128;
+  --stage-harvest: #2e7a5c;
+  --stage-bloom: #db6b9e;
+  --stage-empty: #E5EAD7;
+  --stage-edge: rgba(42, 58, 30, 0.6);
+  --shadow-color: 42, 58, 30;
+  /* bed colours — 10 families in two tones, retinted per season */
+  --bed-ink-deep: #eff5e3;
+  --bed-ink-soft: #17330f;
+  --bed-deep-rose: #b54450;
+  --bed-deep-poppy: #a8522b;
+  --bed-deep-amber: #8b640d;
+  --bed-deep-wheat: #65710f;
+  --bed-deep-lime: #217a38;
+  --bed-deep-fern: #007965;
+  --bed-deep-teal: #067680;
+  --bed-deep-sky: #01729d;
+  --bed-deep-iris: #5564b8;
+  --bed-deep-plum: #a24a8f;
+  --bed-soft-rose: #fb989c;
+  --bed-soft-poppy: #f0a07d;
+  --bed-soft-amber: #d6ad6b;
+  --bed-soft-wheat: #b2b96d;
+  --bed-soft-lime: #81c288;
+  --bed-soft-fern: #4fc6ac;
+  --bed-soft-teal: #0ec6d6;
+  --bed-soft-sky: #50bef7;
+  --bed-soft-iris: #a9adf7;
+  --bed-soft-plum: #e69bd3;
+}
+
+:global(:root[data-theme="summer"]) {
+  --color-bg: #fbe7a0;
+  --color-surface: #fffbe0;
+  --color-surface-muted: #f2d888;
+  --color-text: #1f2a10;
+  --color-text-muted: #5e6a2e;
+  --color-border: #ddbe6b;
+  --color-border-strong: #c9a44a;
+  --color-field: #e1dcb8;
+  --color-field-border: #817d5e;
+  --color-field-hint: #625f42;
+  --color-accent: #12674b;
+  --color-accent-hover: #0b4a36;
+  --color-accent-deep: #06291f;
+  --color-accent-soft: #cde8d6;
+  --color-accent-light: #8fdcb4;
+  --color-on-accent: #fffdf0;
+  --color-secondary: #9c2708;
+  --color-gold: #f0b429;
+  --color-focus: #8a5a08;
+  --color-inverse-bg: #10200c;
+  --color-inverse-text: #faf0ce;
+  --color-inverse-muted: #dcd0a6;
+  --color-haze-warm: #4a3f14;
+  --color-haze-cool: #12674b;
+  --color-error-fg: #8e3226;
+  --color-error-bg: #fbe5dc;
+  --color-warn-fg: #5b4310;
+  --color-warn-bg: #fae9b6;
+  --color-danger-fg: #90402c;
+  --color-danger-bg: #fff4ee;
+  --color-danger-border: #c99080;
+  --color-frost: #1b7fa8;
+  --color-frost-ink: #a3d3ec;
+  --color-now-bg: #8fdcb4;
+  --color-now-ink: #06291f;
+  --color-now-wash: rgba(143, 220, 180, 0.46);
+  --stage-indoor: #ca432a;
+  --stage-transplant: #f1dc2f;
+  --stage-direct: #e88a09;
+  --stage-harvest: #408c40;
+  --stage-bloom: #d25e94;
+  --stage-empty: #F1EFE3;
+  --stage-edge: rgba(31, 42, 16, 0.62);
+  --shadow-color: 31, 42, 16;
+  /* bed colours — 10 families in two tones, retinted per season */
+  --bed-ink-deep: #faf0ce;
+  --bed-ink-soft: #06291f;
+  --bed-deep-rose: #b63849;
+  --bed-deep-poppy: #a64a1f;
+  --bed-deep-amber: #865e00;
+  --bed-deep-wheat: #5f6c00;
+  --bed-deep-lime: #00762d;
+  --bed-deep-fern: #057360;
+  --bed-deep-teal: #07717a;
+  --bed-deep-sky: #006d96;
+  --bed-deep-iris: #4a5fbb;
+  --bed-deep-plum: #a1408d;
+  --bed-soft-rose: #fb8f94;
+  --bed-soft-poppy: #ef9972;
+  --bed-soft-amber: #d3a75e;
+  --bed-soft-wheat: #acb460;
+  --bed-soft-lime: #75be7e;
+  --bed-soft-fern: #34c2a5;
+  --bed-soft-teal: #00c0d0;
+  --bed-soft-sky: #2cb9f8;
+  --bed-soft-iris: #a1a7f8;
+  --bed-soft-plum: #e593d0;
+}
+
+:global(:root[data-theme="night"]) {
+  --color-bg: #14111f;
+  --color-surface: #221d36;
+  --color-surface-muted: #332c50;
+  --color-text: #e8e3f5;
+  --color-text-muted: #a099bd;
+  --color-border: #3e3758;
+  --color-border-strong: #544b72;
+  --color-field: #383155;
+  --color-field-border: #857ca2;
+  --color-field-hint: #a59bc2;
+  --color-accent: #a5b4fa;
+  --color-accent-hover: #c0c9fc;
+  --color-accent-deep: #3b3566;
+  --color-accent-soft: #1e2a55;
+  --color-accent-light: #cbd2fd;
+  --color-on-accent: #14111f;
+  --color-secondary: #f48fb8;
+  --color-gold: #d6bbfb;
+  --color-focus: #f0a6d0;
+  --color-inverse-bg: #0c0a14;
+  --color-inverse-text: #e8e3f5;
+  --color-inverse-muted: #b3acc9;
+  --color-haze-warm: #3a2145;
+  --color-haze-cool: #1e3a5f;
+  --color-error-fg: #ffa8b4;
+  --color-error-bg: #3a1f2a;
+  --color-warn-fg: #f2d08c;
+  --color-warn-bg: #37301f;
+  --color-danger-fg: #ff9dae;
+  --color-danger-bg: #38202b;
+  --color-danger-border: #6b4055;
+  --color-frost: #6fd4f5;
+  --color-frost-ink: #a8d8f7;
+  --color-now-bg: #3b3566;
+  --color-now-ink: #cbd2fd;
+  --color-now-wash: rgba(203, 210, 253, 0.14);
+  --stage-indoor: #e28168;
+  --stage-transplant: #f9e689;
+  --stage-direct: #fbb167;
+  --stage-harvest: #8bcb86;
+  --stage-bloom: #f06ecb;
+  --stage-empty: #2A2733;
+  --stage-edge: rgba(232, 227, 245, 0.55);
+  --shadow-color: 0, 0, 0;
+  /* bed colours — 10 families in two tones, retinted per season */
+  --bed-ink-deep: #e8e3f5;
+  --bed-ink-soft: #3b3566;
+  --bed-deep-rose: #a5434c;
+  --bed-deep-poppy: #994f2c;
+  --bed-deep-amber: #805d16;
+  --bed-deep-wheat: #5f6918;
+  --bed-deep-lime: #287137;
+  --bed-deep-fern: #04705e;
+  --bed-deep-teal: #006e78;
+  --bed-deep-sky: #076a92;
+  --bed-deep-iris: #525ea7;
+  --bed-deep-plum: #944882;
+  --bed-soft-rose: #ffa6a9;
+  --bed-soft-poppy: #f9ac8a;
+  --bed-soft-amber: #e0b879;
+  --bed-soft-wheat: #bec37b;
+  --bed-soft-lime: #8fcd95;
+  --bed-soft-fern: #63d1b7;
+  --bed-soft-teal: #3bd0e0;
+  --bed-soft-sky: #68c8ff;
+  --bed-soft-iris: #b5b8ff;
+  --bed-soft-plum: #f0a8dd;
 }
 :global(*) {
   box-sizing: border-box;
@@ -66,7 +407,7 @@
 :global(input:focus-visible),
 :global(select:focus-visible),
 :global(a:focus-visible) {
-  outline: 3px solid var(--color-gold);
+  outline: 3px solid var(--color-focus);
   outline-offset: 2px;
 }
 :global(input),
@@ -75,10 +416,14 @@
   min-width: 0;
   min-height: 42px;
   padding: 9px 11px;
-  border: 1px solid var(--color-border);
+  border: 1px solid var(--color-field-border);
   border-radius: 10px;
-  background: var(--color-surface);
+  background: var(--color-field);
   color: var(--color-text);
+}
+:global(input::placeholder) {
+  color: var(--color-field-hint);
+  opacity: 1;
 }
 :global(select) {
   font-family: "Silkscreen", ui-monospace, monospace;
@@ -126,7 +471,7 @@
   justify-content: space-between;
   gap: 28px;
   padding: 9px clamp(18px, 4vw, 56px);
-  background: rgba(243, 230, 208, 0.96);
+  background: color-mix(in srgb, var(--color-bg) 96%, transparent);
   border-bottom: 1px solid var(--color-border);
   backdrop-filter: blur(12px);
 }
@@ -192,7 +537,7 @@
 }
 .eyebrow {
   margin: 0 0 8px !important;
-  color: var(--color-terracotta) !important;
+  color: var(--color-secondary) !important;
   text-transform: uppercase;
   letter-spacing: 0.12em;
   font-weight: 700;
@@ -214,11 +559,11 @@
 .primary {
   background: var(--color-accent);
   border-color: var(--color-accent);
-  color: #fff;
+  color: var(--color-on-accent);
 }
 .primary:hover {
   background: var(--color-accent-hover);
-  color: #fff;
+  color: var(--color-on-accent);
 }
 .stack {
   display: grid;
@@ -244,12 +589,21 @@
   place-items: center;
   padding: 24px;
   background:
-    radial-gradient(circle at 70% 15%, var(--color-gold) 0 6%, transparent 6.3%),
-    linear-gradient(145deg, var(--color-accent-soft), var(--color-bg) 52%, #ecd9c4);
+    radial-gradient(
+      circle at 70% 15%,
+      var(--color-gold) 0 6%,
+      transparent 6.3%
+    ),
+    linear-gradient(
+      145deg,
+      var(--color-accent-soft),
+      var(--color-bg) 52%,
+      var(--color-surface-muted)
+    );
 }
 .loginCard {
   width: min(440px, 100%);
-  background: rgba(255, 248, 236, 0.94);
+  background: color-mix(in srgb, var(--color-surface) 94%, transparent);
   border: 1px solid var(--color-border);
   border-radius: 28px;
   padding: clamp(28px, 7vw, 52px);
@@ -264,8 +618,8 @@
   height: 112px;
 }
 .error {
-  color: #8c352f;
-  background: #fae8e4;
+  color: var(--color-error-fg);
+  background: var(--color-error-bg);
   border-radius: 10px;
   padding: 10px 12px;
   margin: 0;
@@ -285,47 +639,47 @@
   width: 100%;
   max-width: none;
   min-height: calc(100vh - 72px);
-  color: var(--color-bg);
+  color: var(--color-inverse-text);
   background:
-    radial-gradient(ellipse at 20% 0%, rgba(94, 74, 44, 0.85), transparent 58%),
+    radial-gradient(ellipse at 20% 0%, var(--color-haze-warm), transparent 58%),
     radial-gradient(
       ellipse at 85% 100%,
-      rgba(63, 92, 58, 0.42),
+      var(--color-haze-cool),
       transparent 52%
     ),
-    var(--color-text);
+    var(--color-inverse-bg);
 }
 .plannerPage > * {
   width: min(1500px, 100%);
   margin-inline: auto;
 }
 .plannerPage .pageHead h1 {
-  color: var(--color-bg);
+  color: var(--color-inverse-text);
   font-size: clamp(2rem, 5vw, 3.2rem);
 }
 .plannerPage .pageHead p:not(.eyebrow) {
   color: var(--color-accent-light);
 }
 .plannerPage .actions select {
-  background: rgba(255, 248, 236, 0.96);
+  background: color-mix(in srgb, var(--color-surface) 96%, transparent);
 }
 .plannerPage .actions button:not(.primary) {
   border-color: rgba(255, 255, 255, 0.28);
   background: rgba(255, 255, 255, 0.12);
-  color: var(--color-bg);
+  color: var(--color-inverse-text);
 }
 .warning {
-  background: #fae6bc;
-  color: #5c4214;
+  background: var(--color-warn-bg);
+  color: var(--color-warn-fg);
 }
 
 .frostNote {
   padding: 9px 16px;
   margin-bottom: 12px;
-  border: 1px solid rgba(120, 180, 220, 0.32);
+  border: 1px solid color-mix(in srgb, var(--color-frost) 34%, transparent);
   border-radius: 8px;
-  background: rgba(120, 180, 220, 0.12);
-  color: #c5e1f2;
+  background: color-mix(in srgb, var(--color-frost) 14%, transparent);
+  color: var(--color-frost-ink);
   text-align: center;
   font-size: 0.78rem;
   letter-spacing: 0.025em;
@@ -333,7 +687,7 @@
 .legendDisclosure {
   width: fit-content !important;
   margin-bottom: 12px;
-  color: var(--color-bg);
+  color: var(--color-inverse-text);
 }
 .legendDisclosure summary {
   width: fit-content;
@@ -359,7 +713,7 @@
   border: 1px solid rgba(255, 255, 255, 0.14);
   border-radius: 10px;
   background: rgba(255, 255, 255, 0.08);
-  color: var(--color-bg);
+  color: var(--color-inverse-text);
   font-size: 0.78rem;
 }
 .legend span {
@@ -375,7 +729,7 @@
 }
 .scrollHint {
   margin: 0 0 8px;
-  color: rgba(243, 230, 208, 0.74);
+  color: var(--color-inverse-muted);
   text-align: center;
   font-size: 0.73rem;
 }
@@ -401,7 +755,7 @@
   z-index: 10;
   display: grid;
   place-items: center;
-  color: var(--color-bg);
+  color: var(--color-on-accent);
   border-left: 1px solid rgba(255, 255, 255, 0.08);
   font-weight: 700;
 }
@@ -422,11 +776,11 @@
   font-weight: 500;
 }
 .currentHead {
-  color: var(--color-accent-light);
-  background: var(--color-accent-deep);
+  color: var(--color-now-ink);
+  background: var(--color-now-bg);
 }
 .frostHead {
-  color: #b8daf0;
+  color: var(--color-frost-ink);
   overflow: hidden;
 }
 .frostHead::after {
@@ -436,7 +790,7 @@
   bottom: 0;
   left: calc(var(--frost-pos, 0.5) * 100%);
   width: 2px;
-  background: rgba(82, 177, 229, 0.85);
+  background: var(--color-frost);
 }
 .stickyPlant {
   position: sticky;
@@ -475,7 +829,6 @@
   align-items: center;
   min-height: 31px;
   padding: 5px 12px;
-  color: white;
   box-shadow: inset 0 -1px rgba(0, 0, 0, 0.12);
 }
 .groupRow span {
@@ -554,11 +907,11 @@
 }
 .dangerLink,
 .dangerButton {
-  color: #914338;
+  color: var(--color-danger-fg);
 }
 .dangerButton {
-  border-color: #c98f86;
-  background: #fff4f1;
+  border-color: var(--color-danger-border);
+  background: var(--color-danger-bg);
 }
 .slotCell {
   display: grid;
@@ -568,22 +921,22 @@
 .slotCell span {
   min-width: 0;
   border-radius: 3px;
-  background: var(--color-surface-muted);
+  background: var(--stage-empty);
 }
 .indoor {
-  background: #d4543a !important;
+  background: var(--stage-indoor) !important;
 }
 .transplant {
-  background: #e8c96d !important;
+  background: var(--stage-transplant) !important;
 }
 .direct {
-  background: #e8872a !important;
+  background: var(--stage-direct) !important;
 }
 .harvest {
-  background: #3a6b2a !important;
+  background: var(--stage-harvest) !important;
 }
 .bloom {
-  background: #d4729a !important;
+  background: var(--stage-bloom) !important;
 }
 .frostColumn {
   position: relative;
@@ -596,10 +949,13 @@
   bottom: 0;
   left: calc(var(--frost-pos, 0.5) * 100%);
   width: 2px;
-  background: rgba(82, 177, 229, 0.72);
+  background: var(--color-frost);
 }
 .currentColumn {
-  background: rgba(200, 228, 155, 0.18);
+  background: var(--color-now-wash);
+  box-shadow:
+    inset 1px 0 var(--color-now-bg),
+    inset -1px 0 var(--color-now-bg);
 }
 .calendarGuide {
   padding: 9px 14px;
@@ -759,7 +1115,7 @@
   padding: 14px 0;
 }
 .companion > span {
-  color: var(--color-terracotta);
+  color: var(--color-secondary);
   font-size: 1.5rem;
 }
 .companion small,
@@ -820,8 +1176,8 @@
   font-size: 0.78rem;
 }
 .method {
-  background: var(--color-text);
-  color: var(--color-bg);
+  background: var(--color-inverse-bg);
+  color: var(--color-inverse-text);
   padding: clamp(24px, 5vw, 48px);
   border-radius: 24px;
   margin-bottom: 22px;
@@ -832,7 +1188,7 @@
   gap: 18px 34px;
 }
 .methodGrid p {
-  color: #ded5ca;
+  color: var(--color-inverse-muted);
 }
 .sourceList {
   display: grid;
@@ -870,7 +1226,7 @@
     padding: 5px 6px env(safe-area-inset-bottom);
     overflow: visible;
     border-top: 1px solid var(--color-border);
-    background: rgba(243, 230, 208, 0.98);
+    background: color-mix(in srgb, var(--color-bg) 98%, transparent);
     box-shadow: 0 -8px 24px rgba(var(--shadow-color), 0.1);
     backdrop-filter: blur(14px);
   }
@@ -1056,5 +1412,140 @@
   }
   .sheetBed {
     grid-column: auto;
+  }
+}
+
+/* The theme picker. Each swatch shows the palette it switches to, so these
+   literal colours are deliberate — they depict the other themes rather than
+   using the active one. */
+.themeChoices {
+  display: grid;
+  gap: 8px;
+  margin-top: 14px;
+}
+.themeChoice {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  min-height: 56px;
+  padding: 9px 12px;
+  justify-content: flex-start;
+  text-align: left;
+  font-family: "DM Sans", sans-serif;
+  font-size: 1rem;
+  font-weight: 400;
+  letter-spacing: normal;
+  text-transform: none;
+  box-shadow: none;
+}
+.themeChoice strong {
+  display: block;
+  font-weight: 600;
+}
+.themeChoice small {
+  display: block;
+  color: var(--color-text-muted);
+  font-size: 0.78rem;
+}
+.themeChoice[aria-checked="true"] {
+  border-color: var(--color-accent);
+  background: var(--color-accent-soft);
+}
+.themeChoice[aria-checked="true"] small {
+  color: var(--color-accent-hover);
+}
+.themeSwatch {
+  width: 38px;
+  height: 38px;
+  flex: 0 0 auto;
+  border: 1px solid var(--color-border-strong);
+  border-radius: 9px;
+}
+.themeSwatch[data-auto="true"] {
+  background: conic-gradient(
+    #356524 0 25%,
+    #12674b 25% 50%,
+    #4c5b2a 50% 75%,
+    #1f5478 75% 100%
+  );
+}
+.themeSwatch[data-theme-swatch="fall"] {
+  background: linear-gradient(
+    135deg,
+    #e7d3a8 0 32%,
+    #4c5b2a 32% 64%,
+    #93380f 64% 100%
+  );
+}
+.themeSwatch[data-theme-swatch="winter"] {
+  background: linear-gradient(
+    135deg,
+    #d8e6f3 0 32%,
+    #1f5478 32% 64%,
+    #963049 64% 100%
+  );
+}
+.themeSwatch[data-theme-swatch="spring"] {
+  background: linear-gradient(
+    135deg,
+    #d6e9a8 0 32%,
+    #356524 32% 64%,
+    #a82a5e 64% 100%
+  );
+}
+.themeSwatch[data-theme-swatch="summer"] {
+  background: linear-gradient(
+    135deg,
+    #fbe7a0 0 32%,
+    #12674b 32% 64%,
+    #9c2708 64% 100%
+  );
+}
+.themeSwatch[data-theme-swatch="night"] {
+  background: linear-gradient(
+    135deg,
+    #14111f 0 32%,
+    #a5b4fa 32% 64%,
+    #f48fb8 64% 100%
+  );
+}
+
+.bedColorField {
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+.bedColorField legend {
+  padding: 0;
+  margin-bottom: 6px;
+  color: var(--color-text);
+  font-weight: 600;
+}
+.bedSwatches {
+  display: grid;
+  grid-template-columns: repeat(10, 1fr);
+  gap: 6px;
+  margin-bottom: 8px;
+}
+.bedSwatch {
+  width: 100%;
+  min-width: 0;
+  min-height: 0;
+  aspect-ratio: 1;
+  padding: 0;
+  border: 1px solid var(--color-border-strong);
+  border-radius: 7px;
+  box-shadow: none;
+}
+.bedSwatch[aria-checked="true"] {
+  box-shadow:
+    0 0 0 2px var(--color-surface),
+    0 0 0 4px var(--color-accent);
+}
+@media (max-width: 760px) {
+  .bedSwatches {
+    grid-template-columns: repeat(5, 1fr);
   }
 }
