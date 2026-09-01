@@ -80,6 +80,12 @@
   background: var(--color-surface);
   color: var(--color-text);
 }
+:global(select) {
+  font-family: "Silkscreen", ui-monospace, monospace;
+  font-size: 0.76rem;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
 :global(label) {
   display: grid;
   gap: 6px;
@@ -475,9 +481,10 @@
 .groupRow span {
   position: sticky;
   left: 12px;
+  font-family: "Silkscreen", ui-monospace, monospace;
   font-size: 0.72rem;
   font-weight: 700;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.05em;
   text-transform: uppercase;
 }
 .groupRow small {
@@ -498,8 +505,7 @@
   overflow: hidden;
   color: var(--color-text);
   font:
-    600 1rem "Pixelify Sans",
-    "DM Sans",
+    700 1rem "DM Sans",
     sans-serif;
   text-decoration: none;
   text-overflow: ellipsis;
