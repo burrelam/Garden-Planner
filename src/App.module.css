@@ -44,7 +44,11 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  font-weight: 600;
+  font-family: "Silkscreen", ui-monospace, monospace;
+  font-weight: 700;
+  font-size: 0.76rem;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
   box-shadow: 0 4px 10px rgba(var(--shadow-color), 0.25);
   transition:
     box-shadow 0.15s,
@@ -84,9 +88,10 @@
 }
 :global(h1),
 :global(h2) {
-  font-family: "Playfair Display", serif;
+  font-family: "Pixelify Sans", "DM Sans", sans-serif;
+  font-weight: 600;
   margin-top: 0;
-  line-height: 1.05;
+  line-height: 1.15;
 }
 :global(h1) {
   font-size: clamp(2rem, 5vw, 3.6rem);
@@ -146,8 +151,9 @@
   color: var(--color-text);
   text-decoration: none;
   font:
-    700 1.35rem "Playfair Display",
-    serif;
+    600 1.2rem "Pixelify Sans",
+    "DM Sans",
+    sans-serif;
   white-space: nowrap;
 }
 .brand img {
@@ -222,8 +228,9 @@
   place-items: center;
   min-height: 100vh;
   font:
-    600 1.5rem "Playfair Display",
-    serif;
+    600 1.3rem "Pixelify Sans",
+    "DM Sans",
+    sans-serif;
 }
 .login {
   min-height: 100vh;
@@ -491,8 +498,9 @@
   overflow: hidden;
   color: var(--color-text);
   font:
-    700 1rem "Playfair Display",
-    serif;
+    600 1rem "Pixelify Sans",
+    "DM Sans",
+    sans-serif;
   text-decoration: none;
   text-overflow: ellipsis;
   white-space: nowrap;
