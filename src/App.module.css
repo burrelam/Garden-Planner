@@ -49,7 +49,7 @@
   --stage-direct: #d88930;
   --stage-harvest: #478545;
   --stage-bloom: #b46286;
-  --stage-empty: #E0D7C6;
+  --stage-empty: #e0d7c6;
   --stage-edge: rgba(56, 38, 22, 0.62);
   --shadow-color: 56, 38, 22;
   /* bed colours — 10 families in two tones, retinted per season */
@@ -119,7 +119,7 @@
   --stage-direct: #c88132;
   --stage-harvest: #4a7847;
   --stage-bloom: #91547e;
-  --stage-empty: #ECEEF0;
+  --stage-empty: #eceef0;
   --stage-edge: rgba(29, 43, 58, 0.62);
   --shadow-color: 29, 43, 58;
   /* bed colours — 10 families in two tones, retinted per season */
@@ -189,7 +189,7 @@
   --stage-direct: #ea9128;
   --stage-harvest: #2e7a5c;
   --stage-bloom: #db6b9e;
-  --stage-empty: #E5EAD7;
+  --stage-empty: #e5ead7;
   --stage-edge: rgba(42, 58, 30, 0.6);
   --shadow-color: 42, 58, 30;
   /* bed colours — 10 families in two tones, retinted per season */
@@ -259,7 +259,7 @@
   --stage-direct: #e88a09;
   --stage-harvest: #408c40;
   --stage-bloom: #d25e94;
-  --stage-empty: #F1EFE3;
+  --stage-empty: #f1efe3;
   --stage-edge: rgba(31, 42, 16, 0.62);
   --shadow-color: 31, 42, 16;
   /* bed colours — 10 families in two tones, retinted per season */
@@ -329,7 +329,7 @@
   --stage-direct: #fbb167;
   --stage-harvest: #8bcb86;
   --stage-bloom: #f06ecb;
-  --stage-empty: #2A2733;
+  --stage-empty: #2a2733;
   --stage-edge: rgba(232, 227, 245, 0.55);
   --shadow-color: 0, 0, 0;
   /* bed colours — 10 families in two tones, retinted per season */
@@ -480,6 +480,7 @@
   justify-content: space-between;
   gap: 28px;
   padding: 9px clamp(18px, 4vw, 56px);
+  background: var(--color-bg);
   background: color-mix(in srgb, var(--color-bg) 96%, transparent);
   border-bottom: 1px solid var(--color-border);
   backdrop-filter: blur(12px);
@@ -613,6 +614,7 @@
 }
 .loginCard {
   width: min(440px, 100%);
+  background: var(--color-surface);
   background: color-mix(in srgb, var(--color-surface) 94%, transparent);
   border: 1px solid var(--color-border);
   border-radius: 28px;
@@ -679,8 +681,10 @@
 .frostNote {
   padding: 9px 16px;
   margin-bottom: 12px;
+  border: 1px solid var(--color-frost);
   border: 1px solid color-mix(in srgb, var(--color-frost) 34%, transparent);
   border-radius: 8px;
+  background: transparent;
   background: color-mix(in srgb, var(--color-frost) 14%, transparent);
   color: var(--color-frost-ink);
   text-align: center;
@@ -826,6 +830,7 @@
   padding: 2px 6px;
   border-radius: 6px;
   font-size: 0.95rem;
+  background: var(--color-surface);
   background: color-mix(in srgb, var(--color-surface) 96%, transparent);
 }
 .calendarGroup,
@@ -1262,6 +1267,7 @@
     padding: 5px 6px env(safe-area-inset-bottom);
     overflow: visible;
     border-top: 1px solid var(--color-border);
+    background: var(--color-bg);
     background: color-mix(in srgb, var(--color-bg) 98%, transparent);
     box-shadow: 0 -8px 24px rgba(var(--shadow-color), 0.1);
     backdrop-filter: blur(14px);

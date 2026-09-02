@@ -51,7 +51,13 @@ export type SeasonThemeId = Exclude<ThemeId, "night">;
 
 // Astronomical boundaries: equinoxes and solstices, not calendar months.
 // The real events drift by a day or so each year; these are the usual dates.
-const SEASON_STARTS: { month: number; day: number; theme: SeasonThemeId }[] = [
+// Exported because index.html re-implements this inline to stamp the theme
+// before first paint; theme.test.ts asserts the two copies agree.
+export const SEASON_STARTS: {
+  month: number;
+  day: number;
+  theme: SeasonThemeId;
+}[] = [
   { month: 3, day: 20, theme: "spring" },
   { month: 6, day: 21, theme: "summer" },
   { month: 9, day: 22, theme: "fall" },
@@ -170,9 +176,25 @@ function luminance(hex: string): number {
   );
 }
 
-/** Ink that stays readable on an arbitrary bed colour. */
+const LIGHT_INK = "#FFFFFF";
+const DARK_INK = "#1A1A1A";
+
+/** WCAG contrast ratio between two colours. */
+function contrast(a: string, b: string): number {
+  const [hi, lo] = [luminance(a), luminance(b)].sort((x, y) => y - x);
+  return (hi + 0.05) / (lo + 0.05);
+}
+
+/**
+ * Ink that stays readable on an arbitrary bed colour. Compares both candidates
+ * rather than splitting on a luminance threshold: the crossover sits near 0.2,
+ * not the midpoint, so any hand-picked cut leaves a band of mid-tones reading
+ * at about 3:1.
+ */
 export function inkForHex(hex: string): string {
-  return luminance(hex) > 0.4 ? "#1A1A1A" : "#FFFFFF";
+  return contrast(DARK_INK, hex) >= contrast(LIGHT_INK, hex)
+    ? DARK_INK
+    : LIGHT_INK;
 }
 
 /**

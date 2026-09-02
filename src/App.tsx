@@ -116,11 +116,7 @@ function Login({ onLogin }: { onLogin: () => void }) {
   return (
     <main className={styles.login}>
       <section className={styles.loginCard}>
-        <img
-          src="/brand/icon-192.png"
-          alt=""
-          className={styles.loginMark}
-        />
+        <img src="/brand/icon-192.png" alt="" className={styles.loginMark} />
         <p className={styles.eyebrow}>Welcome to</p>
         <h1>GardenBuddy</h1>
         <p>Your garden plans, together in one warm little place.</p>
@@ -149,18 +145,14 @@ function Login({ onLogin }: { onLogin: () => void }) {
   );
 }
 
-function Shell() {
+function Shell({
+  themePreference,
+  onChooseTheme,
+}: {
+  themePreference: ThemePreference;
+  onChooseTheme: (preference: ThemePreference) => void;
+}) {
   const navigate = useNavigate();
-  const [themePreference, setThemePreference] =
-    useState<ThemePreference>(readThemePreference);
-  // Re-resolved on every change so "auto" reflects whichever season it is now.
-  useEffect(() => {
-    applyTheme(resolveTheme(themePreference));
-  }, [themePreference]);
-  const chooseTheme = (preference: ThemePreference) => {
-    writeThemePreference(preference);
-    setThemePreference(preference);
-  };
   return (
     <div className={styles.shell}>
       <header className={styles.header}>
@@ -205,7 +197,7 @@ function Shell() {
             element={
               <Settings
                 themePreference={themePreference}
-                onChooseTheme={chooseTheme}
+                onChooseTheme={onChooseTheme}
                 onLogout={async () => {
                   await api.logout();
                   navigate("/");
@@ -231,9 +223,38 @@ function App() {
       .then(() => setAuth("yes"))
       .catch(() => setAuth("no"));
   }, []);
+
+  // The theme belongs above the sign-in gate: the login and loading screens are
+  // themed too, and applyTheme keeps the phone's browser chrome in step.
+  const [themePreference, setThemePreference] =
+    useState<ThemePreference>(readThemePreference);
+  useEffect(() => {
+    const apply = () => applyTheme(resolveTheme(themePreference));
+    apply();
+    if (themePreference !== "auto") return;
+    // "Seasonal" can fall due while the app sits open, so re-check on return.
+    const recheck = () => {
+      if (!document.hidden) apply();
+    };
+    document.addEventListener("visibilitychange", recheck);
+    window.addEventListener("focus", recheck);
+    return () => {
+      document.removeEventListener("visibilitychange", recheck);
+      window.removeEventListener("focus", recheck);
+    };
+  }, [themePreference]);
+  const chooseTheme = (preference: ThemePreference) => {
+    writeThemePreference(preference);
+    setThemePreference(preference);
+  };
+
   if (auth === "checking")
     return <main className={styles.loading}>Opening the garden…</main>;
-  return auth === "yes" ? <Shell /> : <Login onLogin={() => setAuth("yes")} />;
+  return auth === "yes" ? (
+    <Shell themePreference={themePreference} onChooseTheme={chooseTheme} />
+  ) : (
+    <Login onLogin={() => setAuth("yes")} />
+  );
 }
 
 function Page({
@@ -1329,11 +1350,36 @@ function Settings({
             className={styles.themeChoices}
             role="radiogroup"
             aria-label="Theme"
+            onKeyDown={(event) => {
+              // A radiogroup is one tab stop; the arrows move within it.
+              const step =
+                event.key === "ArrowRight" || event.key === "ArrowDown"
+                  ? 1
+                  : event.key === "ArrowLeft" || event.key === "ArrowUp"
+                    ? -1
+                    : 0;
+              if (!step) return;
+              event.preventDefault();
+              const order: ThemePreference[] = [
+                "auto",
+                ...THEMES.map((theme) => theme.id),
+              ];
+              const index = order.indexOf(themePreference);
+              const next = order[(index + step + order.length) % order.length];
+              onChooseTheme(next);
+              event.currentTarget
+                .querySelector<HTMLButtonElement>(
+                  `[data-theme-option="${next}"]`,
+                )
+                ?.focus();
+            }}
           >
             <button
               type="button"
               role="radio"
+              data-theme-option="auto"
               aria-checked={themePreference === "auto"}
+              tabIndex={themePreference === "auto" ? 0 : -1}
               className={styles.themeChoice}
               onClick={() => onChooseTheme("auto")}
             >
@@ -1355,7 +1401,9 @@ function Settings({
                 key={theme.id}
                 type="button"
                 role="radio"
+                data-theme-option={theme.id}
                 aria-checked={themePreference === theme.id}
+                tabIndex={themePreference === theme.id ? 0 : -1}
                 className={styles.themeChoice}
                 onClick={() => onChooseTheme(theme.id)}
               >
