@@ -17,7 +17,7 @@ import {
 } from "react-router-dom";
 import { api } from "./api";
 import { GardenProvider, useGarden } from "./GardenContext";
-import { catalog as localCatalog } from "./shared/catalog";
+import { catalog as localCatalog, catalogById } from "./shared/catalog";
 import type {
   Bed,
   GardenEntry,
@@ -65,6 +65,31 @@ const phaseLabels = {
   harvest: "Harvest",
   bloom: "Bloom",
 };
+const CATEGORY_ORDER = ["herb", "vegetable", "fruit", "flower"] as const;
+type PlantCategory = (typeof CATEGORY_ORDER)[number];
+const categoryLabels: Record<PlantCategory, string> = {
+  herb: "Herbs",
+  vegetable: "Vegetables",
+  fruit: "Fruits",
+  flower: "Flowers",
+};
+const categoryColors: Record<PlantCategory, string> = {
+  herb: "var(--stage-harvest)",
+  vegetable: "var(--color-accent)",
+  fruit: "var(--stage-indoor)",
+  flower: "var(--stage-bloom)",
+};
+// An entry only has a category if it came from the catalog; hand-added plants
+// have none until someone links them to a catalog plant.
+const entryCategory = (entry: GardenEntry): PlantCategory | null => {
+  const category = entry.plantId
+    ? catalogById.get(entry.plantId)?.category
+    : undefined;
+  return category && (CATEGORY_ORDER as readonly string[]).includes(category)
+    ? (category as PlantCategory)
+    : null;
+};
+
 const statusLabels: Record<GardenEntry["status"], string> = {
   planted: "🪴 Planted",
   willplant: "🪏 Will plant",
@@ -244,7 +269,9 @@ function Page({
 function Planner() {
   const { state, loading, saving, notice, save } = useGarden();
   const [dialog, setDialog] = useState<"plant" | "bed" | null>(null);
-  const [view, setView] = useState<"order" | "bed" | "status">("bed");
+  const [view, setView] = useState<"name" | "bed" | "status" | "category">(
+    "bed",
+  );
   const [selectedEntryId, setSelectedEntryId] = useState<string | null>(null);
   const calendarRef = useRef<HTMLElement>(null);
 
@@ -269,14 +296,24 @@ function Planner() {
       </Page>
     );
   const beds = new Map(state.beds.map((bed) => [bed.id, bed]));
-  const entries = [...state.entries].sort((a, b) =>
-    view === "bed"
-      ? (beds.get(a.bedId ?? "")?.sortOrder ?? 99) -
-        (beds.get(b.bedId ?? "")?.sortOrder ?? 99)
-      : view === "status"
-        ? a.status.localeCompare(b.status)
-        : a.sortOrder - b.sortOrder,
-  );
+  const byName = (a: GardenEntry, b: GardenEntry) =>
+    a.name.localeCompare(b.name, undefined, { sensitivity: "base" });
+  const categoryRank = (entry: GardenEntry) => {
+    const category = entryCategory(entry);
+    return category ? CATEGORY_ORDER.indexOf(category) : CATEGORY_ORDER.length;
+  };
+  const entries = [...state.entries].sort((a, b) => {
+    if (view === "bed")
+      return (
+        (beds.get(a.bedId ?? "")?.sortOrder ?? 99) -
+          (beds.get(b.bedId ?? "")?.sortOrder ?? 99) || byName(a, b)
+      );
+    if (view === "status")
+      return a.status.localeCompare(b.status) || byName(a, b);
+    if (view === "category")
+      return categoryRank(a) - categoryRank(b) || byName(a, b);
+    return byName(a, b);
+  });
   const lastFrostPos = frostPosition(state.garden, "lastFrost");
   const firstFrostPos = frostPosition(state.garden, "firstFrost");
   const last = lastFrostPos.slot;
@@ -287,13 +324,6 @@ function Planner() {
       : slot === first
         ? firstFrostPos.fraction
         : undefined;
-  const updateEntry = (id: string, patch: Partial<GardenEntry>) =>
-    save({
-      ...state,
-      entries: state.entries.map((entry) =>
-        entry.id === id ? { ...entry, ...patch } : entry,
-      ),
-    });
   // Reordering swaps two sort numbers. The whole state is then saved with its prior revision.
   const move = (id: string, direction: -1 | 1) => {
     const ordered = [...state.entries].sort(
@@ -358,17 +388,40 @@ function Planner() {
             },
             entries: entries.filter((entry) => entry.status === status),
           }))
-        : [
-            {
-              id: "order",
-              label: "",
-              style: {
-                backgroundColor: "var(--color-accent)",
-                color: "var(--color-on-accent)",
+        : view === "category"
+          ? [
+              ...CATEGORY_ORDER.map((category) => ({
+                id: category,
+                label: categoryLabels[category],
+                style: {
+                  backgroundColor: categoryColors[category],
+                  color: "var(--color-on-accent)",
+                },
+                entries: entries.filter(
+                  (entry) => entryCategory(entry) === category,
+                ),
+              })),
+              {
+                id: "uncategorised",
+                label: "Not categorised",
+                style: {
+                  backgroundColor: "var(--color-text-muted)",
+                  color: "var(--color-surface)",
+                },
+                entries: entries.filter((entry) => !entryCategory(entry)),
               },
-              entries,
-            },
-          ];
+            ].filter((group) => group.entries.length)
+          : [
+              {
+                id: "name",
+                label: "",
+                style: {
+                  backgroundColor: "var(--color-accent)",
+                  color: "var(--color-on-accent)",
+                },
+                entries,
+              },
+            ];
   const now = new Date();
   const currentSlot = now.getMonth() * 2 + (now.getDate() > 15 ? 1 : 0);
   const selectedEntry = state.entries.find(
@@ -446,9 +499,10 @@ function Planner() {
               value={view}
               onChange={(event) => setView(event.target.value as typeof view)}
             >
-              <option value="order">My order</option>
+              <option value="name">A – Z</option>
               <option value="bed">By bed</option>
               <option value="status">By status</option>
+              <option value="category">By category</option>
             </select>
           </div>
           {months.map((month, index) => (
@@ -512,76 +566,12 @@ function Planner() {
                         </small>
                       </div>
                       <button
-                        className={styles.mobileEdit}
+                        className={styles.rowEdit}
                         aria-label={editLabel}
                         onClick={() => setSelectedEntryId(entry.id)}
                       >
                         <span aria-hidden="true">▾</span>
                       </button>
-                      <div
-                        className={`${styles.rowControls} ${styles.desktopControls}`}
-                      >
-                        <button
-                          aria-label={`Move ${entry.name} up`}
-                          onClick={() => move(entry.id, -1)}
-                        >
-                          ↑
-                        </button>
-                        <button
-                          aria-label={`Move ${entry.name} down`}
-                          onClick={() => move(entry.id, 1)}
-                        >
-                          ↓
-                        </button>
-                        <input
-                          aria-label={`${entry.name} quantity`}
-                          type="number"
-                          min="1"
-                          max="999"
-                          value={entry.qty}
-                          onChange={(event) =>
-                            void updateEntry(entry.id, {
-                              qty: Number(event.target.value),
-                            })
-                          }
-                        />
-                        <select
-                          aria-label={`${entry.name} status`}
-                          value={entry.status}
-                          onChange={(event) =>
-                            void updateEntry(entry.id, {
-                              status: event.target
-                                .value as GardenEntry["status"],
-                            })
-                          }
-                        >
-                          <option value="planted">Planted</option>
-                          <option value="willplant">Will plant</option>
-                          <option value="undecided">Undecided</option>
-                        </select>
-                        <select
-                          aria-label={`${entry.name} bed`}
-                          value={entry.bedId ?? ""}
-                          onChange={(event) =>
-                            void updateEntry(entry.id, {
-                              bedId: event.target.value || null,
-                            })
-                          }
-                        >
-                          <option value="">No bed</option>
-                          {state.beds.map((bed) => (
-                            <option value={bed.id} key={bed.id}>
-                              {bed.label}
-                            </option>
-                          ))}
-                        </select>
-                        <button
-                          className={styles.dangerLink}
-                          onClick={() => void removeEntry(entry)}
-                        >
-                          Remove
-                        </button>
-                      </div>
                     </div>
                     {timeline.map((slot, index) => (
                       <div
@@ -1026,13 +1016,19 @@ function PlantLibrary() {
   useEffect(() => {
     api.catalog().then(setPlants);
   }, []);
-  const filtered = plants.filter(
-    (plant) =>
-      (category === "all" || plant.category === category) &&
-      `${plant.commonName} ${plant.scientificName}`
-        .toLowerCase()
-        .includes(query.toLowerCase()),
-  );
+  const filtered = plants
+    .filter(
+      (plant) =>
+        (category === "all" || plant.category === category) &&
+        `${plant.commonName} ${plant.scientificName}`
+          .toLowerCase()
+          .includes(query.toLowerCase()),
+    )
+    .sort((a, b) =>
+      a.commonName.localeCompare(b.commonName, undefined, {
+        sensitivity: "base",
+      }),
+    );
   return (
     <Page
       eyebrow="Reviewed plant knowledge"
@@ -1053,8 +1049,9 @@ function PlantLibrary() {
             onChange={(event) => setCategory(event.target.value)}
           >
             <option value="all">All types</option>
-            <option value="vegetable">Vegetables</option>
             <option value="herb">Herbs</option>
+            <option value="vegetable">Vegetables</option>
+            <option value="fruit">Fruits</option>
             <option value="flower">Flowers</option>
           </select>
         </>

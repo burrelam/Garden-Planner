@@ -754,9 +754,9 @@
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.34);
 }
 .calendarGrid {
-  min-width: 1320px;
+  min-width: 1200px;
   display: grid;
-  grid-template-columns: 344px repeat(24, minmax(40px, 1fr));
+  grid-template-columns: 240px repeat(24, minmax(40px, 1fr));
 }
 .monthHead,
 .halfHead {
@@ -859,7 +859,7 @@
   opacity: 0.78;
 }
 .calendarRow > div {
-  min-height: 70px;
+  min-height: 62px;
   border-bottom: 1px solid var(--color-border);
 }
 .plantRowTitle {
@@ -890,34 +890,31 @@
   margin-top: 2px;
   color: var(--color-accent);
 }
-.rowControls {
+/* Every plant row keeps its details behind this arrow, at every window size —
+   the row never shows an editor inline. */
+.rowEdit {
   display: flex;
-  gap: 4px;
-  padding: 2px 10px 6px;
+  align-items: center;
+  justify-content: center;
+  min-width: 0;
+  min-height: 0;
+  height: auto;
+  padding: 4px 2px;
+  border: 0;
+  /* The shared button shadow would ring this transparent tap target with a
+     halo, which reads as a stray pill sitting in the middle of the row. */
+  box-shadow: none;
+  background: transparent;
+  color: var(--color-accent);
 }
-.rowControls button,
-.rowControls select,
-.rowControls input {
-  min-height: 28px;
-  height: 28px;
-  padding: 2px 6px;
-  border-radius: 5px;
-  font-size: 0.82rem;
+.rowEdit span {
+  font-size: 1rem;
+  line-height: 1;
 }
-.rowControls button {
-  flex: 0 0 auto;
-}
-.rowControls select {
-  width: 78px;
-}
-.rowControls input {
-  width: 43px;
-}
-.rowControls select:nth-of-type(2) {
-  width: 83px;
-}
-.mobileEdit {
-  display: none;
+.calendarRow > .stickyPlant {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 24px;
+  align-items: stretch;
 }
 .dangerLink,
 .dangerButton {
@@ -1085,6 +1082,7 @@
 }
 .panel {
   min-width: 0;
+  container-type: inline-size;
   overflow-wrap: anywhere;
   background: var(--color-surface);
   border: 1px solid var(--color-border);
@@ -1112,15 +1110,39 @@
   font-size: 0.88rem;
 }
 .rule {
-  display: flex;
+  display: grid;
+  grid-template-columns: auto minmax(14ch, auto);
   justify-content: space-between;
-  gap: 20px;
+  gap: 2px 20px;
   padding: 12px 0;
   border-top: 1px solid var(--color-border);
+}
+.rule strong,
+.rule span {
+  /* Keep the last line from stranding a single word. */
+  text-wrap: pretty;
 }
 .rule span {
   text-align: right;
   color: var(--color-text-muted);
+}
+
+/* Below this the two columns stop fitting, so the description starts on the
+   next line under its heading instead of being squeezed into a narrow gutter. */
+@container (max-width: 400px) {
+  .rule {
+    grid-template-columns: 1fr;
+  }
+  .rule span {
+    text-align: left;
+  }
+  .panel dl {
+    grid-template-columns: 1fr;
+    gap: 2px;
+  }
+  .panel dt:not(:first-of-type) {
+    margin-top: 10px;
+  }
 }
 .companion {
   display: flex;
@@ -1330,11 +1352,6 @@
   .calendarRow > div {
     min-height: 80px;
   }
-  .calendarRow > .stickyPlant {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) 24px;
-    align-items: stretch;
-  }
   .plantRowTitle {
     padding: 5px 6px;
     align-content: center;
@@ -1349,28 +1366,6 @@
   }
   .plantRowTitle small {
     font-size: 0.63rem;
-  }
-  .desktopControls {
-    display: none;
-  }
-  .mobileEdit {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    min-width: 0;
-    min-height: 0;
-    height: auto;
-    padding: 4px 2px;
-    border: 0;
-    /* The shared button shadow would ring this transparent tap target with a
-       halo, which reads as a stray pill sitting in the middle of the row. */
-    box-shadow: none;
-    background: transparent;
-    color: var(--color-accent);
-  }
-  .mobileEdit span {
-    font-size: 1rem;
-    line-height: 1;
   }
   .monthCorner {
     padding: 0 6px;
