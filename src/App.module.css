@@ -791,6 +791,11 @@
 .plannerDock > * {
   width: 100%;
   min-width: 0;
+  /* Three controls share a phone's width, so they trim their padding rather
+     than wrapping "+ Plant" or "More" onto a second line. */
+  padding-left: 6px;
+  padding-right: 6px;
+  white-space: nowrap;
 }
 .moreButton {
   border-color: var(--color-border-strong);

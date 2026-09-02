@@ -231,3 +231,29 @@ test("More holds the garden's facts, and the ZIP can be changed there", async ({
   );
   await expect(page.getByLabel("ZIP code", { exact: true })).toHaveValue("");
 });
+
+test("the floating planner controls fit without clipping", async ({ page }) => {
+  // Three controls share a phone's width. They are set not to wrap, so the way
+  // this fails now is the label overflowing its button and being cut off —
+  // invisible in a screenshot at a glance, so measure it.
+  const controls = await page.evaluate(() =>
+    [...document.querySelectorAll('[class*="plannerDock"] button')].map(
+      (button) => ({
+        text: button.textContent?.trim() ?? "",
+        clipped: button.scrollWidth > button.clientWidth + 1,
+        height: Math.round(button.getBoundingClientRect().height),
+      }),
+    ),
+  );
+  expect(controls).toHaveLength(3);
+  for (const control of controls) {
+    expect(control, `"${control.text}" should not be clipped`).toHaveProperty(
+      "clipped",
+      false,
+    );
+    // A wrapped label would push the button taller than a single row.
+    expect(control.height, `"${control.text}" should be one row`).toBeLessThan(
+      56,
+    );
+  }
+});
