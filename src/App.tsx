@@ -575,15 +575,7 @@ function Planner() {
                   <div className={styles.calendarRow} key={entry.id}>
                     <div className={styles.stickyPlant}>
                       <div className={styles.plantRowTitle}>
-                        <Link
-                          to={
-                            entry.plantId
-                              ? `/plants/${entry.plantId}`
-                              : "/plants"
-                          }
-                        >
-                          {entry.name}
-                        </Link>
+                        <strong>{entry.name}</strong>
                         <span>
                           {entry.variety || "No variety"} ·{" "}
                           {entry.dtm || "Timing not reviewed"}
@@ -742,7 +734,7 @@ function PlantSheet({
         </div>
         {entry.plantId && (
           <Link className={styles.button} to={`/plants/${entry.plantId}`}>
-            View growing guide
+            View plant guide
           </Link>
         )}
         <button className={styles.primary}>Save plant</button>

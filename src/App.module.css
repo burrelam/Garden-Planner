@@ -849,7 +849,7 @@
   position: sticky;
   left: 12px;
   font-family: "Silkscreen", ui-monospace, monospace;
-  font-size: 1.12rem;
+  font-size: 0.82rem;
   font-weight: 700;
   letter-spacing: 0.05em;
   text-transform: uppercase;
@@ -868,7 +868,7 @@
   color: inherit;
   box-shadow: none;
   font-family: "Silkscreen", ui-monospace, monospace;
-  font-size: 1.12rem;
+  font-size: 0.82rem;
   font-weight: 700;
   letter-spacing: 0.05em;
   text-transform: uppercase;
@@ -895,13 +895,12 @@
   padding: 6px 12px 2px;
   line-height: 1.25;
 }
-.plantRowTitle a {
+.plantRowTitle strong {
   overflow: hidden;
   color: var(--color-text);
   font:
     700 1.3rem "VT323",
     sans-serif;
-  text-decoration: none;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
@@ -1394,8 +1393,8 @@
     align-content: center;
     line-height: 1.2;
   }
-  .plantRowTitle a {
-    font-size: 0.86rem;
+  .plantRowTitle strong {
+    font-size: 1.05rem;
   }
   .plantRowTitle span {
     font-size: 0.64rem;
