@@ -42,5 +42,7 @@ git merge --ff-only "$approved"
 
 npm run check
 git push origin main
-flyctl deploy --config fly.production.toml --build-arg "APP_REVISION=$approved"
+# Same builder fallback as deploy-staging.sh — see the note there.
+flyctl deploy --config fly.production.toml --build-arg "APP_REVISION=$approved" \
+  --depot=false --remote-only
 echo "Production now reports approved staging SHA $approved: https://gardenbuddy-jm.fly.dev"
