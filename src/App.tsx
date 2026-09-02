@@ -12,6 +12,7 @@ import {
   Navigate,
   Route,
   Routes,
+  useLocation,
   useNavigate,
   useParams,
 } from "react-router-dom";
@@ -155,6 +156,18 @@ function Shell({
   onChooseTheme: (preference: ThemePreference) => void;
 }) {
   const navigate = useNavigate();
+  const { pathname } = useLocation();
+  const [navOpen, setNavOpen] = useState(false);
+  // The drawer is a page-level overlay, so arriving anywhere new closes it.
+  useEffect(() => setNavOpen(false), [pathname]);
+  useEffect(() => {
+    if (!navOpen) return;
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setNavOpen(false);
+    };
+    document.addEventListener("keydown", onKeyDown);
+    return () => document.removeEventListener("keydown", onKeyDown);
+  }, [navOpen]);
   return (
     <div className={styles.shell}>
       <header className={styles.header}>
@@ -162,7 +175,25 @@ function Shell({
           <img src="/brand/icon-192.png" alt="" />
           <span>GardenBuddy</span>
         </Link>
-        <nav aria-label="Main navigation">
+        <button
+          className={styles.navToggle}
+          aria-label={navOpen ? "Close menu" : "Open menu"}
+          aria-expanded={navOpen}
+          onClick={() => setNavOpen((open) => !open)}
+        >
+          <span aria-hidden="true">☰</span>
+        </button>
+      </header>
+      {navOpen && (
+        <div
+          className={styles.navScrim}
+          onClick={() => setNavOpen(false)}
+          aria-hidden="true"
+        />
+      )}
+      {navOpen && (
+        <nav className={styles.navDrawer} aria-label="Main navigation">
+          <p className={styles.navHeading}>Go to</p>
           <NavLink to="/planner">
             <span className={styles.navIcon} aria-hidden="true">
               ▦
@@ -188,7 +219,7 @@ function Shell({
             <span>Settings</span>
           </NavLink>
         </nav>
-      </header>
+      )}
       <GardenProvider>
         <Routes>
           <Route path="/planner" element={<Planner />} />
@@ -268,7 +299,7 @@ function Page({
   className,
 }: {
   eyebrow?: string;
-  title: string;
+  title?: string;
   intro?: string;
   children: React.ReactNode;
   actions?: React.ReactNode;
@@ -276,14 +307,16 @@ function Page({
 }) {
   return (
     <main className={`${styles.page} ${className ?? ""}`}>
-      <div className={styles.pageHead}>
-        <div>
-          {eyebrow && <p className={styles.eyebrow}>{eyebrow}</p>}
-          <h1>{title}</h1>
-          {intro && <p>{intro}</p>}
+      {(title || eyebrow || intro || actions) && (
+        <div className={styles.pageHead}>
+          <div>
+            {eyebrow && <p className={styles.eyebrow}>{eyebrow}</p>}
+            {title && <h1>{title}</h1>}
+            {intro && <p>{intro}</p>}
+          </div>
+          {actions && <div className={styles.actions}>{actions}</div>}
         </div>
-        {actions && <div className={styles.actions}>{actions}</div>}
-      </div>
+      )}
       {children}
     </main>
   );
@@ -297,6 +330,7 @@ function Planner() {
     "bed",
   );
   const [selectedEntryId, setSelectedEntryId] = useState<string | null>(null);
+  const [showMore, setShowMore] = useState(false);
   const calendarRef = useRef<HTMLElement>(null);
 
   // Amanda's original planner opened near the current month. Keep a little
@@ -448,12 +482,8 @@ function Planner() {
     (entry) => entry.id === selectedEntryId,
   );
   return (
-    <Page
-      className={styles.plannerPage}
-      eyebrow={state.garden.name}
-      title="My Garden Planting Calendar"
-      intro={`${state.entries.length} plants across ${state.beds.length} garden beds`}
-    >
+    <Page className={styles.plannerPage}>
+      <h1 className={styles.srOnly}>My Garden Planting Calendar</h1>
       {notice && (
         <p
           className={
@@ -464,46 +494,6 @@ function Planner() {
           {notice}
         </p>
       )}
-      <p className={styles.frostNote}>
-        <strong>Zone {state.garden.hardinessZone} frost dates:</strong> last
-        frost ~<strong>{prettyDate(state.garden.lastFrost)}</strong> · first
-        fall frost ~<strong>{prettyDate(state.garden.firstFrost)}</strong>
-      </p>
-      <details className={styles.legendDisclosure}>
-        <summary>📖 Calendar legend</summary>
-        <div className={styles.legend}>
-          <span>
-            <i className={styles.indoor} />
-            Start seeds indoors
-          </span>
-          <span>
-            <i className={styles.transplant} />
-            Transplant outdoors
-          </span>
-          <span>
-            <i className={styles.direct} />
-            Direct sow outdoors
-          </span>
-          <span>
-            <i className={styles.harvest} />
-            Harvest window
-          </span>
-          <span>
-            <i className={styles.bloom} />
-            Bloom window
-          </span>
-          <span>❄ Frost date</span>
-          {saving && <span>Saving…</span>}
-        </div>
-      </details>
-      <div className={styles.plannerButtons}>
-        <button className={styles.primary} onClick={() => setDialog("plant")}>
-          + Plant
-        </button>
-        <button className={styles.primary} onClick={() => setDialog("bed")}>
-          + Bed
-        </button>
-      </div>
       <section
         ref={calendarRef}
         className={styles.calendar}
@@ -618,6 +608,32 @@ function Planner() {
           ))}
         </div>
       </section>
+      <div className={styles.plannerDock}>
+        <button className={styles.primary} onClick={() => setDialog("plant")}>
+          + Plant
+        </button>
+        <button className={styles.primary} onClick={() => setDialog("bed")}>
+          + Bed
+        </button>
+        <button
+          className={styles.moreButton}
+          aria-expanded={showMore}
+          onClick={() => setShowMore(true)}
+        >
+          More{" "}
+          <span className={styles.moreArrow} aria-hidden="true">
+            ▲
+          </span>
+        </button>
+      </div>
+      {showMore && (
+        <PlannerMore
+          state={state}
+          save={save}
+          saving={saving}
+          close={() => setShowMore(false)}
+        />
+      )}
       <p className={styles.calendarGuide}>
         <strong>E</strong> = early month · <strong>L</strong> = late month · tap
         a plant for status, bed, quantity, and ordering
@@ -655,6 +671,201 @@ function Planner() {
         />
       )}
     </Page>
+  );
+}
+
+// "More" is where everything that is not the grid lives, now that the planner
+// runs full screen: the garden's facts, its growing season, and the legend.
+// ZIP and zone are editable here and write to the same garden record Settings
+// writes to, so the two screens are one setting seen from two places.
+function PlannerMore({
+  state,
+  save,
+  saving,
+  close,
+}: {
+  state: GardenState;
+  save: (state: GardenState) => Promise<void>;
+  saving: boolean;
+  close: () => void;
+}) {
+  const [field, setField] = useState<"zip" | "zone" | null>(null);
+  const [draft, setDraft] = useState("");
+  const [status, setStatus] = useState("");
+  // Enter blurs the input, so without this the commit would run twice.
+  const settled = useRef(false);
+  const { zip, hardinessZone } = state.garden;
+  const seasonDays = Math.round(
+    (Date.parse(state.garden.firstFrost) - Date.parse(state.garden.lastFrost)) /
+      86_400_000,
+  );
+
+  const startEditing = (which: "zip" | "zone") => {
+    settled.current = false;
+    setStatus("");
+    setDraft(which === "zip" ? zip : hardinessZone);
+    setField(which);
+  };
+
+  // A ZIP fills the zone in from the same lookup Settings uses. A zone typed by
+  // hand wins instead, and the ZIP it no longer matches is cleared, so the two
+  // can never sit on screen contradicting each other.
+  const finish = async (which: "zip" | "zone", cancelled: boolean) => {
+    if (settled.current) return;
+    settled.current = true;
+    setField(null);
+    const value = draft.trim();
+    if (cancelled) return;
+    if (which === "zip") {
+      if (!/^\d{5}$/.test(value) || value === zip) return;
+      setStatus("Looking up hardiness zone…");
+      try {
+        const { zone } = await api.hardinessZone(value);
+        await save({
+          ...state,
+          garden: { ...state.garden, zip: value, hardinessZone: zone },
+        });
+        setStatus(`Saved · zone ${zone}. Settings shows this too.`);
+      } catch {
+        await save({ ...state, garden: { ...state.garden, zip: value } });
+        setStatus(
+          "Saved the ZIP, but no zone came back. You can type the zone in yourself.",
+        );
+      }
+      return;
+    }
+    if (!value || value === hardinessZone) return;
+    await save({
+      ...state,
+      garden: { ...state.garden, hardinessZone: value, zip: "" },
+    });
+    setStatus(`Saved · zone ${value}, ZIP cleared. Settings shows this too.`);
+  };
+
+  const editor = (which: "zip" | "zone", label: string) => (
+    <input
+      className={styles.factInput}
+      aria-label={label}
+      inputMode={which === "zip" ? "numeric" : undefined}
+      maxLength={which === "zip" ? 5 : 4}
+      autoFocus
+      value={draft}
+      onChange={(event) =>
+        setDraft(
+          which === "zip"
+            ? event.target.value.replace(/\D/g, "").slice(0, 5)
+            : event.target.value,
+        )
+      }
+      onKeyDown={(event) => {
+        if (event.key === "Enter") event.currentTarget.blur();
+        if (event.key === "Escape") void finish(which, true);
+      }}
+      onBlur={() => void finish(which, false)}
+    />
+  );
+
+  return (
+    <Dialog title="More about the garden" close={close}>
+      <p className={styles.moreGarden}>{state.garden.name}</p>
+
+      <h3 className={styles.moreHeading}>At a glance</h3>
+      <div className={styles.facts}>
+        <div className={styles.factEditable}>
+          <button
+            className={styles.factPen}
+            aria-label="Change ZIP code"
+            onClick={() => startEditing("zip")}
+          >
+            <span aria-hidden="true">✎</span>
+          </button>
+          {field === "zip" ? editor("zip", "ZIP code") : <b>{zip || "--"}</b>}
+          <span>ZIP code</span>
+        </div>
+        <div className={styles.factEditable}>
+          <button
+            className={styles.factPen}
+            aria-label="Change hardiness zone"
+            onClick={() => startEditing("zone")}
+          >
+            <span aria-hidden="true">✎</span>
+          </button>
+          {field === "zone" ? (
+            editor("zone", "Hardiness zone")
+          ) : (
+            <b>{hardinessZone || "--"}</b>
+          )}
+          <span>Hardiness zone</span>
+        </div>
+        <div className={styles.fact}>
+          <b>{state.entries.length}</b>
+          <span>Plants</span>
+        </div>
+        <div className={styles.fact}>
+          <b>{state.beds.length}</b>
+          <span>Beds</span>
+        </div>
+      </div>
+      {(status || saving) && (
+        <p className={styles.moreStatus} role="status">
+          {saving ? "Saving…" : status}
+        </p>
+      )}
+
+      <h3 className={styles.moreHeading}>Growing season</h3>
+      <div className={styles.seasonRow}>
+        <p className={styles.seasonBar}>
+          <b>Last frost</b>
+          <span>~{prettyDate(state.garden.lastFrost)}</span>
+        </p>
+        <p className={styles.seasonBar}>
+          <b>First frost</b>
+          <span>~{prettyDate(state.garden.firstFrost)}</span>
+        </p>
+        <p className={`${styles.seasonBar} ${styles.seasonLength}`}>
+          <b>Season length</b>
+          <span>
+            {seasonDays > 0 ? `${seasonDays} days` : "Check your frost dates"}
+          </span>
+        </p>
+      </div>
+
+      <h3 className={styles.moreHeading}>Calendar legend</h3>
+      <div className={styles.moreLegend}>
+        <span>
+          <i className={styles.indoor} />
+          Start seeds indoors
+        </span>
+        <span>
+          <i className={styles.transplant} />
+          Transplant outdoors
+        </span>
+        <span>
+          <i className={styles.direct} />
+          Direct sow outdoors
+        </span>
+        <span>
+          <i className={styles.harvest} />
+          Harvest window
+        </span>
+        <span>
+          <i className={styles.bloom} />
+          Bloom window
+        </span>
+        <span>❄ Frost date</span>
+      </div>
+
+      <h3 className={styles.moreHeading}>Reading the grid</h3>
+      <p className={styles.moreHint}>
+        <strong>E</strong> = early month · <strong>L</strong> = late month. Tap
+        the arrow on a plant for its status, bed, quantity and ordering.
+      </p>
+
+      <Link className={styles.moreSettings} to="/settings" onClick={close}>
+        <span>⚙ All garden settings</span>
+        <span aria-hidden="true">›</span>
+      </Link>
+    </Dialog>
   );
 }
 

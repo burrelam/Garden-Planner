@@ -4,15 +4,14 @@ test.beforeEach(async ({ page }) => {
   await page.goto("/");
   await page.getByLabel("Passphrase").fill("gardenbuddy");
   await page.getByRole("button", { name: "Open the garden" }).click();
-  await expect(
-    page.getByRole("heading", { name: "My Garden Planting Calendar" }),
-  ).toBeVisible();
+  await expect(page.getByLabel("Annual planting calendar")).toBeVisible();
 });
 
 test("planner calendar and navigation work at this viewport", async ({
   page,
 }) => {
   await expect(page.getByLabel("Annual planting calendar")).toBeVisible();
+  await page.getByRole("button", { name: "Open menu" }).click();
   await page.getByRole("link", { name: "Plants", exact: true }).click();
   await expect(
     page.getByRole("heading", { name: "Plant Library" }),
@@ -192,4 +191,35 @@ test("phone pages never create accidental document-wide horizontal scrolling", a
     }));
     expect(widths.document, route).toBeLessThanOrEqual(widths.viewport);
   }
+});
+
+test("More holds the garden's facts, and the ZIP can be changed there", async ({
+  page,
+}) => {
+  await page.getByRole("button", { name: "More" }).click();
+  const sheet = page.getByRole("dialog", { name: "More about the garden" });
+  await expect(sheet).toBeVisible();
+
+  // Everything that used to sit above the calendar now lives in here.
+  await expect(sheet.getByText("Last frost")).toBeVisible();
+  await expect(sheet.getByText("First frost")).toBeVisible();
+  await expect(sheet.getByText(/^\d+ days$/)).toBeVisible();
+  await expect(sheet.getByText("Start seeds indoors")).toBeVisible();
+  await expect(
+    sheet.getByRole("link", { name: /All garden settings/ }),
+  ).toBeVisible();
+
+  // A zone typed by hand wins, and clears the ZIP it no longer matches.
+  await sheet.getByRole("button", { name: "Change hardiness zone" }).click();
+  const zone = sheet.getByLabel("Hardiness zone", { exact: true });
+  await zone.fill("9a");
+  await zone.press("Enter");
+  await expect(sheet.getByText(/zone 9a, ZIP cleared/)).toBeVisible();
+
+  // Settings is the same record, so it shows the same zone.
+  await sheet.getByRole("link", { name: /All garden settings/ }).click();
+  await expect(page.getByLabel("Hardiness zone", { exact: true })).toHaveValue(
+    "9a",
+  );
+  await expect(page.getByLabel("ZIP code", { exact: true })).toHaveValue("");
 });

@@ -481,25 +481,72 @@
   border-bottom: 1px solid var(--color-border);
   backdrop-filter: blur(12px);
 }
-.header nav {
-  display: flex;
-  gap: 4px;
-  overflow-x: auto;
+.navToggle {
+  min-width: 46px;
+  min-height: 46px;
+  padding: 0;
+  font-size: 1.15rem;
 }
-.header nav a {
-  padding: 10px 13px;
+.navScrim {
+  position: fixed;
+  inset: 0;
+  z-index: 45;
+  background: rgba(var(--shadow-color), 0.48);
+}
+.navDrawer {
+  position: fixed;
+  inset: 0 0 0 auto;
+  z-index: 46;
+  width: min(280px, 82vw);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 18px 14px calc(18px + env(safe-area-inset-bottom));
+  border-left: 1px solid var(--color-border-strong);
+  background: var(--color-surface);
+  box-shadow: -18px 0 44px rgba(0, 0, 0, 0.32);
+  animation: drawerIn 0.2s ease;
+}
+@keyframes drawerIn {
+  from {
+    transform: translateX(100%);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .navDrawer {
+    animation: none;
+  }
+}
+.navHeading {
+  margin: 0 0 8px;
+  padding-left: 11px;
+  color: var(--color-text-muted);
+  font-family: "Silkscreen", ui-monospace, monospace;
+  font-size: 0.58rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+.navDrawer a {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  min-height: 48px;
+  padding: 0 11px;
   border-radius: 10px;
   color: var(--color-text);
   text-decoration: none;
-  white-space: nowrap;
   font-weight: 600;
 }
-.header nav a:global(.active) {
+.navDrawer a:global(.active) {
   background: var(--color-accent-soft);
   color: var(--color-accent-hover);
 }
 .navIcon {
-  display: none;
+  width: 22px;
+  text-align: center;
+  font-size: 1.2rem;
+  line-height: 1;
 }
 .brand {
   display: flex;
@@ -648,6 +695,8 @@
   width: 100%;
   max-width: none;
   min-height: calc(100vh - 72px);
+  padding-top: 14px;
+  padding-bottom: calc(86px + env(safe-area-inset-bottom));
   color: var(--color-inverse-text);
   background:
     radial-gradient(ellipse at 20% 0%, var(--color-haze-warm), transparent 58%),
@@ -674,77 +723,215 @@
   color: var(--color-warn-fg);
 }
 
-.frostNote {
-  padding: 9px 16px;
-  margin-bottom: 12px;
-  border: 1px solid var(--color-frost);
-  border: 1px solid color-mix(in srgb, var(--color-frost) 34%, transparent);
-  border-radius: 8px;
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+/* The three actions ride above the calendar rather than pushing it down, so the
+   grid keeps the full height of the screen behind them. */
+.plannerDock {
+  position: fixed;
+  left: 50%;
+  bottom: calc(14px + env(safe-area-inset-bottom));
+  z-index: 30;
+  transform: translateX(-50%);
+  width: min(420px, calc(100% - 24px));
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 7px;
+  padding: 7px;
+  border: 1px solid var(--color-border-strong);
+  border-radius: 16px;
+  background: var(--color-inverse-bg);
+  background: color-mix(in srgb, var(--color-inverse-bg) 88%, transparent);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(10px);
+}
+.plannerDock > * {
+  width: 100%;
+  min-width: 0;
+}
+.moreButton {
+  border-color: var(--color-border-strong);
   background: transparent;
-  background: color-mix(in srgb, var(--color-frost) 14%, transparent);
-  color: var(--color-frost-ink);
-  text-align: center;
-  font-size: 0.78rem;
-  letter-spacing: 0.025em;
-}
-.legendDisclosure {
-  width: fit-content !important;
-  margin-bottom: 12px;
   color: var(--color-inverse-text);
+  box-shadow: none;
 }
-.legendDisclosure summary {
-  width: fit-content;
-  margin-inline: auto;
-  padding: 7px 13px;
-  border: 1px solid rgba(255, 255, 255, 0.25);
-  border-radius: 7px;
-  background: rgba(255, 255, 255, 0.1);
-  cursor: pointer;
-  list-style: none;
-  text-transform: uppercase;
-  /* A <summary>, so it never inherited the shared button styling — but it
-     looks like a button, so it takes Silkscreen like one. */
+.moreButton:hover {
+  border-color: var(--color-accent-light);
+  background: rgba(255, 255, 255, 0.12);
+}
+.moreArrow {
+  margin-left: 4px;
+  font-size: 0.72em;
+}
+
+/* ---- the More panel ---- */
+.moreGarden {
+  margin: 0 0 4px;
+  font-family: "Pixelify Sans", "VT323", sans-serif;
+  font-size: 1.35rem;
+  font-weight: 600;
+}
+.moreHeading {
+  margin: 18px 0 8px;
+  color: var(--color-text-muted);
   font-family: "Silkscreen", ui-monospace, monospace;
-  font-size: 0.62rem;
+  font-size: 0.58rem;
   font-weight: 700;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
 }
-.legend {
+.facts {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 10px 20px;
-  padding: 14px 16px;
-  margin-top: 8px;
-  border: 1px solid rgba(255, 255, 255, 0.14);
+  gap: 8px;
+}
+.fact,
+.factEditable {
+  position: relative;
+  padding: 9px 8px;
+  border: 1px solid var(--color-border);
   border-radius: 10px;
-  background: rgba(255, 255, 255, 0.08);
-  color: var(--color-inverse-text);
-  font-size: 0.78rem;
+  background: var(--color-accent-soft);
+  background: color-mix(in srgb, var(--color-accent-soft) 60%, transparent);
+  text-align: center;
 }
-.legend span {
-  display: flex;
+.fact b,
+.factEditable b {
+  display: block;
+  color: var(--color-accent-hover);
+  font-size: 1.4rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.fact span,
+.factEditable span {
+  display: block;
+  color: var(--color-text-muted);
+  font-size: 0.82rem;
+  line-height: 1.2;
+}
+/* ZIP and zone are the two facts you can change, so each carries its own pencil. */
+.factPen {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  min-width: 26px;
+  min-height: 26px;
+  padding: 0;
+  border-radius: 7px;
+  font-size: 0.7rem;
+  box-shadow: none;
+}
+.factInput {
+  width: 100%;
+  min-height: 0;
+  padding: 0;
+  border: 0;
+  border-bottom: 2px solid var(--color-accent);
+  border-radius: 0;
+  background: transparent;
+  color: var(--color-accent-hover);
+  font-size: 1.4rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+}
+.moreStatus {
+  margin: 9px 0 0;
+  color: var(--color-text-muted);
+  font-size: 0.92rem;
+}
+.seasonRow {
+  display: grid;
   gap: 7px;
-  align-items: center;
 }
-.legend i {
-  width: 25px;
-  height: 12px;
+.seasonBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin: 0;
+  padding: 9px 12px;
+  border: 1px solid var(--color-frost);
+  border: 1px solid color-mix(in srgb, var(--color-frost) 40%, transparent);
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--color-frost) 12%, transparent);
+}
+.seasonBar b {
+  color: var(--color-frost);
+  font-family: "Silkscreen", ui-monospace, monospace;
+  font-size: 0.58rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.seasonBar span {
+  color: var(--color-text);
+  font-size: 1rem;
+  font-weight: 400;
+}
+/* Season length is an outcome, not a date, so it reads green rather than frost blue. */
+.seasonLength {
+  border-color: var(--stage-harvest);
+  border-color: color-mix(in srgb, var(--stage-harvest) 55%, transparent);
+  background: color-mix(in srgb, var(--stage-harvest) 18%, transparent);
+}
+.seasonLength b {
+  color: var(--stage-harvest);
+}
+.seasonLength span {
+  font-weight: 700;
+}
+.moreLegend {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px 14px;
+  font-size: 0.9rem;
+}
+.moreLegend span {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+.moreLegend i {
+  width: 24px;
+  height: 11px;
   flex: 0 0 auto;
   border-radius: 3px;
 }
-.plannerButtons {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
-  max-width: 420px;
-  margin: 0 auto 12px !important;
+.moreHint {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: 0.92rem;
 }
-.plannerButtons button {
-  width: 100%;
+.moreSettings {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 18px;
+  padding: 11px 12px;
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--color-accent-soft) 45%, transparent);
+  color: var(--color-accent-hover);
+  text-decoration: none;
+  font-weight: 600;
+}
+.moreSettings:hover {
+  border-color: var(--color-accent);
 }
 .calendar {
   width: 100%;
-  max-height: 68vh;
+  max-height: 76vh;
   overflow: auto;
   overscroll-behavior: contain;
   -webkit-overflow-scrolling: touch;
@@ -1285,42 +1472,8 @@
     width: 42px;
     height: 42px;
   }
-  .header nav {
-    position: fixed;
-    inset: auto 0 0;
-    z-index: 40;
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 0;
-    width: 100%;
-    min-height: calc(62px + env(safe-area-inset-bottom));
-    padding: 5px 6px env(safe-area-inset-bottom);
-    overflow: visible;
-    border-top: 1px solid var(--color-border);
-    background: var(--color-bg);
-    background: color-mix(in srgb, var(--color-bg) 98%, transparent);
-    box-shadow: 0 -8px 24px rgba(var(--shadow-color), 0.1);
-    backdrop-filter: blur(14px);
-  }
-  .header nav a {
-    display: grid;
-    place-items: center;
-    align-content: center;
-    gap: 1px;
-    min-width: 0;
-    min-height: 52px;
-    padding: 4px 2px;
-    border-radius: 9px;
-    font-size: 0.71rem;
-    line-height: 1.1;
-  }
-  .navIcon {
-    display: block;
-    font-size: 1.25rem;
-    line-height: 1;
-  }
   .page {
-    padding: 24px 14px calc(88px + env(safe-area-inset-bottom));
+    padding: 24px 14px 28px;
   }
   .pageHead {
     display: block;
@@ -1347,37 +1500,11 @@
   }
   .plannerPage {
     min-height: calc(100svh - 58px);
-    padding-top: 28px;
-  }
-  .plannerPage .pageHead {
-    text-align: center;
-  }
-  .plannerPage .pageHead h1 {
-    font-size: clamp(1.85rem, 9vw, 2.35rem);
-  }
-  .plannerPage .eyebrow {
-    color: var(--color-accent-light) !important;
-  }
-  .frostNote {
-    padding: 8px 10px;
-    font-size: 0.69rem;
-    line-height: 1.5;
-  }
-  .legendDisclosure {
-    max-width: 100%;
-  }
-  .legend {
-    gap: 8px 10px;
-    font-size: 0.7rem;
-  }
-  .legend i {
-    width: 18px;
-  }
-  .plannerButtons {
-    gap: 8px;
+    padding-top: 10px;
+    padding-bottom: calc(80px + env(safe-area-inset-bottom));
   }
   .calendar {
-    max-height: 62svh;
+    max-height: 78svh;
     min-height: 390px;
     border-radius: 12px 12px 0 0;
   }
