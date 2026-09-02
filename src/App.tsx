@@ -520,8 +520,7 @@ function Planner() {
                         aria-label={editLabel}
                         onClick={() => setSelectedEntryId(entry.id)}
                       >
-                        <span>Details</span>
-                        <span aria-hidden="true">›</span>
+                        <span aria-hidden="true">▾</span>
                       </button>
                       <div
                         className={`${styles.rowControls} ${styles.desktopControls}`}

@@ -835,7 +835,7 @@
   position: sticky;
   left: 12px;
   font-family: "Silkscreen", ui-monospace, monospace;
-  font-size: 0.72rem;
+  font-size: 0.95rem;
   font-weight: 700;
   letter-spacing: 0.05em;
   text-transform: uppercase;
@@ -858,7 +858,7 @@
   overflow: hidden;
   color: var(--color-text);
   font:
-    700 1rem "DM Sans",
+    700 0.9rem "DM Sans",
     sans-serif;
   text-decoration: none;
   text-overflow: ellipsis;
@@ -1325,7 +1325,7 @@
     align-content: center;
   }
   .plantRowTitle a {
-    font-size: 1.05rem;
+    font-size: 0.95rem;
   }
   .plantRowTitle span {
     font-size: 0.68rem;
@@ -1338,20 +1338,19 @@
     display: none;
   }
   .mobileEdit {
-    display: grid;
+    display: flex;
+    align-items: flex-end;
+    justify-content: flex-end;
     min-width: 0;
     min-height: 0;
     height: auto;
-    padding: 6px 2px;
+    padding: 4px 6px;
     border: 0;
-    border-left: 1px solid var(--color-border);
-    border-radius: 0;
-    background: var(--color-surface-muted);
+    background: transparent;
     color: var(--color-accent);
-    font-size: 0.61rem;
   }
-  .mobileEdit span:last-child {
-    font-size: 1.5rem;
+  .mobileEdit span {
+    font-size: 1.1rem;
     line-height: 1;
   }
   .monthCorner {
