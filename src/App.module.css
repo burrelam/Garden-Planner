@@ -1,5 +1,5 @@
 /* ============================================================
-   Theme tokens. Fall is the bare :root default, so the
+   Theme tokens. Fall (Harvest) is the bare :root default, so the
    app is correct before any preference is read. Each season
    restates the same contract; nothing below this block should
    contain a literal colour.
@@ -53,28 +53,27 @@
   --stage-edge: rgba(56, 38, 22, 0.62);
   --shadow-color: 56, 38, 22;
   /* bed colours — 10 families in two tones, retinted per season */
-  --bed-ink-deep: #f0e2c6;
-  --bed-ink-soft: #232c10;
-  --bed-deep-rose: #9d444c;
-  --bed-deep-poppy: #924e2f;
-  --bed-deep-amber: #7c5b1d;
-  --bed-deep-wheat: #5d661e;
-  --bed-deep-lime: #2d6d39;
-  --bed-deep-fern: #036e5b;
-  --bed-deep-teal: #016b75;
-  --bed-deep-sky: #06688e;
-  --bed-deep-iris: #535c9e;
-  --bed-deep-plum: #8d497d;
-  --bed-soft-rose: #e29396;
-  --bed-soft-poppy: #da9a7d;
-  --bed-soft-amber: #c5a370;
-  --bed-soft-wheat: #a9ad71;
-  --bed-soft-lime: #82b586;
-  --bed-soft-fern: #60b8a2;
-  --bed-soft-teal: #46b7c4;
-  --bed-soft-sky: #64b1de;
-  --bed-soft-iris: #a1a4de;
-  --bed-soft-plum: #d196c1;
+  --bed-ink: #ffffff;
+  --bed-deep-rose: #812b36;
+  --bed-deep-poppy: #763719;
+  --bed-deep-amber: #614402;
+  --bed-deep-wheat: #444e04;
+  --bed-deep-lime: #105523;
+  --bed-deep-fern: #025345;
+  --bed-deep-teal: #015159;
+  --bed-deep-sky: #014f6d;
+  --bed-deep-iris: #384483;
+  --bed-deep-plum: #723064;
+  --bed-soft-rose: #b8515a;
+  --bed-soft-poppy: #ab5d39;
+  --bed-soft-amber: #916b23;
+  --bed-soft-wheat: #6e7825;
+  --bed-soft-lime: #368144;
+  --bed-soft-fern: #03816c;
+  --bed-soft-teal: #047e89;
+  --bed-soft-sky: #037aa7;
+  --bed-soft-iris: #626cb9;
+  --bed-soft-plum: #a55693;
 }
 
 :global(:root[data-theme="winter"]) {
@@ -123,28 +122,27 @@
   --stage-edge: rgba(29, 43, 58, 0.62);
   --shadow-color: 29, 43, 58;
   /* bed colours — 10 families in two tones, retinted per season */
-  --bed-ink-deep: #e9eff5;
-  --bed-ink-soft: #041f33;
-  --bed-deep-rose: #954148;
-  --bed-deep-poppy: #8b4b2d;
-  --bed-deep-amber: #76571c;
-  --bed-deep-wheat: #59601e;
-  --bed-deep-lime: #2c6837;
-  --bed-deep-fern: #026857;
-  --bed-deep-teal: #02666f;
-  --bed-deep-sky: #056388;
-  --bed-deep-iris: #4f5795;
-  --bed-deep-plum: #864577;
-  --bed-soft-rose: #e79598;
-  --bed-soft-poppy: #de9c7e;
-  --bed-soft-amber: #c9a670;
-  --bed-soft-wheat: #abb072;
-  --bed-soft-lime: #83b888;
-  --bed-soft-fern: #5fbba5;
-  --bed-soft-teal: #43bbc8;
-  --bed-soft-sky: #64b4e3;
-  --bed-soft-iris: #a4a6e2;
-  --bed-soft-plum: #d598c5;
+  --bed-ink: #ffffff;
+  --bed-deep-rose: #792d35;
+  --bed-deep-poppy: #70371c;
+  --bed-deep-amber: #5d420a;
+  --bed-deep-wheat: #434b0c;
+  --bed-deep-lime: #185125;
+  --bed-deep-fern: #015143;
+  --bed-deep-teal: #014f56;
+  --bed-deep-sky: #014c6a;
+  --bed-deep-iris: #39427b;
+  --bed-deep-plum: #6c315f;
+  --bed-soft-rose: #af535a;
+  --bed-soft-poppy: #a55d3c;
+  --bed-soft-amber: #8d6a29;
+  --bed-soft-wheat: #6c752b;
+  --bed-soft-lime: #3b7d46;
+  --bed-soft-fern: #027e69;
+  --bed-soft-teal: #047b86;
+  --bed-soft-sky: #0278a4;
+  --bed-soft-iris: #626aaf;
+  --bed-soft-plum: #9e578d;
 }
 
 :global(:root[data-theme="spring"]) {
@@ -193,28 +191,27 @@
   --stage-edge: rgba(42, 58, 30, 0.6);
   --shadow-color: 42, 58, 30;
   /* bed colours — 10 families in two tones, retinted per season */
-  --bed-ink-deep: #eff5e3;
-  --bed-ink-soft: #17330f;
-  --bed-deep-rose: #b54450;
-  --bed-deep-poppy: #a8522b;
-  --bed-deep-amber: #8b640d;
-  --bed-deep-wheat: #65710f;
-  --bed-deep-lime: #217a38;
-  --bed-deep-fern: #007965;
-  --bed-deep-teal: #067680;
-  --bed-deep-sky: #01729d;
-  --bed-deep-iris: #5564b8;
-  --bed-deep-plum: #a24a8f;
-  --bed-soft-rose: #fb989c;
-  --bed-soft-poppy: #f0a07d;
-  --bed-soft-amber: #d6ad6b;
-  --bed-soft-wheat: #b2b96d;
-  --bed-soft-lime: #81c288;
-  --bed-soft-fern: #4fc6ac;
-  --bed-soft-teal: #0ec6d6;
-  --bed-soft-sky: #50bef7;
-  --bed-soft-iris: #a9adf7;
-  --bed-soft-plum: #e69bd3;
+  --bed-ink: #ffffff;
+  --bed-deep-rose: #8b2635;
+  --bed-deep-poppy: #7e3513;
+  --bed-deep-amber: #644601;
+  --bed-deep-wheat: #465001;
+  --bed-deep-lime: #015820;
+  --bed-deep-fern: #025647;
+  --bed-deep-teal: #00545c;
+  --bed-deep-sky: #015171;
+  --bed-deep-iris: #34468f;
+  --bed-deep-plum: #7b2d6b;
+  --bed-soft-rose: #bf4b57;
+  --bed-soft-poppy: #b15931;
+  --bed-soft-amber: #946b14;
+  --bed-soft-wheat: #6c7816;
+  --bed-soft-lime: #29823e;
+  --bed-soft-fern: #03816c;
+  --bed-soft-teal: #047e89;
+  --bed-soft-sky: #037aa7;
+  --bed-soft-iris: #5d6bc2;
+  --bed-soft-plum: #ab5197;
 }
 
 :global(:root[data-theme="summer"]) {
@@ -263,28 +260,27 @@
   --stage-edge: rgba(31, 42, 16, 0.62);
   --shadow-color: 31, 42, 16;
   /* bed colours — 10 families in two tones, retinted per season */
-  --bed-ink-deep: #faf0ce;
-  --bed-ink-soft: #06291f;
-  --bed-deep-rose: #b63849;
-  --bed-deep-poppy: #a64a1f;
-  --bed-deep-amber: #865e00;
-  --bed-deep-wheat: #5f6c00;
-  --bed-deep-lime: #00762d;
-  --bed-deep-fern: #057360;
-  --bed-deep-teal: #07717a;
-  --bed-deep-sky: #006d96;
-  --bed-deep-iris: #4a5fbb;
-  --bed-deep-plum: #a1408d;
-  --bed-soft-rose: #fb8f94;
-  --bed-soft-poppy: #ef9972;
-  --bed-soft-amber: #d3a75e;
-  --bed-soft-wheat: #acb460;
-  --bed-soft-lime: #75be7e;
-  --bed-soft-fern: #34c2a5;
-  --bed-soft-teal: #00c0d0;
-  --bed-soft-sky: #2cb9f8;
-  --bed-soft-iris: #a1a7f8;
-  --bed-soft-plum: #e593d0;
+  --bed-ink: #ffffff;
+  --bed-deep-rose: #8c1c31;
+  --bed-deep-poppy: #7f300a;
+  --bed-deep-amber: #614400;
+  --bed-deep-wheat: #444e00;
+  --bed-deep-lime: #01551f;
+  --bed-deep-fern: #025345;
+  --bed-deep-teal: #015159;
+  --bed-deep-sky: #014f6d;
+  --bed-deep-iris: #2b4392;
+  --bed-deep-plum: #7c256b;
+  --bed-soft-rose: #c54655;
+  --bed-soft-poppy: #b5572b;
+  --bed-soft-amber: #956a04;
+  --bed-soft-wheat: #6b7907;
+  --bed-soft-lime: #1c8339;
+  --bed-soft-fern: #03816c;
+  --bed-soft-teal: #047e89;
+  --bed-soft-sky: #037aa7;
+  --bed-soft-iris: #596bc9;
+  --bed-soft-plum: #b04d9a;
 }
 
 :global(:root[data-theme="night"]) {
@@ -333,29 +329,29 @@
   --stage-edge: rgba(232, 227, 245, 0.55);
   --shadow-color: 0, 0, 0;
   /* bed colours — 10 families in two tones, retinted per season */
-  --bed-ink-deep: #e8e3f5;
-  --bed-ink-soft: #3b3566;
-  --bed-deep-rose: #a5434c;
-  --bed-deep-poppy: #994f2c;
-  --bed-deep-amber: #805d16;
-  --bed-deep-wheat: #5f6918;
-  --bed-deep-lime: #287137;
-  --bed-deep-fern: #04705e;
-  --bed-deep-teal: #006e78;
-  --bed-deep-sky: #076a92;
-  --bed-deep-iris: #525ea7;
-  --bed-deep-plum: #944882;
-  --bed-soft-rose: #ffa6a9;
-  --bed-soft-poppy: #f9ac8a;
-  --bed-soft-amber: #e0b879;
-  --bed-soft-wheat: #bec37b;
-  --bed-soft-lime: #8fcd95;
-  --bed-soft-fern: #63d1b7;
-  --bed-soft-teal: #3bd0e0;
-  --bed-soft-sky: #68c8ff;
-  --bed-soft-iris: #b5b8ff;
-  --bed-soft-plum: #f0a8dd;
+  --bed-ink: #ffffff;
+  --bed-deep-rose: #892e39;
+  --bed-deep-poppy: #7e3a1b;
+  --bed-deep-amber: #674802;
+  --bed-deep-wheat: #495303;
+  --bed-deep-lime: #105a25;
+  --bed-deep-fern: #035849;
+  --bed-deep-teal: #05565e;
+  --bed-deep-sky: #025474;
+  --bed-deep-iris: #3c498b;
+  --bed-deep-plum: #7a336a;
+  --bed-soft-rose: #bd525b;
+  --bed-soft-poppy: #b05e38;
+  --bed-soft-amber: #956e21;
+  --bed-soft-wheat: #707a23;
+  --bed-soft-lime: #358445;
+  --bed-soft-fern: #04846e;
+  --bed-soft-teal: #03818c;
+  --bed-soft-sky: #047dab;
+  --bed-soft-iris: #636ebe;
+  --bed-soft-plum: #aa5797;
 }
+
 :global(*) {
   box-sizing: border-box;
 }
@@ -395,7 +391,7 @@
   justify-content: center;
   font-family: "Silkscreen", ui-monospace, monospace;
   font-weight: 700;
-  font-size: 0.64rem;
+  font-size: 0.82rem;
   letter-spacing: 0.03em;
   text-transform: uppercase;
   box-shadow: 0 4px 10px rgba(var(--shadow-color), 0.25);
@@ -778,14 +774,14 @@
   min-height: 34px;
   background: var(--color-accent);
   text-transform: uppercase;
-  font-size: 0.72rem;
+  font-size: 0.95rem;
   letter-spacing: 0.06em;
 }
 .halfHead {
   top: 34px;
-  min-height: 24px;
+  min-height: 26px;
   background: var(--color-accent-hover);
-  font-size: 0.58rem;
+  font-size: 0.82rem;
   font-weight: 500;
 }
 .currentHead {
@@ -877,7 +873,7 @@
   overflow: hidden;
   color: var(--color-text);
   font:
-    700 0.9rem "VT323",
+    700 1.3rem "VT323",
     sans-serif;
   text-decoration: none;
   text-overflow: ellipsis;
@@ -887,7 +883,7 @@
 .plantRowTitle small {
   overflow: hidden;
   color: var(--color-text-muted);
-  font-size: 0.72rem;
+  font-size: 0.95rem;
   text-overflow: ellipsis;
   white-space: nowrap;
 }

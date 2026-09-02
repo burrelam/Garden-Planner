@@ -149,9 +149,13 @@ export const BED_COLOR_KEYS: BedColorKey[] = BED_TONES.flatMap((tone) =>
   BED_FAMILIES.map((family) => `${tone}-${family}` as BedColorKey),
 );
 
-const label = (word: string) => word[0].toUpperCase() + word.slice(1);
-export const bedColorLabel = (key: BedColorKey) =>
-  key.split("-").map(label).join(" ");
+// The stored keys stay "deep-"/"soft-" so beds saved earlier keep resolving;
+// "soft" now means the lighter of two dark tones, so it reads as "Mid".
+const TONE_LABEL: Record<string, string> = { deep: "Deep", soft: "Mid" };
+export const bedColorLabel = (key: BedColorKey) => {
+  const [tone, family] = key.split("-");
+  return `${TONE_LABEL[tone] ?? tone} ${family[0].toUpperCase()}${family.slice(1)}`;
+};
 
 export function isBedColorKey(value: unknown): value is BedColorKey {
   return (
@@ -176,8 +180,7 @@ function luminance(hex: string): number {
   );
 }
 
-const LIGHT_INK = "#FFFFFF";
-const DARK_INK = "#1A1A1A";
+export const BED_INK = "#FFFFFF";
 
 /** WCAG contrast ratio between two colours. */
 function contrast(a: string, b: string): number {
@@ -185,16 +188,28 @@ function contrast(a: string, b: string): number {
   return (hi + 0.05) / (lo + 0.05);
 }
 
+const toHex = (rgb: number[]) =>
+  `#${rgb.map((c) => Math.round(c).toString(16).padStart(2, "0")).join("")}`;
+
 /**
- * Ink that stays readable on an arbitrary bed colour. Compares both candidates
- * rather than splitting on a luminance threshold: the crossover sits near 0.2,
- * not the midpoint, so any hand-picked cut leaves a band of mid-tones reading
- * at about 3:1.
+ * Deepen a colour until white text clears 4.5:1 on it, leaving it alone if it
+ * already does. Beds saved before the curated palette hold an arbitrary hex,
+ * and choosing ink per bed made labels flip between white and near-black from
+ * one row to the next. Every bed now carries white, and a too-pale colour is
+ * darkened to earn it: the hue survives, the label stays consistent.
  */
-export function inkForHex(hex: string): string {
-  return contrast(DARK_INK, hex) >= contrast(LIGHT_INK, hex)
-    ? DARK_INK
-    : LIGHT_INK;
+export function bedSurfaceFor(hex: string): string {
+  if (contrast(BED_INK, hex) >= 4.5) return hex;
+  const value = parseInt(hex.slice(1), 16);
+  const rgb = [(value >> 16) & 255, (value >> 8) & 255, value & 255];
+  let lo = 0;
+  let hi = 1;
+  for (let i = 0; i < 24 && hi - lo > 0.001; i += 1) {
+    const mid = (lo + hi) / 2;
+    if (contrast(BED_INK, toHex(rgb.map((c) => c * mid))) >= 4.5) lo = mid;
+    else hi = mid;
+  }
+  return toHex(rgb.map((c) => c * lo));
 }
 
 /**
@@ -248,11 +263,12 @@ export function bedStyle(bed: { color: string; colorKey?: string | null }): {
   color: string;
 } {
   if (isBedColorKey(bed.colorKey)) {
-    const tone = bed.colorKey.startsWith("deep-") ? "deep" : "soft";
+    // Every palette colour is dark enough for white, so the label never
+    // flips between light and dark ink as you move across the swatches.
     return {
       backgroundColor: `var(--bed-${bed.colorKey})`,
-      color: `var(--bed-ink-${tone})`,
+      color: "var(--bed-ink)",
     };
   }
-  return { backgroundColor: bed.color, color: inkForHex(bed.color) };
+  return { backgroundColor: bedSurfaceFor(bed.color), color: BED_INK };
 }

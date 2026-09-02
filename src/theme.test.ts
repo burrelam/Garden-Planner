@@ -7,7 +7,8 @@ import {
   BED_COLOR_KEYS,
   bedColorLabel,
   bedStyle,
-  inkForHex,
+  BED_INK,
+  bedSurfaceFor,
   isBedColorKey,
   resolveTheme,
   seasonForDate,
@@ -121,65 +122,81 @@ describe("bed colours", () => {
 
   it("names them readably", () => {
     expect(bedColorLabel("deep-fern")).toBe("Deep Fern");
+    expect(bedColorLabel("soft-fern")).toBe("Mid Fern");
+  });
+
+  it("uses one ink for every palette bed, so labels never flip", () => {
+    const inks = BED_COLOR_KEYS.map(
+      (key) => bedStyle({ color: "#000000", colorKey: key }).color,
+    );
+    expect(new Set(inks).size).toBe(1);
+    expect(inks[0]).toBe("var(--bed-ink)");
   });
 
   it("resolves palette beds through CSS so they retint with the season", () => {
     expect(bedStyle({ color: "#000000", colorKey: "deep-fern" })).toEqual({
       backgroundColor: "var(--bed-deep-fern)",
-      color: "var(--bed-ink-deep)",
+      color: "var(--bed-ink)",
     });
     expect(bedStyle({ color: "#000000", colorKey: "soft-sky" })).toEqual({
       backgroundColor: "var(--bed-soft-sky)",
-      color: "var(--bed-ink-soft)",
+      color: "var(--bed-ink)",
     });
   });
-
-  it("keeps beds saved before the palette working, with readable ink", () => {
+  it("keeps beds saved before the palette working, always with white ink", () => {
+    // Already dark enough for white: colour untouched.
     expect(bedStyle({ color: "#4A5E3A" })).toEqual({
       backgroundColor: "#4A5E3A",
-      color: "#FFFFFF",
+      color: BED_INK,
     });
-    expect(bedStyle({ color: "#F5E9A0" })).toEqual({
-      backgroundColor: "#F5E9A0",
-      color: "#1A1A1A",
-    });
-  });
-
-  it("puts dark ink on pale colours and light ink on dark ones", () => {
-    expect(inkForHex("#FFFFFF")).toBe("#1A1A1A");
-    expect(inkForHex("#000000")).toBe("#FFFFFF");
-  });
-
-  // The old implementation split on luminance > 0.4. The real crossover is
-  // near 0.204, so everything in between took white ink at roughly 3:1.
-  it("keeps mid-tone colours readable, not just the extremes", () => {
-    for (const hex of ["#8A9A6B", "#8899AA", "#A0846B", "#6B8F5A"]) {
-      expect(contrastOf(inkForHex(hex), hex)).toBeGreaterThanOrEqual(4.5);
-    }
-  });
-
-  // Some arbitrary colours cannot reach 4.5:1 against any pure ink -- #9C7B5A
-  // tops out at 4.47. Beds picked from the palette always can; for a legacy
-  // hex the most we can promise is the better of the two.
-  it("still picks the better ink when neither can reach 4.5:1", () => {
-    const hex = "#9C7B5A";
-    expect(inkForHex(hex)).toBe("#1A1A1A");
-    expect(contrastOf("#1A1A1A", hex)).toBeGreaterThan(
-      contrastOf("#FFFFFF", hex),
+    // Too pale: darkened until white reads on it, ink still white.
+    const pale = bedStyle({ color: "#F5E9A0" });
+    expect(pale.color).toBe(BED_INK);
+    expect(pale.backgroundColor).not.toBe("#F5E9A0");
+    expect(contrastOf(BED_INK, pale.backgroundColor)).toBeGreaterThanOrEqual(
+      4.5,
     );
   });
 
-  it("chooses whichever ink actually reads better, across the range", () => {
+  it("gives every bed the same ink, whatever it was saved with", () => {
+    const saved = [
+      "#4A7A9B",
+      "#7A5E9B",
+      "#9B7A3A",
+      "#4A9B6A",
+      "#888888",
+      "#FFFFFF",
+    ];
+    const inks = saved.map((hex) => bedStyle({ color: hex }).color);
+    expect(new Set(inks).size).toBe(1);
+    for (const hex of saved) {
+      const style = bedStyle({ color: hex });
+      expect(
+        contrastOf(style.color, style.backgroundColor),
+      ).toBeGreaterThanOrEqual(4.5);
+    }
+  });
+
+  // Darkening supersedes the old pick-an-ink approach: even colours that could
+  // not reach 4.5:1 against any pure ink now clear it against white.
+  it("darkens any colour far enough for white, across the range", () => {
     for (let r = 0; r <= 255; r += 15) {
       for (let g = 0; g <= 255; g += 15) {
         const hex = `#${[r, g, 128].map((c) => c.toString(16).padStart(2, "0")).join("")}`;
-        const chosen = contrastOf(inkForHex(hex), hex);
-        const other = contrastOf(
-          inkForHex(hex) === "#FFFFFF" ? "#1A1A1A" : "#FFFFFF",
-          hex,
+        expect(contrastOf(BED_INK, bedSurfaceFor(hex))).toBeGreaterThanOrEqual(
+          4.5,
         );
-        expect(chosen).toBeGreaterThanOrEqual(other);
       }
+    }
+  });
+
+  it("leaves a colour alone when white already reads on it", () => {
+    expect(bedSurfaceFor("#4A5E3A")).toBe("#4A5E3A");
+  });
+
+  it("darkens no further than it needs to", () => {
+    for (const hex of ["#8A9A6B", "#9C7B5A", "#888888"]) {
+      expect(contrastOf(BED_INK, bedSurfaceFor(hex))).toBeLessThan(6.5);
     }
   });
 });
