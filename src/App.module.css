@@ -363,7 +363,7 @@
   margin: 0;
   background: var(--color-bg);
   color: var(--color-text);
-  font-family: "DM Sans", sans-serif;
+  font-family: "VT323", sans-serif;
   overflow-x: hidden;
 }
 :global(button),
@@ -439,7 +439,7 @@
 }
 :global(h1),
 :global(h2) {
-  font-family: "Pixelify Sans", "DM Sans", sans-serif;
+  font-family: "Pixelify Sans", "VT323", sans-serif;
   font-weight: 600;
   margin-top: 0;
   line-height: 1.15;
@@ -503,7 +503,7 @@
   text-decoration: none;
   font:
     600 1.2rem "Pixelify Sans",
-    "DM Sans",
+    "VT323",
     sans-serif;
   white-space: nowrap;
 }
@@ -581,7 +581,7 @@
   min-height: 100vh;
   font:
     600 1.3rem "Pixelify Sans",
-    "DM Sans",
+    "VT323",
     sans-serif;
 }
 .login {
@@ -860,7 +860,7 @@
   overflow: hidden;
   color: var(--color-text);
   font:
-    700 0.9rem "DM Sans",
+    700 0.9rem "VT323",
     sans-serif;
   text-decoration: none;
   text-overflow: ellipsis;
@@ -1445,7 +1445,7 @@
   padding: 9px 12px;
   justify-content: flex-start;
   text-align: left;
-  font-family: "DM Sans", sans-serif;
+  font-family: "VT323", sans-serif;
   font-size: 1rem;
   font-weight: 400;
   letter-spacing: normal;
