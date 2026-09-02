@@ -660,14 +660,6 @@
 .plannerPage .pageHead p:not(.eyebrow) {
   color: var(--color-accent-light);
 }
-.plannerPage .actions select {
-  background: color-mix(in srgb, var(--color-surface) 96%, transparent);
-}
-.plannerPage .actions button:not(.primary) {
-  border-color: rgba(255, 255, 255, 0.28);
-  background: rgba(255, 255, 255, 0.12);
-  color: var(--color-inverse-text);
-}
 .warning {
   background: var(--color-warn-bg);
   color: var(--color-warn-fg);
@@ -704,10 +696,9 @@
   letter-spacing: 0.08em;
 }
 .legend {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 12px 20px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px 20px;
   padding: 14px 16px;
   margin-top: 8px;
   border: 1px solid rgba(255, 255, 255, 0.14);
@@ -727,11 +718,15 @@
   flex: 0 0 auto;
   border-radius: 3px;
 }
-.scrollHint {
-  margin: 0 0 8px;
-  color: var(--color-inverse-muted);
-  text-align: center;
-  font-size: 0.73rem;
+.plannerButtons {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  max-width: 420px;
+  margin: 0 auto 12px !important;
+}
+.plannerButtons button {
+  width: 100%;
 }
 .calendar {
   width: 100%;
@@ -747,7 +742,7 @@
 .calendarGrid {
   min-width: 1320px;
   display: grid;
-  grid-template-columns: 360px repeat(24, minmax(40px, 1fr));
+  grid-template-columns: 344px repeat(24, minmax(40px, 1fr));
 }
 .monthHead,
 .halfHead {
@@ -806,14 +801,18 @@
   grid-column: span 1;
   grid-row: span 2;
   align-content: center;
-  justify-items: start;
-  padding-left: 16px;
+  justify-items: stretch;
+  padding: 0 10px;
   background: var(--color-accent);
 }
-.monthCorner small {
-  color: var(--color-accent-light);
-  font-size: 0.62rem;
-  font-weight: 500;
+.cornerSort {
+  width: 100%;
+  min-height: 30px;
+  height: 30px;
+  padding: 2px 6px;
+  border-radius: 6px;
+  font-size: 0.72rem;
+  background: color-mix(in srgb, var(--color-surface) 96%, transparent);
 }
 .calendarGroup,
 .calendarRow {
@@ -835,7 +834,7 @@
   position: sticky;
   left: 12px;
   font-family: "Silkscreen", ui-monospace, monospace;
-  font-size: 0.95rem;
+  font-size: 1.12rem;
   font-weight: 700;
   letter-spacing: 0.05em;
   text-transform: uppercase;
@@ -846,13 +845,14 @@
   opacity: 0.78;
 }
 .calendarRow > div {
-  min-height: 88px;
+  min-height: 62px;
   border-bottom: 1px solid var(--color-border);
 }
 .plantRowTitle {
   display: grid;
   min-width: 0;
-  padding: 10px 12px 3px;
+  padding: 6px 12px 2px;
+  line-height: 1.25;
 }
 .plantRowTitle a {
   overflow: hidden;
@@ -879,7 +879,7 @@
 .rowControls {
   display: flex;
   gap: 4px;
-  padding: 3px 10px 9px;
+  padding: 2px 10px 6px;
 }
 .rowControls button,
 .rowControls select,
@@ -915,13 +915,13 @@
 }
 .slotCell {
   display: grid;
-  padding: 18px 3px;
+  padding: 12px 3px;
   border-right: 1px solid var(--color-border);
 }
 .slotCell span {
   min-width: 0;
   border-radius: 3px;
-  background: var(--stage-empty);
+  background: transparent;
 }
 .indoor {
   background: var(--stage-indoor) !important;
@@ -1295,13 +1295,14 @@
     max-width: 100%;
   }
   .legend {
-    justify-content: flex-start;
-    gap: 10px 12px;
-    font-size: 0.72rem;
+    gap: 8px 10px;
+    font-size: 0.7rem;
   }
-  .scrollHint {
-    padding-inline: 8px;
-    font-size: 0.67rem;
+  .legend i {
+    width: 18px;
+  }
+  .plannerButtons {
+    gap: 8px;
   }
   .calendar {
     max-height: 62svh;
@@ -1309,58 +1310,69 @@
     border-radius: 12px 12px 0 0;
   }
   .calendarGrid {
-    min-width: 1076px;
-    grid-template-columns: 164px repeat(24, 38px);
+    min-width: 1004px;
+    grid-template-columns: 140px repeat(24, 36px);
   }
   .calendarRow > div {
-    min-height: 98px;
+    min-height: 70px;
   }
   .calendarRow > .stickyPlant {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) 34px;
+    grid-template-columns: minmax(0, 1fr) 24px;
     align-items: stretch;
   }
   .plantRowTitle {
-    padding: 9px 7px;
+    padding: 5px 6px;
     align-content: center;
+    line-height: 1.2;
   }
   .plantRowTitle a {
-    font-size: 0.95rem;
+    font-size: 0.86rem;
   }
   .plantRowTitle span {
-    font-size: 0.68rem;
+    font-size: 0.64rem;
     font-style: italic;
   }
   .plantRowTitle small {
-    font-size: 0.66rem;
+    font-size: 0.63rem;
   }
   .desktopControls {
     display: none;
   }
   .mobileEdit {
     display: flex;
-    align-items: flex-end;
-    justify-content: flex-end;
+    align-items: center;
+    justify-content: center;
     min-width: 0;
     min-height: 0;
     height: auto;
-    padding: 4px 6px;
+    padding: 4px 2px;
     border: 0;
+    /* The shared button shadow would ring this transparent tap target with a
+       halo, which reads as a stray pill sitting in the middle of the row. */
+    box-shadow: none;
     background: transparent;
     color: var(--color-accent);
   }
   .mobileEdit span {
-    font-size: 1.1rem;
+    font-size: 1rem;
     line-height: 1;
   }
   .monthCorner {
-    padding-left: 9px;
+    padding: 0 6px;
+  }
+  .cornerSort {
+    min-height: 28px;
+    height: 28px;
+    padding: 2px 3px;
+    font-size: 0.66rem;
   }
   .groupRow {
     padding-left: 8px;
   }
   .groupRow span {
     left: 8px;
+    font-size: 1.05rem;
   }
   .groupRow small {
     left: 100px;
@@ -1402,8 +1414,8 @@
     padding-inline: 10px;
   }
   .calendarGrid {
-    min-width: 1048px;
-    grid-template-columns: 152px repeat(24, 37.333px);
+    min-width: 996px;
+    grid-template-columns: 132px repeat(24, 36px);
   }
   .sheetFields,
   .sheetReorder {

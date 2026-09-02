@@ -380,23 +380,6 @@ function Planner() {
       eyebrow={state.garden.name}
       title="My Garden Planting Calendar"
       intro={`${state.entries.length} plants across ${state.beds.length} garden beds`}
-      actions={
-        <>
-          <select
-            aria-label="Group planner"
-            value={view}
-            onChange={(event) => setView(event.target.value as typeof view)}
-          >
-            <option value="order">My order</option>
-            <option value="bed">By bed</option>
-            <option value="status">By status</option>
-          </select>
-          <button onClick={() => setDialog("bed")}>+ Bed</button>
-          <button className={styles.primary} onClick={() => setDialog("plant")}>
-            + Plant
-          </button>
-        </>
-      }
     >
       {notice && (
         <p
@@ -440,9 +423,14 @@ function Planner() {
           {saving && <span>Saving…</span>}
         </div>
       </details>
-      <p className={styles.scrollHint}>
-        Swipe sideways for the year · plant names and month headers stay put
-      </p>
+      <div className={styles.plannerButtons}>
+        <button className={styles.primary} onClick={() => setDialog("plant")}>
+          + Plant
+        </button>
+        <button className={styles.primary} onClick={() => setDialog("bed")}>
+          + Bed
+        </button>
+      </div>
       <section
         ref={calendarRef}
         className={styles.calendar}
@@ -452,8 +440,16 @@ function Planner() {
           <div
             className={`${styles.stickyPlant} ${styles.monthHead} ${styles.monthCorner}`}
           >
-            <strong>Plant</strong>
-            <small>Tap to edit</small>
+            <select
+              aria-label="Sort plants"
+              className={styles.cornerSort}
+              value={view}
+              onChange={(event) => setView(event.target.value as typeof view)}
+            >
+              <option value="order">My order</option>
+              <option value="bed">By bed</option>
+              <option value="status">By status</option>
+            </select>
           </div>
           {months.map((month, index) => (
             <div

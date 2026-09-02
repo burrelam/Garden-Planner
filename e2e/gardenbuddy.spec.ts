@@ -141,7 +141,9 @@ test("the iPhone calendar scrolls while its labels and headers stay pinned", asy
   test.skip(testInfo.project.name !== "iphone-webkit");
 
   const calendar = page.getByLabel("Annual planting calendar");
-  const plantLabel = calendar.getByText("Plant", { exact: true });
+  // The pinned corner holds the sort control; it is the left-most thing that
+  // must not drift when the calendar scrolls sideways.
+  const plantLabel = calendar.getByRole("combobox", { name: "Sort plants" });
   const january = calendar.getByText("Jan", { exact: true });
   const rect = (locator: typeof plantLabel) =>
     locator.evaluate((element) => {
