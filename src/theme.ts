@@ -253,6 +253,47 @@ export function bedFallbackHex(key: BedColorKey): string {
   return BED_FALLBACK_HEX[key] ?? "#4C5B2A";
 }
 
+/** sRGB hex to CIELAB, for judging which swatch a colour is nearest to. */
+function toLab(hex: string): [number, number, number] {
+  const value = parseInt(hex.slice(1), 16);
+  const channel = (c: number) => {
+    const s = c / 255;
+    return s <= 0.04045 ? s / 12.92 : ((s + 0.055) / 1.055) ** 2.4;
+  };
+  const r = channel((value >> 16) & 255);
+  const g = channel((value >> 8) & 255);
+  const b = channel(value & 255);
+  const f = (t: number) => (t > 0.008856 ? Math.cbrt(t) : 7.787 * t + 16 / 116);
+  const x = f((0.4124 * r + 0.3576 * g + 0.1805 * b) / 0.95047);
+  const y = f(0.2126 * r + 0.7152 * g + 0.0722 * b);
+  const z = f((0.0193 * r + 0.1192 * g + 0.9505 * b) / 1.08883);
+  return [116 * y - 16, 500 * (x - y), 200 * (y - z)];
+}
+
+/**
+ * The palette swatch a colour sits closest to. Beds saved before the palette
+ * hold an arbitrary hex, so opening their settings should preselect something
+ * recognisable rather than an unrelated default.
+ */
+export function nearestBedColorKey(hex: string): BedColorKey {
+  const target = toLab(hex);
+  let best: BedColorKey = BED_COLOR_KEYS[0];
+  let bestDistance = Infinity;
+  for (const key of BED_COLOR_KEYS) {
+    const candidate = toLab(bedFallbackHex(key));
+    const distance = Math.hypot(
+      target[0] - candidate[0],
+      target[1] - candidate[1],
+      target[2] - candidate[2],
+    );
+    if (distance < bestDistance) {
+      bestDistance = distance;
+      best = key;
+    }
+  }
+  return best;
+}
+
 /**
  * How to paint a bed header. Beds picked from the palette carry a key and
  * resolve through CSS, so they retint with the season; older beds keep the

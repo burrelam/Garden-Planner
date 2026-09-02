@@ -34,6 +34,8 @@ import {
   bedColorLabel,
   bedFallbackHex,
   bedStyle,
+  isBedColorKey,
+  nearestBedColorKey,
   readThemePreference,
   resolveTheme,
   writeThemePreference,
@@ -290,6 +292,7 @@ function Page({
 function Planner() {
   const { state, loading, saving, notice, save } = useGarden();
   const [dialog, setDialog] = useState<"plant" | "bed" | null>(null);
+  const [editingBed, setEditingBed] = useState<Bed | null>(null);
   const [view, setView] = useState<"name" | "bed" | "status" | "category">(
     "bed",
   );
@@ -372,10 +375,20 @@ function Planner() {
     });
     setSelectedEntryId(null);
   };
-  const bedGroups = state.beds.map((bed) => ({
+  // Bed-backed groups carry their bed so the header can open its settings;
+  // the status and no-bed groups are synthetic and carry null.
+  type PlannerGroup = {
+    id: string;
+    label: string;
+    style: { backgroundColor: string; color: string };
+    bed: Bed | null;
+    entries: typeof entries;
+  };
+  const bedGroups: PlannerGroup[] = state.beds.map((bed) => ({
     id: bed.id,
     label: bed.label,
     style: bedStyle(bed),
+    bed,
     entries: entries.filter((entry) => entry.bedId === bed.id),
   }));
   const unmatchedEntries = entries.filter(
@@ -389,9 +402,10 @@ function Planner() {
         backgroundColor: "var(--color-text-muted)",
         color: "var(--color-surface)",
       },
+      bed: null,
       entries: unmatchedEntries,
     });
-  const groups =
+  const groups: PlannerGroup[] =
     view === "bed"
       ? bedGroups
       : view === "status"
@@ -407,6 +421,7 @@ function Planner() {
                     : "var(--color-text-muted)",
               color: "var(--color-on-accent)",
             },
+            bed: null,
             entries: entries.filter((entry) => entry.status === status),
           }))
         : view === "category"
@@ -418,6 +433,7 @@ function Planner() {
                   backgroundColor: categoryColors[category],
                   color: "var(--color-on-accent)",
                 },
+                bed: null,
                 entries: entries.filter(
                   (entry) => entryCategory(entry) === category,
                 ),
@@ -429,6 +445,7 @@ function Planner() {
                   backgroundColor: "var(--color-text-muted)",
                   color: "var(--color-surface)",
                 },
+                bed: null,
                 entries: entries.filter((entry) => !entryCategory(entry)),
               },
             ].filter((group) => group.entries.length)
@@ -440,6 +457,7 @@ function Planner() {
                   backgroundColor: "var(--color-accent)",
                   color: "var(--color-on-accent)",
                 },
+                bed: null,
                 entries,
               },
             ];
@@ -555,11 +573,18 @@ function Planner() {
             <div className={styles.calendarGroup} key={group.id}>
               {group.label && (
                 <div className={styles.groupRow} style={group.style}>
-                  <span>{group.label}</span>
-                  <small>
-                    {group.entries.length}{" "}
-                    {group.entries.length === 1 ? "plant" : "plants"}
-                  </small>
+                  {group.bed ? (
+                    <button
+                      type="button"
+                      className={styles.groupRowName}
+                      onClick={() => setEditingBed(group.bed)}
+                      aria-label={`Bed settings for ${group.label}`}
+                    >
+                      {group.label}
+                    </button>
+                  ) : (
+                    <span>{group.label}</span>
+                  )}
                 </div>
               )}
               {group.entries.map((entry) => {
@@ -638,6 +663,14 @@ function Planner() {
       )}
       {dialog === "bed" && (
         <BedDialog state={state} close={() => setDialog(null)} save={save} />
+      )}
+      {editingBed && (
+        <BedSettingsDialog
+          bed={editingBed}
+          state={state}
+          close={() => setEditingBed(null)}
+          save={save}
+        />
       )}
       {selectedEntry && (
         <PlantSheet
@@ -942,6 +975,177 @@ function PlantDialog({
   );
 }
 
+/**
+ * Where a deleted bed's plants go. Gardens usually keep a bed called
+ * "Unassigned" for exactly this; if there isn't one, the plants fall back to
+ * no bed at all, which the planner groups under "No bed". Either way nothing
+ * is lost, and the dialog says which it will be before you confirm.
+ */
+function rehomeTargetFor(state: GardenState, bedId: string) {
+  return (
+    state.beds.find(
+      (bed) =>
+        bed.id !== bedId && bed.label.trim().toLowerCase() === "unassigned",
+    ) ?? null
+  );
+}
+
+function BedSettingsDialog({
+  bed,
+  state,
+  close,
+  save,
+}: {
+  bed: Bed;
+  state: GardenState;
+  close: () => void;
+  save: (state: GardenState) => Promise<void>;
+}) {
+  const [label, setLabel] = useState(bed.label);
+  const [colorKey, setColorKey] = useState<BedColorKey>(() =>
+    isBedColorKey(bed.colorKey) ? bed.colorKey : nearestBedColorKey(bed.color),
+  );
+  const [confirmingDelete, setConfirmingDelete] = useState(false);
+  const planted = state.entries.filter((entry) => entry.bedId === bed.id);
+  const rehome = rehomeTargetFor(state, bed.id);
+
+  const submit = async (event: FormEvent) => {
+    event.preventDefault();
+    await save({
+      ...state,
+      beds: state.beds.map((item) =>
+        item.id === bed.id
+          ? { ...item, label, color: bedFallbackHex(colorKey), colorKey }
+          : item,
+      ),
+    });
+    close();
+  };
+
+  const remove = async () => {
+    await save({
+      ...state,
+      beds: state.beds.filter((item) => item.id !== bed.id),
+      // Every plant keeps its place in the garden; only its bed changes.
+      entries: state.entries.map((entry) =>
+        entry.bedId === bed.id
+          ? { ...entry, bedId: rehome?.id ?? null }
+          : entry,
+      ),
+    });
+    close();
+  };
+
+  return (
+    <Dialog title={`Bed settings — ${bed.label}`} close={close}>
+      <form onSubmit={submit} className={styles.stack}>
+        <label>
+          Name
+          <input
+            required
+            value={label}
+            onChange={(event) => setLabel(event.target.value)}
+          />
+        </label>
+        <BedColorPicker value={colorKey} onChange={setColorKey} />
+        <p className={styles.muted}>
+          {planted.length} {planted.length === 1 ? "plant" : "plants"} in this
+          bed.
+        </p>
+        <button className={styles.primary}>Save bed</button>
+      </form>
+      <div className={styles.bedDanger}>
+        {confirmingDelete ? (
+          <>
+            <p className={styles.muted}>
+              Remove {bed.label}?{" "}
+              {planted.length === 0
+                ? "It has no plants in it."
+                : `Its ${planted.length} ${planted.length === 1 ? "plant moves" : "plants move"} to ${rehome ? rehome.label : "no bed"}.`}
+            </p>
+            <div className={styles.actions}>
+              <button type="button" onClick={() => setConfirmingDelete(false)}>
+                Keep bed
+              </button>
+              <button
+                type="button"
+                className={styles.dangerButton}
+                onClick={remove}
+              >
+                Remove bed
+              </button>
+            </div>
+          </>
+        ) : (
+          <button
+            type="button"
+            className={styles.dangerButton}
+            onClick={() => setConfirmingDelete(true)}
+          >
+            Remove bed
+          </button>
+        )}
+      </div>
+    </Dialog>
+  );
+}
+
+function BedColorPicker({
+  value,
+  onChange,
+}: {
+  value: BedColorKey;
+  onChange: (key: BedColorKey) => void;
+}) {
+  return (
+    <fieldset className={styles.bedColorField}>
+      <legend>Colour</legend>
+      <div
+        className={styles.bedSwatches}
+        role="radiogroup"
+        aria-label="Bed colour"
+        onKeyDown={(event) => {
+          // A radiogroup is one tab stop; the arrows move within it.
+          const step =
+            event.key === "ArrowRight" || event.key === "ArrowDown"
+              ? 1
+              : event.key === "ArrowLeft" || event.key === "ArrowUp"
+                ? -1
+                : 0;
+          if (!step) return;
+          event.preventDefault();
+          const index = BED_COLOR_KEYS.indexOf(value);
+          const next =
+            BED_COLOR_KEYS[
+              (index + step + BED_COLOR_KEYS.length) % BED_COLOR_KEYS.length
+            ];
+          onChange(next);
+          event.currentTarget
+            .querySelector<HTMLButtonElement>(`[data-key="${next}"]`)
+            ?.focus();
+        }}
+      >
+        {BED_COLOR_KEYS.map((key) => (
+          <button
+            key={key}
+            type="button"
+            role="radio"
+            data-key={key}
+            aria-checked={value === key}
+            aria-label={bedColorLabel(key)}
+            title={bedColorLabel(key)}
+            tabIndex={value === key ? 0 : -1}
+            className={styles.bedSwatch}
+            style={{ background: `var(--bed-${key})` }}
+            onClick={() => onChange(key)}
+          />
+        ))}
+      </div>
+      <p className={styles.muted}>{bedColorLabel(value)}</p>
+    </fieldset>
+  );
+}
+
 function BedDialog({
   state,
   close,
@@ -979,51 +1183,7 @@ function BedDialog({
             placeholder="North raised bed"
           />
         </label>
-        <fieldset className={styles.bedColorField}>
-          <legend>Colour</legend>
-          <div
-            className={styles.bedSwatches}
-            role="radiogroup"
-            aria-label="Bed colour"
-            onKeyDown={(event) => {
-              // A radiogroup is one tab stop; the arrows move within it.
-              const step =
-                event.key === "ArrowRight" || event.key === "ArrowDown"
-                  ? 1
-                  : event.key === "ArrowLeft" || event.key === "ArrowUp"
-                    ? -1
-                    : 0;
-              if (!step) return;
-              event.preventDefault();
-              const index = BED_COLOR_KEYS.indexOf(colorKey);
-              const next =
-                BED_COLOR_KEYS[
-                  (index + step + BED_COLOR_KEYS.length) % BED_COLOR_KEYS.length
-                ];
-              setColorKey(next);
-              event.currentTarget
-                .querySelector<HTMLButtonElement>(`[data-key="${next}"]`)
-                ?.focus();
-            }}
-          >
-            {BED_COLOR_KEYS.map((key) => (
-              <button
-                key={key}
-                type="button"
-                role="radio"
-                data-key={key}
-                aria-checked={colorKey === key}
-                aria-label={bedColorLabel(key)}
-                title={bedColorLabel(key)}
-                tabIndex={colorKey === key ? 0 : -1}
-                className={styles.bedSwatch}
-                style={{ background: `var(--bed-${key})` }}
-                onClick={() => setColorKey(key)}
-              />
-            ))}
-          </div>
-          <p className={styles.muted}>{bedColorLabel(colorKey)}</p>
-        </fieldset>
+        <BedColorPicker value={colorKey} onChange={setColorKey} />
         <button className={styles.primary}>Add bed</button>
       </form>
     </Dialog>

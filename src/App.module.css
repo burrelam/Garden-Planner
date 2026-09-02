@@ -854,10 +854,36 @@
   letter-spacing: 0.05em;
   text-transform: uppercase;
 }
-.groupRow small {
+/* The bed name opens that bed's settings. It stays pinned while the calendar
+   scrolls sideways, and carries the row's own ink rather than button chrome. */
+.groupRowName {
   position: sticky;
-  left: 120px;
-  opacity: 0.78;
+  left: 12px;
+  min-height: 0;
+  padding: 2px 6px;
+  margin-left: -6px;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: inherit;
+  box-shadow: none;
+  font-family: "Silkscreen", ui-monospace, monospace;
+  font-size: 1.12rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+.groupRowName:hover {
+  background: rgba(255, 255, 255, 0.18);
+  border-color: transparent;
+}
+.bedDanger {
+  margin-top: 18px;
+  padding-top: 16px;
+  border-top: 1px solid var(--color-border);
+  display: grid;
+  gap: 10px;
 }
 .calendarRow > div {
   min-height: 62px;
