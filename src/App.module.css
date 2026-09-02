@@ -1017,11 +1017,6 @@
 .sheetBed {
   grid-column: 1 / -1;
 }
-.sheetReorder {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
-}
 .empty {
   border: 1px dashed var(--color-border-strong);
   border-radius: 18px;
@@ -1451,8 +1446,7 @@
     border-radius: 22px 22px 0 0;
     padding: 28px 20px calc(28px + env(safe-area-inset-bottom));
   }
-  .sheetFields,
-  .sheetReorder {
+  .sheetFields {
     grid-template-columns: 1fr 1fr;
   }
   .sheetBed {
@@ -1468,8 +1462,7 @@
     min-width: 996px;
     grid-template-columns: 132px repeat(24, 36px);
   }
-  .sheetFields,
-  .sheetReorder {
+  .sheetFields {
     grid-template-columns: 1fr;
   }
   .sheetBed {

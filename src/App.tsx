@@ -348,25 +348,6 @@ function Planner() {
       : slot === first
         ? firstFrostPos.fraction
         : undefined;
-  // Reordering swaps two sort numbers. The whole state is then saved with its prior revision.
-  const move = (id: string, direction: -1 | 1) => {
-    const ordered = [...state.entries].sort(
-      (a, b) => a.sortOrder - b.sortOrder,
-    );
-    const index = ordered.findIndex((entry) => entry.id === id);
-    const swap = ordered[index + direction];
-    if (!swap) return;
-    void save({
-      ...state,
-      entries: state.entries.map((entry) =>
-        entry.id === id
-          ? { ...entry, sortOrder: swap.sortOrder }
-          : entry.id === swap.id
-            ? { ...entry, sortOrder: ordered[index].sortOrder }
-            : entry,
-      ),
-    });
-  };
   const removeEntry = async (entry: GardenEntry) => {
     if (!confirm(`Remove ${entry.name}?`)) return;
     await save({
@@ -678,7 +659,6 @@ function Planner() {
           state={state}
           close={() => setSelectedEntryId(null)}
           save={save}
-          move={move}
           remove={() => void removeEntry(selectedEntry)}
         />
       )}
@@ -691,21 +671,17 @@ function PlantSheet({
   state,
   close,
   save,
-  move,
   remove,
 }: {
   entry: GardenEntry;
   state: GardenState;
   close: () => void;
   save: (state: GardenState) => Promise<void>;
-  move: (id: string, direction: -1 | 1) => void;
   remove: () => void;
 }) {
   const [qty, setQty] = useState(entry.qty);
   const [status, setStatus] = useState(entry.status);
   const [bedId, setBedId] = useState(entry.bedId ?? "");
-  const ordered = [...state.entries].sort((a, b) => a.sortOrder - b.sortOrder);
-  const index = ordered.findIndex((item) => item.id === entry.id);
   const submit = async (event: FormEvent) => {
     event.preventDefault();
     await save({
@@ -763,22 +739,6 @@ function PlantSheet({
               ))}
             </select>
           </label>
-        </div>
-        <div className={styles.sheetReorder}>
-          <button
-            type="button"
-            disabled={index <= 0}
-            onClick={() => move(entry.id, -1)}
-          >
-            ↑ Move earlier
-          </button>
-          <button
-            type="button"
-            disabled={index < 0 || index >= ordered.length - 1}
-            onClick={() => move(entry.id, 1)}
-          >
-            ↓ Move later
-          </button>
         </div>
         {entry.plantId && (
           <Link className={styles.button} to={`/plants/${entry.plantId}`}>
