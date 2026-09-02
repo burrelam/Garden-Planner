@@ -92,7 +92,7 @@ function Login({ onLogin }: { onLogin: () => void }) {
     <main className={styles.login}>
       <section className={styles.loginCard}>
         <img
-          src="/brand/gardenbuddy-mark.svg"
+          src="/brand/icon-192.png"
           alt=""
           className={styles.loginMark}
         />
@@ -140,7 +140,7 @@ function Shell() {
     <div className={styles.shell}>
       <header className={styles.header}>
         <Link to="/planner" className={styles.brand}>
-          <img src="/brand/gardenbuddy-mark.svg" alt="" />
+          <img src="/brand/icon-192.png" alt="" />
           <span>GardenBuddy</span>
         </Link>
         <nav aria-label="Main navigation">
