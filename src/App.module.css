@@ -1204,6 +1204,11 @@
   border-top: 1px solid var(--color-border);
   padding: 11px 0;
 }
+/* The label beside it can wrap; the button should never be squeezed
+   narrower than its own text. */
+.history button {
+  flex: 0 0 auto;
+}
 .history strong,
 .history span {
   display: block;
@@ -1234,6 +1239,15 @@
 }
 
 @media (max-width: 760px) {
+  /* The action row is a two-up grid on phones, so a button gets about 173px.
+     "View planner" needs more than that at the desktop size and wraps to two
+     lines, so controls step down here while staying larger than they were. */
+  :global(button),
+  .button,
+  .fileButton {
+    font-size: 0.72rem;
+    padding: 9px 10px;
+  }
   .header {
     position: relative;
     min-height: 58px;
