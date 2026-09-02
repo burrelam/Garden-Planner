@@ -352,6 +352,41 @@
   --bed-soft-plum: #aa5797;
 }
 
+/* ============================================================
+   Responsive type scale.
+
+   Every size that differs between desktop and phone lives here, with both
+   values adjacent. Components reference the token and never carry a literal
+   size, so a size can no longer be set in one place and silently cancelled
+   in another. That trap has bitten twice: a larger plant name set for
+   desktop never reached a phone, and group headers were shrunk on desktop
+   while the phone kept the old larger value.
+
+   Adding a responsive size? Put it here, not in a component rule.
+   ============================================================ */
+:global(:root) {
+  --type-brand: 1.2rem;
+  --type-page-intro: 1.05rem;
+  --type-control: 0.82rem;
+  --type-plant-name: 1.3rem;
+  --type-plant-meta: 0.95rem;
+  --type-plant-sub: 0.95rem;
+  --type-group-header: 0.82rem;
+  --type-corner-sort: 0.95rem;
+}
+@media (max-width: 760px) {
+  :global(:root) {
+    --type-brand: 1.2rem;
+    --type-page-intro: 0.96rem;
+    --type-control: 0.72rem;
+    --type-plant-name: 1.05rem;
+    --type-plant-meta: 0.64rem;
+    --type-plant-sub: 0.63rem;
+    --type-group-header: 0.82rem;
+    --type-corner-sort: 0.88rem;
+  }
+}
+
 :global(*) {
   box-sizing: border-box;
 }
@@ -391,7 +426,7 @@
   justify-content: center;
   font-family: "Silkscreen", ui-monospace, monospace;
   font-weight: 700;
-  font-size: 0.82rem;
+  font-size: var(--type-control);
   letter-spacing: 0.03em;
   text-transform: uppercase;
   box-shadow: 0 4px 10px rgba(var(--shadow-color), 0.25);
@@ -555,7 +590,7 @@
   color: var(--color-text);
   text-decoration: none;
   font:
-    600 1.2rem "Pixelify Sans",
+    600 var(--type-brand) "Pixelify Sans",
     "VT323",
     sans-serif;
   white-space: nowrap;
@@ -587,7 +622,7 @@
 .pageHead p {
   margin-bottom: 0;
   color: var(--color-text-muted);
-  font-size: 1.05rem;
+  font-size: var(--type-page-intro);
 }
 .eyebrow {
   margin: 0 0 8px !important;
@@ -1013,7 +1048,7 @@
   height: 30px;
   padding: 2px 6px;
   border-radius: 6px;
-  font-size: 0.95rem;
+  font-size: var(--type-corner-sort);
   background: var(--color-surface);
   background: color-mix(in srgb, var(--color-surface) 96%, transparent);
 }
@@ -1037,7 +1072,7 @@
   position: sticky;
   left: 12px;
   font-family: "Silkscreen", ui-monospace, monospace;
-  font-size: 0.82rem;
+  font-size: var(--type-group-header);
   font-weight: 700;
   letter-spacing: 0.05em;
   text-transform: uppercase;
@@ -1056,7 +1091,7 @@
   color: inherit;
   box-shadow: none;
   font-family: "Silkscreen", ui-monospace, monospace;
-  font-size: 0.82rem;
+  font-size: var(--type-group-header);
   font-weight: 700;
   letter-spacing: 0.05em;
   text-transform: uppercase;
@@ -1087,7 +1122,7 @@
   overflow: hidden;
   color: var(--color-text);
   font:
-    700 1.3rem "VT323",
+    700 var(--type-plant-name) "VT323",
     sans-serif;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -1096,7 +1131,7 @@
 .plantRowTitle small {
   overflow: hidden;
   color: var(--color-text-muted);
-  font-size: 0.95rem;
+  font-size: var(--type-plant-meta);
   text-overflow: ellipsis;
   white-space: nowrap;
 }
@@ -1441,12 +1476,6 @@
   /* The action row is a two-up grid on phones, so a button gets about 173px.
      "View planner" needs more than that at the desktop size and wraps to two
      lines, so controls step down here while staying larger than they were. */
-  :global(button),
-  .button,
-  .fileButton {
-    font-size: 0.72rem;
-    padding: 9px 10px;
-  }
   .header {
     position: relative;
     min-height: 58px;
@@ -1458,7 +1487,6 @@
   .brand {
     width: fit-content;
     margin: 0;
-    font-size: 1.2rem;
   }
   .brand img {
     width: 42px;
@@ -1471,12 +1499,7 @@
     display: block;
     margin-bottom: 22px;
   }
-  .pageHead h1 {
-    font-size: 2rem;
-  }
-  .pageHead p {
-    font-size: 0.96rem;
-  }
+
   .actions {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -1512,15 +1535,8 @@
     align-content: center;
     line-height: 1.2;
   }
-  .plantRowTitle strong {
-    font-size: 1.05rem;
-  }
-  .plantRowTitle span {
-    font-size: 0.64rem;
-    font-style: italic;
-  }
   .plantRowTitle small {
-    font-size: 0.63rem;
+    font-size: var(--type-plant-sub);
   }
   .monthCorner {
     padding: 0 6px;
@@ -1529,14 +1545,13 @@
     min-height: 28px;
     height: 28px;
     padding: 2px 4px;
-    font-size: 0.88rem;
+    font-size: var(--type-corner-sort);
   }
   .groupRow {
     padding-left: 8px;
   }
   .groupRow span {
     left: 8px;
-    font-size: 1.05rem;
   }
   .groupRow small {
     left: 100px;
