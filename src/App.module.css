@@ -931,7 +931,8 @@
 }
 .calendar {
   width: 100%;
-  max-height: 76vh;
+  /* header + page padding + the floating dock */
+  max-height: calc(100vh - 168px);
   overflow: auto;
   overscroll-behavior: contain;
   -webkit-overflow-scrolling: touch;
@@ -1180,15 +1181,6 @@
   box-shadow:
     inset 1px 0 var(--color-now-bg),
     inset -1px 0 var(--color-now-bg);
-}
-.calendarGuide {
-  padding: 9px 14px;
-  margin: 0 auto 22px !important;
-  border-radius: 0 0 12px 12px;
-  background: var(--color-surface-muted);
-  color: var(--color-text-muted);
-  font-size: 0.7rem;
-  text-align: center;
 }
 .sheetSubtitle {
   margin: -8px 0 18px;
@@ -1504,7 +1496,7 @@
     padding-bottom: calc(80px + env(safe-area-inset-bottom));
   }
   .calendar {
-    max-height: 78svh;
+    max-height: calc(100svh - 140px);
     min-height: 390px;
     border-radius: 12px 12px 0 0;
   }
@@ -1548,10 +1540,6 @@
   }
   .groupRow small {
     left: 100px;
-  }
-  .calendarGuide {
-    padding: 8px 10px;
-    font-size: 0.65rem;
   }
   .detailGrid,
   .settingsGrid,

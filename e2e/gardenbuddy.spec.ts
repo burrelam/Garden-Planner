@@ -27,15 +27,18 @@ test("planner calendar and navigation work at this viewport", async ({
 });
 
 test("touch-sized add sheet can add a plant", async ({ page }) => {
-  const pepperLinks = page.getByRole("link", { name: "Pepper", exact: true });
-  const originalPepperCount = await pepperLinks.count();
+  // Plant names are plain text in the row now, not links to the plant guide.
+  const pepperRows = page
+    .getByLabel("Annual planting calendar")
+    .getByText("Pepper", { exact: true });
+  const originalPepperCount = await pepperRows.count();
   await page.getByRole("button", { name: "+ Plant" }).click();
   const dialog = page.getByRole("dialog", { name: "Add a plant" });
   await expect(dialog).toBeVisible();
   await dialog.getByRole("combobox", { name: "Plant" }).selectOption("pepper");
   await dialog.getByRole("spinbutton", { name: "Quantity" }).fill("3");
   await dialog.getByRole("button", { name: "Add to planner" }).click();
-  await expect(pepperLinks).toHaveCount(originalPepperCount + 1);
+  await expect(pepperRows).toHaveCount(originalPepperCount + 1);
 });
 
 test("dialogs keep keyboard focus contained and return it on close", async ({
@@ -212,14 +215,19 @@ test("More holds the garden's facts, and the ZIP can be changed there", async ({
   // A zone typed by hand wins, and clears the ZIP it no longer matches.
   await sheet.getByRole("button", { name: "Change hardiness zone" }).click();
   const zone = sheet.getByLabel("Hardiness zone", { exact: true });
-  await zone.fill("9a");
+  // Every project shares one database, so pick a zone that is genuinely a
+  // change whatever an earlier run left behind.
+  const next = (await zone.inputValue()) === "9a" ? "8b" : "9a";
+  await zone.fill(next);
   await zone.press("Enter");
-  await expect(sheet.getByText(/zone 9a, ZIP cleared/)).toBeVisible();
+  await expect(
+    sheet.getByText(new RegExp(`zone ${next}, ZIP cleared`)),
+  ).toBeVisible();
 
   // Settings is the same record, so it shows the same zone.
   await sheet.getByRole("link", { name: /All garden settings/ }).click();
   await expect(page.getByLabel("Hardiness zone", { exact: true })).toHaveValue(
-    "9a",
+    next,
   );
   await expect(page.getByLabel("ZIP code", { exact: true })).toHaveValue("");
 });

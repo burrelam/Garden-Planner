@@ -634,10 +634,6 @@ function Planner() {
           close={() => setShowMore(false)}
         />
       )}
-      <p className={styles.calendarGuide}>
-        <strong>E</strong> = early month · <strong>L</strong> = late month · tap
-        a plant for status, bed, quantity, and ordering
-      </p>
       {!entries.length && (
         <div className={styles.empty}>
           <h2>Your garden is ready to grow.</h2>
@@ -766,7 +762,7 @@ function PlannerMore({
   );
 
   return (
-    <Dialog title="More about the garden" close={close}>
+    <Dialog title="More about the garden" close={close} hideTitle>
       <p className={styles.moreGarden}>{state.garden.name}</p>
 
       <h3 className={styles.moreHeading}>At a glance</h3>
@@ -966,10 +962,14 @@ function Dialog({
   title,
   close,
   children,
+  hideTitle,
 }: {
   title: string;
   close: () => void;
   children: React.ReactNode;
+  /** For sheets that carry their own visible heading. The dialog is still
+      named by `title` for screen readers. */
+  hideTitle?: boolean;
 }) {
   const dialogRef = useRef<HTMLElement>(null);
   useEffect(() => {
@@ -1021,7 +1021,7 @@ function Dialog({
         <button className={styles.close} aria-label="Close" onClick={close}>
           ×
         </button>
-        <h2>{title}</h2>
+        <h2 className={hideTitle ? styles.srOnly : undefined}>{title}</h2>
         {children}
       </section>
     </div>
