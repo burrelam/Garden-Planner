@@ -11,3 +11,4 @@ test-results/
 data/*.db*
 .gardenbuddy-approved-sha
 *.tgz
+.DS_Store

@@ -1032,9 +1032,11 @@
   position: absolute;
   top: 4px;
   right: 4px;
-  width: 30px;
-  min-width: 30px;
-  min-height: 30px;
+  /* 34px, so the 25px pencil sits at 1:1 on the face — her line work is a
+     single pixel thick and any fractional scale would smudge it. */
+  width: 34px;
+  min-width: 34px;
+  min-height: 34px;
   color: var(--color-accent);
 }
 .factInput {

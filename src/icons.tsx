@@ -408,38 +408,18 @@ export function ChevronIcon({
 }
 
 /**
- * Amanda's pencil, traced onto the grid: an outlined barrel running at 45°
- * with a ferrule band across it and a nib at the point. Outline rather than
- * solid, which is how PlannerIcon and SourcesIcon are drawn too.
+ * Amanda's pencil, transcribed pixel-for-pixel from her drawing
+ * (docs/brand/pencil-source.png) rather than redrawn: eraser at the top
+ * left, facet lines down the barrel, sharpened nib bottom right.
+ *
+ * One path in currentColor, so it takes the button's ink in every season.
+ * Its grid is 25 wide, not 16 like the glyph icons — the line work is a
+ * single pixel thick, and squeezing it onto a 16 grid would lose it.
  */
-export function PencilIcon(props: IconProps) {
+export function PencilIcon({ size = 25, ...props }: IconProps) {
   return (
-    <Pixels viewBox="0 0 16 16" fill="currentColor" {...props}>
-      {/* the eraser end, capped */}
-      <rect x="10" y="2" width="4" height="1" />
-      {/* the two long edges, one unit per row so they stay a true 45° */}
-      <rect x="9" y="3" width="1" height="1" />
-      <rect x="8" y="4" width="1" height="1" />
-      <rect x="7" y="5" width="1" height="1" />
-      <rect x="6" y="6" width="1" height="1" />
-      <rect x="5" y="7" width="1" height="1" />
-      <rect x="4" y="8" width="1" height="1" />
-      <rect x="3" y="9" width="1" height="1" />
-      <rect x="2" y="10" width="1" height="1" />
-      <rect x="13" y="3" width="1" height="1" />
-      <rect x="12" y="4" width="1" height="1" />
-      <rect x="11" y="5" width="1" height="1" />
-      <rect x="10" y="6" width="1" height="1" />
-      <rect x="9" y="7" width="1" height="1" />
-      <rect x="8" y="8" width="1" height="1" />
-      <rect x="7" y="9" width="1" height="1" />
-      <rect x="6" y="10" width="1" height="1" />
-      {/* the ferrule, filling the barrel between the edges */}
-      <rect x="8" y="5" width="3" height="1" />
-      {/* the nib, closing to a point */}
-      <rect x="1" y="11" width="5" height="1" />
-      <rect x="1" y="12" width="3" height="1" />
-      <rect x="1" y="13" width="2" height="1" />
+    <Pixels viewBox="0 0 25 25" size={size} fill="currentColor" {...props}>
+      <path d="M5 0h3v1h-3zM4 1h1v1h-1zM8 1h1v1h-1zM3 2h1v1h-1zM9 2h1v1h-1zM2 3h1v1h-1zM8 3h3v1h-3zM1 4h1v1h-1zM7 4h1v1h-1zM10 4h2v1h-2zM0 5h1v1h-1zM6 5h1v1h-1zM11 5h2v1h-2zM0 6h1v1h-1zM5 6h1v1h-1zM12 6h2v1h-2zM0 7h1v1h-1zM4 7h1v1h-1zM9 7h1v1h-1zM13 7h2v1h-2zM1 8h1v1h-1zM3 8h1v1h-1zM10 8h1v1h-1zM14 8h2v1h-2zM2 9h2v1h-2zM7 9h1v1h-1zM11 9h1v1h-1zM15 9h2v1h-2zM3 10h2v1h-2zM8 10h1v1h-1zM12 10h1v1h-1zM16 10h2v1h-2zM4 11h2v1h-2zM9 11h1v1h-1zM13 11h1v1h-1zM17 11h2v1h-2zM5 12h2v1h-2zM10 12h1v1h-1zM14 12h1v1h-1zM18 12h2v1h-2zM6 13h2v1h-2zM11 13h1v1h-1zM15 13h1v1h-1zM19 13h2v1h-2zM7 14h2v1h-2zM12 14h1v1h-1zM16 14h1v1h-1zM20 14h2v1h-2zM8 15h2v1h-2zM13 15h1v1h-1zM17 15h1v1h-1zM21 15h2v1h-2zM9 16h2v1h-2zM14 16h1v1h-1zM18 16h1v1h-1zM22 16h2v1h-2zM10 17h2v1h-2zM15 17h1v1h-1zM21 17h4v1h-4zM11 18h2v1h-2zM16 18h1v1h-1zM20 18h2v1h-2zM24 18h1v1h-1zM12 19h2v1h-2zM19 19h2v1h-2zM24 19h1v1h-1zM13 20h2v1h-2zM18 20h2v1h-2zM24 20h1v1h-1zM14 21h2v1h-2zM17 21h2v1h-2zM24 21h1v1h-1zM15 22h3v1h-3zM22 22h3v1h-3zM16 23h2v1h-2zM22 23h3v1h-3zM17 24h8v1h-8z" />
     </Pixels>
   );
 }
