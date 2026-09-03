@@ -331,6 +331,7 @@ function Page({
   children,
   actions,
   className,
+  back,
 }: {
   eyebrow?: string;
   title?: string;
@@ -338,9 +339,16 @@ function Page({
   children: React.ReactNode;
   actions?: React.ReactNode;
   className?: string;
+  back?: { to: string; label: string };
 }) {
   return (
     <main className={`${styles.page} ${className ?? ""}`}>
+      {back && (
+        <Link className={styles.backLink} to={back.to}>
+          <ChevronIcon direction="left" size={12} />
+          {back.label}
+        </Link>
+      )}
       {(title || eyebrow || intro || actions) && (
         <div className={styles.pageHead}>
           <div>
@@ -1540,15 +1548,16 @@ function PlantDetail() {
         .then(setPlant)
         .catch(() => setNotFound(true));
   }, [slug]);
+  const back = { to: "/plants", label: "Back to plant library" };
   if (notFound)
     return (
-      <Page title="Plant not found">
+      <Page title="Plant not found" back={back}>
         <Link to="/plants">Return to the library</Link>
       </Page>
     );
   if (!plant)
     return (
-      <Page title="Plant Library">
+      <Page title="Plant Library" back={back}>
         <p>Loading plant details…</p>
       </Page>
     );
@@ -1557,6 +1566,7 @@ function PlantDetail() {
       eyebrow={`${plant.category} · ${plant.reviewStatus}`}
       title={plant.commonName}
       intro={plant.summary}
+      back={back}
       actions={
         <Link className={styles.button} to="/planner">
           View planner

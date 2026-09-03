@@ -542,7 +542,6 @@
     inset 0 0 0 3px var(--color-focus),
     var(--sunk);
 }
-.plantCard:focus-visible,
 .moreSettings:focus-visible,
 .seasonBar:focus-visible {
   outline: none;
@@ -802,6 +801,25 @@
   justify-content: space-between;
   gap: 28px;
   margin-bottom: 32px;
+}
+/* A hinge back to where you came from, not a control worth pressing — flat,
+   quiet, and pinned above the title where the eye lands first. */
+.backLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  margin-bottom: 14px;
+  color: var(--color-text-muted);
+  text-decoration: none;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+.backLink:hover {
+  color: var(--color-accent);
+}
+.backLink:focus-visible {
+  outline: 3px solid var(--color-focus);
+  outline-offset: 2px;
 }
 .pageHead > div:first-child {
   max-width: 760px;
@@ -1622,23 +1640,58 @@
   grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
   gap: 18px;
 }
-/* A card is a container, not a control — flat even though it is a link.
-   Bevelling these would turn the whole grid into a wall of buttons and
-   drown the actions that really are pressable. */
+/* The whole card is the click target, so it takes the same raised bevel as
+   a button — pressable things should look pressable. Its hover never moves
+   the box (no translateY): a lift-on-hover jitters every card in turn as
+   the page scrolls under a still cursor, since hover toggles by position,
+   not by pointer movement. Brightening the fill instead reads as "live"
+   without that scroll-shift. */
 .plantCard {
   --fill: var(--color-surface);
+  --lift: 4px;
+  --bevel: 3px;
   --notch: 4px;
-  border: 2px solid color-mix(in srgb, var(--fill) 32%, #000);
+  --lit: color-mix(in srgb, var(--fill) 68%, #fff);
+  --shade: color-mix(in srgb, var(--fill) 72%, #000);
+  --edge: color-mix(in srgb, var(--fill) 32%, #000);
+  --stack-up:
+    inset 0 calc(-1 * var(--lift)) 0 0 var(--edge),
+    inset 0 var(--bevel) 0 0 var(--lit), inset var(--bevel) 0 0 0 var(--lit),
+    inset calc(-1 * var(--bevel)) 0 0 0 var(--shade);
+  --stack-down:
+    inset 0 var(--bevel) 0 0 var(--shade),
+    inset var(--bevel) 0 0 0 var(--shade),
+    inset calc(-1 * var(--bevel)) 0 0 0 var(--lit),
+    inset 0 calc(-1 * var(--bevel)) 0 0 var(--lit);
+  display: block;
+  border: 2px solid var(--edge);
   border-radius: 0;
   background: var(--fill);
-  padding: 22px;
+  padding: 22px 22px calc(22px + var(--lift));
   color: var(--color-text);
   text-decoration: none;
   clip-path: var(--notch-clip);
+  box-shadow: var(--stack-up);
+  transition: background 0.08s linear;
 }
 .plantCard:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 12px 28px rgba(var(--shadow-color), 0.12);
+  background: color-mix(in srgb, var(--fill) 86%, #fff);
+}
+.plantCard:active {
+  padding: calc(22px + var(--lift)) 22px 22px;
+  background: color-mix(in srgb, var(--fill) 88%, #000);
+  box-shadow: var(--stack-down);
+}
+.plantCard:focus-visible {
+  outline: none;
+  box-shadow:
+    inset 0 0 0 3px var(--color-focus),
+    var(--stack-up);
+}
+.plantCard:active:focus-visible {
+  box-shadow:
+    inset 0 0 0 3px var(--color-focus),
+    var(--stack-down);
 }
 .plantCard h2 {
   margin: 18px 0 3px;
