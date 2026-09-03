@@ -1,0 +1,307 @@
+// Hand-placed pixel-grid icons. Most read their color from `currentColor`
+// (set via the parent's `color`) plus the theme's --color-accent-light /
+// --color-accent-hover tokens, so a single icon adapts across all five
+// seasonal themes without per-theme assets. The shovel and planted sprout
+// are fixed-palette illustrations instead — they're small mascot-style art,
+// not UI glyphs, so they don't need to shift with the theme.
+
+import type { SVGProps } from "react";
+
+type IconProps = Omit<SVGProps<SVGSVGElement>, "viewBox" | "children"> & {
+  size?: number;
+};
+
+function Pixels({
+  viewBox,
+  size = 16,
+  ...rest
+}: IconProps & { viewBox: string; size?: number; children: React.ReactNode }) {
+  return (
+    <svg
+      viewBox={viewBox}
+      width={size}
+      height={size}
+      shapeRendering="crispEdges"
+      aria-hidden="true"
+      focusable="false"
+      {...rest}
+    />
+  );
+}
+
+export function PlannerIcon(props: IconProps) {
+  return (
+    <Pixels viewBox="0 0 16 16" fill="currentColor" {...props}>
+      <rect x="4" y="0" width="1" height="3" />
+      <rect x="11" y="0" width="1" height="3" />
+      <rect x="1" y="2" width="14" height="1" />
+      <rect x="1" y="13" width="14" height="1" />
+      <rect x="1" y="2" width="1" height="12" />
+      <rect x="14" y="2" width="1" height="12" />
+      <rect x="1" y="5" width="14" height="1" />
+      <rect x="4" y="7" width="2" height="2" />
+      <rect x="7" y="7" width="2" height="2" />
+      <rect x="10" y="7" width="2" height="2" />
+      <rect x="4" y="10" width="2" height="2" />
+      <rect x="7" y="10" width="2" height="2" />
+      <rect x="10" y="10" width="2" height="2" fill="var(--color-gold)" />
+    </Pixels>
+  );
+}
+
+export function SourcesIcon(props: IconProps) {
+  return (
+    <Pixels viewBox="0 0 16 16" fill="currentColor" {...props}>
+      <rect x="7" y="1" width="2" height="2" />
+      <rect x="1" y="2" width="6" height="1" />
+      <rect x="9" y="2" width="6" height="1" />
+      <rect x="1" y="3" width="1" height="10" />
+      <rect x="7" y="2" width="1" height="12" />
+      <rect x="8" y="2" width="1" height="12" />
+      <rect x="14" y="3" width="1" height="10" />
+      <rect x="1" y="13" width="6" height="1" />
+      <rect x="9" y="13" width="6" height="1" />
+      <rect x="3" y="6" width="3" height="1" />
+      <rect x="3" y="9" width="3" height="1" />
+      <rect x="10" y="6" width="3" height="1" />
+      <rect x="10" y="9" width="3" height="1" />
+    </Pixels>
+  );
+}
+
+export function SettingsIcon({
+  holeColor = "var(--color-surface)",
+  ...props
+}: IconProps & { holeColor?: string }) {
+  return (
+    <Pixels viewBox="0 0 16 16" fill="currentColor" {...props}>
+      <g transform="translate(8 8) scale(0.92) translate(-8 -8)">
+        <rect x="6" y="0" width="4" height="3" />
+        <rect x="6" y="13" width="4" height="3" />
+        <rect x="0" y="6" width="3" height="4" />
+        <rect x="13" y="6" width="3" height="4" />
+        <rect x="1" y="1" width="3" height="3" />
+        <rect x="12" y="1" width="3" height="3" />
+        <rect x="1" y="12" width="3" height="3" />
+        <rect x="12" y="12" width="3" height="3" />
+        <rect x="4" y="2" width="8" height="1" />
+        <rect x="3" y="3" width="10" height="1" />
+        <rect x="2" y="4" width="12" height="8" />
+        <rect x="3" y="12" width="10" height="1" />
+        <rect x="4" y="13" width="8" height="1" />
+        <rect x="7" y="6" width="2" height="1" fill={holeColor} />
+        <rect x="6" y="7" width="4" height="2" fill={holeColor} />
+        <rect x="7" y="9" width="2" height="1" fill={holeColor} />
+      </g>
+    </Pixels>
+  );
+}
+
+export function SproutNavIcon(props: IconProps) {
+  return (
+    <Pixels viewBox="-6 0 19 16" {...props}>
+      <rect x="3" y="9" width="2" height="6" fill="var(--color-text)" />
+      <rect x="8" y="1" width="4" height="1" fill="var(--color-text)" />
+      <rect x="6" y="2" width="2" height="1" fill="var(--color-text)" />
+      <rect x="8" y="2" width="4" height="1" fill="var(--color-accent-hover)" />
+      <rect x="12" y="2" width="1" height="1" fill="var(--color-text)" />
+      <rect x="5" y="3" width="1" height="1" fill="var(--color-text)" />
+      <rect x="6" y="3" width="4" height="1" fill="var(--color-accent-hover)" />
+      <rect x="10" y="3" width="1" height="1" fill="var(--color-accent-light)" />
+      <rect x="11" y="3" width="1" height="1" fill="var(--color-accent-hover)" />
+      <rect x="12" y="3" width="1" height="1" fill="var(--color-text)" />
+      <rect x="5" y="4" width="1" height="1" fill="var(--color-text)" />
+      <rect x="6" y="4" width="2" height="1" fill="var(--color-accent-hover)" />
+      <rect x="8" y="4" width="2" height="1" fill="var(--color-accent-light)" />
+      <rect x="10" y="4" width="1" height="1" fill="var(--color-accent-hover)" />
+      <rect x="11" y="4" width="1" height="1" fill="var(--color-accent)" />
+      <rect x="12" y="4" width="1" height="1" fill="var(--color-text)" />
+      <rect x="4" y="5" width="1" height="1" fill="var(--color-text)" />
+      <rect x="5" y="5" width="2" height="1" fill="var(--color-accent-hover)" />
+      <rect x="7" y="5" width="1" height="1" fill="var(--color-accent-light)" />
+      <rect x="8" y="5" width="1" height="1" fill="var(--color-accent-hover)" />
+      <rect x="9" y="5" width="2" height="1" fill="var(--color-accent)" />
+      <rect x="11" y="5" width="1" height="1" fill="var(--color-text)" />
+      <rect x="4" y="6" width="1" height="1" fill="var(--color-text)" />
+      <rect x="5" y="6" width="1" height="1" fill="var(--color-accent-hover)" />
+      <rect x="6" y="6" width="1" height="1" fill="var(--color-accent-light)" />
+      <rect x="7" y="6" width="4" height="1" fill="var(--color-accent)" />
+      <rect x="11" y="6" width="1" height="1" fill="var(--color-text)" />
+      <rect x="4" y="7" width="1" height="1" fill="var(--color-text)" />
+      <rect x="5" y="7" width="1" height="1" fill="var(--color-accent-light)" />
+      <rect x="6" y="7" width="3" height="1" fill="var(--color-accent)" />
+      <rect x="9" y="7" width="2" height="1" fill="var(--color-text)" />
+      <rect x="4" y="8" width="5" height="1" fill="var(--color-text)" />
+      <rect x="-5" y="1" width="4" height="1" fill="var(--color-text)" />
+      <rect x="-1" y="2" width="2" height="1" fill="var(--color-text)" />
+      <rect x="-5" y="2" width="4" height="1" fill="var(--color-accent-hover)" />
+      <rect x="-6" y="2" width="1" height="1" fill="var(--color-text)" />
+      <rect x="1" y="3" width="1" height="1" fill="var(--color-text)" />
+      <rect x="-3" y="3" width="4" height="1" fill="var(--color-accent-hover)" />
+      <rect x="-4" y="3" width="1" height="1" fill="var(--color-accent-light)" />
+      <rect x="-5" y="3" width="1" height="1" fill="var(--color-accent-hover)" />
+      <rect x="-6" y="3" width="1" height="1" fill="var(--color-text)" />
+      <rect x="1" y="4" width="1" height="1" fill="var(--color-text)" />
+      <rect x="-1" y="4" width="2" height="1" fill="var(--color-accent-hover)" />
+      <rect x="-3" y="4" width="2" height="1" fill="var(--color-accent-light)" />
+      <rect x="-4" y="4" width="1" height="1" fill="var(--color-accent-hover)" />
+      <rect x="-5" y="4" width="1" height="1" fill="var(--color-accent)" />
+      <rect x="-6" y="4" width="1" height="1" fill="var(--color-text)" />
+      <rect x="2" y="5" width="1" height="1" fill="var(--color-text)" />
+      <rect x="0" y="5" width="2" height="1" fill="var(--color-accent-hover)" />
+      <rect x="-1" y="5" width="1" height="1" fill="var(--color-accent-light)" />
+      <rect x="-2" y="5" width="1" height="1" fill="var(--color-accent-hover)" />
+      <rect x="-4" y="5" width="2" height="1" fill="var(--color-accent)" />
+      <rect x="-5" y="5" width="1" height="1" fill="var(--color-text)" />
+      <rect x="2" y="6" width="1" height="1" fill="var(--color-text)" />
+      <rect x="1" y="6" width="1" height="1" fill="var(--color-accent-hover)" />
+      <rect x="0" y="6" width="1" height="1" fill="var(--color-accent-light)" />
+      <rect x="-4" y="6" width="4" height="1" fill="var(--color-accent)" />
+      <rect x="-5" y="6" width="1" height="1" fill="var(--color-text)" />
+      <rect x="2" y="7" width="1" height="1" fill="var(--color-text)" />
+      <rect x="1" y="7" width="1" height="1" fill="var(--color-accent-light)" />
+      <rect x="-2" y="7" width="3" height="1" fill="var(--color-accent)" />
+      <rect x="-4" y="7" width="2" height="1" fill="var(--color-text)" />
+      <rect x="-2" y="8" width="5" height="1" fill="var(--color-text)" />
+    </Pixels>
+  );
+}
+
+export function QuestionIcon(props: IconProps) {
+  return (
+    <Pixels viewBox="0 0 16 16" fill="currentColor" {...props}>
+      <rect x="6" y="2" width="4" height="1" />
+      <rect x="4" y="3" width="2" height="1" />
+      <rect x="10" y="3" width="2" height="1" />
+      <rect x="4" y="4" width="2" height="1" />
+      <rect x="10" y="4" width="2" height="1" />
+      <rect x="10" y="5" width="2" height="1" />
+      <rect x="9" y="6" width="2" height="1" />
+      <rect x="8" y="7" width="2" height="1" />
+      <rect x="7" y="8" width="2" height="1" />
+      <rect x="7" y="9" width="2" height="1" />
+      <rect x="7" y="12" width="2" height="1" />
+    </Pixels>
+  );
+}
+
+const SNOWFLAKE_DIRS: Array<[number, number]> = [
+  [0, -1],
+  [0, 1],
+  [1, 0],
+  [-1, 0],
+  [1, -1],
+  [1, 1],
+  [-1, 1],
+  [-1, -1],
+];
+const SNOWFLAKE_TICKS: Array<[number, number]> = [
+  [7, 4],
+  [9, 4],
+  [7, 12],
+  [9, 12],
+  [4, 7],
+  [4, 9],
+  [12, 7],
+  [12, 9],
+  [11, 4],
+  [12, 5],
+  [13, 12],
+  [12, 13],
+  [3, 12],
+  [4, 13],
+  [3, 4],
+  [4, 3],
+];
+const SNOWFLAKE_POINTS: Array<[number, number]> = [
+  [8, 8],
+  ...SNOWFLAKE_DIRS.flatMap(([dx, dy]) =>
+    Array.from({ length: 7 }, (_, i) => [8 + dx * (i + 1), 8 + dy * (i + 1)] as [number, number]),
+  ),
+  ...SNOWFLAKE_TICKS,
+];
+
+export function SnowflakeIcon(props: IconProps) {
+  return (
+    <Pixels viewBox="0 0 16 16" fill="currentColor" {...props}>
+      {SNOWFLAKE_POINTS.map(([x, y]) => (
+        <rect key={`${x}-${y}`} x={x} y={y} width={1} height={1} />
+      ))}
+    </Pixels>
+  );
+}
+
+export function ShovelIcon(props: IconProps) {
+  return (
+    <Pixels viewBox="0 0 16 16" {...props}>
+      <g transform="translate(8 8) rotate(20) scale(0.82) translate(-8 -8)">
+        <rect x="4" y="0" width="8" height="1" fill="#1f1a14" />
+        <rect x="4" y="0" width="1" height="3" fill="#1f1a14" />
+        <rect x="11" y="0" width="1" height="3" fill="#1f1a14" />
+        <rect x="5" y="1" width="3" height="2" fill="#cbb392" />
+        <rect x="8" y="1" width="3" height="2" fill="#b5652f" />
+        <rect x="6" y="3" width="2" height="1" fill="#b9c4b0" />
+        <rect x="6" y="3" width="1" height="7" fill="#1f1a14" />
+        <rect x="9" y="3" width="1" height="7" fill="#1f1a14" />
+        <rect x="7" y="4" width="1" height="6" fill="#cbb392" />
+        <rect x="8" y="4" width="1" height="6" fill="#b5652f" />
+        <rect x="6" y="10" width="1" height="1" fill="#1f1a14" />
+        <rect x="9" y="10" width="1" height="1" fill="#1f1a14" />
+        <rect x="7" y="10" width="1" height="1" fill="#c9ccd0" />
+        <rect x="8" y="10" width="1" height="1" fill="#8b9096" />
+        <rect x="4" y="11" width="1" height="1" fill="#1f1a14" />
+        <rect x="11" y="11" width="1" height="1" fill="#1f1a14" />
+        <rect x="5" y="11" width="3" height="1" fill="#c9ccd0" />
+        <rect x="8" y="11" width="3" height="1" fill="#8b9096" />
+        <rect x="3" y="12" width="1" height="1" fill="#1f1a14" />
+        <rect x="12" y="12" width="1" height="1" fill="#1f1a14" />
+        <rect x="4" y="12" width="4" height="1" fill="#c9ccd0" />
+        <rect x="8" y="12" width="4" height="1" fill="#8b9096" />
+        <rect x="3" y="13" width="1" height="1" fill="#1f1a14" />
+        <rect x="12" y="13" width="1" height="1" fill="#1f1a14" />
+        <rect x="4" y="13" width="4" height="1" fill="#c9ccd0" />
+        <rect x="8" y="13" width="4" height="1" fill="#8b9096" />
+        <rect x="4" y="14" width="1" height="1" fill="#1f1a14" />
+        <rect x="11" y="14" width="1" height="1" fill="#1f1a14" />
+        <rect x="5" y="14" width="3" height="1" fill="#c9ccd0" />
+        <rect x="8" y="14" width="3" height="1" fill="#8b9096" />
+        <rect x="6" y="15" width="1" height="1" fill="#1f1a14" />
+        <rect x="9" y="15" width="1" height="1" fill="#1f1a14" />
+        <rect x="7" y="15" width="1" height="1" fill="#c9ccd0" />
+        <rect x="8" y="15" width="1" height="1" fill="#8b9096" />
+      </g>
+      <rect x="6" y="12" width="1" height="1" fill="#8a6239" />
+      <rect x="7" y="12" width="1" height="1" fill="#7a5530" />
+      <rect x="4" y="13" width="1" height="1" fill="#6b4a28" />
+      <rect x="5" y="13" width="1" height="1" fill="#8a6239" />
+      <rect x="6" y="13" width="1" height="1" fill="#7a5530" />
+      <rect x="7" y="13" width="1" height="1" fill="#6b4a28" />
+      <rect x="8" y="13" width="1" height="1" fill="#8a6239" />
+      <rect x="9" y="13" width="1" height="1" fill="#7a5530" />
+      <rect x="2" y="14" width="1" height="1" fill="#6b4a28" />
+      <rect x="3" y="14" width="1" height="1" fill="#8a6239" />
+      <rect x="4" y="14" width="1" height="1" fill="#7a5530" />
+      <rect x="5" y="14" width="1" height="1" fill="#6b4a28" />
+      <rect x="6" y="14" width="1" height="1" fill="#8a6239" />
+      <rect x="7" y="14" width="1" height="1" fill="#7a5530" />
+      <rect x="8" y="14" width="1" height="1" fill="#6b4a28" />
+      <rect x="9" y="14" width="1" height="1" fill="#8a6239" />
+      <rect x="10" y="14" width="1" height="1" fill="#7a5530" />
+      <rect x="1" y="15" width="1" height="1" fill="#6b4a28" />
+      <rect x="2" y="15" width="1" height="1" fill="#8a6239" />
+      <rect x="3" y="15" width="1" height="1" fill="#7a5530" />
+      <rect x="4" y="15" width="1" height="1" fill="#6b4a28" />
+      <rect x="5" y="15" width="1" height="1" fill="#8a6239" />
+      <rect x="6" y="15" width="1" height="1" fill="#7a5530" />
+      <rect x="7" y="15" width="1" height="1" fill="#6b4a28" />
+      <rect x="8" y="15" width="1" height="1" fill="#8a6239" />
+      <rect x="9" y="15" width="1" height="1" fill="#7a5530" />
+      <rect x="10" y="15" width="1" height="1" fill="#6b4a28" />
+      <rect x="11" y="15" width="1" height="1" fill="#8a6239" />
+      <rect x="3" y="11" width="1" height="1" fill="#8a6239" />
+      <rect x="11" y="12" width="1" height="1" fill="#6b4a28" />
+      <rect x="1" y="13" width="1" height="1" fill="#7a5530" />
+      <rect x="12" y="14" width="1" height="1" fill="#8a6239" />
+    </Pixels>
+  );
+}

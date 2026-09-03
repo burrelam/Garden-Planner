@@ -579,9 +579,9 @@
 }
 .navIcon {
   width: 22px;
-  text-align: center;
-  font-size: 1.2rem;
-  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 .brand {
   display: flex;
@@ -948,6 +948,10 @@
   flex: 0 0 auto;
   border-radius: 3px;
 }
+.legendIcon {
+  flex: 0 0 auto;
+  color: var(--color-text-muted);
+}
 .moreHint {
   margin: 0;
   color: var(--color-text-muted);
@@ -968,6 +972,11 @@
 }
 .moreSettings:hover {
   border-color: var(--color-accent);
+}
+.moreSettingsLabel {
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 .calendar {
   width: 100%;
@@ -1143,6 +1152,15 @@
 .plantRowTitle small {
   margin-top: 2px;
   color: var(--color-accent);
+}
+.statusLine {
+  display: flex !important;
+  align-items: center;
+  gap: 5px;
+}
+.statusIcon {
+  flex: 0 0 auto;
+  image-rendering: pixelated;
 }
 /* Every plant row keeps its details behind this arrow, at every window size —
    the row never shows an editor inline. */

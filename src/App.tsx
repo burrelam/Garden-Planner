@@ -43,6 +43,15 @@ import {
 } from "./theme";
 import { frostPosition, timelineForEntry } from "./shared/timing";
 import styles from "./App.module.css";
+import {
+  PlannerIcon,
+  QuestionIcon,
+  SettingsIcon,
+  ShovelIcon,
+  SnowflakeIcon,
+  SourcesIcon,
+  SproutNavIcon,
+} from "./icons";
 
 // This file is the visible application. Each named function below is either a whole page
 // or a small piece of one; data storage and HTTP details live in separate modules.
@@ -94,10 +103,31 @@ const entryCategory = (entry: GardenEntry): PlantCategory | null => {
 };
 
 const statusLabels: Record<GardenEntry["status"], string> = {
-  planted: "🪴 Planted",
-  willplant: "🪏 Will plant",
-  undecided: "? Undecided",
+  planted: "Planted",
+  willplant: "Will plant",
+  undecided: "Undecided",
 };
+
+function StatusIcon({
+  status,
+  size = 14,
+}: {
+  status: GardenEntry["status"];
+  size?: number;
+}) {
+  if (status === "planted")
+    return (
+      <img
+        src="/icons/status-planted.png"
+        alt=""
+        width={size}
+        height={size}
+        className={styles.statusIcon}
+      />
+    );
+  if (status === "willplant") return <ShovelIcon size={size} />;
+  return <QuestionIcon size={size} />;
+}
 
 function Login({ onLogin }: { onLogin: () => void }) {
   const [passphrase, setPassphrase] = useState("");
@@ -196,25 +226,25 @@ function Shell({
           <p className={styles.navHeading}>Go to</p>
           <NavLink to="/planner">
             <span className={styles.navIcon} aria-hidden="true">
-              ▦
+              <PlannerIcon size={20} />
             </span>
             <span>Planner</span>
           </NavLink>
           <NavLink to="/plants">
             <span className={styles.navIcon} aria-hidden="true">
-              ⌕
+              <SproutNavIcon size={20} />
             </span>
             <span>Plants</span>
           </NavLink>
           <NavLink to="/sources">
             <span className={styles.navIcon} aria-hidden="true">
-              ❧
+              <SourcesIcon size={20} />
             </span>
             <span>Sources</span>
           </NavLink>
           <NavLink to="/settings">
             <span className={styles.navIcon} aria-hidden="true">
-              ⚙
+              <SettingsIcon size={20} />
             </span>
             <span>Settings</span>
           </NavLink>
@@ -533,11 +563,13 @@ function Planner() {
               }
               key={`half-${slot}`}
             >
-              {slot === last || slot === first
-                ? "❄"
-                : slot % 2 === 0
-                  ? "E"
-                  : "L"}
+              {slot === last || slot === first ? (
+                <SnowflakeIcon size={12} />
+              ) : slot % 2 === 0 ? (
+                "E"
+              ) : (
+                "L"
+              )}
             </div>
           ))}
           {groups.map((group) => (
@@ -570,7 +602,8 @@ function Planner() {
                           {entry.variety || "No variety"} ·{" "}
                           {entry.dtm || "Timing not reviewed"}
                         </span>
-                        <small>
+                        <small className={styles.statusLine}>
+                          <StatusIcon status={entry.status} size={13} />
                           {statusLabels[entry.status]} · qty {entry.qty}
                         </small>
                       </div>
@@ -848,7 +881,10 @@ function PlannerMore({
           <i className={styles.bloom} />
           Bloom window
         </span>
-        <span>❄ Frost date</span>
+        <span>
+          <SnowflakeIcon size={14} className={styles.legendIcon} />
+          Frost date
+        </span>
       </div>
 
       <h3 className={styles.moreHeading}>Reading the grid</h3>
@@ -858,7 +894,10 @@ function PlannerMore({
       </p>
 
       <Link className={styles.moreSettings} to="/settings" onClick={close}>
-        <span>⚙ All garden settings</span>
+        <span className={styles.moreSettingsLabel}>
+          <SettingsIcon size={14} className={styles.legendIcon} />
+          All garden settings
+        </span>
         <span aria-hidden="true">›</span>
       </Link>
     </Dialog>
