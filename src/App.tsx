@@ -1146,12 +1146,14 @@ function PlantDialog({
         )}
         <label>
           Variety
-          <input
-            list="varieties"
-            value={variety}
-            onChange={(event) => setVariety(event.target.value)}
-            placeholder="Optional"
-          />
+          <span className={styles.selectWrap}>
+            <input
+              list="varieties"
+              value={variety}
+              onChange={(event) => setVariety(event.target.value)}
+              placeholder="Optional"
+            />
+          </span>
           <datalist id="varieties">
             {selected?.cultivars.map((cultivar) => (
               <option key={cultivar.id}>{cultivar.name}</option>
