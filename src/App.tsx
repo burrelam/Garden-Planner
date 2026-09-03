@@ -957,16 +957,17 @@ function PlantSheet({
   save: (state: GardenState) => Promise<void>;
   remove: () => void;
 }) {
-  const [qty, setQty] = useState(entry.qty);
+  const [qty, setQty] = useState<number | "">(entry.qty);
   const [status, setStatus] = useState(entry.status);
   const [bedId, setBedId] = useState(entry.bedId ?? "");
   const submit = async (event: FormEvent) => {
     event.preventDefault();
+    const finalQty = clampQty(qty);
     await save({
       ...state,
       entries: state.entries.map((item) =>
         item.id === entry.id
-          ? { ...item, qty, status, bedId: bedId || null }
+          ? { ...item, qty: finalQty, status, bedId: bedId || null }
           : item,
       ),
     });
@@ -987,7 +988,11 @@ function PlantSheet({
               min="1"
               max="999"
               value={qty}
-              onChange={(event) => setQty(Number(event.target.value))}
+              onChange={(event) => {
+                const raw = event.target.value;
+                setQty(raw === "" ? "" : Number(raw));
+              }}
+              onBlur={() => setQty(clampQty(qty))}
             />
           </label>
           <label>
@@ -1123,7 +1128,7 @@ function PlantDialog({
   const [plantId, setPlantId] = useState(localCatalog[0].id);
   const [name, setName] = useState("");
   const [variety, setVariety] = useState("");
-  const [qty, setQty] = useState(1);
+  const [qty, setQty] = useState<number | "">(1);
   const [bedId, setBedId] = useState(
     () => state.beds.find((bed) => bed.id === "unassigned")?.id ?? "",
   );
@@ -1137,7 +1142,7 @@ function PlantDialog({
       name: custom ? name : selected!.commonName,
       variety: variety || null,
       dtm: custom ? null : selected!.daysToMaturity.value,
-      qty,
+      qty: clampQty(qty),
       bedId: bedId || null,
       status: "willplant",
       sortOrder: state.entries.length,
@@ -1201,7 +1206,11 @@ function PlantDialog({
               min="1"
               max="999"
               value={qty}
-              onChange={(event) => setQty(Number(event.target.value))}
+              onChange={(event) => {
+                const raw = event.target.value;
+                setQty(raw === "" ? "" : Number(raw));
+              }}
+              onBlur={() => setQty(clampQty(qty))}
             />
           </label>
           <label>
@@ -2159,6 +2168,10 @@ function offset(days: number) {
   return days === 0
     ? "on"
     : `${Math.abs(days)} days ${days < 0 ? "before" : "after"}`;
+}
+function clampQty(value: number | ""): number {
+  if (value === "" || Number.isNaN(value)) return 1;
+  return Math.min(999, Math.max(1, Math.trunc(value)));
 }
 
 export default App;
