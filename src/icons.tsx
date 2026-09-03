@@ -414,9 +414,10 @@ export function ChevronIcon({
  *
  * One path in currentColor, so it takes the button's ink in every season.
  * Its grid is 25 wide, not 16 like the glyph icons — the line work is a
- * single pixel thick, and squeezing it onto a 16 grid would lose it.
+ * single pixel thick, and squeezing it onto a 16 grid would lose it. It
+ * draws at 20, which every diagonal survives without a break.
  */
-export function PencilIcon({ size = 25, ...props }: IconProps) {
+export function PencilIcon({ size = 20, ...props }: IconProps) {
   return (
     <Pixels viewBox="0 0 25 25" size={size} fill="currentColor" {...props}>
       <path d="M5 0h3v1h-3zM4 1h1v1h-1zM8 1h1v1h-1zM3 2h1v1h-1zM9 2h1v1h-1zM2 3h1v1h-1zM8 3h3v1h-3zM1 4h1v1h-1zM7 4h1v1h-1zM10 4h2v1h-2zM0 5h1v1h-1zM6 5h1v1h-1zM11 5h2v1h-2zM0 6h1v1h-1zM5 6h1v1h-1zM12 6h2v1h-2zM0 7h1v1h-1zM4 7h1v1h-1zM9 7h1v1h-1zM13 7h2v1h-2zM1 8h1v1h-1zM3 8h1v1h-1zM10 8h1v1h-1zM14 8h2v1h-2zM2 9h2v1h-2zM7 9h1v1h-1zM11 9h1v1h-1zM15 9h2v1h-2zM3 10h2v1h-2zM8 10h1v1h-1zM12 10h1v1h-1zM16 10h2v1h-2zM4 11h2v1h-2zM9 11h1v1h-1zM13 11h1v1h-1zM17 11h2v1h-2zM5 12h2v1h-2zM10 12h1v1h-1zM14 12h1v1h-1zM18 12h2v1h-2zM6 13h2v1h-2zM11 13h1v1h-1zM15 13h1v1h-1zM19 13h2v1h-2zM7 14h2v1h-2zM12 14h1v1h-1zM16 14h1v1h-1zM20 14h2v1h-2zM8 15h2v1h-2zM13 15h1v1h-1zM17 15h1v1h-1zM21 15h2v1h-2zM9 16h2v1h-2zM14 16h1v1h-1zM18 16h1v1h-1zM22 16h2v1h-2zM10 17h2v1h-2zM15 17h1v1h-1zM21 17h4v1h-4zM11 18h2v1h-2zM16 18h1v1h-1zM20 18h2v1h-2zM24 18h1v1h-1zM12 19h2v1h-2zM19 19h2v1h-2zM24 19h1v1h-1zM13 20h2v1h-2zM18 20h2v1h-2zM24 20h1v1h-1zM14 21h2v1h-2zM17 21h2v1h-2zM24 21h1v1h-1zM15 22h3v1h-3zM22 22h3v1h-3zM16 23h2v1h-2zM22 23h3v1h-3zM17 24h8v1h-8z" />
