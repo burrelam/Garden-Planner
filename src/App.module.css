@@ -1408,6 +1408,30 @@
   grid-template-columns: minmax(0, 1fr) 24px;
   align-items: stretch;
 }
+/* Controls with no chrome of their own: the shared press rule outranks a
+   plain class, so it has to be turned off explicitly or they grow a box
+   under the finger and lose it again on release. Each restates its own
+   resting padding — the press rule shifts it, and there is no keyword that
+   means "the padding this element already had". */
+.rowEdit:active,
+.groupRowName:active,
+.bedSwatch:active {
+  box-shadow: none;
+}
+.rowEdit:active {
+  padding: 4px 2px;
+  background: transparent;
+}
+.groupRowName:active {
+  padding: 2px 6px;
+  background: transparent;
+}
+/* The swatch carries its colour inline, which outranks the press rule's
+   fill, so only its geometry needs holding still. */
+.bedSwatch:active {
+  padding: 0;
+}
+
 .dangerLink {
   color: var(--color-danger-fg);
 }
@@ -1499,16 +1523,21 @@
 }
 /* Dialog furniture, not an action worth pressing: no fill, no bevel, and
    no clip — the notch would bite the corners off a bare glyph. */
+/* A small square control in a dialog corner: the same rule at a smaller
+   setting. It used to be bare, which meant it had nothing to see at rest
+   and only grew a box while held down. */
 .close {
+  --lift: 2px;
+  --bevel: 2px;
+  --pad-x: 0px;
+  --pad-y: 0px;
+  --notch: 3px;
   position: absolute;
-  top: 12px;
-  right: 12px;
-  min-height: 0;
-  padding: 4px;
-  border: 0;
-  background: transparent;
-  box-shadow: none;
-  clip-path: none;
+  top: 10px;
+  right: 10px;
+  width: 30px;
+  min-width: 30px;
+  min-height: 30px;
   color: var(--color-text-muted);
 }
 
