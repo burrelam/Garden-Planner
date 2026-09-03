@@ -107,13 +107,31 @@ export function SproutNavIcon(props: IconProps) {
       <rect x="12" y="2" width="1" height="1" fill="var(--color-text)" />
       <rect x="5" y="3" width="1" height="1" fill="var(--color-text)" />
       <rect x="6" y="3" width="4" height="1" fill="var(--color-accent-hover)" />
-      <rect x="10" y="3" width="1" height="1" fill="var(--color-accent-light)" />
-      <rect x="11" y="3" width="1" height="1" fill="var(--color-accent-hover)" />
+      <rect
+        x="10"
+        y="3"
+        width="1"
+        height="1"
+        fill="var(--color-accent-light)"
+      />
+      <rect
+        x="11"
+        y="3"
+        width="1"
+        height="1"
+        fill="var(--color-accent-hover)"
+      />
       <rect x="12" y="3" width="1" height="1" fill="var(--color-text)" />
       <rect x="5" y="4" width="1" height="1" fill="var(--color-text)" />
       <rect x="6" y="4" width="2" height="1" fill="var(--color-accent-hover)" />
       <rect x="8" y="4" width="2" height="1" fill="var(--color-accent-light)" />
-      <rect x="10" y="4" width="1" height="1" fill="var(--color-accent-hover)" />
+      <rect
+        x="10"
+        y="4"
+        width="1"
+        height="1"
+        fill="var(--color-accent-hover)"
+      />
       <rect x="11" y="4" width="1" height="1" fill="var(--color-accent)" />
       <rect x="12" y="4" width="1" height="1" fill="var(--color-text)" />
       <rect x="4" y="5" width="1" height="1" fill="var(--color-text)" />
@@ -134,23 +152,77 @@ export function SproutNavIcon(props: IconProps) {
       <rect x="4" y="8" width="5" height="1" fill="var(--color-text)" />
       <rect x="-5" y="1" width="4" height="1" fill="var(--color-text)" />
       <rect x="-1" y="2" width="2" height="1" fill="var(--color-text)" />
-      <rect x="-5" y="2" width="4" height="1" fill="var(--color-accent-hover)" />
+      <rect
+        x="-5"
+        y="2"
+        width="4"
+        height="1"
+        fill="var(--color-accent-hover)"
+      />
       <rect x="-6" y="2" width="1" height="1" fill="var(--color-text)" />
       <rect x="1" y="3" width="1" height="1" fill="var(--color-text)" />
-      <rect x="-3" y="3" width="4" height="1" fill="var(--color-accent-hover)" />
-      <rect x="-4" y="3" width="1" height="1" fill="var(--color-accent-light)" />
-      <rect x="-5" y="3" width="1" height="1" fill="var(--color-accent-hover)" />
+      <rect
+        x="-3"
+        y="3"
+        width="4"
+        height="1"
+        fill="var(--color-accent-hover)"
+      />
+      <rect
+        x="-4"
+        y="3"
+        width="1"
+        height="1"
+        fill="var(--color-accent-light)"
+      />
+      <rect
+        x="-5"
+        y="3"
+        width="1"
+        height="1"
+        fill="var(--color-accent-hover)"
+      />
       <rect x="-6" y="3" width="1" height="1" fill="var(--color-text)" />
       <rect x="1" y="4" width="1" height="1" fill="var(--color-text)" />
-      <rect x="-1" y="4" width="2" height="1" fill="var(--color-accent-hover)" />
-      <rect x="-3" y="4" width="2" height="1" fill="var(--color-accent-light)" />
-      <rect x="-4" y="4" width="1" height="1" fill="var(--color-accent-hover)" />
+      <rect
+        x="-1"
+        y="4"
+        width="2"
+        height="1"
+        fill="var(--color-accent-hover)"
+      />
+      <rect
+        x="-3"
+        y="4"
+        width="2"
+        height="1"
+        fill="var(--color-accent-light)"
+      />
+      <rect
+        x="-4"
+        y="4"
+        width="1"
+        height="1"
+        fill="var(--color-accent-hover)"
+      />
       <rect x="-5" y="4" width="1" height="1" fill="var(--color-accent)" />
       <rect x="-6" y="4" width="1" height="1" fill="var(--color-text)" />
       <rect x="2" y="5" width="1" height="1" fill="var(--color-text)" />
       <rect x="0" y="5" width="2" height="1" fill="var(--color-accent-hover)" />
-      <rect x="-1" y="5" width="1" height="1" fill="var(--color-accent-light)" />
-      <rect x="-2" y="5" width="1" height="1" fill="var(--color-accent-hover)" />
+      <rect
+        x="-1"
+        y="5"
+        width="1"
+        height="1"
+        fill="var(--color-accent-light)"
+      />
+      <rect
+        x="-2"
+        y="5"
+        width="1"
+        height="1"
+        fill="var(--color-accent-hover)"
+      />
       <rect x="-4" y="5" width="2" height="1" fill="var(--color-accent)" />
       <rect x="-5" y="5" width="1" height="1" fill="var(--color-text)" />
       <rect x="2" y="6" width="1" height="1" fill="var(--color-text)" />
@@ -216,7 +288,10 @@ const SNOWFLAKE_TICKS: Array<[number, number]> = [
 const SNOWFLAKE_POINTS: Array<[number, number]> = [
   [8, 8],
   ...SNOWFLAKE_DIRS.flatMap(([dx, dy]) =>
-    Array.from({ length: 7 }, (_, i) => [8 + dx * (i + 1), 8 + dy * (i + 1)] as [number, number]),
+    Array.from(
+      { length: 7 },
+      (_, i) => [8 + dx * (i + 1), 8 + dy * (i + 1)] as [number, number],
+    ),
   ),
   ...SNOWFLAKE_TICKS,
 ];
@@ -302,6 +377,97 @@ export function ShovelIcon(props: IconProps) {
       <rect x="11" y="12" width="1" height="1" fill="#6b4a28" />
       <rect x="1" y="13" width="1" height="1" fill="#7a5530" />
       <rect x="12" y="14" width="1" height="1" fill="#8a6239" />
+    </Pixels>
+  );
+}
+
+/**
+ * The app's only arrow. One shape, rotated about (8, 8) — a grid
+ * intersection, so every corner still lands on a whole unit and the steps
+ * stay hard-edged in all four directions rather than being drawn four times.
+ *
+ * Open, not solid: a filled triangle is a play button and reads as "go",
+ * while a chevron is a hinge — it can flip to point down when a panel opens.
+ */
+export function ChevronIcon({
+  direction = "up",
+  ...props
+}: IconProps & { direction?: "up" | "down" | "left" | "right" }) {
+  const turn = { up: 0, right: 90, down: 180, left: 270 }[direction];
+  return (
+    <Pixels viewBox="0 0 16 16" fill="currentColor" {...props}>
+      <g transform={`rotate(${turn} 8 8)`}>
+        <rect x="6" y="5" width="4" height="2" />
+        <rect x="4" y="7" width="3" height="2" />
+        <rect x="2" y="9" width="3" height="2" />
+        <rect x="9" y="7" width="3" height="2" />
+        <rect x="11" y="9" width="3" height="2" />
+      </g>
+    </Pixels>
+  );
+}
+
+/**
+ * Amanda's pencil, traced onto the grid: an outlined barrel running at 45°
+ * with a ferrule band across it and a nib at the point. Outline rather than
+ * solid, which is how PlannerIcon and SourcesIcon are drawn too.
+ */
+export function PencilIcon(props: IconProps) {
+  return (
+    <Pixels viewBox="0 0 16 16" fill="currentColor" {...props}>
+      {/* the eraser end, capped */}
+      <rect x="10" y="2" width="4" height="1" />
+      {/* the two long edges, one unit per row so they stay a true 45° */}
+      <rect x="9" y="3" width="1" height="1" />
+      <rect x="8" y="4" width="1" height="1" />
+      <rect x="7" y="5" width="1" height="1" />
+      <rect x="6" y="6" width="1" height="1" />
+      <rect x="5" y="7" width="1" height="1" />
+      <rect x="4" y="8" width="1" height="1" />
+      <rect x="3" y="9" width="1" height="1" />
+      <rect x="2" y="10" width="1" height="1" />
+      <rect x="13" y="3" width="1" height="1" />
+      <rect x="12" y="4" width="1" height="1" />
+      <rect x="11" y="5" width="1" height="1" />
+      <rect x="10" y="6" width="1" height="1" />
+      <rect x="9" y="7" width="1" height="1" />
+      <rect x="8" y="8" width="1" height="1" />
+      <rect x="7" y="9" width="1" height="1" />
+      <rect x="6" y="10" width="1" height="1" />
+      {/* the ferrule, filling the barrel between the edges */}
+      <rect x="8" y="5" width="3" height="1" />
+      {/* the nib, closing to a point */}
+      <rect x="1" y="11" width="5" height="1" />
+      <rect x="1" y="12" width="3" height="1" />
+      <rect x="1" y="13" width="2" height="1" />
+    </Pixels>
+  );
+}
+
+export function MenuIcon(props: IconProps) {
+  return (
+    <Pixels viewBox="0 0 16 16" fill="currentColor" {...props}>
+      <rect x="2" y="3" width="12" height="2" />
+      <rect x="2" y="7" width="12" height="2" />
+      <rect x="2" y="11" width="12" height="2" />
+    </Pixels>
+  );
+}
+
+/** The dialog close. × is not in Silkscreen, so the font was drawing a tofu
+ *  box; on the grid it is four steps and a font can no longer let it down. */
+export function CloseIcon(props: IconProps) {
+  return (
+    <Pixels viewBox="0 0 16 16" fill="currentColor" {...props}>
+      <rect x="3" y="3" width="3" height="2" />
+      <rect x="10" y="3" width="3" height="2" />
+      <rect x="5" y="5" width="3" height="2" />
+      <rect x="8" y="5" width="3" height="2" />
+      <rect x="6" y="7" width="4" height="2" />
+      <rect x="5" y="9" width="3" height="2" />
+      <rect x="8" y="9" width="3" height="2" />
+      <rect x="3" y="11" width="3" height="2" />
+      <rect x="10" y="11" width="3" height="2" />
     </Pixels>
   );
 }

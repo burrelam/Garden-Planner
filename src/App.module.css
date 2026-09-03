@@ -1,3 +1,28 @@
+/* One corner notch, shared by every depth: buttons, fields and flat
+   surfaces alike. Set --notch, then use this. A radius would read as a web
+   button and a 45° cut antialiases into mush; a square step reads pixel.
+   Deliberately outside the theme blocks — it is geometry, not colour. */
+:global(:root) {
+  /* The down chevron, as a mask. A <select> cannot carry a pseudo-element,
+     so its wrapper draws this and paints it with currentColor — one sprite
+     that follows the season, rather than the path restated per theme. */
+  --chevron-down: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M2 5h3v2H2zM11 5h3v2h-3zM4 7h3v2H4zM9 7h3v2H9zM6 9h4v2H6z'/%3E%3C/svg%3E");
+  --notch-clip: polygon(
+    var(--notch) 0,
+    calc(100% - var(--notch)) 0,
+    calc(100% - var(--notch)) var(--notch),
+    100% var(--notch),
+    100% calc(100% - var(--notch)),
+    calc(100% - var(--notch)) calc(100% - var(--notch)),
+    calc(100% - var(--notch)) 100%,
+    var(--notch) 100%,
+    var(--notch) calc(100% - var(--notch)),
+    0 calc(100% - var(--notch)),
+    0 var(--notch),
+    var(--notch) var(--notch)
+  );
+}
+
 /* ============================================================
    Theme tokens. Fall (Harvest) is the bare :root default, so the
    app is correct before any preference is read. Each season
@@ -410,15 +435,45 @@
 :global(select) {
   font: inherit;
 }
+/* ============================================================
+   Three depths. A bevel means you can press it, so only the
+   raised tier gets one: buttons are raised, fields are recessed,
+   everything you merely read is flat. All three share one edge
+   colour and one corner notch, mixed from whatever --fill they
+   carry — so the whole system retints with the season and no
+   button colour is ever written down twice.
+   ============================================================ */
 :global(button),
 .button,
 .fileButton {
-  min-height: 42px;
-  border: 1px solid var(--color-border);
-  border-radius: 12px;
-  background: var(--color-surface);
+  --fill: var(--color-surface);
+  --lift: 4px; /* the plinth you press away */
+  --bevel: 3px; /* the highlight band inside the face */
+  --pad-y: 10px;
+  --pad-x: 16px;
+  --notch: 4px;
+  --lit: color-mix(in srgb, var(--fill) 68%, #fff);
+  --shade: color-mix(in srgb, var(--fill) 72%, #000);
+  --edge: color-mix(in srgb, var(--fill) 32%, #000);
+  --stack-up:
+    inset 0 calc(-1 * var(--lift)) 0 0 var(--edge),
+    inset 0 var(--bevel) 0 0 var(--lit), inset var(--bevel) 0 0 0 var(--lit),
+    inset calc(-1 * var(--bevel)) 0 0 0 var(--shade);
+  --stack-down:
+    inset 0 var(--bevel) 0 0 var(--shade),
+    inset var(--bevel) 0 0 0 var(--shade),
+    inset calc(-1 * var(--bevel)) 0 0 0 var(--lit),
+    inset 0 calc(-1 * var(--bevel)) 0 0 var(--lit);
+
+  appearance: none;
+  /* 46px, not 42px: the plinth must not be stolen from the tappable face. */
+  min-height: 46px;
+  border: 2px solid var(--edge);
+  border-radius: 0;
+  background: var(--fill);
   color: var(--color-text);
-  padding: 9px 14px;
+  /* Extra bottom padding centres the label on the face, above the plinth. */
+  padding: var(--pad-y) var(--pad-x) calc(var(--pad-y) + var(--lift));
   cursor: pointer;
   text-decoration: none;
   display: inline-flex;
@@ -429,36 +484,98 @@
   font-size: var(--type-control);
   letter-spacing: 0.03em;
   text-transform: uppercase;
-  box-shadow: 0 4px 10px rgba(var(--shadow-color), 0.25);
-  transition:
-    box-shadow 0.15s,
-    border-color 0.15s,
-    background 0.15s;
+  box-shadow: var(--stack-up);
+  clip-path: var(--notch-clip);
+  transition: background 0.08s linear;
 }
 :global(button:hover),
 .button:hover,
 .fileButton:hover {
-  border-color: var(--color-accent);
-  background: var(--color-accent-soft);
-  box-shadow: 0 6px 16px rgba(var(--shadow-color), 0.32);
+  background: color-mix(in srgb, var(--fill) 86%, #fff);
 }
+/* The press happens inside the button's own box — padding shifts, height
+   does not — so a row of controls never jogs when one is held down. */
+:global(button:active),
+.button:active,
+.fileButton:active,
+:global(button[aria-pressed="true"]) {
+  padding: calc(var(--pad-y) + var(--lift)) var(--pad-x) var(--pad-y);
+  background: color-mix(in srgb, var(--fill) 88%, #000);
+  box-shadow: var(--stack-down);
+}
+:global(button[disabled]) {
+  --lift: 0px;
+  padding: var(--pad-y) var(--pad-x);
+  border-color: color-mix(in srgb, var(--color-surface-muted) 62%, #000);
+  background: var(--color-surface-muted);
+  color: var(--color-text-muted);
+  box-shadow: none;
+  cursor: default;
+}
+/* clip-path clips the outline along with the corners, so a focused button
+   draws its ring on the inside instead. */
 :global(button:focus-visible),
+.button:focus-visible,
+.fileButton:focus-visible {
+  outline: none;
+  box-shadow:
+    inset 0 0 0 3px var(--color-focus),
+    var(--stack-up);
+}
+:global(button:active:focus-visible) {
+  box-shadow:
+    inset 0 0 0 3px var(--color-focus),
+    var(--stack-down);
+}
 :global(input:focus-visible),
 :global(select:focus-visible),
 :global(a:focus-visible) {
   outline: 3px solid var(--color-focus);
   outline-offset: 2px;
 }
+
+/* Every shade above is mixed from --fill at paint time. color-mix landed in
+   Safari 16.2, so any current iPhone has it; anything older drops through to
+   flat, square controls rather than a half-drawn bevel. */
+@supports not (background: color-mix(in srgb, red 50%, blue)) {
+  :global(button),
+  .button,
+  .fileButton,
+  :global(input),
+  :global(select),
+  .chip,
+  .notice,
+  .warning,
+  .error,
+  .plantCard,
+  .factEditable {
+    border: 1px solid var(--color-border);
+    box-shadow: none;
+    clip-path: none;
+  }
+  :global(button),
+  .button,
+  .fileButton {
+    padding: var(--pad-y) var(--pad-x);
+  }
+}
+/* Recessed: the bevel inverted, so a field reads as a hole rather than a
+   key. Same notch, same edge mix — only the direction of the light changes. */
 :global(input),
 :global(select) {
+  --notch: 3px;
   width: 100%;
   min-width: 0;
-  min-height: 42px;
-  padding: 9px 11px;
-  border: 1px solid var(--color-field-border);
-  border-radius: 10px;
+  min-height: 46px;
+  padding: 10px 12px;
+  border: 2px solid color-mix(in srgb, var(--color-field) 34%, #000);
+  border-radius: 0;
   background: var(--color-field);
   color: var(--color-text);
+  box-shadow:
+    inset 0 3px 0 0 color-mix(in srgb, var(--color-field) 76%, #000),
+    inset 3px 0 0 0 color-mix(in srgb, var(--color-field) 76%, #000);
+  clip-path: var(--notch-clip);
 }
 :global(input::placeholder) {
   color: var(--color-field-hint);
@@ -468,6 +585,29 @@
   font-family: "VT323", ui-monospace, monospace;
   font-size: 0.88rem;
   letter-spacing: 0.02em;
+  /* The phone draws its own chevron here otherwise, and it matches nothing. */
+  appearance: none;
+  padding-right: 32px;
+}
+.selectWrap {
+  position: relative;
+  display: block;
+  min-width: 0;
+  max-width: 100%;
+  color: var(--color-text);
+}
+.selectWrap::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  right: 9px;
+  width: 16px;
+  height: 16px;
+  margin-top: -8px;
+  background: currentColor;
+  pointer-events: none;
+  -webkit-mask: var(--chevron-down) center / 16px 16px no-repeat;
+  mask: var(--chevron-down) center / 16px 16px no-repeat;
 }
 :global(label) {
   display: grid;
@@ -517,9 +657,10 @@
   backdrop-filter: blur(12px);
 }
 .navToggle {
+  --pad-x: 0px;
+  width: 46px;
   min-width: 46px;
   min-height: 46px;
-  padding: 0;
   font-size: 1.15rem;
 }
 .navScrim {
@@ -642,17 +783,25 @@
 .actions input {
   min-width: 190px;
 }
+/* Where a select sizes to its content, its wrapper has to do the same —
+   otherwise it stretches and drags the chevron out to the row's edge.
+   fit-content, not auto: auto on a grid item means stretch. */
+.actions .selectWrap {
+  width: fit-content;
+  justify-self: start;
+}
 .actions select {
   width: auto;
 }
+/* Every variant is the same two lines: pick a fill, pick an ink. The
+   bevel, outline and plinth all fall out of the fill on their own. */
 .primary {
-  background: var(--color-accent);
-  border-color: var(--color-accent);
+  --fill: var(--color-accent);
   color: var(--color-on-accent);
 }
-.primary:hover {
-  background: var(--color-accent-hover);
-  color: var(--color-on-accent);
+.dangerButton {
+  --fill: var(--color-danger-fg);
+  color: var(--color-danger-bg);
 }
 .stack {
   display: grid;
@@ -709,21 +858,35 @@
   image-rendering: pixelated;
 }
 .error {
+  --fill: var(--color-error-bg);
   color: var(--color-error-fg);
-  background: var(--color-error-bg);
-  border-radius: 10px;
+  background: var(--fill);
   padding: 10px 12px;
   margin: 0;
 }
 .notice,
 .warning {
   padding: 11px 14px;
-  border-radius: 10px;
+  border-radius: 0;
   margin: 0 0 16px;
 }
 .notice {
-  background: var(--color-accent-soft);
+  --fill: var(--color-accent-soft);
+  background: var(--fill);
   color: var(--color-accent-hover);
+}
+.warning {
+  --fill: var(--color-warn-bg);
+}
+/* Three banners, three fills, one rule: colour keeps carrying the meaning
+   and the chrome stops competing with it. */
+.notice,
+.warning,
+.error {
+  --notch: 4px;
+  border: 2px solid color-mix(in srgb, var(--fill) 32%, #000);
+  border-radius: 0;
+  clip-path: var(--notch-clip);
 }
 
 .plannerPage {
@@ -797,15 +960,11 @@
   padding-right: 6px;
   white-space: nowrap;
 }
+/* The dock sits on the inverse panel, so More takes a lightened inverse
+   fill — that way all three controls in the bar read as the same object. */
 .moreButton {
-  border-color: var(--color-border-strong);
-  background: transparent;
+  --fill: color-mix(in srgb, var(--color-inverse-bg) 72%, #fff);
   color: var(--color-inverse-text);
-  box-shadow: none;
-}
-.moreButton:hover {
-  border-color: var(--color-accent-light);
-  background: rgba(255, 255, 255, 0.12);
 }
 .moreArrow {
   margin-left: 4px;
@@ -835,10 +994,12 @@
 }
 .fact,
 .factEditable {
+  --notch: 4px;
   position: relative;
   padding: 9px 8px;
-  border: 1px solid var(--color-border);
-  border-radius: 10px;
+  border: 2px solid color-mix(in srgb, var(--color-accent-soft) 32%, #000);
+  border-radius: 0;
+  clip-path: var(--notch-clip);
   background: var(--color-accent-soft);
   background: color-mix(in srgb, var(--color-accent-soft) 60%, transparent);
   text-align: center;
@@ -860,16 +1021,21 @@
   line-height: 1.2;
 }
 /* ZIP and zone are the two facts you can change, so each carries its own pencil. */
+/* A small square control tucked into a tile corner: the same rule at a
+   smaller setting, so the chrome frames the pencil instead of eating it. */
 .factPen {
+  --lift: 2px;
+  --bevel: 2px;
+  --pad-x: 0px;
+  --pad-y: 0px;
+  --notch: 3px;
   position: absolute;
   top: 4px;
   right: 4px;
-  min-width: 26px;
-  min-height: 26px;
-  padding: 0;
-  border-radius: 7px;
-  font-size: 0.7rem;
-  box-shadow: none;
+  width: 30px;
+  min-width: 30px;
+  min-height: 30px;
+  color: var(--color-accent);
 }
 .factInput {
   width: 100%;
@@ -900,11 +1066,13 @@
   justify-content: space-between;
   gap: 10px;
   margin: 0;
+  --notch: 4px;
   padding: 9px 12px;
-  border: 1px solid var(--color-frost);
-  border: 1px solid color-mix(in srgb, var(--color-frost) 40%, transparent);
-  border-radius: 10px;
+  border: 2px solid var(--color-frost);
+  border: 2px solid color-mix(in srgb, var(--color-frost) 40%, transparent);
+  border-radius: 0;
   background: color-mix(in srgb, var(--color-frost) 12%, transparent);
+  clip-path: var(--notch-clip);
 }
 .seasonBar b {
   color: var(--color-frost);
@@ -962,10 +1130,12 @@
   align-items: center;
   justify-content: space-between;
   margin-top: 18px;
+  --notch: 4px;
   padding: 11px 12px;
-  border: 1px solid var(--color-border);
-  border-radius: 10px;
+  border: 2px solid color-mix(in srgb, var(--color-accent-soft) 32%, #000);
+  border-radius: 0;
   background: color-mix(in srgb, var(--color-accent-soft) 45%, transparent);
+  clip-path: var(--notch-clip);
   color: var(--color-accent-hover);
   text-decoration: none;
   font-weight: 600;
@@ -1173,9 +1343,10 @@
   height: auto;
   padding: 4px 2px;
   border: 0;
-  /* The shared button shadow would ring this transparent tap target with a
-     halo, which reads as a stray pill sitting in the middle of the row. */
+  /* One of these sits in every calendar row, so chrome here would ring the
+     whole grid. It stays bare: no bevel, no plinth, no notch. */
   box-shadow: none;
+  clip-path: none;
   background: transparent;
   color: var(--color-accent);
 }
@@ -1188,13 +1359,8 @@
   grid-template-columns: minmax(0, 1fr) 24px;
   align-items: stretch;
 }
-.dangerLink,
-.dangerButton {
+.dangerLink {
   color: var(--color-danger-fg);
-}
-.dangerButton {
-  border-color: var(--color-danger-border);
-  background: var(--color-danger-bg);
 }
 .slotCell {
   display: grid;
@@ -1253,9 +1419,11 @@
 .sheetBed {
   grid-column: 1 / -1;
 }
+/* The one border still saying "nothing here yet" rather than "this is an
+   object", so it keeps the dash — but loses the radius with everything else. */
 .empty {
-  border: 1px dashed var(--color-border-strong);
-  border-radius: 18px;
+  border: 2px dashed var(--color-border-strong);
+  border-radius: 0;
   padding: 42px;
   text-align: center;
   margin-top: 22px;
@@ -1280,13 +1448,19 @@
   padding: 30px;
   box-shadow: 0 30px 80px rgba(0, 0, 0, 0.25);
 }
+/* Dialog furniture, not an action worth pressing: no fill, no bevel, and
+   no clip — the notch would bite the corners off a bare glyph. */
 .close {
   position: absolute;
   top: 12px;
   right: 12px;
+  min-height: 0;
+  padding: 4px;
   border: 0;
   background: transparent;
-  font-size: 1.6rem;
+  box-shadow: none;
+  clip-path: none;
+  color: var(--color-text-muted);
 }
 
 .cardGrid {
@@ -1294,16 +1468,19 @@
   grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
   gap: 18px;
 }
+/* A card is a container, not a control — flat even though it is a link.
+   Bevelling these would turn the whole grid into a wall of buttons and
+   drown the actions that really are pressable. */
 .plantCard {
-  border: 1px solid var(--color-border);
-  border-radius: 18px;
-  background: var(--color-surface);
+  --fill: var(--color-surface);
+  --notch: 4px;
+  border: 2px solid color-mix(in srgb, var(--fill) 32%, #000);
+  border-radius: 0;
+  background: var(--fill);
   padding: 22px;
   color: var(--color-text);
   text-decoration: none;
-  transition:
-    transform 0.15s,
-    box-shadow 0.15s;
+  clip-path: var(--notch-clip);
 }
 .plantCard:hover {
   transform: translateY(-3px);
@@ -1320,17 +1497,24 @@
   font-weight: 600;
   font-size: 0.82rem;
 }
+/* Flat: you read it. Same edge mix and same notch as a button, minus every
+   trace of depth — a pill you cannot press must not look raised. */
 .chip {
+  --fill: var(--color-accent-soft);
+  --notch: 2px;
   display: inline-block;
   width: fit-content;
-  background: var(--color-accent-soft);
+  padding: 4px 8px;
+  border: 2px solid color-mix(in srgb, var(--fill) 32%, #000);
+  border-radius: 0;
+  background: var(--fill);
   color: var(--color-accent-hover);
-  padding: 4px 9px;
-  border-radius: 999px;
-  font-size: 0.72rem;
+  clip-path: var(--notch-clip);
+  font-family: "Silkscreen", ui-monospace, monospace;
+  font-size: 0.56rem;
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.1em;
 }
 .detailGrid,
 .settingsGrid {

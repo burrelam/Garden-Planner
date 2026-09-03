@@ -44,6 +44,10 @@ import {
 import { frostPosition, timelineForEntry } from "./shared/timing";
 import styles from "./App.module.css";
 import {
+  ChevronIcon,
+  CloseIcon,
+  MenuIcon,
+  PencilIcon,
   PlannerIcon,
   QuestionIcon,
   SettingsIcon,
@@ -211,7 +215,7 @@ function Shell({
           aria-expanded={navOpen}
           onClick={() => setNavOpen((open) => !open)}
         >
-          <span aria-hidden="true">☰</span>
+          <MenuIcon />
         </button>
       </header>
       {navOpen && (
@@ -533,17 +537,19 @@ function Planner() {
           <div
             className={`${styles.stickyPlant} ${styles.monthHead} ${styles.monthCorner}`}
           >
-            <select
-              aria-label="Sort plants"
-              className={styles.cornerSort}
-              value={view}
-              onChange={(event) => setView(event.target.value as typeof view)}
-            >
-              <option value="name">A – Z</option>
-              <option value="bed">By bed</option>
-              <option value="status">By status</option>
-              <option value="category">By category</option>
-            </select>
+            <span className={styles.selectWrap}>
+              <select
+                aria-label="Sort plants"
+                className={styles.cornerSort}
+                value={view}
+                onChange={(event) => setView(event.target.value as typeof view)}
+              >
+                <option value="name">A – Z</option>
+                <option value="bed">By bed</option>
+                <option value="status">By status</option>
+                <option value="category">By category</option>
+              </select>
+            </span>
           </div>
           {months.map((month, index) => (
             <div
@@ -612,7 +618,7 @@ function Planner() {
                         aria-label={editLabel}
                         onClick={() => setSelectedEntryId(entry.id)}
                       >
-                        <span aria-hidden="true">▾</span>
+                        <ChevronIcon direction="down" />
                       </button>
                     </div>
                     {timeline.map((slot, index) => (
@@ -654,9 +660,10 @@ function Planner() {
           onClick={() => setShowMore(true)}
         >
           More{" "}
-          <span className={styles.moreArrow} aria-hidden="true">
-            ▲
-          </span>
+          <ChevronIcon
+            className={styles.moreArrow}
+            direction={showMore ? "down" : "up"}
+          />
         </button>
       </div>
       {showMore && (
@@ -806,7 +813,7 @@ function PlannerMore({
             aria-label="Change ZIP code"
             onClick={() => startEditing("zip")}
           >
-            <span aria-hidden="true">✎</span>
+            <PencilIcon />
           </button>
           {field === "zip" ? editor("zip", "ZIP code") : <b>{zip || "--"}</b>}
           <span>ZIP code</span>
@@ -817,7 +824,7 @@ function PlannerMore({
             aria-label="Change hardiness zone"
             onClick={() => startEditing("zone")}
           >
-            <span aria-hidden="true">✎</span>
+            <PencilIcon />
           </button>
           {field === "zone" ? (
             editor("zone", "Hardiness zone")
@@ -898,7 +905,7 @@ function PlannerMore({
           <SettingsIcon size={14} className={styles.legendIcon} />
           All garden settings
         </span>
-        <span aria-hidden="true">›</span>
+        <ChevronIcon direction="right" />
       </Link>
     </Dialog>
   );
@@ -952,30 +959,34 @@ function PlantSheet({
           </label>
           <label>
             Status
-            <select
-              value={status}
-              onChange={(event) =>
-                setStatus(event.target.value as GardenEntry["status"])
-              }
-            >
-              <option value="planted">Planted</option>
-              <option value="willplant">Will plant</option>
-              <option value="undecided">Undecided</option>
-            </select>
+            <span className={styles.selectWrap}>
+              <select
+                value={status}
+                onChange={(event) =>
+                  setStatus(event.target.value as GardenEntry["status"])
+                }
+              >
+                <option value="planted">Planted</option>
+                <option value="willplant">Will plant</option>
+                <option value="undecided">Undecided</option>
+              </select>
+            </span>
           </label>
           <label className={styles.sheetBed}>
             Bed
-            <select
-              value={bedId}
-              onChange={(event) => setBedId(event.target.value)}
-            >
-              <option value="">No bed</option>
-              {state.beds.map((bed) => (
-                <option value={bed.id} key={bed.id}>
-                  {bed.label}
-                </option>
-              ))}
-            </select>
+            <span className={styles.selectWrap}>
+              <select
+                value={bedId}
+                onChange={(event) => setBedId(event.target.value)}
+              >
+                <option value="">No bed</option>
+                {state.beds.map((bed) => (
+                  <option value={bed.id} key={bed.id}>
+                    {bed.label}
+                  </option>
+                ))}
+              </select>
+            </span>
           </label>
         </div>
         {entry.plantId && (
@@ -1058,7 +1069,7 @@ function Dialog({
         className={styles.dialog}
       >
         <button className={styles.close} aria-label="Close" onClick={close}>
-          ×
+          <CloseIcon />
         </button>
         <h2 className={hideTitle ? styles.srOnly : undefined}>{title}</h2>
         {children}
@@ -1106,20 +1117,22 @@ function PlantDialog({
       <form onSubmit={submit} className={styles.stack}>
         <label>
           Plant
-          <select
-            value={plantId}
-            onChange={(event) => {
-              setPlantId(event.target.value);
-              setVariety("");
-            }}
-          >
-            <option value="custom">Custom plant</option>
-            {localCatalog.map((plant) => (
-              <option value={plant.id} key={plant.id}>
-                {plant.commonName}
-              </option>
-            ))}
-          </select>
+          <span className={styles.selectWrap}>
+            <select
+              value={plantId}
+              onChange={(event) => {
+                setPlantId(event.target.value);
+                setVariety("");
+              }}
+            >
+              <option value="custom">Custom plant</option>
+              {localCatalog.map((plant) => (
+                <option value={plant.id} key={plant.id}>
+                  {plant.commonName}
+                </option>
+              ))}
+            </select>
+          </span>
         </label>
         {plantId === "custom" && (
           <label>
@@ -1158,17 +1171,19 @@ function PlantDialog({
           </label>
           <label>
             Bed
-            <select
-              value={bedId}
-              onChange={(event) => setBedId(event.target.value)}
-            >
-              <option value="">No bed</option>
-              {state.beds.map((bed) => (
-                <option value={bed.id} key={bed.id}>
-                  {bed.label}
-                </option>
-              ))}
-            </select>
+            <span className={styles.selectWrap}>
+              <select
+                value={bedId}
+                onChange={(event) => setBedId(event.target.value)}
+              >
+                <option value="">No bed</option>
+                {state.beds.map((bed) => (
+                  <option value={bed.id} key={bed.id}>
+                    {bed.label}
+                  </option>
+                ))}
+              </select>
+            </span>
           </label>
         </div>
         <button className={styles.primary}>Add to planner</button>
@@ -1426,17 +1441,19 @@ function PlantLibrary() {
             value={query}
             onChange={(event) => setQuery(event.target.value)}
           />
-          <select
-            aria-label="Plant category"
-            value={category}
-            onChange={(event) => setCategory(event.target.value)}
-          >
-            <option value="all">All types</option>
-            <option value="herb">Herbs</option>
-            <option value="vegetable">Vegetables</option>
-            <option value="fruit">Fruits</option>
-            <option value="flower">Flowers</option>
-          </select>
+          <span className={styles.selectWrap}>
+            <select
+              aria-label="Plant category"
+              value={category}
+              onChange={(event) => setCategory(event.target.value)}
+            >
+              <option value="all">All types</option>
+              <option value="herb">Herbs</option>
+              <option value="vegetable">Vegetables</option>
+              <option value="fruit">Fruits</option>
+              <option value="flower">Flowers</option>
+            </select>
+          </span>
         </>
       }
     >
