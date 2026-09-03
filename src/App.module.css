@@ -977,6 +977,82 @@
   clip-path: inset(50%);
   white-space: nowrap;
 }
+/* A save says so over the calendar, not above it: the toast is fixed, so the
+   grid never jogs down to make room for a word that is about to leave. It sits
+   clear of the dock so it can never cover the three actions. */
+.toast {
+  --fill: var(--color-accent-soft);
+  --notch: 4px;
+  position: fixed;
+  left: 50%;
+  bottom: calc(86px + env(safe-area-inset-bottom));
+  /* Above the dialog backdrop (50). A save started inside a dialog can fail,
+     and its message has to be readable and dismissable from in there. */
+  z-index: 60;
+  transform: translateX(-50%);
+  width: max-content;
+  max-width: min(420px, calc(100% - 28px));
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  border: 2px solid color-mix(in srgb, var(--fill) 32%, #000);
+  border-radius: 0;
+  background: var(--fill);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.34);
+  clip-path: var(--notch-clip);
+  font-family: "Silkscreen", ui-monospace, monospace;
+  font-size: var(--type-control);
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  animation: toastIn 0.16s ease-out;
+}
+.toastSaved {
+  --fill: var(--color-accent-soft);
+  color: var(--color-accent-hover);
+}
+/* A problem is not shouted, but it does not share the success colour and it
+   does not leave on its own. */
+.toastProblem {
+  --fill: var(--color-warn-bg);
+  color: var(--color-warn-fg);
+  text-transform: none;
+  letter-spacing: 0;
+  font-family: "VT323", ui-monospace, monospace;
+  font-size: 1.05rem;
+  text-align: left;
+}
+.toastDismiss {
+  --lift: 0px;
+  flex: 0 0 auto;
+  min-height: 0;
+  padding: 4px;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  box-shadow: none;
+  clip-path: none;
+}
+.toastDismiss:active {
+  padding: 4px;
+  background: transparent;
+  box-shadow: none;
+}
+@keyframes toastIn {
+  from {
+    opacity: 0;
+    transform: translate(-50%, 6px);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .toast {
+    animation: none;
+  }
+}
 /* The three actions ride above the calendar rather than pushing it down, so the
    grid keeps the full height of the screen behind them. */
 .plannerDock {
@@ -1104,48 +1180,48 @@
   color: var(--color-text-muted);
   font-size: 0.92rem;
 }
+/* Two dates side by side, the length they produce beneath them spanning both:
+   the pair reads as one season rather than three separate announcements. */
 .seasonRow {
   display: grid;
-  gap: 7px;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
 }
-.seasonBar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
-  margin: 0;
+.seasonFact {
   --notch: 4px;
-  padding: 9px 12px;
-  border: 2px solid var(--color-frost);
+  margin: 0;
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 7px;
+  padding: 7px 9px;
   border: 2px solid color-mix(in srgb, var(--color-frost) 40%, transparent);
   border-radius: 0;
   background: color-mix(in srgb, var(--color-frost) 12%, transparent);
   clip-path: var(--notch-clip);
 }
-.seasonBar b {
+.seasonFact b {
   color: var(--color-frost);
-  font-family: "Silkscreen", ui-monospace, monospace;
-  font-size: 0.58rem;
+  font-size: 1.15rem;
   font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
 }
-.seasonBar span {
-  color: var(--color-text);
-  font-size: 1rem;
-  font-weight: 400;
+.seasonFact span {
+  color: var(--color-text-muted);
+  font-size: 0.74rem;
+  line-height: 1.2;
+  white-space: nowrap;
 }
-/* Season length is an outcome, not a date, so it reads green rather than frost blue. */
+/* Season length is an outcome, not a date, so it reads green rather than frost
+   blue, and spans the two dates it is measured between. */
 .seasonLength {
-  border-color: var(--stage-harvest);
+  grid-column: 1 / -1;
   border-color: color-mix(in srgb, var(--stage-harvest) 55%, transparent);
   background: color-mix(in srgb, var(--stage-harvest) 18%, transparent);
 }
 .seasonLength b {
   color: var(--stage-harvest);
-}
-.seasonLength span {
-  font-weight: 700;
 }
 .moreLegend {
   display: grid;

@@ -357,9 +357,12 @@ function Page({
 }
 
 function Planner() {
-  const { state, loading, saving, notice, save } = useGarden();
+  const { state, loading, saving, notice, noticeTone, dismissNotice, save } =
+    useGarden();
   const [dialog, setDialog] = useState<"plant" | "bed" | null>(null);
-  const [editingBed, setEditingBed] = useState<Bed | null>(null);
+  // The id, not the bed: a copy of the bed would go on describing a bed the
+  // garden no longer has, leaving its settings panel open over nothing.
+  const [editingBedId, setEditingBedId] = useState<string | null>(null);
   const [view, setView] = useState<"name" | "bed" | "status" | "category">(
     "bed",
   );
@@ -515,18 +518,32 @@ function Planner() {
   const selectedEntry = state.entries.find(
     (entry) => entry.id === selectedEntryId,
   );
+  // Looked up fresh on every draw. Once the bed is gone from the garden — by
+  // this device or another one — there is nothing to find and the panel goes
+  // with it, instead of lingering over a bed that cannot be removed twice.
+  const editingBed = state.beds.find((bed) => bed.id === editingBedId) ?? null;
   return (
     <Page className={styles.plannerPage}>
       <h1 className={styles.srOnly}>My Garden Planting Calendar</h1>
       {notice && (
-        <p
-          className={
-            notice.startsWith("Saved") ? styles.notice : styles.warning
-          }
+        <div
+          className={`${styles.toast} ${noticeTone === "saved" ? styles.toastSaved : styles.toastProblem}`}
           role="status"
+          aria-live="polite"
         >
-          {notice}
-        </p>
+          <span>{notice}</span>
+          {/* Only a problem waits to be read; "Saved" has already gone. */}
+          {noticeTone === "problem" && (
+            <button
+              type="button"
+              className={styles.toastDismiss}
+              aria-label="Dismiss message"
+              onClick={dismissNotice}
+            >
+              <CloseIcon size={12} />
+            </button>
+          )}
+        </div>
       )}
       <section
         ref={calendarRef}
@@ -586,7 +603,7 @@ function Planner() {
                     <button
                       type="button"
                       className={styles.groupRowName}
-                      onClick={() => setEditingBed(group.bed)}
+                      onClick={() => setEditingBedId(group.bed!.id)}
                       aria-label={`Bed settings for ${group.label}`}
                     >
                       {group.label}
@@ -691,9 +708,12 @@ function Planner() {
       )}
       {editingBed && (
         <BedSettingsDialog
+          // Keyed by bed, so opening a different bed starts from that bed's
+          // own name, colour and un-armed Remove rather than the last one's.
+          key={editingBed.id}
           bed={editingBed}
           state={state}
-          close={() => setEditingBed(null)}
+          close={() => setEditingBedId(null)}
           save={save}
         />
       )}
@@ -849,19 +869,24 @@ function PlannerMore({
       )}
 
       <h3 className={styles.moreHeading}>Growing season</h3>
+      {/* The two frost dates read as a pair, because that is what they are —
+          the ends of the same season — with its length underneath as the
+          figure they produce. Tiles, not bars: the same size as At a glance
+          above, so this section stops taking half the panel and the legend
+          stays on screen. */}
       <div className={styles.seasonRow}>
-        <p className={styles.seasonBar}>
-          <b>Last frost</b>
-          <span>~{prettyDate(state.garden.lastFrost)}</span>
+        <p className={styles.seasonFact}>
+          <b>{prettyDate(state.garden.lastFrost)}</b>
+          <span>Last frost</span>
         </p>
-        <p className={styles.seasonBar}>
-          <b>First frost</b>
-          <span>~{prettyDate(state.garden.firstFrost)}</span>
+        <p className={styles.seasonFact}>
+          <b>{prettyDate(state.garden.firstFrost)}</b>
+          <span>First frost</span>
         </p>
-        <p className={`${styles.seasonBar} ${styles.seasonLength}`}>
-          <b>Season length</b>
+        <p className={`${styles.seasonFact} ${styles.seasonLength}`}>
+          <b>{seasonDays > 0 ? `${seasonDays} days` : "--"}</b>
           <span>
-            {seasonDays > 0 ? `${seasonDays} days` : "Check your frost dates"}
+            {seasonDays > 0 ? "Season length" : "Check your frost dates"}
           </span>
         </p>
       </div>
@@ -1225,12 +1250,32 @@ function BedSettingsDialog({
     isBedColorKey(bed.colorKey) ? bed.colorKey : nearestBedColorKey(bed.color),
   );
   const [confirmingDelete, setConfirmingDelete] = useState(false);
+  // A tap that seems not to have landed gets tapped again. Without this, the
+  // second one sends a save built from the state the first one already
+  // replaced, and the server rightly refuses it.
+  const [busy, setBusy] = useState(false);
   const planted = state.entries.filter((entry) => entry.bedId === bed.id);
   const rehome = rehomeTargetFor(state, bed.id);
 
+  // Closes only when the garden really changed. When a save is refused the
+  // panel stays put, with the banner saying why, so the work can be tried
+  // again rather than silently lost.
+  const commit = async (next: GardenState) => {
+    if (busy) return;
+    setBusy(true);
+    try {
+      await save(next);
+      close();
+    } catch {
+      // useGarden has already put the reason on screen.
+    } finally {
+      setBusy(false);
+    }
+  };
+
   const submit = async (event: FormEvent) => {
     event.preventDefault();
-    await save({
+    await commit({
       ...state,
       beds: state.beds.map((item) =>
         item.id === bed.id
@@ -1238,11 +1283,10 @@ function BedSettingsDialog({
           : item,
       ),
     });
-    close();
   };
 
-  const remove = async () => {
-    await save({
+  const remove = () =>
+    commit({
       ...state,
       beds: state.beds.filter((item) => item.id !== bed.id),
       // Every plant keeps its place in the garden; only its bed changes.
@@ -1252,8 +1296,6 @@ function BedSettingsDialog({
           : entry,
       ),
     });
-    close();
-  };
 
   return (
     <Dialog title={`Bed settings — ${bed.label}`} close={close}>
@@ -1271,7 +1313,9 @@ function BedSettingsDialog({
           {planted.length} {planted.length === 1 ? "plant" : "plants"} in this
           bed.
         </p>
-        <button className={styles.primary}>Save bed</button>
+        <button className={styles.primary} disabled={busy}>
+          {busy ? "Saving…" : "Save bed"}
+        </button>
       </form>
       <div className={styles.bedDanger}>
         {confirmingDelete ? (
@@ -1283,15 +1327,20 @@ function BedSettingsDialog({
                 : `Its ${planted.length} ${planted.length === 1 ? "plant moves" : "plants move"} to ${rehome ? rehome.label : "no bed"}.`}
             </p>
             <div className={styles.actions}>
-              <button type="button" onClick={() => setConfirmingDelete(false)}>
+              <button
+                type="button"
+                disabled={busy}
+                onClick={() => setConfirmingDelete(false)}
+              >
                 Keep bed
               </button>
               <button
                 type="button"
                 className={styles.dangerButton}
-                onClick={remove}
+                disabled={busy}
+                onClick={() => void remove()}
               >
-                Remove bed
+                {busy ? "Removing…" : "Remove bed"}
               </button>
             </div>
           </>

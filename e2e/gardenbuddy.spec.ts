@@ -257,3 +257,156 @@ test("the floating planner controls fit without clipping", async ({ page }) => {
     );
   }
 });
+
+// --- Regressions Amanda reported on her phone -------------------------------
+
+test("a bed's settings panel cannot outlive the bed", async ({ page }) => {
+  // The panel used to hold a copy of the bed rather than its id, so once the
+  // bed was gone the panel stayed up over nothing and Remove did nothing at
+  // all. Here the delete lands on the server but the client is told it
+  // conflicted — the shape of a tap that fires twice on a phone.
+  await page.getByRole("button", { name: "+ Bed" }).click();
+  const add = page.getByRole("dialog", { name: "Add a garden bed" });
+  await add.getByLabel("Name").fill("Doomed bed");
+  await add.getByRole("button", { name: "Add bed" }).click();
+  await expect(add).toBeHidden();
+
+  let armed = true;
+  await page.route("**/api/garden", async (route) => {
+    if (route.request().method() === "PUT" && armed) {
+      armed = false;
+      const response = await route.fetch();
+      return route.fulfill({
+        status: 409,
+        contentType: "application/json",
+        body: JSON.stringify({
+          error: "conflict",
+          current: await response.json(),
+        }),
+      });
+    }
+    return route.continue();
+  });
+
+  await page
+    .getByRole("button", { name: "Bed settings for Doomed bed" })
+    .click();
+  const panel = page.getByRole("dialog", { name: /^Bed settings/ });
+  await panel.getByRole("button", { name: "Remove bed" }).click();
+  await panel.getByRole("button", { name: "Remove bed" }).click();
+
+  // The bed is gone from the garden, so its panel must be gone too.
+  await expect(
+    page.getByRole("button", { name: "Bed settings for Doomed bed" }),
+  ).toHaveCount(0);
+  await expect(panel).toBeHidden();
+});
+
+test("opening a second bed shows that bed, not the last one", async ({
+  page,
+}) => {
+  // Two beds the seeded garden already has, so this test adds nothing that a
+  // later test would then find twice.
+  await page.getByRole("button", { name: "Bed settings for Bed A" }).click();
+  const first = page.getByRole("dialog", { name: "Bed settings — Bed A" });
+  await first.getByRole("button", { name: "Remove bed" }).click();
+  // Armed, but abandoned rather than confirmed.
+  await expect(first.getByRole("button", { name: "Keep bed" })).toBeVisible();
+  await page.keyboard.press("Escape");
+  await expect(first).toBeHidden();
+
+  // The next bed opens as itself: its own name, and Remove not already armed.
+  await page.getByRole("button", { name: "Bed settings for Bed B" }).click();
+  const second = page.getByRole("dialog", { name: "Bed settings — Bed B" });
+  await expect(second).toBeVisible();
+  await expect(second.getByRole("button", { name: "Keep bed" })).toHaveCount(0);
+  await expect(second.getByLabel("Name")).toHaveValue("Bed B");
+});
+
+test("Saved says so, then goes away without moving the calendar", async ({
+  page,
+}, testInfo) => {
+  const calendar = page.getByLabel("Annual planting calendar");
+  // Document-relative, so this measures the grid being pushed down rather than
+  // the page happening to be scrolled somewhere else.
+  const top = () => calendar.evaluate((el: HTMLElement) => el.offsetTop);
+  const before = await top();
+
+  await page.getByRole("button", { name: "+ Bed" }).click();
+  const add = page.getByRole("dialog", { name: "Add a garden bed" });
+  await add.getByLabel("Name").fill(`Toast bed ${testInfo.project.name}`);
+  await add.getByRole("button", { name: "Add bed" }).click();
+
+  const toast = page.getByRole("status").filter({ hasText: "Saved" });
+  await expect(toast).toBeVisible();
+
+  // It floats above the grid rather than taking a row of its own.
+  expect(await toast.evaluate((el) => getComputedStyle(el).position)).toBe(
+    "fixed",
+  );
+  expect(await top()).toBe(before);
+
+  // And it leaves on its own.
+  await expect(toast).toBeHidden({ timeout: 6000 });
+  expect(await top()).toBe(before);
+});
+
+test("a save that fails keeps its message until it is dismissed", async ({
+  page,
+}) => {
+  await page.route("**/api/garden", async (route) =>
+    route.request().method() === "PUT"
+      ? route.fulfill({
+          status: 500,
+          contentType: "application/json",
+          body: JSON.stringify({ error: "The garden could not be saved" }),
+        })
+      : route.continue(),
+  );
+
+  await page.getByRole("button", { name: "+ Bed" }).click();
+  const add = page.getByRole("dialog", { name: "Add a garden bed" });
+  await add.getByLabel("Name").fill("Never saved");
+  await add.getByRole("button", { name: "Add bed" }).click();
+
+  const toast = page.getByRole("status");
+  await expect(toast).toContainText("could not be saved");
+  // Well past the window "Saved" would have used.
+  await page.waitForTimeout(3500);
+  await expect(toast).toBeVisible();
+  await toast.getByRole("button", { name: "Dismiss message" }).click();
+  await expect(toast).toBeHidden();
+});
+
+test("the growing season block leaves room for the legend", async ({
+  page,
+}, testInfo) => {
+  test.skip(testInfo.project.name !== "iphone-webkit");
+
+  // Three tall bars used to take most of the panel and push the legend off the
+  // bottom of the phone. What matters is that the legend is reachable without
+  // scrolling past the frost dates; the height bound is what makes that hold.
+  await page.getByRole("button", { name: /^More/ }).click();
+  const panel = page.getByRole("dialog", { name: "More about the garden" });
+  await expect(panel).toBeVisible();
+
+  const measured = await panel
+    .locator("p", { hasText: "Last frost" })
+    .first()
+    .evaluate((el) => {
+      const row = el.parentElement as HTMLElement;
+      const legend = [...document.querySelectorAll("h3")]
+        .find((h) => h.textContent?.includes("legend"))
+        ?.nextElementSibling?.getBoundingClientRect();
+      return {
+        seasonHeight: row.getBoundingClientRect().height,
+        legendBottom: legend?.bottom ?? Infinity,
+        viewportHeight: window.innerHeight,
+      };
+    });
+
+  expect(measured.seasonHeight).toBeLessThan(130);
+  // The whole legend, not just its first row, sits on the phone screen.
+  expect(measured.legendBottom).toBeLessThanOrEqual(measured.viewportHeight);
+  await expect(panel.getByText("Start seeds indoors")).toBeVisible();
+});
