@@ -1,25 +1,57 @@
-/* One corner notch, shared by every depth: buttons, fields and flat
-   surfaces alike. Set --notch, then use this. A radius would read as a web
-   button and a 45° cut antialiases into mush; a square step reads pixel.
-   Deliberately outside the theme blocks — it is geometry, not colour. */
+/* The corner notch, one literal clip per size in use.
+   These CANNOT be parameterised. A custom property containing var() is
+   substituted where it is DECLARED, not where it is used — so a single
+   --notch-clip on :root resolves against :root's own --notch, which does
+   not exist, and computes to nothing. That silently disabled every notch
+   in the app: the bevels rendered, the corners stayed square. Verified
+   against live staging before this fix. Add a size here if a rule needs
+   one; do not reintroduce a var() inside the polygon. */
 :global(:root) {
   /* The down chevron, as a mask. A <select> cannot carry a pseudo-element,
      so its wrapper draws this and paints it with currentColor — one sprite
      that follows the season, rather than the path restated per theme. */
   --chevron-down: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M2 5h3v2H2zM11 5h3v2h-3zM4 7h3v2H4zM9 7h3v2H9zM6 9h4v2H6z'/%3E%3C/svg%3E");
-  --notch-clip: polygon(
-    var(--notch) 0,
-    calc(100% - var(--notch)) 0,
-    calc(100% - var(--notch)) var(--notch),
-    100% var(--notch),
-    100% calc(100% - var(--notch)),
-    calc(100% - var(--notch)) calc(100% - var(--notch)),
-    calc(100% - var(--notch)) 100%,
-    var(--notch) 100%,
-    var(--notch) calc(100% - var(--notch)),
-    0 calc(100% - var(--notch)),
-    0 var(--notch),
-    var(--notch) var(--notch)
+  --clip-2: polygon(
+    2px 0,
+    calc(100% - 2px) 0,
+    calc(100% - 2px) 2px,
+    100% 2px,
+    100% calc(100% - 2px),
+    calc(100% - 2px) calc(100% - 2px),
+    calc(100% - 2px) 100%,
+    2px 100%,
+    2px calc(100% - 2px),
+    0 calc(100% - 2px),
+    0 2px,
+    2px 2px
+  );
+  --clip-3: polygon(
+    3px 0,
+    calc(100% - 3px) 0,
+    calc(100% - 3px) 3px,
+    100% 3px,
+    100% calc(100% - 3px),
+    calc(100% - 3px) calc(100% - 3px),
+    calc(100% - 3px) 100%,
+    3px 100%,
+    3px calc(100% - 3px),
+    0 calc(100% - 3px),
+    0 3px,
+    3px 3px
+  );
+  --clip-4: polygon(
+    4px 0,
+    calc(100% - 4px) 0,
+    calc(100% - 4px) 4px,
+    100% 4px,
+    100% calc(100% - 4px),
+    calc(100% - 4px) calc(100% - 4px),
+    calc(100% - 4px) 100%,
+    4px 100%,
+    4px calc(100% - 4px),
+    0 calc(100% - 4px),
+    0 4px,
+    4px 4px
   );
 }
 
@@ -485,7 +517,7 @@
   letter-spacing: 0.03em;
   text-transform: uppercase;
   box-shadow: var(--stack-up);
-  clip-path: var(--notch-clip);
+  clip-path: var(--clip-4);
   transition: background 0.08s linear;
 }
 :global(button:hover),
@@ -591,7 +623,7 @@
     inset 0 3px 0 0 color-mix(in srgb, var(--color-field) 76%, #000),
     inset 3px 0 0 0 color-mix(in srgb, var(--color-field) 76%, #000);
   box-shadow: var(--sunk);
-  clip-path: var(--notch-clip);
+  clip-path: var(--clip-3);
 }
 :global(input::placeholder) {
   color: var(--color-field-hint);
@@ -950,7 +982,7 @@
   --notch: 4px;
   border: 2px solid color-mix(in srgb, var(--fill) 32%, #000);
   border-radius: 0;
-  clip-path: var(--notch-clip);
+  clip-path: var(--clip-4);
 }
 
 .plannerPage {
@@ -1018,7 +1050,7 @@
   border-radius: 0;
   background: var(--fill);
   box-shadow: 0 6px 18px rgba(0, 0, 0, 0.34);
-  clip-path: var(--notch-clip);
+  clip-path: var(--clip-4);
   font-family: "Silkscreen", ui-monospace, monospace;
   font-size: var(--type-control);
   letter-spacing: 0.03em;
@@ -1139,7 +1171,7 @@
   padding: 9px 8px;
   border: 2px solid color-mix(in srgb, var(--color-accent-soft) 32%, #000);
   border-radius: 0;
-  clip-path: var(--notch-clip);
+  clip-path: var(--clip-4);
   background: var(--color-accent-soft);
   background: color-mix(in srgb, var(--color-accent-soft) 60%, transparent);
   text-align: center;
@@ -1216,7 +1248,7 @@
   border: 2px solid color-mix(in srgb, var(--color-frost) 40%, transparent);
   border-radius: 0;
   background: color-mix(in srgb, var(--color-frost) 12%, transparent);
-  clip-path: var(--notch-clip);
+  clip-path: var(--clip-4);
 }
 .seasonFact b {
   color: var(--color-frost);
@@ -1277,7 +1309,7 @@
   border: 2px solid color-mix(in srgb, var(--color-accent-soft) 32%, #000);
   border-radius: 0;
   background: color-mix(in srgb, var(--color-accent-soft) 45%, transparent);
-  clip-path: var(--notch-clip);
+  clip-path: var(--clip-4);
   color: var(--color-accent-hover);
   text-decoration: none;
   font-weight: 600;
@@ -1670,7 +1702,7 @@
   padding: 22px 22px calc(22px + var(--lift));
   color: var(--color-text);
   text-decoration: none;
-  clip-path: var(--notch-clip);
+  clip-path: var(--clip-4);
   box-shadow: var(--stack-up);
   transition: background 0.08s linear;
 }
@@ -1716,7 +1748,7 @@
   border-radius: 0;
   background: var(--fill);
   color: var(--color-accent-hover);
-  clip-path: var(--notch-clip);
+  clip-path: var(--clip-2);
   font-family: "Silkscreen", ui-monospace, monospace;
   font-size: 0.56rem;
   font-weight: 700;
