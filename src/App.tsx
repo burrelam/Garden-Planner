@@ -595,7 +595,7 @@ function Planner() {
               key={`half-${slot}`}
             >
               {slot === last || slot === first ? (
-                <SnowflakeIcon size={12} />
+                <SnowflakeIcon size={18} className={styles.frostFlake} />
               ) : slot % 2 === 0 ? (
                 "E"
               ) : (
@@ -603,6 +603,19 @@ function Planner() {
               )}
             </div>
           ))}
+          {[lastFrostPos, firstFrostPos].map((pos, index) =>
+            Number.isFinite(pos.slot) && Number.isFinite(pos.fraction) ? (
+              <div
+                className={styles.frostLine}
+                style={
+                  {
+                    "--frost-frac": (pos.slot + pos.fraction) / 24,
+                  } as CSSProperties
+                }
+                key={`frost-line-${index}`}
+              />
+            ) : null,
+          )}
           {groups.map((group) => (
             <div className={styles.calendarGroup} key={group.id}>
               {group.label && (
@@ -628,14 +641,14 @@ function Planner() {
                   <div className={styles.calendarRow} key={entry.id}>
                     <div className={styles.stickyPlant}>
                       <div className={styles.plantRowTitle}>
-                        <strong>{entry.name}</strong>
-                        <span>
-                          {entry.variety || "No variety"} ·{" "}
-                          {entry.dtm || "Timing not reviewed"}
-                        </span>
+                        <strong>
+                          {entry.name}
+                          {entry.variety ? <em> ({entry.variety})</em> : null}
+                        </strong>
                         <small className={styles.statusLine}>
                           <StatusIcon status={entry.status} size={13} />
-                          {statusLabels[entry.status]} · qty {entry.qty}
+                          {statusLabels[entry.status]} · qty {entry.qty} ·{" "}
+                          {entry.dtm || "Timing not reviewed"}
                         </small>
                       </div>
                       <button
@@ -648,12 +661,7 @@ function Planner() {
                     </div>
                     {timeline.map((slot, index) => (
                       <div
-                        className={`${styles.slotCell} ${index === last || index === first ? styles.frostColumn : ""} ${index === currentSlot ? styles.currentColumn : ""}`}
-                        style={
-                          {
-                            "--frost-pos": frostFractionForSlot(index),
-                          } as CSSProperties
-                        }
+                        className={`${styles.slotCell} ${index === currentSlot ? styles.currentColumn : ""}`}
                         data-slot={index}
                         key={index}
                       >

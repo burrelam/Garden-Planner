@@ -96,8 +96,9 @@
   --color-danger-fg: #91402f;
   --color-danger-bg: #fff2ec;
   --color-danger-border: #c68b78;
-  --color-frost: #1f73a8;
-  --color-frost-ink: #9ccdea;
+  --color-frost: #065ea0;
+  --color-frost-mark: #1fb6e8;
+  --color-frost-mark-edge: #0b2d42;
   --color-now-bg: #cbd98f;
   --color-now-ink: #232c10;
   --color-now-wash: rgba(203, 217, 143, 0.42);
@@ -165,8 +166,9 @@
   --color-danger-fg: #90343e;
   --color-danger-bg: #fdf1f2;
   --color-danger-border: #c68f97;
-  --color-frost: #0e8fa8;
-  --color-frost-ink: #b4ddf5;
+  --color-frost: #0069b0;
+  --color-frost-mark: #0fd2e8;
+  --color-frost-mark-edge: #052c42;
   --color-now-bg: #a8cde8;
   --color-now-ink: #041f33;
   --color-now-wash: rgba(168, 205, 232, 0.46);
@@ -234,8 +236,9 @@
   --color-danger-fg: #8f3f38;
   --color-danger-bg: #fff3f0;
   --color-danger-border: #c79289;
-  --color-frost: #1e7fb8;
-  --color-frost-ink: #a8d6ef;
+  --color-frost: #0069b0;
+  --color-frost-mark: #2ab4f2;
+  --color-frost-mark-edge: #08304e;
   --color-now-bg: #b6e285;
   --color-now-ink: #17330f;
   --color-now-wash: rgba(182, 226, 133, 0.46);
@@ -303,8 +306,9 @@
   --color-danger-fg: #90402c;
   --color-danger-bg: #fff4ee;
   --color-danger-border: #c99080;
-  --color-frost: #1b7fa8;
-  --color-frost-ink: #a3d3ec;
+  --color-frost: #0069b0;
+  --color-frost-mark: #0fbff5;
+  --color-frost-mark-edge: #04304a;
   --color-now-bg: #8fdcb4;
   --color-now-ink: #06291f;
   --color-now-wash: rgba(143, 220, 180, 0.46);
@@ -372,8 +376,9 @@
   --color-danger-fg: #ff9dae;
   --color-danger-bg: #38202b;
   --color-danger-border: #6b4055;
-  --color-frost: #6fd4f5;
-  --color-frost-ink: #a8d8f7;
+  --color-frost: #8ae6ff;
+  --color-frost-mark: #6fe6ff;
+  --color-frost-mark-edge: #062637;
   --color-now-bg: #3b3566;
   --color-now-ink: #cbd2fd;
   --color-now-wash: rgba(203, 210, 253, 0.14);
@@ -425,19 +430,25 @@
   --type-brand: 1.2rem;
   --type-page-intro: 1.05rem;
   --type-control: 0.82rem;
-  --type-plant-name: 1.3rem;
-  --type-plant-meta: 0.95rem;
+  --type-plant-name: 1rem;
+  --type-plant-meta: 0.75rem;
   --type-plant-sub: 0.95rem;
   --type-group-header: 0.82rem;
   --type-corner-sort: 0.95rem;
+  /* Calendar geometry. Same on both widths today, but they belong here with
+     the other sizes: set in a component rule, the phone block cancels them. */
+  --size-cal-row: 46px;
+  --size-pill: 14px;
+  --size-frost-tick: 5px;
+  --size-frost-flake: 18px;
 }
 @media (max-width: 760px) {
   :global(:root) {
     --type-brand: 1.2rem;
     --type-page-intro: 0.96rem;
     --type-control: 0.72rem;
-    --type-plant-name: 1.05rem;
-    --type-plant-meta: 0.64rem;
+    --type-plant-name: 0.92rem;
+    --type-plant-meta: 0.62rem;
     --type-plant-sub: 0.63rem;
     --type-group-header: 0.82rem;
     --type-corner-sort: 0.88rem;
@@ -1335,9 +1346,33 @@
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.34);
 }
 .calendarGrid {
+  position: relative;
   min-width: 1200px;
   display: grid;
   grid-template-columns: 240px repeat(24, minmax(40px, 1fr));
+}
+/* One line per frost date for the whole calendar. It lives inside the grid so
+   it scrolls with the columns, starts below the E/L strip, and sits over the
+   row seams — drawn per cell it was chopped into a dash at every row border.
+   Under the sticky plant column (z 4) and the sticky headers (z 10). */
+.frostLine {
+  position: absolute;
+  top: 60px;
+  bottom: 0;
+  left: calc(240px + (100% - 240px) * var(--frost-frac));
+  z-index: 3;
+  width: var(--size-frost-tick);
+  transform: translateX(calc(var(--size-frost-tick) / -2));
+  pointer-events: none;
+  /* A bright core with a dark casing, because the line crosses two opposite
+     grounds: no single blue clears the dark header and the pale rows at once.
+     Night inverts both and the two simply swap jobs. */
+  background: linear-gradient(
+    90deg,
+    var(--color-frost-mark-edge) 0 1px,
+    var(--color-frost-mark) 1px calc(100% - 1px),
+    var(--color-frost-mark-edge) calc(100% - 1px) 100%
+  );
 }
 .monthHead,
 .halfHead {
@@ -1369,18 +1404,23 @@
   color: var(--color-now-ink);
   background: var(--color-now-bg);
 }
-.frostHead {
-  color: var(--color-frost-ink);
-  overflow: hidden;
-}
-.frostHead::after {
-  content: "";
+/* The frost date is marked twice: a snowflake in this strip, and the line
+   below it. The line stops here rather than running behind the glyph, so the
+   two never fight for the same pixels. */
+.frostFlake {
   position: absolute;
-  top: 0;
-  bottom: 0;
+  top: 50%;
   left: calc(var(--frost-pos, 0.5) * 100%);
-  width: 2px;
-  background: var(--color-frost);
+  width: var(--size-frost-flake);
+  height: var(--size-frost-flake);
+  transform: translate(-50%, -50%);
+  color: var(--color-frost-mark);
+  /* One pixel of casing all round. Without it the glyph vanishes on Night,
+     whose header is pale lavender while every other season's is dark. */
+  filter: drop-shadow(1px 0 0 var(--color-frost-mark-edge))
+    drop-shadow(-1px 0 0 var(--color-frost-mark-edge))
+    drop-shadow(0 1px 0 var(--color-frost-mark-edge))
+    drop-shadow(0 -1px 0 var(--color-frost-mark-edge));
 }
 .stickyPlant {
   position: sticky;
@@ -1468,14 +1508,14 @@
   gap: 10px;
 }
 .calendarRow > div {
-  min-height: 62px;
+  min-height: var(--size-cal-row);
   border-bottom: 1px solid var(--color-border);
 }
 .plantRowTitle {
   display: grid;
   min-width: 0;
-  padding: 6px 12px 2px;
-  line-height: 1.25;
+  padding: 4px 12px 3px;
+  line-height: 1.1;
 }
 .plantRowTitle strong {
   overflow: hidden;
@@ -1494,8 +1534,16 @@
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+/* The variety rides the name line now. The row is too short to give it one of
+   its own, and it reads as part of the name anyway. */
+.plantRowTitle strong em {
+  color: var(--color-text-muted);
+  font-size: var(--type-plant-meta);
+  font-style: normal;
+  font-weight: 400;
+}
 .plantRowTitle small {
-  margin-top: 2px;
+  margin-top: 1px;
   color: var(--color-accent);
 }
 .statusLine {
@@ -1563,12 +1611,17 @@
 }
 .slotCell {
   display: grid;
-  padding: 12px 3px;
+  align-items: center;
+  padding: 0 3px;
   border-right: 1px solid var(--color-border);
 }
+/* A pill, not a bar: it no longer fills the row, and its ends step down in
+   whole pixels rather than curving. --clip-2 is the shared 2px step. */
 .slotCell span {
   min-width: 0;
-  border-radius: 3px;
+  height: var(--size-pill);
+  border-radius: 0;
+  clip-path: var(--clip-2);
   background: transparent;
 }
 .indoor {
@@ -1585,19 +1638,6 @@
 }
 .bloom {
   background: var(--stage-bloom) !important;
-}
-.frostColumn {
-  position: relative;
-  overflow: hidden;
-}
-.frostColumn::after {
-  content: "";
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: calc(var(--frost-pos, 0.5) * 100%);
-  width: 2px;
-  background: var(--color-frost);
 }
 .currentColumn {
   background: var(--color-now-wash);
