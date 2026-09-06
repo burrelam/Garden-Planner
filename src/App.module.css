@@ -592,7 +592,8 @@
   --type-corner-sort: 0.95rem;
   /* Calendar geometry. Same on both widths today, but they belong here with
      the other sizes: set in a component rule, the phone block cancels them. */
-  --size-cal-row: 46px;
+  /* Three lines: the name with its variety, the species, and the status. */
+  --size-cal-row: 58px;
   --size-pill: 14px;
   --size-frost-tick: 5px;
   --size-frost-flake: 18px;
@@ -607,8 +608,6 @@
     --type-plant-sub: 0.63rem;
     --type-group-header: 0.82rem;
     --type-corner-sort: 0.88rem;
-    /* Taller than desktop: the name column is half the width here, so the
-       status line takes two lines rather than losing the days off its end. */
     --size-cal-row: 58px;
   }
 }
@@ -793,6 +792,24 @@
     inset 3px 0 0 0 color-mix(in srgb, var(--color-field) 76%, #000);
   box-shadow: var(--sunk);
   clip-path: var(--o-step);
+}
+
+/* A date field carries its own intrinsic width from the shadow tree that draws
+   the day/month/year, and on WebKit that width wins over the 100% above — so
+   these two ran wider than the panel holding them. Dropping the native
+   appearance takes that intrinsic width away, and the value then sits left,
+   in line with every other field instead of centred in its own box. */
+:global(input[type="date"]) {
+  -webkit-appearance: none;
+  appearance: none;
+  max-width: 100%;
+}
+:global(input[type="date"])::-webkit-date-and-time-value {
+  text-align: left;
+  margin: 0;
+}
+:global(input[type="date"])::-webkit-datetime-edit {
+  padding: 0;
 }
 :global(input::placeholder) {
   color: var(--color-field-hint);
@@ -1288,11 +1305,15 @@
    fill, inset by the outline width and clipped to the inner silhouette. Each
    surface sets --edge-c, --fill-c, --outer-c and --inner-c; the rest is shared.
    ::before sits at z-index -1, above the element's own background and below its
-   content, which is why the element opens a stacking context of its own. */
+   content, which is why the element opens a stacking context of its own.
+
+   Scrolling surfaces are excluded on purpose. An absolutely positioned child
+   scrolls with the content, so the fill would slide off and leave the outline
+   colour showing across everything past the first screenful — which is exactly
+   what it did to the calendar. Those carry the fill on the element itself,
+   where the background stays put, and take the clip without a traced corner. */
 .plannerDock,
 .panel,
-.calendar,
-.dialog,
 .loginCard,
 .method,
 .plantCard {
@@ -1305,8 +1326,6 @@
 }
 .plannerDock::before,
 .panel::before,
-.calendar::before,
-.dialog::before,
 .loginCard::before,
 .method::before,
 .plantCard::before {
@@ -1548,10 +1567,10 @@
   overflow: auto;
   overscroll-behavior: contain;
   -webkit-overflow-scrolling: touch;
-  --edge-c: var(--color-border);
-  --fill-c: var(--color-surface);
-  --outer-c: var(--o-crown);
-  --inner-c: var(--i-crown);
+  border: 0;
+  border-radius: 0;
+  background: var(--color-surface);
+  clip-path: var(--o-crown);
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.34);
 }
 .calendarGrid {
@@ -1743,14 +1762,10 @@
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-/* Where the days-to-maturity sits depends on how wide the name column is.
-   Desktop has room for it on the status line; the phone's 132px column does
-   not, so there it takes a line of its own. Only one is ever shown. */
-.rowDtm {
-  display: none;
-}
-.rowDtmInline {
-  font-style: normal;
+/* The pills already say when everything happens, so the row spends this line
+   on the species instead of repeating the timing as a number. */
+.rowSpecies {
+  font-style: italic;
 }
 /* The variety rides the name line now. The row is too short to give it one of
    its own, and it reads as part of the name anyway. */
@@ -1899,10 +1914,10 @@
   width: min(520px, 100%);
   max-height: 90vh;
   overflow: auto;
-  --edge-c: var(--color-border);
-  --fill-c: var(--color-surface);
-  --outer-c: var(--o-curved);
-  --inner-c: var(--i-curved);
+  border: 0;
+  border-radius: 0;
+  background: var(--color-surface);
+  clip-path: var(--o-curved);
   color: var(--color-text);
   padding: 30px;
   box-shadow: 0 30px 80px rgba(0, 0, 0, 0.25);
@@ -2247,14 +2262,7 @@
     align-content: center;
     line-height: 1.2;
   }
-  /* The status line cannot hold the days as well at this width, so they move
-     to their own line rather than being clipped off the end. */
-  .rowDtm {
-    display: block;
-  }
-  .rowDtmInline {
-    display: none;
-  }
+
   .plantRowTitle small {
     font-size: var(--type-plant-sub);
   }
@@ -2293,8 +2301,7 @@
     max-height: 88vh;
     overscroll-behavior: contain;
     /* A sheet on a phone is flush to the bottom edge, so it wears CROWN. */
-    --outer-c: var(--o-crown);
-    --inner-c: var(--i-crown);
+    clip-path: var(--o-crown);
     padding: 28px 20px calc(28px + env(safe-area-inset-bottom));
   }
   .sheetFields {

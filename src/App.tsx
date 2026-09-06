@@ -18,7 +18,11 @@ import {
 } from "react-router-dom";
 import { api } from "./api";
 import { GardenProvider, useGarden } from "./GardenContext";
-import { catalog as localCatalog, catalogById } from "./shared/catalog";
+import {
+  catalog as localCatalog,
+  catalogById,
+  findCatalogPlant,
+} from "./shared/catalog";
 import type {
   Bed,
   GardenEntry,
@@ -97,6 +101,13 @@ const categoryColors: Record<PlantCategory, string> = {
 };
 // An entry only has a category if it came from the catalog; hand-added plants
 // have none until someone links them to a catalog plant.
+// The row shows the species rather than days to maturity: the pills already
+// draw the timing, so the number only repeated them. A hand-added plant may
+// match the catalog by name even without a plantId; if neither finds it, the
+// line is simply left out.
+const entrySpecies = (entry: GardenEntry): string | undefined =>
+  (entry.plantId ? catalogById.get(entry.plantId) : findCatalogPlant(entry.name))
+    ?.scientificName;
 const entryCategory = (entry: GardenEntry): PlantCategory | null => {
   const category = entry.plantId
     ? catalogById.get(entry.plantId)?.category
@@ -645,16 +656,14 @@ function Planner() {
                           {entry.name}
                           {entry.variety ? <em> ({entry.variety})</em> : null}
                         </strong>
-                        <span className={styles.rowDtm}>
-                          {entry.dtm || "Timing not reviewed"}
-                        </span>
+                        {entrySpecies(entry) ? (
+                          <span className={styles.rowSpecies}>
+                            {entrySpecies(entry)}
+                          </span>
+                        ) : null}
                         <small className={styles.statusLine}>
                           <StatusIcon status={entry.status} size={13} />
                           {statusLabels[entry.status]} · qty {entry.qty}
-                          <i className={styles.rowDtmInline}>
-                            {" "}
-                            · {entry.dtm || "Timing not reviewed"}
-                          </i>
                         </small>
                       </div>
                       <button

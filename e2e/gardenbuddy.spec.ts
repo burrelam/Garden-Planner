@@ -232,6 +232,33 @@ test("More holds the garden's facts, and the ZIP can be changed there", async ({
   await expect(page.getByLabel("ZIP code", { exact: true })).toHaveValue("");
 });
 
+test("settings fields stay inside their panel", async ({ page }, info) => {
+  test.skip(info.project.name === "desktop-chromium", "a phone width problem");
+  await page.getByRole("button", { name: "More" }).click();
+  await page
+    .getByRole("dialog", { name: "More about the garden" })
+    .getByRole("link", { name: /All garden settings/ })
+    .click();
+
+  // The two frost fields once ran wider than the panel around them, and nothing
+  // document-wide scrolled, so it has to be measured against the panel itself.
+  // Worth knowing what this does not cover: the cause was an iOS date input's
+  // own intrinsic width, and desktop WebKit does not draw date inputs the same
+  // way, so this passes with or without that fix. It guards the geometry
+  // against every other cause, and a real phone is still the only check.
+  const zip = page.getByLabel("ZIP code", { exact: true });
+  await expect(zip).toBeVisible();
+  const panel = page.locator("section", { has: zip }).last();
+  const bounds = await panel.boundingBox();
+  for (const label of ["Last spring frost", "First fall frost", "ZIP code"]) {
+    const box = await page.getByLabel(label, { exact: true }).boundingBox();
+    expect(box, `${label} has no box`).not.toBeNull();
+    expect(box!.x + box!.width, `${label} runs past its panel`).toBeLessThanOrEqual(
+      bounds!.x + bounds!.width + 1,
+    );
+  }
+});
+
 test("the floating planner controls fit without clipping", async ({ page }) => {
   // Three controls share a phone's width. They are set not to wrap, so the way
   // this fails now is the label overflowing its button and being cut off —
