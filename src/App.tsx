@@ -27,6 +27,7 @@ import type {
   Bed,
   GardenEntry,
   GardenState,
+  Phase,
   PlantRecord,
   SourceRecord,
 } from "./shared/model";
@@ -45,7 +46,11 @@ import {
   resolveTheme,
   writeThemePreference,
 } from "./theme";
-import { frostPosition, timelineForEntry } from "./shared/timing";
+import {
+  actualTimelineForEntry,
+  frostPosition,
+  timelineForEntry,
+} from "./shared/timing";
 import styles from "./App.module.css";
 import {
   ChevronIcon,
@@ -85,6 +90,19 @@ const phaseLabels = {
   harvest: "Harvest",
   bloom: "Bloom",
 };
+
+/** Where the guideline and an actual planting date agree on a slot, the
+ * plain color still applies — that agreement is the point. Where they
+ * disagree, whichever timeline has a phase here "wins" the slot's display,
+ * marked as either guideline-only (ghost) or actual-only (actual). */
+function combinedSlotPhase(
+  guidePhase: Phase | null,
+  actualPhase: Phase | null,
+): { phase: Phase | null; variant: "" | "Ghost" | "Actual" } {
+  if (guidePhase === actualPhase) return { phase: guidePhase, variant: "" };
+  if (actualPhase) return { phase: actualPhase, variant: "Actual" };
+  return { phase: guidePhase, variant: "Ghost" };
+}
 const CATEGORY_ORDER = ["herb", "vegetable", "fruit", "flower"] as const;
 type PlantCategory = (typeof CATEGORY_ORDER)[number];
 const categoryLabels: Record<PlantCategory, string> = {
@@ -650,6 +668,9 @@ function Planner() {
               )}
               {group.entries.map((entry) => {
                 const timeline = timelineForEntry(entry, state.garden);
+                const actualTimeline = state.garden.showActualTimeline
+                  ? actualTimelineForEntry(entry, state.garden)
+                  : null;
                 const editLabel = `Edit ${entry.name}${entry.variety ? ` — ${entry.variety}` : ""}`;
                 return (
                   <div className={styles.calendarRow} key={entry.id}>
@@ -674,20 +695,34 @@ function Planner() {
                         <ChevronIcon direction="down" />
                       </button>
                     </div>
-                    {timeline.map((slot, index) => (
-                      <div
-                        className={`${styles.slotCell} ${index === currentSlot ? styles.currentColumn : ""}`}
-                        data-slot={index}
-                        key={index}
-                      >
-                        <span
-                          title={
-                            slot.phase ? phaseLabels[slot.phase] : undefined
-                          }
-                          className={slot.phase ? styles[slot.phase] : ""}
-                        />
-                      </div>
-                    ))}
+                    {timeline.map((slot, index) => {
+                      const combined = actualTimeline
+                        ? combinedSlotPhase(
+                            slot.phase,
+                            actualTimeline[index].phase,
+                          )
+                        : { phase: slot.phase, variant: "" as const };
+                      return (
+                        <div
+                          className={`${styles.slotCell} ${index === currentSlot ? styles.currentColumn : ""}`}
+                          data-slot={index}
+                          key={index}
+                        >
+                          <span
+                            title={
+                              combined.phase
+                                ? `${phaseLabels[combined.phase]}${combined.variant === "Ghost" ? " (guideline)" : combined.variant === "Actual" ? " (actual)" : ""}`
+                                : undefined
+                            }
+                            className={
+                              combined.phase
+                                ? styles[`${combined.phase}${combined.variant}`]
+                                : ""
+                            }
+                          />
+                        </div>
+                      );
+                    })}
                   </div>
                 );
               })}
@@ -948,6 +983,18 @@ function PlannerMore({
           <SnowflakeIcon size={14} className={styles.legendIcon} />
           Frost date
         </span>
+        {state.garden.showActualTimeline && (
+          <>
+            <span>
+              <i className={styles.harvestGhost} />
+              Guideline only — no planting date logged there yet
+            </span>
+            <span>
+              <i className={styles.harvestActual} />
+              Actual — from a logged planting date
+            </span>
+          </>
+        )}
       </div>
 
       <h3 className={styles.moreHeading}>Reading the grid</h3>
@@ -983,6 +1030,7 @@ function PlantSheet({
   const [qty, setQty] = useState<number | "">(entry.qty);
   const [status, setStatus] = useState(entry.status);
   const [bedId, setBedId] = useState(entry.bedId ?? "");
+  const [plantedDate, setPlantedDate] = useState(entry.plantedDate ?? "");
   const submit = async (event: FormEvent) => {
     event.preventDefault();
     const finalQty = clampQty(qty);
@@ -990,7 +1038,13 @@ function PlantSheet({
       ...state,
       entries: state.entries.map((item) =>
         item.id === entry.id
-          ? { ...item, qty: finalQty, status, bedId: bedId || null }
+          ? {
+              ...item,
+              qty: finalQty,
+              status,
+              bedId: bedId || null,
+              plantedDate: plantedDate || null,
+            }
           : item,
       ),
     });
@@ -1055,6 +1109,16 @@ function PlantSheet({
               </select>
             </span>
           </label>
+          {state.garden.showActualTimeline && (
+            <label className={styles.sheetBed}>
+              Actual planting date
+              <input
+                type="date"
+                value={plantedDate}
+                onChange={(event) => setPlantedDate(event.target.value)}
+              />
+            </label>
+          )}
         </div>
         {entry.plantId && (
           <Link className={styles.button} to={`/plants/${entry.plantId}`}>
@@ -1769,6 +1833,7 @@ function Settings({
         lastFrost: String(data.get("lastFrost")),
         firstFrost: String(data.get("firstFrost")),
         showFrostMarks: data.get("showFrostMarks") !== null,
+        showActualTimeline: data.get("showActualTimeline") !== null,
       },
     });
     setMessage("Garden settings saved.");
@@ -1962,6 +2027,15 @@ function Settings({
                 defaultChecked={state.garden.showFrostMarks !== false}
               />
               Show frost markers on the calendar
+            </label>
+            <label className={styles.checkLine}>
+              <input
+                type="checkbox"
+                name="showActualTimeline"
+                defaultChecked={state.garden.showActualTimeline === true}
+              />
+              Show each plant's actual timeline once you've logged a planting
+              date
             </label>
             <p className={styles.muted}>
               Hardiness describes perennial cold survival. Your frost dates

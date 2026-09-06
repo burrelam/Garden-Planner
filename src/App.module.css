@@ -1911,6 +1911,47 @@
 .bloom {
   background: var(--stage-bloom) !important;
 }
+/* An actual planting date recorded: where the guideline and the real
+   timeline agree on a slot, the plain colors above still apply untouched —
+   that agreement is the point, not something to call out. Where they
+   disagree, whichever one "wins" that slot reads differently: a
+   guideline-only slot goes hollow and dashed, an actual-only slot stays
+   solid but lighter than the settled color. */
+.indoorGhost {
+  background: transparent !important;
+  border: 1.5px dashed var(--stage-indoor);
+}
+.transplantGhost {
+  background: transparent !important;
+  border: 1.5px dashed var(--stage-transplant);
+}
+.directGhost {
+  background: transparent !important;
+  border: 1.5px dashed var(--stage-direct);
+}
+.harvestGhost {
+  background: transparent !important;
+  border: 1.5px dashed var(--stage-harvest);
+}
+.bloomGhost {
+  background: transparent !important;
+  border: 1.5px dashed var(--stage-bloom);
+}
+.indoorActual {
+  background: color-mix(in srgb, var(--stage-indoor) 55%, white) !important;
+}
+.transplantActual {
+  background: color-mix(in srgb, var(--stage-transplant) 55%, white) !important;
+}
+.directActual {
+  background: color-mix(in srgb, var(--stage-direct) 55%, white) !important;
+}
+.harvestActual {
+  background: color-mix(in srgb, var(--stage-harvest) 55%, white) !important;
+}
+.bloomActual {
+  background: color-mix(in srgb, var(--stage-bloom) 55%, white) !important;
+}
 .currentColumn {
   background: var(--color-now-wash);
   box-shadow:

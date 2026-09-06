@@ -52,12 +52,53 @@ export function rulesToTimeline(
   return slots;
 }
 
-export function timelineForEntry(entry: GardenEntry, garden: GardenSettings) {
-  const rules =
+function rulesForEntry(entry: GardenEntry) {
+  return (
     entry.timingOverride ??
     (entry.plantId ? catalogById.get(entry.plantId)?.timing : undefined) ??
-    [];
-  return rulesToTimeline(rules, garden);
+    []
+  );
+}
+
+export function timelineForEntry(entry: GardenEntry, garden: GardenSettings) {
+  return rulesToTimeline(rulesForEntry(entry), garden);
+}
+
+// The actual timeline a gardener's own planting date implies, as opposed to
+// the generic guideline computed from frost dates. Rather than recomputing
+// each phase from scratch, every rule shifts by one flat day offset: the
+// gap between the recorded date and wherever the guideline itself would
+// have put the "in the ground" phase, so the whole sequence — indoor start
+// through harvest — moves together and keeps its own internal spacing.
+export function actualTimelineForEntry(
+  entry: GardenEntry,
+  garden: GardenSettings,
+): TimelineSlot[] | null {
+  if (!entry.plantedDate) return null;
+  const rules = rulesForEntry(entry);
+  const plantingRule =
+    rules.find((rule) => rule.phase === "transplant") ??
+    rules.find((rule) => rule.phase === "direct") ??
+    rules.find((rule) => rule.phase === "indoor") ??
+    rules[0];
+  if (!plantingRule) return null;
+
+  const guidelinePlantDate = addDays(
+    garden[plantingRule.anchor],
+    plantingRule.startOffsetDays,
+  );
+  const actualPlantDate = new Date(`${entry.plantedDate}T12:00:00Z`);
+  const shiftDays = Math.round(
+    (actualPlantDate.getTime() - guidelinePlantDate.getTime()) /
+      (24 * 60 * 60 * 1000),
+  );
+
+  const shiftedRules = rules.map((rule) => ({
+    ...rule,
+    startOffsetDays: rule.startOffsetDays + shiftDays,
+    endOffsetDays: rule.endOffsetDays + shiftDays,
+  }));
+  return rulesToTimeline(shiftedRules, garden);
 }
 
 // Position within the half-month slot, so a frost date renders where it actually

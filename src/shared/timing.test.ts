@@ -11,6 +11,7 @@ const garden: GardenSettings = {
   lastFrost: "2026-03-15",
   firstFrost: "2026-11-15",
   showFrostMarks: true,
+  showActualTimeline: false,
 };
 
 describe("garden timing", () => {

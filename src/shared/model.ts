@@ -25,6 +25,9 @@ export const GardenSettingsSchema = z.object({
   firstFrost: z.string().date(),
   /* Gardens saved before this existed simply have the marks on. */
   showFrostMarks: z.boolean().default(true),
+  /* New, opt-in: gardens saved before this existed default to off, so
+     nobody's calendar changes shape until they turn it on deliberately. */
+  showActualTimeline: z.boolean().default(false),
 });
 
 export const BedSchema = z.object({
@@ -48,6 +51,10 @@ export const GardenEntrySchema = z.object({
   bedId: z.string().nullable(),
   status: z.enum(["planted", "willplant", "undecided"]),
   sortOrder: z.number().int().nonnegative(),
+  /* The date a gardener actually put this in the ground, as opposed to the
+     generic guideline computed from frost dates. Nullable so it can be
+     cleared back to "no actual date recorded" rather than only ever set. */
+  plantedDate: z.string().date().nullable().optional(),
   timingOverride: z
     .array(
       z.object({
