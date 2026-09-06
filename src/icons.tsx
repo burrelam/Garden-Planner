@@ -306,21 +306,6 @@ export function SnowflakeIcon(props: IconProps) {
   );
 }
 
-// A logged planting date, marked like a map pin — the head is the date,
-// the point is where it lands on the calendar.
-export function PinIcon(props: IconProps) {
-  return (
-    <Pixels viewBox="0 0 16 16" fill="currentColor" {...props}>
-      <rect x="7" y="2" width="2" height="1" />
-      <rect x="6" y="3" width="4" height="1" />
-      <rect x="5" y="4" width="6" height="3" />
-      <rect x="6" y="7" width="4" height="2" />
-      <rect x="7" y="9" width="2" height="3" />
-      <rect x="7" y="12" width="1" height="1" />
-    </Pixels>
-  );
-}
-
 // Where the actual timeline's harvest phase begins — a small pennant on a
 // pole, the way a finish line gets marked.
 export function FlagIcon(props: IconProps) {

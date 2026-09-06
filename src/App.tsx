@@ -60,7 +60,6 @@ import {
   FlagIcon,
   MenuIcon,
   PencilIcon,
-  PinIcon,
   PlannerIcon,
   QuestionIcon,
   SettingsIcon,
@@ -754,7 +753,7 @@ function Planner() {
                                 }
                                 title={`Planted ${prettyDate(entry.plantedDate!)}`}
                               >
-                                <PinIcon size={12} />
+                                <img src="/icons/status-planted.png" alt="" width={12} height={12} />
                               </span>
                             )}
                             {flagPos && index === flagPos.slot && (
@@ -1045,10 +1044,9 @@ function PlannerMore({
               Actual — from a logged planting date
             </span>
             <span>
-              <PinIcon
-                size={14}
-                className={`${styles.legendIcon} ${styles.legendPin}`}
-              />
+              <span className={styles.legendPin}>
+                <img src="/icons/status-planted.png" alt="" width={12} height={12} />
+              </span>
               Planted date
             </span>
             <span>

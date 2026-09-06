@@ -1895,7 +1895,6 @@
    timeline's harvest phase begins — they can land in different cells from
    each other and from the pill underneath, so each positions independently
    at its own fraction across the cell, the same way the frost tick does. */
-.plantedPin,
 .harvestFlag {
   position: absolute;
   display: inline-flex;
@@ -1904,19 +1903,55 @@
   transform: translate(-50%, -50%);
   pointer-events: none;
   z-index: 2;
+  color: var(--stage-harvest);
   filter: drop-shadow(1px 0 0 var(--color-surface))
     drop-shadow(-1px 0 0 var(--color-surface))
     drop-shadow(0 1px 0 var(--color-surface))
     drop-shadow(0 -1px 0 var(--color-surface));
 }
-.plantedPin {
-  color: var(--stage-direct);
+/* A light disc behind the sprout so it reads against any pill color
+   underneath it — a fixed near-white rather than a theme token, since the
+   point is to look the same regardless of season, including Night's own
+   dark surface. */
+/* Qualified with .slotCell to outrank ".slotCell span" below, which
+   otherwise wins the height/border-radius/background it sets on every
+   span in the cell, including this one. */
+.slotCell .plantedPin {
+  position: absolute;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  top: 50%;
+  left: calc(var(--marker-pos, 0.5) * 100%);
+  transform: translate(-50%, -50%);
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: rgba(250, 248, 240, 0.96);
+  border: 1px solid rgba(0, 0, 0, 0.28);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.35);
+  pointer-events: none;
+  z-index: 2;
 }
-.harvestFlag {
-  color: var(--stage-harvest);
+.plantedPin img {
+  display: block;
+  width: 12px;
+  height: 12px;
 }
 .legendPin {
-  color: var(--stage-direct);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: rgba(250, 248, 240, 0.96);
+  border: 1px solid rgba(0, 0, 0, 0.28);
+}
+.legendPin img {
+  display: block;
+  width: 12px;
+  height: 12px;
 }
 .legendFlag {
   color: var(--stage-harvest);
