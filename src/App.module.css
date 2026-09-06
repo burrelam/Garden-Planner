@@ -1562,8 +1562,11 @@
 }
 .calendar {
   width: 100%;
-  /* header + page padding + the floating dock */
-  max-height: calc(100vh - 168px);
+  /* header + page padding + the floating dock. The dock's own offset grows
+     with the safe area on a phone with a home indicator, so this has to
+     grow with it too, or the last row ends up sitting behind the dock
+     instead of just above it. */
+  max-height: calc(100vh - 178px - env(safe-area-inset-bottom));
   overflow: auto;
   overscroll-behavior: contain;
   -webkit-overflow-scrolling: touch;
@@ -2404,7 +2407,7 @@
     padding-bottom: calc(80px + env(safe-area-inset-bottom));
   }
   .calendar {
-    max-height: calc(100svh - 140px);
+    max-height: calc(100svh - 150px - env(safe-area-inset-bottom));
     min-height: 390px;
   }
   .calendarGrid {
