@@ -1248,16 +1248,20 @@
    the pair reads as one season rather than three separate announcements. */
 .seasonRow {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  /* minmax(0, 1fr), not 1fr: a plain 1fr refuses to shrink below its own
+     no-wrap text, so a longer date pushed the whole block wider than the
+     screen instead of the text giving way. */
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 8px;
 }
 .seasonFact {
   --notch: 4px;
   margin: 0;
   display: flex;
+  flex-wrap: wrap;
   align-items: baseline;
   justify-content: center;
-  gap: 7px;
+  gap: 2px 7px;
   padding: 7px 9px;
   border: 2px solid color-mix(in srgb, var(--color-frost) 40%, transparent);
   border-radius: 0;
@@ -1271,11 +1275,12 @@
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
 }
+/* The date holds its line; the label beside it is what gives way when the
+   screen is narrow, dropping under the date rather than widening the box. */
 .seasonFact span {
   color: var(--color-text-muted);
   font-size: 0.74rem;
   line-height: 1.2;
-  white-space: nowrap;
 }
 /* Season length is an outcome, not a date, so it reads green rather than frost
    blue, and spans the two dates it is measured between. */
