@@ -645,10 +645,16 @@ function Planner() {
                           {entry.name}
                           {entry.variety ? <em> ({entry.variety})</em> : null}
                         </strong>
+                        <span className={styles.rowDtm}>
+                          {entry.dtm || "Timing not reviewed"}
+                        </span>
                         <small className={styles.statusLine}>
                           <StatusIcon status={entry.status} size={13} />
-                          {statusLabels[entry.status]} · qty {entry.qty} ·{" "}
-                          {entry.dtm || "Timing not reviewed"}
+                          {statusLabels[entry.status]} · qty {entry.qty}
+                          <i className={styles.rowDtmInline}>
+                            {" "}
+                            · {entry.dtm || "Timing not reviewed"}
+                          </i>
                         </small>
                       </div>
                       <button

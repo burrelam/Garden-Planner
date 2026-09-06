@@ -452,6 +452,9 @@
     --type-plant-sub: 0.63rem;
     --type-group-header: 0.82rem;
     --type-corner-sort: 0.88rem;
+    /* Taller than desktop: the name column is half the width here, so the
+       status line takes two lines rather than losing the days off its end. */
+    --size-cal-row: 58px;
   }
 }
 
@@ -1534,6 +1537,15 @@
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+/* Where the days-to-maturity sits depends on how wide the name column is.
+   Desktop has room for it on the status line; the phone's 132px column does
+   not, so there it takes a line of its own. Only one is ever shown. */
+.rowDtm {
+  display: none;
+}
+.rowDtmInline {
+  font-style: normal;
+}
 /* The variety rides the name line now. The row is too short to give it one of
    its own, and it reads as part of the name anyway. */
 .plantRowTitle strong em {
@@ -2013,13 +2025,18 @@
     min-width: 1004px;
     grid-template-columns: 140px repeat(24, 36px);
   }
-  .calendarRow > div {
-    min-height: 80px;
-  }
   .plantRowTitle {
     padding: 5px 6px;
     align-content: center;
     line-height: 1.2;
+  }
+  /* The status line cannot hold the days as well at this width, so they move
+     to their own line rather than being clipped off the end. */
+  .rowDtm {
+    display: block;
+  }
+  .rowDtmInline {
+    display: none;
   }
   .plantRowTitle small {
     font-size: var(--type-plant-sub);
