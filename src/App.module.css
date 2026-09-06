@@ -1,4 +1,15 @@
-/* The corner notch, one literal clip per size in use.
+/* The corner profiles. Six shapes, named, assigned by size and function:
+   SQUARE (nothing), NICK, STEP, STAIR, STAIR CURVED, CROWN.
+
+   Each has an --o- outer silhouette and an --i- inner one. The outer shapes
+   the element and carries the outline colour; the inner shapes the fill, inset
+   by the outline width. That pair is what lets the outline meet itself at a
+   corner — clip a plain border and the cut passes straight through it, leaving
+   the corner open, which is how these read before.
+
+   STEP and NICK need no inner shape: their step is one unit deep, so an
+   outline at least that thick already covers the cut. STEP's unit is 3px,
+   which is why controls carry a 3px outline rather than 2px.
    These CANNOT be parameterised. A custom property containing var() is
    substituted where it is DECLARED, not where it is used — so a single
    --notch-clip on :root resolves against :root's own --notch, which does
@@ -11,21 +22,22 @@
      so its wrapper draws this and paints it with currentColor — one sprite
      that follows the season, rather than the path restated per theme. */
   --chevron-down: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M2 5h3v2H2zM11 5h3v2h-3zM4 7h3v2H4zM9 7h3v2H9zM6 9h4v2H6z'/%3E%3C/svg%3E");
-  --clip-2: polygon(
-    2px 0,
-    calc(100% - 2px) 0,
-    calc(100% - 2px) 2px,
-    100% 2px,
-    100% calc(100% - 2px),
-    calc(100% - 2px) calc(100% - 2px),
-    calc(100% - 2px) 100%,
-    2px 100%,
-    2px calc(100% - 2px),
-    0 calc(100% - 2px),
-    0 2px,
-    2px 2px
+  --o-nick: polygon(
+    1px 0,
+    calc(100% - 1px) 0,
+    calc(100% - 1px) 1px,
+    100% 1px,
+    100% calc(100% - 1px),
+    calc(100% - 1px) calc(100% - 1px),
+    calc(100% - 1px) 100%,
+    1px 100%,
+    1px calc(100% - 1px),
+    0 calc(100% - 1px),
+    0 1px,
+    1px 1px
   );
-  --clip-3: polygon(
+  --i-nick: none;
+  --o-step: polygon(
     3px 0,
     calc(100% - 3px) 0,
     calc(100% - 3px) 3px,
@@ -39,19 +51,162 @@
     0 3px,
     3px 3px
   );
-  --clip-4: polygon(
-    4px 0,
-    calc(100% - 4px) 0,
-    calc(100% - 4px) 4px,
-    100% 4px,
-    100% calc(100% - 4px),
-    calc(100% - 4px) calc(100% - 4px),
-    calc(100% - 4px) 100%,
-    4px 100%,
-    4px calc(100% - 4px),
-    0 calc(100% - 4px),
-    0 4px,
-    4px 4px
+  --i-step: none;
+  --o-stair: polygon(
+    6px 0,
+    calc(100% - 6px) 0,
+    calc(100% - 6px) 3px,
+    calc(100% - 3px) 3px,
+    calc(100% - 3px) 6px,
+    100% 6px,
+    100% calc(100% - 6px),
+    calc(100% - 3px) calc(100% - 6px),
+    calc(100% - 3px) calc(100% - 3px),
+    calc(100% - 6px) calc(100% - 3px),
+    calc(100% - 6px) 100%,
+    6px 100%,
+    6px calc(100% - 3px),
+    3px calc(100% - 3px),
+    3px calc(100% - 6px),
+    0 calc(100% - 6px),
+    0 6px,
+    3px 6px,
+    3px 3px,
+    6px 3px
+  );
+  --i-stair: polygon(
+    3px 0,
+    calc(100% - 3px) 0,
+    calc(100% - 3px) 3px,
+    100% 3px,
+    100% calc(100% - 3px),
+    calc(100% - 3px) calc(100% - 3px),
+    calc(100% - 3px) 100%,
+    3px 100%,
+    3px calc(100% - 3px),
+    0 calc(100% - 3px),
+    0 3px,
+    3px 3px
+  );
+  --o-curved: polygon(
+    15px 0,
+    calc(100% - 15px) 0,
+    calc(100% - 15px) 3px,
+    calc(100% - 9px) 3px,
+    calc(100% - 9px) 6px,
+    calc(100% - 6px) 6px,
+    calc(100% - 6px) 9px,
+    calc(100% - 3px) 9px,
+    calc(100% - 3px) 12px,
+    calc(100% - 3px) 15px,
+    100% 15px,
+    100% calc(100% - 15px),
+    calc(100% - 3px) calc(100% - 15px),
+    calc(100% - 3px) calc(100% - 12px),
+    calc(100% - 3px) calc(100% - 9px),
+    calc(100% - 6px) calc(100% - 9px),
+    calc(100% - 6px) calc(100% - 6px),
+    calc(100% - 9px) calc(100% - 6px),
+    calc(100% - 9px) calc(100% - 3px),
+    calc(100% - 15px) calc(100% - 3px),
+    calc(100% - 15px) 100%,
+    15px 100%,
+    15px calc(100% - 3px),
+    9px calc(100% - 3px),
+    9px calc(100% - 6px),
+    6px calc(100% - 6px),
+    6px calc(100% - 9px),
+    3px calc(100% - 9px),
+    3px calc(100% - 12px),
+    3px calc(100% - 15px),
+    0 calc(100% - 15px),
+    0 15px,
+    3px 15px,
+    3px 12px,
+    3px 9px,
+    6px 9px,
+    6px 6px,
+    9px 6px,
+    9px 3px,
+    15px 3px
+  );
+  --i-curved: polygon(
+    12px 0,
+    calc(100% - 12px) 0,
+    calc(100% - 12px) 3px,
+    calc(100% - 6px) 3px,
+    calc(100% - 6px) 6px,
+    calc(100% - 3px) 6px,
+    calc(100% - 3px) 9px,
+    calc(100% - 3px) 12px,
+    100% 12px,
+    100% calc(100% - 12px),
+    calc(100% - 3px) calc(100% - 12px),
+    calc(100% - 3px) calc(100% - 9px),
+    calc(100% - 3px) calc(100% - 6px),
+    calc(100% - 6px) calc(100% - 6px),
+    calc(100% - 6px) calc(100% - 3px),
+    calc(100% - 12px) calc(100% - 3px),
+    calc(100% - 12px) 100%,
+    12px 100%,
+    12px calc(100% - 3px),
+    6px calc(100% - 3px),
+    6px calc(100% - 6px),
+    3px calc(100% - 6px),
+    3px calc(100% - 9px),
+    3px calc(100% - 12px),
+    0 calc(100% - 12px),
+    0 12px,
+    3px 12px,
+    3px 9px,
+    3px 6px,
+    6px 6px,
+    6px 3px,
+    12px 3px
+  );
+  --o-crown: polygon(
+    15px 0,
+    calc(100% - 15px) 0,
+    calc(100% - 15px) 3px,
+    calc(100% - 9px) 3px,
+    calc(100% - 9px) 6px,
+    calc(100% - 6px) 6px,
+    calc(100% - 6px) 9px,
+    calc(100% - 3px) 9px,
+    calc(100% - 3px) 12px,
+    calc(100% - 3px) 15px,
+    100% 15px,
+    100% 100%,
+    0 100%,
+    0 15px,
+    3px 15px,
+    3px 12px,
+    3px 9px,
+    6px 9px,
+    6px 6px,
+    9px 6px,
+    9px 3px,
+    15px 3px
+  );
+  --i-crown: polygon(
+    12px 0,
+    calc(100% - 12px) 0,
+    calc(100% - 12px) 3px,
+    calc(100% - 6px) 3px,
+    calc(100% - 6px) 6px,
+    calc(100% - 3px) 6px,
+    calc(100% - 3px) 9px,
+    calc(100% - 3px) 12px,
+    100% 12px,
+    100% 100%,
+    0 100%,
+    0 12px,
+    3px 12px,
+    3px 9px,
+    3px 6px,
+    6px 6px,
+    6px 3px,
+    12px 3px
   );
 }
 
@@ -499,7 +654,7 @@
   --pad-x: 16px;
   --notch: 4px;
   --lit: color-mix(in srgb, var(--fill) 68%, #fff);
-  --shade: color-mix(in srgb, var(--fill) 72%, #000);
+  --shade: color-mix(in srgb, var(--fill) 60%, #000);
   --edge: color-mix(in srgb, var(--fill) 32%, #000);
   --stack-up:
     inset 0 calc(-1 * var(--lift)) 0 0 var(--edge),
@@ -514,7 +669,7 @@
   appearance: none;
   /* 46px, not 42px: the plinth must not be stolen from the tappable face. */
   min-height: 46px;
-  border: 2px solid var(--edge);
+  border: 3px solid var(--edge);
   border-radius: 0;
   background: var(--fill);
   color: var(--color-text);
@@ -531,7 +686,7 @@
   letter-spacing: 0.03em;
   text-transform: uppercase;
   box-shadow: var(--stack-up);
-  clip-path: var(--clip-4);
+  clip-path: var(--o-step);
   transition: background 0.08s linear;
 }
 :global(button:hover),
@@ -629,7 +784,7 @@
   min-width: 0;
   min-height: 46px;
   padding: 10px 12px;
-  border: 2px solid color-mix(in srgb, var(--color-field) 34%, #000);
+  border: 3px solid color-mix(in srgb, var(--color-field) 34%, #000);
   border-radius: 0;
   background: var(--color-field);
   color: var(--color-text);
@@ -637,7 +792,7 @@
     inset 0 3px 0 0 color-mix(in srgb, var(--color-field) 76%, #000),
     inset 3px 0 0 0 color-mix(in srgb, var(--color-field) 76%, #000);
   box-shadow: var(--sunk);
-  clip-path: var(--clip-3);
+  clip-path: var(--o-step);
 }
 :global(input::placeholder) {
   color: var(--color-field-hint);
@@ -800,7 +955,8 @@
   gap: 11px;
   min-height: 48px;
   padding: 0 11px;
-  border-radius: 10px;
+  border-radius: 0;
+  clip-path: var(--o-step);
   color: var(--color-text);
   text-decoration: none;
   font-weight: 600;
@@ -950,17 +1106,23 @@
     );
 }
 .loginCard {
+  --edge-c: var(--color-border);
+  --fill-c: var(--color-surface);
+  --outer-c: var(--o-curved);
+  --inner-c: var(--i-curved);
   width: min(440px, 100%);
-  background: var(--color-surface);
-  background: color-mix(in srgb, var(--color-surface) 94%, transparent);
-  border: 1px solid var(--color-border);
-  border-radius: 28px;
   padding: clamp(28px, 7vw, 52px);
   box-shadow: 0 22px 60px rgba(var(--shadow-color), 0.16);
   text-align: center;
 }
 .loginCard label {
   text-align: left;
+}
+/* The wordmark is sized to the card, not the window. At 5vw it outgrew a
+   440px card on any wide screen and spilled over the edge — invisible while
+   the card was a plain rounded box, and cut off the moment it gained a clip. */
+.loginCard h1 {
+  font-size: clamp(1.6rem, 8vw, 2.6rem);
 }
 .loginMark {
   width: 112px;
@@ -994,9 +1156,9 @@
 .warning,
 .error {
   --notch: 4px;
-  border: 2px solid color-mix(in srgb, var(--fill) 32%, #000);
+  border: 3px solid color-mix(in srgb, var(--fill) 32%, #000);
   border-radius: 0;
-  clip-path: var(--clip-4);
+  clip-path: var(--o-step);
 }
 
 .plannerPage {
@@ -1060,11 +1222,11 @@
   align-items: center;
   gap: 10px;
   padding: 10px 14px;
-  border: 2px solid color-mix(in srgb, var(--fill) 32%, #000);
+  border: 3px solid color-mix(in srgb, var(--fill) 32%, #000);
   border-radius: 0;
   background: var(--fill);
   box-shadow: 0 6px 18px rgba(0, 0, 0, 0.34);
-  clip-path: var(--clip-4);
+  clip-path: var(--o-step);
   font-family: "Silkscreen", ui-monospace, monospace;
   font-size: var(--type-control);
   letter-spacing: 0.03em;
@@ -1119,6 +1281,43 @@
 }
 /* The three actions ride above the calendar rather than pushing it down, so the
    grid keeps the full height of the screen behind them. */
+/* STAIR, STAIR CURVED and CROWN cut deeper than any sane outline is thick, so
+   these surfaces cannot close a corner with a border — the cut would pass
+   straight through it. The element itself becomes the outline: its background
+   is the edge colour, clipped to the outer silhouette. ::before carries the
+   fill, inset by the outline width and clipped to the inner silhouette. Each
+   surface sets --edge-c, --fill-c, --outer-c and --inner-c; the rest is shared.
+   ::before sits at z-index -1, above the element's own background and below its
+   content, which is why the element opens a stacking context of its own. */
+.plannerDock,
+.panel,
+.calendar,
+.dialog,
+.loginCard,
+.method,
+.plantCard {
+  position: relative;
+  z-index: 0;
+  border: 0;
+  border-radius: 0;
+  background: var(--edge-c);
+  clip-path: var(--outer-c);
+}
+.plannerDock::before,
+.panel::before,
+.calendar::before,
+.dialog::before,
+.loginCard::before,
+.method::before,
+.plantCard::before {
+  content: "";
+  position: absolute;
+  inset: 3px;
+  z-index: -1;
+  background: var(--fill-c);
+  clip-path: var(--inner-c);
+}
+
 .plannerDock {
   position: fixed;
   left: 50%;
@@ -1130,10 +1329,11 @@
   grid-template-columns: 1fr 1fr 1fr;
   gap: 7px;
   padding: 7px;
-  border: 1px solid var(--color-border-strong);
-  border-radius: 16px;
-  background: var(--color-inverse-bg);
-  background: color-mix(in srgb, var(--color-inverse-bg) 88%, transparent);
+  --edge-c: var(--color-border-strong);
+  --fill-c: var(--color-inverse-bg);
+  --outer-c: var(--o-stair);
+  --inner-c: var(--i-stair);
+  --fill-c: color-mix(in srgb, var(--color-inverse-bg) 88%, transparent);
   box-shadow: 0 12px 30px rgba(0, 0, 0, 0.5);
   backdrop-filter: blur(10px);
 }
@@ -1183,9 +1383,9 @@
   --notch: 4px;
   position: relative;
   padding: 9px 8px;
-  border: 2px solid color-mix(in srgb, var(--color-accent-soft) 32%, #000);
+  border: 3px solid color-mix(in srgb, var(--color-accent-soft) 32%, #000);
   border-radius: 0;
-  clip-path: var(--clip-4);
+  clip-path: var(--o-step);
   background: var(--color-accent-soft);
   background: color-mix(in srgb, var(--color-accent-soft) 60%, transparent);
   text-align: center;
@@ -1214,8 +1414,8 @@
   --bevel: 2px;
   --pad-x: 0px;
   --pad-y: 0px;
-  --notch: 3px;
   position: absolute;
+  clip-path: var(--o-nick);
   top: 4px;
   right: 4px;
   /* 34px, so the 25px pencil sits at 1:1 on the face — her line work is a
@@ -1263,10 +1463,10 @@
   justify-content: center;
   gap: 2px 7px;
   padding: 7px 9px;
-  border: 2px solid color-mix(in srgb, var(--color-frost) 40%, transparent);
+  border: 3px solid color-mix(in srgb, var(--color-frost) 40%, transparent);
   border-radius: 0;
   background: color-mix(in srgb, var(--color-frost) 12%, transparent);
-  clip-path: var(--clip-4);
+  clip-path: var(--o-step);
 }
 .seasonFact b {
   color: var(--color-frost);
@@ -1325,10 +1525,10 @@
   margin-top: 18px;
   --notch: 4px;
   padding: 11px 12px;
-  border: 2px solid color-mix(in srgb, var(--color-accent-soft) 32%, #000);
+  border: 3px solid color-mix(in srgb, var(--color-accent-soft) 32%, #000);
   border-radius: 0;
   background: color-mix(in srgb, var(--color-accent-soft) 45%, transparent);
-  clip-path: var(--clip-4);
+  clip-path: var(--o-step);
   color: var(--color-accent-hover);
   text-decoration: none;
   font-weight: 600;
@@ -1348,9 +1548,10 @@
   overflow: auto;
   overscroll-behavior: contain;
   -webkit-overflow-scrolling: touch;
-  border: 1px solid var(--color-border);
-  border-radius: 16px 16px 0 0;
-  background: var(--color-surface);
+  --edge-c: var(--color-border);
+  --fill-c: var(--color-surface);
+  --outer-c: var(--o-crown);
+  --inner-c: var(--i-crown);
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.34);
 }
 .calendarGrid {
@@ -1638,7 +1839,7 @@
   min-width: 0;
   height: var(--size-pill);
   border-radius: 0;
-  clip-path: var(--clip-2);
+  clip-path: var(--o-nick);
   background: transparent;
 }
 .indoor {
@@ -1698,9 +1899,11 @@
   width: min(520px, 100%);
   max-height: 90vh;
   overflow: auto;
-  background: var(--color-surface);
+  --edge-c: var(--color-border);
+  --fill-c: var(--color-surface);
+  --outer-c: var(--o-curved);
+  --inner-c: var(--i-curved);
   color: var(--color-text);
-  border-radius: 22px;
   padding: 30px;
   box-shadow: 0 30px 80px rgba(0, 0, 0, 0.25);
 }
@@ -1714,8 +1917,8 @@
   --bevel: 2px;
   --pad-x: 0px;
   --pad-y: 0px;
-  --notch: 3px;
   position: absolute;
+  clip-path: var(--o-nick);
   top: 10px;
   right: 10px;
   width: 30px;
@@ -1741,7 +1944,7 @@
   --bevel: 3px;
   --notch: 4px;
   --lit: color-mix(in srgb, var(--fill) 68%, #fff);
-  --shade: color-mix(in srgb, var(--fill) 72%, #000);
+  --shade: color-mix(in srgb, var(--fill) 60%, #000);
   --edge: color-mix(in srgb, var(--fill) 32%, #000);
   --stack-up:
     inset 0 calc(-1 * var(--lift)) 0 0 var(--edge),
@@ -1752,32 +1955,38 @@
     inset var(--bevel) 0 0 0 var(--shade),
     inset calc(-1 * var(--bevel)) 0 0 0 var(--lit),
     inset 0 calc(-1 * var(--bevel)) 0 0 var(--lit);
+  --edge-c: var(--edge);
+  --fill-c: var(--fill);
+  --outer-c: var(--o-curved);
+  --inner-c: var(--i-curved);
   display: block;
-  border: 2px solid var(--edge);
-  border-radius: 0;
-  background: var(--fill);
   padding: 22px 22px calc(22px + var(--lift));
   color: var(--color-text);
   text-decoration: none;
-  clip-path: var(--clip-4);
-  box-shadow: var(--stack-up);
   transition: background 0.08s linear;
 }
-.plantCard:hover {
-  background: color-mix(in srgb, var(--fill) 86%, #fff);
+.plantCard::before {
+  box-shadow: var(--stack-up);
+}
+.plantCard:hover::before {
+  --fill-c: color-mix(in srgb, var(--fill) 86%, #fff);
 }
 .plantCard:active {
   padding: calc(22px + var(--lift)) 22px 22px;
-  background: color-mix(in srgb, var(--fill) 88%, #000);
+}
+.plantCard:active::before {
+  --fill-c: color-mix(in srgb, var(--fill) 88%, #000);
   box-shadow: var(--stack-down);
 }
 .plantCard:focus-visible {
   outline: none;
+}
+.plantCard:focus-visible::before {
   box-shadow:
     inset 0 0 0 3px var(--color-focus),
     var(--stack-up);
 }
-.plantCard:active:focus-visible {
+.plantCard:active:focus-visible::before {
   box-shadow:
     inset 0 0 0 3px var(--color-focus),
     var(--stack-down);
@@ -1805,7 +2014,7 @@
   border-radius: 0;
   background: var(--fill);
   color: var(--color-accent-hover);
-  clip-path: var(--clip-2);
+  clip-path: var(--o-nick);
   font-family: "Silkscreen", ui-monospace, monospace;
   font-size: 0.56rem;
   font-weight: 700;
@@ -1822,9 +2031,10 @@
   min-width: 0;
   container-type: inline-size;
   overflow-wrap: anywhere;
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: 18px;
+  --edge-c: var(--color-border);
+  --fill-c: var(--color-surface);
+  --outer-c: var(--o-stair);
+  --inner-c: var(--i-stair);
   padding: clamp(20px, 3vw, 30px);
 }
 .panel dl {
@@ -1955,10 +2165,12 @@
   font-size: 0.78rem;
 }
 .method {
-  background: var(--color-inverse-bg);
+  --edge-c: var(--color-border-strong);
+  --fill-c: var(--color-inverse-bg);
+  --outer-c: var(--o-curved);
+  --inner-c: var(--i-curved);
   color: var(--color-inverse-text);
   padding: clamp(24px, 5vw, 48px);
-  border-radius: 24px;
   margin-bottom: 22px;
 }
 .methodGrid {
@@ -2080,7 +2292,9 @@
     width: 100%;
     max-height: 88vh;
     overscroll-behavior: contain;
-    border-radius: 22px 22px 0 0;
+    /* A sheet on a phone is flush to the bottom edge, so it wears CROWN. */
+    --outer-c: var(--o-crown);
+    --inner-c: var(--i-crown);
     padding: 28px 20px calc(28px + env(safe-area-inset-bottom));
   }
   .sheetFields {
@@ -2154,8 +2368,9 @@
   width: 38px;
   height: 38px;
   flex: 0 0 auto;
-  border: 1px solid var(--color-border-strong);
-  border-radius: 9px;
+  border: 3px solid var(--color-border-strong);
+  border-radius: 0;
+  clip-path: var(--o-step);
 }
 .themeSwatch[data-auto="true"] {
   background: conic-gradient(
