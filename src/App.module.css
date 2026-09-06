@@ -1895,27 +1895,34 @@
    timeline's harvest phase begins — they can land in different cells from
    each other and from the pill underneath, so each positions independently
    at its own fraction across the cell, the same way the frost tick does. */
-.harvestFlag {
+/* A light disc behind the sprout and the flag so each reads against any
+   pill color underneath it — a fixed near-white rather than a theme token,
+   since the point is to look the same regardless of season, including
+   Night's own dark surface. Qualified with .slotCell to outrank
+   ".slotCell span" below, which otherwise wins the height/border-radius/
+   background it sets on every span in the cell, including these. */
+.slotCell .harvestFlag {
   position: absolute;
   display: inline-flex;
+  align-items: center;
+  justify-content: center;
   top: 50%;
   left: calc(var(--marker-pos, 0.5) * 100%);
   transform: translate(-50%, -50%);
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: rgba(250, 248, 240, 0.96);
+  border: 1px solid rgba(0, 0, 0, 0.28);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.35);
   pointer-events: none;
   z-index: 2;
-  color: var(--stage-harvest);
-  filter: drop-shadow(1px 0 0 var(--color-surface))
-    drop-shadow(-1px 0 0 var(--color-surface))
-    drop-shadow(0 1px 0 var(--color-surface))
-    drop-shadow(0 -1px 0 var(--color-surface));
 }
-/* A light disc behind the sprout so it reads against any pill color
-   underneath it — a fixed near-white rather than a theme token, since the
-   point is to look the same regardless of season, including Night's own
-   dark surface. */
-/* Qualified with .slotCell to outrank ".slotCell span" below, which
-   otherwise wins the height/border-radius/background it sets on every
-   span in the cell, including this one. */
+.harvestFlag img {
+  display: block;
+  width: 11px;
+  height: 13px;
+}
 .slotCell .plantedPin {
   position: absolute;
   display: inline-flex;
@@ -1954,7 +1961,19 @@
   height: 12px;
 }
 .legendFlag {
-  color: var(--stage-harvest);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: rgba(250, 248, 240, 0.96);
+  border: 1px solid rgba(0, 0, 0, 0.28);
+}
+.legendFlag img {
+  display: block;
+  width: 11px;
+  height: 13px;
 }
 /* A pill, not a bar: it no longer fills the row, and its ends step down in
    whole pixels rather than curving. --clip-2 is the shared 2px step. */

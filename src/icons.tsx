@@ -306,22 +306,6 @@ export function SnowflakeIcon(props: IconProps) {
   );
 }
 
-// Where the actual timeline's harvest phase begins — a small pennant on a
-// pole, the way a finish line gets marked.
-export function FlagIcon(props: IconProps) {
-  return (
-    <Pixels viewBox="0 0 16 16" fill="currentColor" {...props}>
-      <rect x="5" y="2" width="1" height="11" />
-      <rect x="6" y="2" width="6" height="1" />
-      <rect x="6" y="3" width="5" height="1" />
-      <rect x="6" y="4" width="4" height="1" />
-      <rect x="6" y="5" width="3" height="1" />
-      <rect x="6" y="6" width="2" height="1" />
-      <rect x="4" y="13" width="3" height="1" />
-    </Pixels>
-  );
-}
-
 export function ShovelIcon(props: IconProps) {
   return (
     <Pixels viewBox="0 0 16 16" {...props}>

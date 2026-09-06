@@ -57,7 +57,6 @@ import styles from "./App.module.css";
 import {
   ChevronIcon,
   CloseIcon,
-  FlagIcon,
   MenuIcon,
   PencilIcon,
   PlannerIcon,
@@ -766,7 +765,7 @@ function Planner() {
                                 }
                                 title={`Harvest starts ${prettyDate(flagPos.date)}`}
                               >
-                                <FlagIcon size={12} />
+                                <img src="/icons/harvest-flag.png" alt="" width={12} height={14} />
                               </span>
                             )}
                           </div>
@@ -1050,10 +1049,9 @@ function PlannerMore({
               Planted date
             </span>
             <span>
-              <FlagIcon
-                size={14}
-                className={`${styles.legendIcon} ${styles.legendFlag}`}
-              />
+              <span className={styles.legendFlag}>
+                <img src="/icons/harvest-flag.png" alt="" width={12} height={14} />
+              </span>
               Harvest day
             </span>
           </>
