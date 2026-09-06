@@ -1640,6 +1640,12 @@
 /* The frost date is marked twice: a snowflake in this strip, and the line
    below it. The line stops here rather than running behind the glyph, so the
    two never fight for the same pixels. */
+/* A frost date near the end of its half-month puts half the glyph over the next
+   cell. Every header cell is sticky at the same z-index, so the later sibling
+   painted over that half — this one has to outrank its neighbours. */
+.frostHead {
+  z-index: 11;
+}
 .frostFlake {
   position: absolute;
   top: 50%;
@@ -1803,17 +1809,10 @@
 }
 
 /* The pills already say when everything happens, so the row spends this line
-   on the species instead of repeating the timing as a number. */
-.rowSpecies {
-  font-style: italic;
-}
-/* The variety rides the name line now. The row is too short to give it one of
-   its own, and it reads as part of the name anyway. */
-.plantRowTitle strong em {
-  color: var(--color-text-muted);
-  font-size: var(--type-plant-meta);
+   on the variety rather than repeating the timing as a number. The species is
+   a fact about the plant, not this planting, so it stays in the details. */
+.rowVariety {
   font-style: normal;
-  font-weight: 400;
 }
 .plantRowTitle small {
   margin-top: 1px;

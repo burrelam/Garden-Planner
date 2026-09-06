@@ -655,13 +655,10 @@ function Planner() {
                   <div className={styles.calendarRow} key={entry.id}>
                     <div className={styles.stickyPlant}>
                       <div className={styles.plantRowTitle}>
-                        <strong>
-                          {entry.name}
-                          {entry.variety ? <em> ({entry.variety})</em> : null}
-                        </strong>
-                        {entrySpecies(entry) ? (
-                          <span className={styles.rowSpecies}>
-                            {entrySpecies(entry)}
+                        <strong>{entry.name}</strong>
+                        {entry.variety ? (
+                          <span className={styles.rowVariety}>
+                            {entry.variety}
                           </span>
                         ) : null}
                         <small className={styles.statusLine}>
@@ -1003,7 +1000,13 @@ function PlantSheet({
   return (
     <Dialog title={`${entry.name} details`} close={close}>
       <p className={styles.sheetSubtitle}>
-        {entry.variety || "No variety"} · {entry.dtm || "Timing not reviewed"}
+        {[
+          entry.variety || "No variety",
+          entrySpecies(entry),
+          entry.dtm || "Timing not reviewed",
+        ]
+          .filter(Boolean)
+          .join(" · ")}
       </p>
       <form onSubmit={submit} className={styles.stack}>
         <div className={styles.sheetFields}>
