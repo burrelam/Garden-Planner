@@ -1882,10 +1882,41 @@
   color: var(--color-danger-fg);
 }
 .slotCell {
+  position: relative;
   display: grid;
   align-items: center;
   padding: 0 3px;
   border-right: 1px solid var(--color-border);
+}
+/* The pin marks the date actually logged; the flag marks where the shifted
+   timeline's harvest phase begins — they can land in different cells from
+   each other and from the pill underneath, so each positions independently
+   at its own fraction across the cell, the same way the frost tick does. */
+.plantedPin,
+.harvestFlag {
+  position: absolute;
+  display: inline-flex;
+  top: 50%;
+  left: calc(var(--marker-pos, 0.5) * 100%);
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  z-index: 2;
+  filter: drop-shadow(1px 0 0 var(--color-surface))
+    drop-shadow(-1px 0 0 var(--color-surface))
+    drop-shadow(0 1px 0 var(--color-surface))
+    drop-shadow(0 -1px 0 var(--color-surface));
+}
+.plantedPin {
+  color: var(--stage-direct);
+}
+.harvestFlag {
+  color: var(--stage-harvest);
+}
+.legendPin {
+  color: var(--stage-direct);
+}
+.legendFlag {
+  color: var(--stage-harvest);
 }
 /* A pill, not a bar: it no longer fills the row, and its ends step down in
    whole pixels rather than curving. --clip-2 is the shared 2px step. */
@@ -1951,6 +1982,50 @@
 }
 .bloomActual {
   background: color-mix(in srgb, var(--stage-bloom) 55%, white) !important;
+}
+/* A "will plant" entry hasn't gone in the ground yet, so its whole timeline
+   stays transparent and slashed rather than solid — Undecided reuses the
+   Ghost dashed-outline look above instead of a set of its own, since both
+   mean "nothing settled here yet" and read identically. */
+.indoorSlashed {
+  background: repeating-linear-gradient(
+    45deg,
+    var(--stage-indoor) 0 2px,
+    transparent 2px 5px
+  ) !important;
+  border: 1.5px solid var(--stage-indoor);
+}
+.transplantSlashed {
+  background: repeating-linear-gradient(
+    45deg,
+    var(--stage-transplant) 0 2px,
+    transparent 2px 5px
+  ) !important;
+  border: 1.5px solid var(--stage-transplant);
+}
+.directSlashed {
+  background: repeating-linear-gradient(
+    45deg,
+    var(--stage-direct) 0 2px,
+    transparent 2px 5px
+  ) !important;
+  border: 1.5px solid var(--stage-direct);
+}
+.harvestSlashed {
+  background: repeating-linear-gradient(
+    45deg,
+    var(--stage-harvest) 0 2px,
+    transparent 2px 5px
+  ) !important;
+  border: 1.5px solid var(--stage-harvest);
+}
+.bloomSlashed {
+  background: repeating-linear-gradient(
+    45deg,
+    var(--stage-bloom) 0 2px,
+    transparent 2px 5px
+  ) !important;
+  border: 1.5px solid var(--stage-bloom);
 }
 .currentColumn {
   background: var(--color-now-wash);

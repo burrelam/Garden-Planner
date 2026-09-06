@@ -64,23 +64,28 @@ export function timelineForEntry(entry: GardenEntry, garden: GardenSettings) {
   return rulesToTimeline(rulesForEntry(entry), garden);
 }
 
-// The actual timeline a gardener's own planting date implies, as opposed to
-// the generic guideline computed from frost dates. Rather than recomputing
-// each phase from scratch, every rule shifts by one flat day offset: the
-// gap between the recorded date and wherever the guideline itself would
-// have put the "in the ground" phase, so the whole sequence — indoor start
-// through harvest — moves together and keeps its own internal spacing.
-export function actualTimelineForEntry(
-  entry: GardenEntry,
-  garden: GardenSettings,
-): TimelineSlot[] | null {
-  if (!entry.plantedDate) return null;
-  const rules = rulesForEntry(entry);
-  const plantingRule =
+// The rule whose start date a recorded planting date is measured against —
+// whichever phase actually puts something in the ground.
+function plantingRuleForEntry(rules: ReturnType<typeof rulesForEntry>) {
+  return (
     rules.find((rule) => rule.phase === "transplant") ??
     rules.find((rule) => rule.phase === "direct") ??
     rules.find((rule) => rule.phase === "indoor") ??
-    rules[0];
+    rules[0]
+  );
+}
+
+// How far a recorded planting date sits from where the guideline itself
+// would have put the "in the ground" phase. Every other phase shifts by this
+// same flat number of days, so the whole sequence — indoor start through
+// harvest — moves together and keeps its own internal spacing.
+function actualShiftDays(
+  entry: GardenEntry,
+  garden: GardenSettings,
+): number | null {
+  if (!entry.plantedDate) return null;
+  const rules = rulesForEntry(entry);
+  const plantingRule = plantingRuleForEntry(rules);
   if (!plantingRule) return null;
 
   const guidelinePlantDate = addDays(
@@ -88,12 +93,21 @@ export function actualTimelineForEntry(
     plantingRule.startOffsetDays,
   );
   const actualPlantDate = new Date(`${entry.plantedDate}T12:00:00Z`);
-  const shiftDays = Math.round(
+  return Math.round(
     (actualPlantDate.getTime() - guidelinePlantDate.getTime()) /
       (24 * 60 * 60 * 1000),
   );
+}
 
-  const shiftedRules = rules.map((rule) => ({
+// The actual timeline a gardener's own planting date implies, as opposed to
+// the generic guideline computed from frost dates.
+export function actualTimelineForEntry(
+  entry: GardenEntry,
+  garden: GardenSettings,
+): TimelineSlot[] | null {
+  const shiftDays = actualShiftDays(entry, garden);
+  if (shiftDays === null) return null;
+  const shiftedRules = rulesForEntry(entry).map((rule) => ({
     ...rule,
     startOffsetDays: rule.startOffsetDays + shiftDays,
     endOffsetDays: rule.endOffsetDays + shiftDays,
@@ -101,14 +115,10 @@ export function actualTimelineForEntry(
   return rulesToTimeline(shiftedRules, garden);
 }
 
-// Position within the half-month slot, so a frost date renders where it actually
-// falls (e.g. Mar 15 sits at the boundary of Mar-Early/Mar-Late) instead of always
-// pinning to the slot's left edge.
-export function frostPosition(
-  garden: GardenSettings,
-  kind: "lastFrost" | "firstFrost",
-) {
-  const date = new Date(`${garden[kind]}T12:00:00Z`);
+// Position within the half-month slot, so a date renders where it actually
+// falls (e.g. Mar 15 sits at the boundary of Mar-Early/Mar-Late) instead of
+// always pinning to the slot's left edge.
+function datePosition(date: Date) {
   const day = date.getUTCDate();
   const daysInMonth = new Date(
     Date.UTC(date.getUTCFullYear(), date.getUTCMonth() + 1, 0),
@@ -116,4 +126,42 @@ export function frostPosition(
   const fraction =
     day > 15 ? (day - 15.5) / (daysInMonth - 15) : (day - 0.5) / 15;
   return { slot: dateToSlot(date), fraction };
+}
+
+export function frostPosition(
+  garden: GardenSettings,
+  kind: "lastFrost" | "firstFrost",
+) {
+  return datePosition(new Date(`${garden[kind]}T12:00:00Z`));
+}
+
+// Where a logged planting date itself falls, for the "pin" marker — the
+// date the gardener actually recorded, not wherever the shifted timeline
+// puts the surrounding phase.
+export function plantedDatePosition(entry: GardenEntry) {
+  if (!entry.plantedDate) return null;
+  return datePosition(new Date(`${entry.plantedDate}T12:00:00Z`));
+}
+
+// Where the actual (shifted) timeline's harvest phase begins, for a "finish
+// flag" marker. This can land away from the logged planting date itself,
+// since it carries the same shift as every other phase.
+export function actualHarvestPosition(
+  entry: GardenEntry,
+  garden: GardenSettings,
+): { slot: number; fraction: number; date: string } | null {
+  const shiftDays = actualShiftDays(entry, garden);
+  if (shiftDays === null) return null;
+  const harvestRule = rulesForEntry(entry).find(
+    (rule) => rule.phase === "harvest",
+  );
+  if (!harvestRule) return null;
+  const harvestStart = addDays(
+    garden[harvestRule.anchor],
+    harvestRule.startOffsetDays + shiftDays,
+  );
+  return {
+    ...datePosition(harvestStart),
+    date: harvestStart.toISOString().slice(0, 10),
+  };
 }

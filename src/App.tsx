@@ -47,16 +47,20 @@ import {
   writeThemePreference,
 } from "./theme";
 import {
+  actualHarvestPosition,
   actualTimelineForEntry,
   frostPosition,
+  plantedDatePosition,
   timelineForEntry,
 } from "./shared/timing";
 import styles from "./App.module.css";
 import {
   ChevronIcon,
   CloseIcon,
+  FlagIcon,
   MenuIcon,
   PencilIcon,
+  PinIcon,
   PlannerIcon,
   QuestionIcon,
   SettingsIcon,
@@ -671,6 +675,12 @@ function Planner() {
                 const actualTimeline = state.garden.showActualTimeline
                   ? actualTimelineForEntry(entry, state.garden)
                   : null;
+                const pinPos = state.garden.showActualTimeline
+                  ? plantedDatePosition(entry)
+                  : null;
+                const flagPos = state.garden.showActualTimeline
+                  ? actualHarvestPosition(entry, state.garden)
+                  : null;
                 const editLabel = `Edit ${entry.name}${entry.variety ? ` — ${entry.variety}` : ""}`;
                 return (
                   <div className={styles.calendarRow} key={entry.id}>
@@ -695,34 +705,75 @@ function Planner() {
                         <ChevronIcon direction="down" />
                       </button>
                     </div>
-                    {timeline.map((slot, index) => {
-                      const combined = actualTimeline
-                        ? combinedSlotPhase(
-                            slot.phase,
-                            actualTimeline[index].phase,
-                          )
-                        : { phase: slot.phase, variant: "" as const };
-                      return (
-                        <div
-                          className={`${styles.slotCell} ${index === currentSlot ? styles.currentColumn : ""}`}
-                          data-slot={index}
-                          key={index}
-                        >
-                          <span
-                            title={
-                              combined.phase
-                                ? `${phaseLabels[combined.phase]}${combined.variant === "Ghost" ? " (guideline)" : combined.variant === "Actual" ? " (actual)" : ""}`
-                                : undefined
-                            }
-                            className={
-                              combined.phase
-                                ? styles[`${combined.phase}${combined.variant}`]
-                                : ""
-                            }
-                          />
-                        </div>
-                      );
-                    })}
+                    {/* A pill's base look comes from status — Planted stays
+                        solid, Will plant is transparent and slashed, Undecided
+                        is dashed — unless a logged planting date puts a
+                        guideline/actual overlay on this specific slot, which
+                        always wins since it reflects a real date comparison
+                        rather than the plant's general status. */}
+                    {(() => {
+                      const statusVariant: "" | "Slashed" | "Ghost" =
+                        entry.status === "willplant"
+                          ? "Slashed"
+                          : entry.status === "undecided"
+                            ? "Ghost"
+                            : "";
+                      return timeline.map((slot, index) => {
+                        const overlay = actualTimeline
+                          ? combinedSlotPhase(
+                              slot.phase,
+                              actualTimeline[index].phase,
+                            )
+                          : { phase: slot.phase, variant: "" as const };
+                        const variant = overlay.variant || statusVariant;
+                        return (
+                          <div
+                            className={`${styles.slotCell} ${index === currentSlot ? styles.currentColumn : ""}`}
+                            data-slot={index}
+                            key={index}
+                          >
+                            <span
+                              title={
+                                overlay.phase
+                                  ? `${phaseLabels[overlay.phase]}${overlay.variant === "Ghost" ? " (guideline)" : overlay.variant === "Actual" ? " (actual)" : ""}`
+                                  : undefined
+                              }
+                              className={
+                                overlay.phase
+                                  ? styles[`${overlay.phase}${variant}`]
+                                  : ""
+                              }
+                            />
+                            {pinPos && index === pinPos.slot && (
+                              <span
+                                className={styles.plantedPin}
+                                style={
+                                  {
+                                    "--marker-pos": pinPos.fraction,
+                                  } as CSSProperties
+                                }
+                                title={`Planted ${prettyDate(entry.plantedDate!)}`}
+                              >
+                                <PinIcon size={12} />
+                              </span>
+                            )}
+                            {flagPos && index === flagPos.slot && (
+                              <span
+                                className={styles.harvestFlag}
+                                style={
+                                  {
+                                    "--marker-pos": flagPos.fraction,
+                                  } as CSSProperties
+                                }
+                                title={`Harvest starts ${prettyDate(flagPos.date)}`}
+                              >
+                                <FlagIcon size={12} />
+                              </span>
+                            )}
+                          </div>
+                        );
+                      });
+                    })()}
                   </div>
                 );
               })}
@@ -992,6 +1043,20 @@ function PlannerMore({
             <span>
               <i className={styles.harvestActual} />
               Actual — from a logged planting date
+            </span>
+            <span>
+              <PinIcon
+                size={14}
+                className={`${styles.legendIcon} ${styles.legendPin}`}
+              />
+              Planted date
+            </span>
+            <span>
+              <FlagIcon
+                size={14}
+                className={`${styles.legendIcon} ${styles.legendFlag}`}
+              />
+              Harvest day
             </span>
           </>
         )}
