@@ -232,6 +232,37 @@ test("More holds the garden's facts, and the ZIP can be changed there", async ({
   await expect(page.getByLabel("ZIP code", { exact: true })).toHaveValue("");
 });
 
+test("frost markers can be switched off, and come back", async ({ page }) => {
+  const calendar = page.getByLabel("Annual planting calendar");
+  const toggle = page.getByLabel("Show frost markers on the calendar");
+  const save = async () => {
+    await page.getByRole("button", { name: "Save settings" }).click();
+    await expect(page.getByText("Garden settings saved.")).toBeVisible();
+  };
+
+  // Every project shares one database, so this starts by putting the setting
+  // where it wants it rather than trusting whatever an earlier run left.
+  await page.goto("/settings");
+  await toggle.check();
+  await save();
+  await page.goto("/planner");
+  await expect(calendar).toBeVisible();
+  expect(await page.locator("[class*=frostLine]").count()).toBe(2);
+
+  await page.goto("/settings");
+  await page.getByLabel("Show frost markers on the calendar").uncheck();
+  await save();
+  await page.goto("/planner");
+  await expect(calendar).toBeVisible();
+  // Both halves of the marker answer to the one switch: the line and the glyph.
+  expect(await page.locator("[class*=frostLine]").count()).toBe(0);
+  expect(await page.locator("[class*=frostFlake]").count()).toBe(0);
+
+  await page.goto("/settings");
+  await page.getByLabel("Show frost markers on the calendar").check();
+  await save();
+});
+
 test("settings fields stay inside their panel", async ({ page }, info) => {
   test.skip(info.project.name === "desktop-chromium", "a phone width problem");
   await page.getByRole("button", { name: "More" }).click();

@@ -23,6 +23,8 @@ export const GardenSettingsSchema = z.object({
   timezone: z.string().min(1),
   lastFrost: z.string().date(),
   firstFrost: z.string().date(),
+  /* Gardens saved before this existed simply have the marks on. */
+  showFrostMarks: z.boolean().default(true),
 });
 
 export const BedSchema = z.object({

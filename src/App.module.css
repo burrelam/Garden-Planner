@@ -1577,7 +1577,12 @@
   position: relative;
   min-width: 1200px;
   display: grid;
-  grid-template-columns: 240px repeat(24, minmax(40px, 1fr));
+  /* The name column and one half-month, named once. The frost line is placed
+     from these too — hard-coding 240px in the line put it a whole column out
+     on a phone, where the name column is narrower and the slots are fixed. */
+  --cal-name-col: 240px;
+  --cal-slot-w: calc((100% - var(--cal-name-col)) / 24);
+  grid-template-columns: var(--cal-name-col) repeat(24, minmax(40px, 1fr));
 }
 /* One line per frost date for the whole calendar. It lives inside the grid so
    it scrolls with the columns, starts below the E/L strip, and sits over the
@@ -1587,7 +1592,7 @@
   position: absolute;
   top: 60px;
   bottom: 0;
-  left: calc(240px + (100% - 240px) * var(--frost-frac));
+  left: calc(var(--cal-name-col) + var(--cal-slot-w) * var(--frost-slot));
   z-index: 3;
   width: var(--size-frost-tick);
   transform: translateX(calc(var(--size-frost-tick) / -2));
@@ -1762,6 +1767,41 @@
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+/* Not a field you type in, so it opts out of the recessed field chrome and
+   takes STEP at its own size, with a NICK square for the mark. */
+.checkLine {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.checkLine input[type="checkbox"] {
+  appearance: none;
+  -webkit-appearance: none;
+  flex: 0 0 auto;
+  display: grid;
+  place-content: center;
+  width: 26px;
+  min-width: 26px;
+  height: 26px;
+  min-height: 26px;
+  padding: 0;
+  border: 3px solid var(--color-field-border);
+  border-radius: 0;
+  background: var(--color-field);
+  clip-path: var(--o-step);
+  cursor: pointer;
+}
+.checkLine input[type="checkbox"]::after {
+  content: "";
+  width: 12px;
+  height: 12px;
+  background: transparent;
+  clip-path: var(--o-nick);
+}
+.checkLine input[type="checkbox"]:checked::after {
+  background: var(--color-accent);
+}
+
 /* The pills already say when everything happens, so the row spends this line
    on the species instead of repeating the timing as a number. */
 .rowSpecies {
@@ -2251,11 +2291,12 @@
   .calendar {
     max-height: calc(100svh - 140px);
     min-height: 390px;
-    border-radius: 12px 12px 0 0;
   }
   .calendarGrid {
     min-width: 1004px;
-    grid-template-columns: 140px repeat(24, 36px);
+    --cal-name-col: 140px;
+    --cal-slot-w: 36px;
+    grid-template-columns: var(--cal-name-col) repeat(24, var(--cal-slot-w));
   }
   .plantRowTitle {
     padding: 5px 6px;
@@ -2318,7 +2359,9 @@
   }
   .calendarGrid {
     min-width: 996px;
-    grid-template-columns: 132px repeat(24, 36px);
+    --cal-name-col: 132px;
+    --cal-slot-w: 36px;
+    grid-template-columns: var(--cal-name-col) repeat(24, var(--cal-slot-w));
   }
   .sheetFields {
     grid-template-columns: 1fr;

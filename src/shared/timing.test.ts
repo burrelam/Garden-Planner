@@ -10,6 +10,7 @@ const garden: GardenSettings = {
   timezone: "America/Los_Angeles",
   lastFrost: "2026-03-15",
   firstFrost: "2026-11-15",
+  showFrostMarks: true,
 };
 
 describe("garden timing", () => {

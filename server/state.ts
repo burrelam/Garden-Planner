@@ -176,6 +176,7 @@ export function createEmptyGarden(): GardenState {
       timezone: "America/Los_Angeles",
       lastFrost: "2026-03-15",
       firstFrost: "2026-11-15",
+      showFrostMarks: true,
     },
     beds: [],
     entries: [],

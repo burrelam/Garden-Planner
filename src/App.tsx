@@ -428,6 +428,7 @@ function Planner() {
       return categoryRank(a) - categoryRank(b) || byName(a, b);
     return byName(a, b);
   });
+  const frostMarks = state.garden.showFrostMarks !== false;
   const lastFrostPos = frostPosition(state.garden, "lastFrost");
   const firstFrostPos = frostPosition(state.garden, "firstFrost");
   const last = lastFrostPos.slot;
@@ -605,7 +606,7 @@ function Planner() {
               }
               key={`half-${slot}`}
             >
-              {slot === last || slot === first ? (
+              {frostMarks && (slot === last || slot === first) ? (
                 <SnowflakeIcon size={18} className={styles.frostFlake} />
               ) : slot % 2 === 0 ? (
                 "E"
@@ -615,12 +616,14 @@ function Planner() {
             </div>
           ))}
           {[lastFrostPos, firstFrostPos].map((pos, index) =>
-            Number.isFinite(pos.slot) && Number.isFinite(pos.fraction) ? (
+            frostMarks &&
+            Number.isFinite(pos.slot) &&
+            Number.isFinite(pos.fraction) ? (
               <div
                 className={styles.frostLine}
                 style={
                   {
-                    "--frost-frac": (pos.slot + pos.fraction) / 24,
+                    "--frost-slot": pos.slot + pos.fraction,
                   } as CSSProperties
                 }
                 key={`frost-line-${index}`}
@@ -1762,6 +1765,7 @@ function Settings({
         hardinessZone,
         lastFrost: String(data.get("lastFrost")),
         firstFrost: String(data.get("firstFrost")),
+        showFrostMarks: data.get("showFrostMarks") !== null,
       },
     });
     setMessage("Garden settings saved.");
@@ -1948,6 +1952,14 @@ function Settings({
                 />
               </label>
             </div>
+            <label className={styles.checkLine}>
+              <input
+                type="checkbox"
+                name="showFrostMarks"
+                defaultChecked={state.garden.showFrostMarks !== false}
+              />
+              Show frost markers on the calendar
+            </label>
             <p className={styles.muted}>
               Hardiness describes perennial cold survival. Your frost dates
               drive the vegetable calendar.
