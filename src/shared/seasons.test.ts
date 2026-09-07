@@ -85,13 +85,32 @@ describe("sowing windows", () => {
       start: "2026-06-30",
       end: "2026-08-14",
     });
-    // Marigolds bloom rather than being picked, and still get a window.
-    expect(windows("marigold")[0].harvest).not.toBeNull();
+    // Peas are picked rather than cut, and still carry dates.
+    expect(windows("peas")[0].harvest).not.toBeNull();
   });
 
-  it("gives every catalog plant at least one way into the ground", () => {
-    for (const record of catalogById.values())
-      expect(sowingWindowsFor(record, garden).length).toBeGreaterThan(0);
+  it("either knows how a plant goes in the ground or says nothing at all", () => {
+    // A plant with timing rules must produce a window a gardener can act on. A plant whose
+    // sources give no sowing date carries no rules rather than borrowing another crop's.
+    const withoutTiming: string[] = [];
+    for (const record of catalogById.values()) {
+      if (record.timing.length === 0) {
+        withoutTiming.push(record.id);
+        continue;
+      }
+      expect(
+        sowingWindowsFor(record, garden).length,
+        `${record.id} has timing rules but no sowing window`,
+      ).toBeGreaterThan(0);
+    }
+    // The flowers are here: NC State describes them, but publishes no sowing dates, and OSU's
+    // vegetable guides do not carry them. Shrinking this list means finding a timing source.
+    expect(withoutTiming.sort()).toEqual([
+      "cosmos",
+      "marigold",
+      "snapdragon",
+      "zinnia",
+    ]);
   });
 
   it("moves with the garden's frost dates", () => {

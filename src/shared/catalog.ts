@@ -74,6 +74,16 @@ export const sources: SourceRecord[] = [
       "Store prevention summaries and deep links, not frozen pesticide directions. The product label remains authoritative.",
   },
   {
+    id: "ncsu-plant-toolbox",
+    publisher: "N.C. Cooperative Extension",
+    title: "North Carolina Extension Gardener Plant Toolbox",
+    url: "https://plants.ces.ncsu.edu/",
+    revision: "2019 onwards",
+    accessedAt: "2026-09-07",
+    licenseNote:
+      "Copyrighted Extension guidance covering 4,719 plants, cited as 'Plant Toolbox. 2019 onwards.' Paraphrase discrete facts and link the source. Its plant characteristics travel; its North Carolina timing does not, so sowing dates are never taken from here. Photographs carry their own per-image licences and are not imported.",
+  },
+  {
     id: "osu-educators-guide",
     publisher: "Oregon State University Extension Service",
     title: "An Educator's Guide to Vegetable Gardening",
@@ -127,6 +137,13 @@ const osuFact = <T>(
   locationScope,
   evidenceLevel: "extension-guidance" as const,
   reviewedAt: resourcedAt,
+});
+
+// A cultivar the Plant Toolbox lists by name without assigning it a horticultural group.
+const ncsuCultivar = (id: string, name: string, type = "Named cultivar") => ({
+  id,
+  name,
+  type: osuFact(type, ["ncsu-plant-toolbox"], "national"),
 });
 
 // A variety the gardener grows that OSU does not list. It carries no sourced claim, only a name,
@@ -825,20 +842,46 @@ export const catalog: PlantRecord[] = [
   {
     id: "marigold",
     commonName: "Marigolds",
-    scientificName: "Tagetes spp.",
+    scientificName: "Tagetes patula",
     category: "flower",
     summary:
-      "A warm-season flowering annual useful for color and insect habitat.",
-    daysToMaturity: regionalFact("50–70 days to bloom"),
-    sun: regionalFact("Full sun"),
-    water: regionalFact("Moderate; allow the surface to dry between watering"),
-    spacing: regionalFact("8–18 inches"),
-    timing: [
-      timing("indoor", "lastFrost", -42, -21),
-      timing("transplant", "lastFrost", 7, 35),
-      timing("bloom", "lastFrost", 45, 160),
+      "A compact French marigold that flowers from spring into fall if it is kept deadheaded.",
+    // The Plant Toolbox gives this plant's characteristics but no sowing dates, and OSU's
+    // publications do not carry it at all. It therefore has no timing rules: the calendar
+    // would rather say nothing than borrow another crop's window.
+    sun: osuFact(
+      "Full sun, or partial shade of 2–6 hours",
+      ["ncsu-plant-toolbox"],
+      "national",
+    ),
+    water: osuFact(
+      "Wants good drainage; drought tolerant once established",
+      ["ncsu-plant-toolbox"],
+      "national",
+    ),
+    soil: osuFact(
+      "Clay, loam or sand at acid to neutral pH",
+      ["ncsu-plant-toolbox"],
+      "national",
+    ),
+    spacing: osuFact(
+      "Less than 12 inches apart",
+      ["ncsu-plant-toolbox"],
+      "national",
+    ),
+    timing: [],
+    cultivars: [
+      ncsuCultivar("alumia-vanilla-cream", "Alumia Vanilla Cream"),
+      ncsuCultivar("aurora-orange", "Aurora Orange"),
+      ncsuCultivar("bolero", "Bolero"),
+      ncsuCultivar("bonanza-deep-orange", "Bonanza Deep Orange"),
+      ncsuCultivar("bonita-mixed", "Bonita Mixed"),
+      ncsuCultivar("brocade-mix", "Brocade Mix"),
+      ncsuCultivar("golden-boy", "Golden Boy"),
+      ncsuCultivar("ground-control", "Ground Control"),
+      ncsuCultivar("janie-deep-orange", "Janie Deep Orange"),
+      ncsuCultivar("janie-spry", "Janie Spry"),
     ],
-    cultivars: [],
     companions: [
       {
         plantId: "tomato",
@@ -850,10 +893,455 @@ export const catalog: PlantRecord[] = [
         sourceIds: ["umn-companions"],
       },
     ],
-    growingTips: regionalFact([
-      "Deadhead to extend bloom.",
-      "Allow room for airflow around plants.",
-    ]),
+    growingTips: osuFact(
+      [
+        "An annual reaching 6–12 inches tall and 6–18 inches wide.",
+        "Deadhead to keep it flowering from spring right through fall.",
+        "'Janie Deep Orange' and 'Janie Spry' resist abiotic disorders well.",
+        "EM 9027 notes that slugs are drawn to marigolds, which is why they turn up as a trap crop.",
+      ],
+      ["ncsu-plant-toolbox"],
+      "national",
+    ),
+    reviewStatus: "reviewed",
+  },
+
+  {
+    id: "thyme",
+    commonName: "Thyme",
+    scientificName: "Thymus vulgaris",
+    category: "herb",
+    summary:
+      "A woody Mediterranean herb, started under cover in March or sown outdoors once the soil is warm.",
+    sun: osuFact("Full sun", ["ncsu-plant-toolbox"], "national"),
+    water: osuFact(
+      "Wants good drainage and takes an occasional dry spell",
+      ["ncsu-plant-toolbox"],
+      "national",
+    ),
+    soil: osuFact(
+      "Sandy, rocky or loam soil; neutral to alkaline pH",
+      ["ncsu-plant-toolbox"],
+      "national",
+    ),
+    spacing: osuFact(
+      "12 inches to 3 feet apart",
+      ["ncsu-plant-toolbox"],
+      "national",
+    ),
+    timing: [
+      timing("indoor", "lastFrost", -14, 16, ["osu-educators-guide"]),
+      timing("direct", "lastFrost", 62, 77, ["osu-educators-guide"]),
+    ],
+    cultivars: [
+      ncsuCultivar("argenteus", "Argenteus"),
+      ncsuCultivar("broadleaf-english", "Broadleaf English"),
+      ncsuCultivar("dot-s-well", "Dot's Well"),
+      ncsuCultivar("gray-hill", "Gray Hill"),
+      ncsuCultivar("narrow-leaf-french", "Narrow Leaf French"),
+      ncsuCultivar("orange-balsam", "Orange Balsam"),
+      ncsuCultivar("passion-pink", "Passion Pink"),
+      ncsuCultivar("provencial", "Provencial"),
+      ncsuCultivar("silver-posie", "Silver Posie"),
+      ncsuCultivar("tabor", "Tabor"),
+    ],
+    companions: [],
+    growingTips: osuFact(
+      [
+        "A woody perennial, hardy through zones 5a–9b, reaching 6–12 inches tall.",
+        "Seed germinates unevenly; cuttings, layering and division are more reliable.",
+        "EM 9032 starts mint-family herbs in flats in March and sows them outdoors after 15 May.",
+        "Flowers late spring into summer.",
+      ],
+      ["ncsu-plant-toolbox", "osu-educators-guide"],
+    ),
+    reviewStatus: "reviewed",
+  },
+  {
+    id: "oregano",
+    commonName: "Oregano",
+    scientificName: "Origanum vulgare",
+    category: "herb",
+    summary:
+      "A hardy perennial herb for a sunny, well-drained corner of the bed.",
+    sun: osuFact(
+      "Full sun, or partial shade of 2–6 hours",
+      ["ncsu-plant-toolbox"],
+      "national",
+    ),
+    water: osuFact(
+      "Wants good drainage and takes dry to medium moisture",
+      ["ncsu-plant-toolbox"],
+      "national",
+    ),
+    soil: osuFact(
+      "Clay, loam or sand; tolerates acid through alkaline pH",
+      ["ncsu-plant-toolbox"],
+      "national",
+    ),
+    spacing: osuFact(
+      "12 inches to 3 feet apart",
+      ["ncsu-plant-toolbox"],
+      "national",
+    ),
+    timing: [
+      timing("indoor", "lastFrost", -14, 16, ["osu-educators-guide"]),
+      timing("direct", "lastFrost", 62, 77, ["osu-educators-guide"]),
+    ],
+    cultivars: [
+      ncsuCultivar("greek", "Greek oregano", "Culinary"),
+      ncsuCultivar("aureum", "Aureum", "Ornamental"),
+    ],
+    companions: [],
+    growingTips: osuFact(
+      [
+        "A herbaceous perennial, hardy through zones 4a–8b, reaching 1–3 feet.",
+        "Greek oregano is the standard culinary type; 'Aureum' is grown for its golden foliage.",
+        "Divides readily, and also grows from leaf or root cuttings.",
+        "Tiny pink-purple or white flowers from late spring through summer.",
+      ],
+      ["ncsu-plant-toolbox", "osu-educators-guide"],
+    ),
+    reviewStatus: "reviewed",
+  },
+  {
+    id: "sage",
+    commonName: "Sage",
+    scientificName: "Salvia officinalis",
+    category: "herb",
+    summary:
+      "A short-lived perennial that resents wet feet and rewards a dry, sunny spot.",
+    sun: osuFact(
+      "Full sun, or partial shade of 2–6 hours",
+      ["ncsu-plant-toolbox"],
+      "national",
+    ),
+    water: osuFact(
+      "Drought tolerant; keep it dry to medium and never waterlogged",
+      ["ncsu-plant-toolbox"],
+      "national",
+    ),
+    soil: osuFact(
+      "Loam, sand or shallow rocky soil at neutral pH — intolerant of poor drainage",
+      ["ncsu-plant-toolbox"],
+      "national",
+    ),
+    spacing: osuFact(
+      "12 inches upward, depending on the cultivar",
+      ["ncsu-plant-toolbox"],
+      "national",
+    ),
+    timing: [
+      timing("indoor", "lastFrost", -14, 16, ["osu-educators-guide"]),
+      timing("direct", "lastFrost", 62, 77, ["osu-educators-guide"]),
+    ],
+    cultivars: [
+      ncsuCultivar("berggarten", "Berggarten", "Culinary"),
+      ncsuCultivar("compacta", "Compacta", "Compact"),
+      ncsuCultivar("icterina", "Icterina", "Ornamental"),
+      ncsuCultivar("purpurascens", "Purpurascens", "Ornamental"),
+      ncsuCultivar("tricolor", "Tricolor", "Ornamental"),
+    ],
+    companions: [],
+    growingTips: osuFact(
+      [
+        "A short-lived perennial, hardy through zones 4a–8b, reaching 1–2 feet tall and 2–3 feet wide.",
+        "'Purpurascens' and 'Tricolor' are not reliably winter hardy.",
+        "Grows from seed, stem cuttings or layering.",
+        "Bluish to pinkish lavender flowers in early summer.",
+      ],
+      ["ncsu-plant-toolbox", "osu-educators-guide"],
+    ),
+    reviewStatus: "reviewed",
+  },
+  {
+    id: "rosemary",
+    commonName: "Rosemary",
+    scientificName: "Salvia rosmarinus",
+    category: "herb",
+    summary:
+      "An evergreen Mediterranean shrub that wants sun, sharp drainage and very little fuss.",
+    sun: osuFact("Full sun", ["ncsu-plant-toolbox"], "national"),
+    water: osuFact(
+      "Dry to medium; it wants sharp drainage",
+      ["ncsu-plant-toolbox"],
+      "national",
+    ),
+    soil: osuFact(
+      "Well-drained loam rich in organic matter; tolerates rocky, shallow ground",
+      ["ncsu-plant-toolbox"],
+      "national",
+    ),
+    spacing: osuFact("3 to 6 feet apart", ["ncsu-plant-toolbox"], "national"),
+    timing: [
+      timing("indoor", "lastFrost", -14, 16, ["osu-educators-guide"]),
+      timing("direct", "lastFrost", 62, 77, ["osu-educators-guide"]),
+    ],
+    cultivars: [
+      ncsuCultivar("arp", "Arp"),
+      ncsuCultivar("irene", "Irene"),
+      ncsuCultivar("prostratus", "Prostratus"),
+      ncsuCultivar("salem", "Salem"),
+      ncsuCultivar("severn-sea", "Severn Sea"),
+      ncsuCultivar("tuscan-blue", "Tuscan Blue"),
+      ncsuCultivar("albus", "Albus"),
+    ],
+    companions: [],
+    growingTips: osuFact(
+      [
+        "A woody perennial, hardy through zones 8a–10b, reaching 4–5 feet tall and 3–4 feet wide.",
+        "Both leaves and flowers are edible.",
+        "Propagates by division, layering, seed or stem cuttings.",
+        "Flowers through spring and summer.",
+      ],
+      ["ncsu-plant-toolbox", "osu-educators-guide"],
+    ),
+    reviewStatus: "reviewed",
+  },
+  {
+    id: "parsley",
+    commonName: "Parsley",
+    scientificName: "Petroselinum crispum",
+    category: "herb",
+    summary:
+      "A biennial grown as an annual, sown outdoors from March right through July.",
+    sun: osuFact("Full sun", ["ncsu-plant-toolbox"], "national"),
+    water: osuFact(
+      "Keep it consistently moist",
+      ["ncsu-plant-toolbox"],
+      "national",
+    ),
+    soil: osuFact(
+      "Rich, well-drained clay, loam or sand at acid to neutral pH",
+      ["ncsu-plant-toolbox"],
+      "national",
+    ),
+    spacing: osuFact(
+      "8 to 12 inches apart",
+      ["ncsu-plant-toolbox"],
+      "national",
+    ),
+    timing: [
+      timing("indoor", "lastFrost", -42, 77, ["osu-educators-guide"]),
+      timing("direct", "lastFrost", -14, 138, ["osu-educators-guide"]),
+    ],
+    cultivars: [
+      ncsuCultivar("curly", "Curly leaf", "Leaf type"),
+      ncsuCultivar("flat", "Flat leaf, Italian", "Leaf type"),
+      ncsuCultivar("hamburg", "Hamburg", "Root type"),
+    ],
+    companions: [],
+    growingTips: osuFact(
+      [
+        "Easier from seedlings than from seed — germination is slow.",
+        "Cut when the plants are about 8 inches tall, taking outer stalks so the centre keeps growing.",
+        "EM 9032 sows parsley outdoors from March through July, and starts it in flats from February.",
+        "It flowers in its second year, then sets seed.",
+      ],
+      ["ncsu-plant-toolbox", "osu-educators-guide"],
+    ),
+    reviewStatus: "reviewed",
+  },
+  {
+    id: "dill",
+    commonName: "Dill",
+    scientificName: "Anethum graveolens",
+    category: "herb",
+    summary:
+      "An annual herb sown straight into the ground through May and June.",
+    sun: osuFact(
+      "Full sun, or partial shade of 2–6 hours",
+      ["ncsu-plant-toolbox"],
+      "national",
+    ),
+    water: osuFact(
+      "Water consistently — drying out sends it to seed",
+      ["ncsu-plant-toolbox"],
+      "national",
+    ),
+    soil: osuFact(
+      "Well-drained loam or sand with plenty of organic matter, acid to neutral pH",
+      ["ncsu-plant-toolbox"],
+      "national",
+    ),
+    spacing: osuFact(
+      "12 inches to 3 feet apart",
+      ["ncsu-plant-toolbox"],
+      "national",
+    ),
+    timing: [timing("direct", "lastFrost", 47, 107, ["osu-educators-guide"])],
+    cultivars: [
+      ncsuCultivar("bouquet", "Bouquet", "Tall"),
+      ncsuCultivar("delikat", "Delikat", "Dense foliage"),
+      ncsuCultivar("fernleaf", "Fernleaf", "Dwarf"),
+      ncsuCultivar("hera", "Hera", "Bunching"),
+      ncsuCultivar("long-island-mammoth", "Long Island Mammoth", "Pickling"),
+    ],
+    companions: [],
+    growingTips: osuFact(
+      [
+        "Sow a quarter of an inch deep; seed comes up in 10 to 14 days.",
+        "'Fernleaf' is the slowest to bolt.",
+        "EM 9032 sows dill outdoors in May and June in the Willamette Valley.",
+        "Seed ripens three to four weeks after the yellow flowers open.",
+      ],
+      ["ncsu-plant-toolbox", "osu-educators-guide"],
+    ),
+    reviewStatus: "reviewed",
+  },
+  {
+    id: "cosmos",
+    commonName: "Cosmos",
+    scientificName: "Cosmos bipinnatus",
+    category: "flower",
+    summary:
+      "An airy annual with a long bloom season, happy in poorer ground than most.",
+    // The Plant Toolbox gives this plant's characteristics but no sowing dates, and OSU's
+    // publications do not carry it at all. It therefore has no timing rules: the calendar
+    // would rather say nothing than borrow another crop's window.
+    sun: osuFact(
+      "Full sun, or partial shade of 2–6 hours",
+      ["ncsu-plant-toolbox"],
+      "national",
+    ),
+    water: osuFact(
+      "Keep it moist for 5–10 days after sowing; drought tolerant once established",
+      ["ncsu-plant-toolbox"],
+      "national",
+    ),
+    soil: osuFact(
+      "Clay, loam or sand at neutral to alkaline pH, with good drainage",
+      ["ncsu-plant-toolbox"],
+      "national",
+    ),
+    spacing: osuFact(
+      "12 inches to 3 feet apart",
+      ["ncsu-plant-toolbox"],
+      "national",
+    ),
+    timing: [],
+    cultivars: [
+      ncsuCultivar("antiquity", "Antiquity"),
+      ncsuCultivar("chocolate", "Chocolate"),
+      ncsuCultivar("cosmic-series", "Cosmic Series"),
+      ncsuCultivar("psyche-mix", "Psyche Mix"),
+      ncsuCultivar("seashells-mix", "Seashells Mix"),
+      ncsuCultivar("sonata-series", "Sonata Series"),
+    ],
+    companions: [],
+    growingTips: osuFact(
+      [
+        "An annual reaching 2–4 feet tall and 2–3 feet wide, hardy across zones 2a–11b.",
+        "Rake the seed into loose soil — sown too deep it will not come up.",
+        "Germinates in 7 to 21 days once the soil is at least 65°F.",
+        "Flowers spring, summer and fall.",
+      ],
+      ["ncsu-plant-toolbox"],
+      "national",
+    ),
+    reviewStatus: "reviewed",
+  },
+  {
+    id: "snapdragon",
+    commonName: "Snapdragons",
+    scientificName: "Antirrhinum majus",
+    category: "flower",
+    summary:
+      "A cool-season favourite for cutting, grown as an annual and flowering spring through fall.",
+    // The Plant Toolbox gives this plant's characteristics but no sowing dates, and OSU's
+    // publications do not carry it at all. It therefore has no timing rules: the calendar
+    // would rather say nothing than borrow another crop's window.
+    sun: osuFact(
+      "Full sun, or partial shade of 2–6 hours",
+      ["ncsu-plant-toolbox"],
+      "national",
+    ),
+    water: osuFact(
+      "Keep it consistently moist; it has little drought tolerance",
+      ["ncsu-plant-toolbox"],
+      "national",
+    ),
+    soil: osuFact(
+      "Moist, rich, well-drained soil with plenty of organic matter",
+      ["ncsu-plant-toolbox"],
+      "national",
+    ),
+    spacing: osuFact(
+      "Less than 12 inches apart",
+      ["ncsu-plant-toolbox"],
+      "national",
+    ),
+    timing: [],
+    cultivars: [
+      ncsuCultivar("admiral-white", "Admiral White"),
+      ncsuCultivar(
+        "floral-showers-apricot-bicolor",
+        "Floral Showers Apricot Bicolor",
+      ),
+      ncsuCultivar("kim", "Kim"),
+      ncsuCultivar("kim-orange", "Kim Orange"),
+      ncsuCultivar("kim-purple-and-white", "Kim Purple and White"),
+      ncsuCultivar("montego-o", "Montego O"),
+      ncsuCultivar("snapshot-yellow", "Snapshot Yellow"),
+      ncsuCultivar("snaptastic-yellow", "Snaptastic Yellow"),
+    ],
+    companions: [],
+    growingTips: osuFact(
+      [
+        "A short-lived tender perennial grown as an annual, hardy through zones 7a–10b.",
+        "Ranges from 6 inches to 3 feet tall depending on the cultivar, and 6–10 inches wide.",
+        "Water at the base — overhead watering invites trouble.",
+        "Flowers spring, summer and fall.",
+      ],
+      ["ncsu-plant-toolbox"],
+      "national",
+    ),
+    reviewStatus: "reviewed",
+  },
+  {
+    id: "zinnia",
+    commonName: "Zinnias",
+    scientificName: "Zinnia elegans",
+    category: "flower",
+    summary:
+      "A dependable cutting annual that keeps flowering from summer into fall.",
+    // The Plant Toolbox gives this plant's characteristics but no sowing dates, and OSU's
+    // publications do not carry it at all. It therefore has no timing rules: the calendar
+    // would rather say nothing than borrow another crop's window.
+    sun: osuFact("Full sun", ["ncsu-plant-toolbox"], "national"),
+    water: osuFact(
+      "Wants good drainage and takes an occasional dry spell",
+      ["ncsu-plant-toolbox"],
+      "national",
+    ),
+    soil: osuFact(
+      "Loam with plenty of organic matter and good drainage; not fussy about pH",
+      ["ncsu-plant-toolbox"],
+      "national",
+    ),
+    spacing: osuFact(
+      "12 inches to 3 feet apart",
+      ["ncsu-plant-toolbox"],
+      "national",
+    ),
+    timing: [],
+    cultivars: [
+      ncsuCultivar("profusion-series", "Profusion Series"),
+      ncsuCultivar("benary-s-giants", "Benary's Giants"),
+      ncsuCultivar("purple-prince", "Purple Prince"),
+      ncsuCultivar("thumbelina", "Thumbelina"),
+    ],
+    companions: [],
+    growingTips: osuFact(
+      [
+        "An annual reaching 6 inches to 3 feet tall, hardy across zones 2a–11b.",
+        "The Plant Toolbox sows it straight into the ground after the last frost date.",
+        "Give it good air circulation, full sun and drainage to keep fungal leaf spot away.",
+        "Blooms continuously through summer and fall in a cool summer; it slows in real heat.",
+      ],
+      ["ncsu-plant-toolbox"],
+      "national",
+    ),
     reviewStatus: "reviewed",
   },
 ];
