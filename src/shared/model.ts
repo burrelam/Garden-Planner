@@ -162,6 +162,9 @@ export interface TimingRule {
 export interface CultivarRecord {
   id: string;
   name: string;
+  // The horticultural group a variety belongs to — romaine, butterhead, bibb. Gardeners shop by
+  // this before they shop by cultivar name, so the variety picker groups on it.
+  type?: SourcedFact<string>;
   daysToMaturity?: SourcedFact<string>;
   notes?: SourcedFact<string[]>;
 }

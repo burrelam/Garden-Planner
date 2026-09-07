@@ -20,7 +20,11 @@ describe("catalog provenance", () => {
           expect(sourceIds.has(id), `${plant.id} references ${id}`).toBe(true);
       }
       for (const cultivar of plant.cultivars) {
-        for (const fact of [cultivar.daysToMaturity, cultivar.notes]) {
+        for (const fact of [
+          cultivar.daysToMaturity,
+          cultivar.notes,
+          cultivar.type,
+        ]) {
           if (!fact) continue;
           expect(fact.reviewedAt).toMatch(/^\d{4}-\d{2}-\d{2}$/);
           expect(fact.sourceIds.length).toBeGreaterThan(0);

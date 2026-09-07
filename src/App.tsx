@@ -1356,6 +1356,9 @@ function Dialog({
   );
 }
 
+// Sentinel for the "type your own" choice; not a variety name a gardener would use.
+const OWN_VARIETY = "__own__";
+
 function PlantDialog({
   state,
   close,
@@ -1368,11 +1371,28 @@ function PlantDialog({
   const [plantId, setPlantId] = useState(localCatalog[0].id);
   const [name, setName] = useState("");
   const [variety, setVariety] = useState("");
+  // "Something else" keeps its own text so switching back to a listed variety does not lose it.
+  const [ownVariety, setOwnVariety] = useState("");
   const [qty, setQty] = useState<number | "">(1);
   const [bedId, setBedId] = useState(
     () => state.beds.find((bed) => bed.id === "unassigned")?.id ?? "",
   );
   const selected = localCatalog.find((plant) => plant.id === plantId);
+  const plantKey =
+    plantId === "custom" ? name.trim() : (selected?.commonName ?? "");
+  // Varieties this gardener has typed before, kept per plant so they come back next time.
+  const savedVarieties = state.customVarieties[plantKey] ?? [];
+  // EC 871 groups its recommendations by horticultural type, which is how gardeners shop.
+  const varietyGroups = useMemo(() => {
+    const groups = new Map<string, string[]>();
+    for (const cultivar of selected?.cultivars ?? []) {
+      const group = cultivar.type?.value ?? "Other";
+      groups.set(group, [...(groups.get(group) ?? []), cultivar.name]);
+    }
+    return [...groups];
+  }, [selected]);
+  const choosingOwn = variety === OWN_VARIETY;
+  const resolvedVariety = (choosingOwn ? ownVariety : variety).trim();
   const submit = async (event: FormEvent) => {
     event.preventDefault();
     const custom = plantId === "custom";
@@ -1380,14 +1400,30 @@ function PlantDialog({
       id: crypto.randomUUID(),
       plantId: custom ? null : plantId,
       name: custom ? name : selected!.commonName,
-      variety: variety || null,
+      variety: resolvedVariety || null,
       dtm: custom ? null : selected!.daysToMaturity.value,
       qty: clampQty(qty),
       bedId: bedId || null,
       status: "willplant",
       sortOrder: state.entries.length,
     };
-    await save({ ...state, entries: [...state.entries, entry] });
+    // A variety the gardener typed is remembered for this plant, so it is a pick next time.
+    const isNew =
+      choosingOwn &&
+      resolvedVariety.length > 0 &&
+      !savedVarieties.includes(resolvedVariety) &&
+      !varietyGroups.some(([, names]) => names.includes(resolvedVariety));
+    const customVarieties = isNew
+      ? {
+          ...state.customVarieties,
+          [plantKey]: [...savedVarieties, resolvedVariety],
+        }
+      : state.customVarieties;
+    await save({
+      ...state,
+      entries: [...state.entries, entry],
+      customVarieties,
+    });
     close();
   };
   return (
@@ -1401,6 +1437,7 @@ function PlantDialog({
               onChange={(event) => {
                 setPlantId(event.target.value);
                 setVariety("");
+                setOwnVariety("");
               }}
             >
               <option value="custom">Custom plant</option>
@@ -1425,19 +1462,45 @@ function PlantDialog({
         <label>
           Variety
           <span className={styles.selectWrap}>
-            <input
-              list="varieties"
+            <select
               value={variety}
               onChange={(event) => setVariety(event.target.value)}
-              placeholder="Optional"
-            />
+            >
+              <option value="">No variety</option>
+              {savedVarieties.length > 0 && (
+                <optgroup label="Yours">
+                  {savedVarieties.map((name) => (
+                    <option value={name} key={name}>
+                      {name}
+                    </option>
+                  ))}
+                </optgroup>
+              )}
+              {varietyGroups.map(([group, names]) => (
+                <optgroup label={group} key={group}>
+                  <option value={group}>{group} — any</option>
+                  {names.map((name) => (
+                    <option value={name} key={name}>
+                      {name}
+                    </option>
+                  ))}
+                </optgroup>
+              ))}
+              <option value={OWN_VARIETY}>Something else…</option>
+            </select>
           </span>
-          <datalist id="varieties">
-            {selected?.cultivars.map((cultivar) => (
-              <option key={cultivar.id}>{cultivar.name}</option>
-            ))}
-          </datalist>
         </label>
+        {choosingOwn && (
+          <label>
+            Your variety
+            <input
+              autoFocus
+              value={ownVariety}
+              onChange={(event) => setOwnVariety(event.target.value)}
+              placeholder="Salad mix"
+            />
+          </label>
+        )}
         <div className={styles.twoCols}>
           <label>
             Quantity

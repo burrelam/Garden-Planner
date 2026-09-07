@@ -117,11 +117,11 @@ const lettuceReviewedAt = "2026-09-07";
 const lettuceFact = <T>(value: T, sourceIds: string[]) =>
   regionalFact(value, sourceIds, lettuceReviewedAt);
 
-// EC 871 lists recommended lettuce varieties for Oregon grouped by type; the group is the note.
+// EC 871 lists recommended lettuce varieties for Oregon grouped by type.
 const lettuceCultivar = (id: string, name: string, type: string) => ({
   id,
   name,
-  notes: lettuceFact([type], ["osu-vegetable-oregon"]),
+  type: lettuceFact(type, ["osu-vegetable-oregon"]),
 });
 
 export const catalog: PlantRecord[] = [
