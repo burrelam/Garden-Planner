@@ -242,6 +242,12 @@ export const catalog: PlantRecord[] = [
       "Water often — lettuce draws from the top foot of soil or less",
       ["osu-growing-your-own"],
     ),
+    // OSU gives soil texture and pH for vegetables as a group, not for lettuce specifically.
+    // EC 871 is the most recently revised of the three and sets the pH range used here.
+    soil: lettuceFact(
+      "Loam or sandy loam, well drained, with compost worked in each year. Most vegetables want pH 6.0–7.5; western Oregon soils run more acidic and usually need lime.",
+      ["osu-vegetable-oregon", "osu-educators-guide"],
+    ),
     // Row spacing from EC 871 region 2; leaf thinning distance from EM 9032.
     spacing: lettuceFact(
       "Rows 12 inches apart; thin leaf types to 4–6 inches and head types to 12 inches",

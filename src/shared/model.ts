@@ -189,6 +189,9 @@ export interface PlantRecord {
   daysToMaturity: SourcedFact<string>;
   sun: SourcedFact<string>;
   water: SourcedFact<string>;
+  // Optional: OSU gives soil guidance for vegetables generally rather than per crop, so an
+  // entry carries this only once it has been re-sourced against the publications.
+  soil?: SourcedFact<string>;
   spacing: SourcedFact<string>;
   timing: TimingRule[];
   cultivars: CultivarRecord[];

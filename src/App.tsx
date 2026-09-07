@@ -2623,6 +2623,12 @@ function PlantDetail() {
             <dd>{plant.sun.value}</dd>
             <dt>Water</dt>
             <dd>{plant.water.value}</dd>
+            {plant.soil && (
+              <>
+                <dt>Soil</dt>
+                <dd>{plant.soil.value}</dd>
+              </>
+            )}
             <dt>Spacing</dt>
             <dd>{plant.spacing.value}</dd>
           </dl>

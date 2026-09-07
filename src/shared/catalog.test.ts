@@ -10,6 +10,7 @@ describe("catalog provenance", () => {
         plant.sun,
         plant.water,
         plant.spacing,
+        ...(plant.soil ? [plant.soil] : []),
         plant.growingTips,
       ];
       for (const fact of facts) {
