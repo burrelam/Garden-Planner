@@ -1756,9 +1756,9 @@ function WishList() {
     useGarden();
   const [view, setView] = useState<WishView>("name");
   const [query, setQuery] = useState("");
-  const [monthFilter, setMonthFilter] = useState<number | null>(null);
+  const [monthFilter, setMonthFilter] = useState<number[]>([]);
   const [letterFilter, setLetterFilter] = useState<string | null>(null);
-  const [seasonFilter, setSeasonFilter] = useState<PlantingSeason | null>(null);
+  const [seasonFilter, setSeasonFilter] = useState<PlantingSeason[]>([]);
   const [listOpen, setListOpen] = useState(false);
 
   const garden = state?.garden;
@@ -1834,10 +1834,20 @@ function WishList() {
         !letterFilter ||
         row.plant.commonName.charAt(0).toUpperCase() === letterFilter
       );
-    if (monthFilter !== null && !rowMonths(row).has(monthFilter)) return false;
+    if (monthFilter.length) {
+      const months = rowMonths(row);
+      if (!monthFilter.some((month) => months.has(month))) return false;
+    }
+    /* Match the season a window is filed under, not every season it touches.
+       Garlic runs 11 Oct to 6 Dec, so it brushes winter — but it is a fall
+       planting, and filtering for winter should not return a group headed
+       "Fall planting". The dates on the button still say it runs into
+       December. */
     if (
-      seasonFilter &&
-      !row.windows.some((window) => window.seasons.includes(seasonFilter))
+      seasonFilter.length &&
+      !row.windows.some((window) =>
+        seasonFilter.includes(seasonOfWindow(window)),
+      )
     )
       return false;
     return true;
@@ -1921,11 +1931,34 @@ function WishList() {
     await save({ ...state, wishlist: next });
   };
 
+  const toggleMonth = (month: number) => {
+    setMonthFilter((current) =>
+      current.includes(month)
+        ? current.filter((value) => value !== month)
+        : [...current, month],
+    );
+    setSeasonFilter([]);
+  };
+  const toggleSeason = (season: PlantingSeason) => {
+    setSeasonFilter((current) =>
+      current.includes(season)
+        ? current.filter((value) => value !== season)
+        : PLANTING_SEASONS.filter(
+            (value) => value === season || current.includes(value),
+          ),
+    );
+    setMonthFilter([]);
+  };
+  const clearFilters = () => {
+    setMonthFilter([]);
+    setSeasonFilter([]);
+  };
+
   const changeView = (next: WishView) => {
     setView(next);
     // A filter from one view means nothing in the next.
-    setMonthFilter(null);
-    setSeasonFilter(null);
+    setMonthFilter([]);
+    setSeasonFilter([]);
     setLetterFilter(null);
   };
 
@@ -1950,10 +1983,9 @@ function WishList() {
             <button
               className={styles.wishNow}
               type="button"
-              aria-pressed={monthFilter === thisMonth}
+              aria-pressed={monthFilter.includes(thisMonth)}
               onClick={() => {
-                setMonthFilter(monthFilter === thisMonth ? null : thisMonth);
-                setSeasonFilter(null);
+                toggleMonth(thisMonth);
               }}
             >
               Now
@@ -2006,6 +2038,7 @@ function WishList() {
               className={styles.wishKeys}
               role="group"
               aria-label="Filter by month"
+              data-filtering={monthFilter.length > 0 ? "yes" : undefined}
               style={{ "--keys": 12 } as CSSProperties}
             >
               {MONTH_INITIALS.map((initial, month) => (
@@ -2015,14 +2048,11 @@ function WishList() {
                   className={`${styles.wishKey} ${
                     monthTotals[month] === 0 ? styles.wishKeyEmpty : ""
                   } ${month === thisMonth ? styles.wishKeyNow : ""}`}
-                  aria-pressed={monthFilter === month}
+                  aria-pressed={monthFilter.includes(month)}
                   aria-label={`${MONTH_NAMES[month]}, ${monthTotals[month]} ${
                     view === "sow" ? "to sow" : "ready"
                   }`}
-                  onClick={() => {
-                    setMonthFilter(monthFilter === month ? null : month);
-                    setSeasonFilter(null);
-                  }}
+                  onClick={() => toggleMonth(month)}
                 >
                   {initial}
                 </button>
@@ -2032,6 +2062,7 @@ function WishList() {
               className={styles.wishBand}
               role="group"
               aria-label="Filter by season"
+              data-filtering={seasonFilter.length > 0 ? "yes" : undefined}
             >
               {PLANTING_SEASONS.map((season) => (
                 <button
@@ -2039,11 +2070,8 @@ function WishList() {
                   type="button"
                   className={styles.wishSeason}
                   data-season={season}
-                  aria-pressed={seasonFilter === season}
-                  onClick={() => {
-                    setSeasonFilter(seasonFilter === season ? null : season);
-                    setMonthFilter(null);
-                  }}
+                  aria-pressed={seasonFilter.includes(season)}
+                  onClick={() => toggleSeason(season)}
                 >
                   {PLANTING_SEASON_LABEL[season]}
                 </button>
@@ -2051,9 +2079,37 @@ function WishList() {
             </div>
           </>
         )}
-        <p className={styles.wishKeyNote}>
-          Buttons read <b>sowing dates</b> → <b>picking dates</b>
-        </p>
+        {/* With more than one filter on at a time, what is selected has to be
+            readable at a glance and clearable in one press. */}
+        {monthFilter.length + seasonFilter.length > 0 ? (
+          <p className={styles.wishKeyNote}>
+            {view === "sow" ? "Sowing in " : "Ready in "}
+            <b>
+              {seasonFilter.length
+                ? PLANTING_SEASONS.filter((season) =>
+                    seasonFilter.includes(season),
+                  )
+                    .map((season) => PLANTING_SEASON_LABEL[season])
+                    .join(" + ")
+                : monthFilter
+                    .slice()
+                    .sort((a, b) => a - b)
+                    .map((month) => MONTH_NAMES[month])
+                    .join(" + ")}
+            </b>
+            <button
+              type="button"
+              className={styles.wishClearFilters}
+              onClick={clearFilters}
+            >
+              Show all
+            </button>
+          </p>
+        ) : (
+          <p className={styles.wishKeyNote}>
+            Buttons read <b>sowing dates</b> → <b>picking dates</b>
+          </p>
+        )}
       </div>
 
       {notice && (
