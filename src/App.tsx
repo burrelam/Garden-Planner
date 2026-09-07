@@ -710,11 +710,11 @@ function Planner() {
                         always wins since it reflects a real date comparison
                         rather than the plant's general status. */}
                     {(() => {
-                      const statusVariant: "" | "Slashed" | "Ghost" =
+                      const statusVariant: "" | "Slashed" | "Tint" =
                         entry.status === "willplant"
                           ? "Slashed"
                           : entry.status === "undecided"
-                            ? "Ghost"
+                            ? "Tint"
                             : "";
                       return timeline.map((slot, index) => {
                         const overlay = actualTimeline

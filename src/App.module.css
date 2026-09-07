@@ -2041,9 +2041,7 @@
   background: color-mix(in srgb, var(--stage-bloom) 55%, white) !important;
 }
 /* A "will plant" entry hasn't gone in the ground yet, so its whole timeline
-   stays transparent and slashed rather than solid — Undecided reuses the
-   Ghost dashed-outline look above instead of a set of its own, since both
-   mean "nothing settled here yet" and read identically. */
+   stays transparent and slashed rather than solid. */
 .indoorSlashed {
   background: repeating-linear-gradient(
     45deg,
@@ -2083,6 +2081,30 @@
     transparent 2px 5px
   ) !important;
   border: 1.5px solid var(--stage-bloom);
+}
+/* An "undecided" entry: a dashed outline alone was too quiet at 14px tall —
+   a couple of short dashes, easy to miss against the row. A light tint
+   keeps the dashed edge as the "not settled yet" signal but gives the pill
+   an actual silhouette, in the phase's own color. */
+.indoorTint {
+  background: color-mix(in srgb, var(--stage-indoor) 24%, transparent) !important;
+  border: 1.5px dashed var(--stage-indoor);
+}
+.transplantTint {
+  background: color-mix(in srgb, var(--stage-transplant) 24%, transparent) !important;
+  border: 1.5px dashed var(--stage-transplant);
+}
+.directTint {
+  background: color-mix(in srgb, var(--stage-direct) 24%, transparent) !important;
+  border: 1.5px dashed var(--stage-direct);
+}
+.harvestTint {
+  background: color-mix(in srgb, var(--stage-harvest) 24%, transparent) !important;
+  border: 1.5px dashed var(--stage-harvest);
+}
+.bloomTint {
+  background: color-mix(in srgb, var(--stage-bloom) 24%, transparent) !important;
+  border: 1.5px dashed var(--stage-bloom);
 }
 .currentColumn {
   background: var(--color-now-wash);
