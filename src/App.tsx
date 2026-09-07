@@ -30,7 +30,18 @@ import type {
   Phase,
   PlantRecord,
   SourceRecord,
+  WishlistItem,
 } from "./shared/model";
+import {
+  type PlantingSeason,
+  type SowingWindow,
+  PLANTING_SEASONS,
+  PLANTING_SEASON_LABEL,
+  indoorWindowFor,
+  seasonOfWindow,
+  sowingActionLabel,
+  sowingWindowsFor,
+} from "./shared/seasons";
 import {
   type BedColorKey,
   type ThemePreference,
@@ -58,6 +69,8 @@ import {
   ChevronIcon,
   CloseIcon,
   MenuIcon,
+  TickIcon,
+  WishlistIcon,
   PencilIcon,
   PlannerIcon,
   QuestionIcon,
@@ -126,8 +139,10 @@ const categoryColors: Record<PlantCategory, string> = {
 // match the catalog by name even without a plantId; if neither finds it, the
 // line is simply left out.
 const entrySpecies = (entry: GardenEntry): string | undefined =>
-  (entry.plantId ? catalogById.get(entry.plantId) : findCatalogPlant(entry.name))
-    ?.scientificName;
+  (entry.plantId
+    ? catalogById.get(entry.plantId)
+    : findCatalogPlant(entry.name)
+  )?.scientificName;
 const entryCategory = (entry: GardenEntry): PlantCategory | null => {
   const category = entry.plantId
     ? catalogById.get(entry.plantId)?.category
@@ -265,6 +280,12 @@ function Shell({
             </span>
             <span>Planner</span>
           </NavLink>
+          <NavLink to="/wishlist">
+            <span className={styles.navIcon} aria-hidden="true">
+              <WishlistIcon size={20} />
+            </span>
+            <span>Wish list</span>
+          </NavLink>
           <NavLink to="/plants">
             <span className={styles.navIcon} aria-hidden="true">
               <SproutNavIcon size={20} />
@@ -288,6 +309,7 @@ function Shell({
       <GardenProvider>
         <Routes>
           <Route path="/planner" element={<Planner />} />
+          <Route path="/wishlist" element={<WishList />} />
           <Route path="/plants" element={<PlantLibrary />} />
           <Route path="/plants/:slug" element={<PlantDetail />} />
           <Route
@@ -752,7 +774,12 @@ function Planner() {
                                 }
                                 title={`Planted ${prettyDate(entry.plantedDate!)}`}
                               >
-                                <img src="/icons/status-planted.png" alt="" width={12} height={12} />
+                                <img
+                                  src="/icons/status-planted.png"
+                                  alt=""
+                                  width={12}
+                                  height={12}
+                                />
                               </span>
                             )}
                             {flagPos && index === flagPos.slot && (
@@ -765,7 +792,12 @@ function Planner() {
                                 }
                                 title={`Harvest starts ${prettyDate(flagPos.date)}`}
                               >
-                                <img src="/icons/harvest-flag.png" alt="" width={12} height={14} />
+                                <img
+                                  src="/icons/harvest-flag.png"
+                                  alt=""
+                                  width={12}
+                                  height={14}
+                                />
                               </span>
                             )}
                           </div>
@@ -1044,13 +1076,23 @@ function PlannerMore({
             </span>
             <span>
               <span className={styles.legendPin}>
-                <img src="/icons/status-planted.png" alt="" width={12} height={12} />
+                <img
+                  src="/icons/status-planted.png"
+                  alt=""
+                  width={12}
+                  height={12}
+                />
               </span>
               Planted date
             </span>
             <span>
               <span className={styles.legendFlag}>
-                <img src="/icons/harvest-flag.png" alt="" width={12} height={14} />
+                <img
+                  src="/icons/harvest-flag.png"
+                  alt=""
+                  width={12}
+                  height={14}
+                />
               </span>
               Harvest day
             </span>
@@ -1625,6 +1667,692 @@ function BedDialog({
         <BedColorPicker value={colorKey} onChange={setColorKey} />
         <button className={styles.primary}>Add bed</button>
       </form>
+    </Dialog>
+  );
+}
+
+/* ============================================================
+   Wish list
+
+   Three ways in, one way to add. A-Z is for browsing names, and the two date
+   views answer the questions a gardener actually asks: what can go in the
+   ground now, and when would I be eating it. Whichever way you arrive, a row
+   is the same three things - the name, how long it takes, and one button per
+   sowing window carrying the dates in and the dates out.
+
+   Seasons here come from the gardener's calendar in shared/seasons.ts (whole
+   months), never from the theme's astronomical ones.
+   ============================================================ */
+
+type WishView = "name" | "sow" | "harvest";
+
+const MONTH_NAMES = [
+  "January",
+  "February",
+  "March",
+  "April",
+  "May",
+  "June",
+  "July",
+  "August",
+  "September",
+  "October",
+  "November",
+  "December",
+];
+const MONTH_INITIALS = [
+  "J",
+  "F",
+  "M",
+  "A",
+  "M",
+  "J",
+  "J",
+  "A",
+  "S",
+  "O",
+  "N",
+  "D",
+];
+
+/** A month counts as busy when something covers at least a week of it. */
+const PRESENT = 0.22;
+
+/* The gardener's own date, not UTC's: an evening in Oregon is still today. */
+function localToday() {
+  const now = new Date();
+  const pad = (value: number) => String(value).padStart(2, "0");
+  return `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`;
+}
+
+function monthCoverage(range: { start: string; end: string }) {
+  const start = Date.parse(`${range.start}T12:00:00Z`);
+  const end = Date.parse(`${range.end}T12:00:00Z`);
+  const year = new Date(start).getUTCFullYear();
+  return Array.from({ length: 12 }, (_, month) => {
+    const from = Date.UTC(year, month, 1);
+    const to = Date.UTC(year, month + 1, 1);
+    const low = Math.max(from, start);
+    const high = Math.min(to, end);
+    return high > low ? (high - low) / (to - from) : 0;
+  });
+}
+
+function shortDate(value: string) {
+  const date = new Date(`${value}T12:00:00Z`);
+  return `${MONTH_NAMES[date.getUTCMonth()].slice(0, 3)} ${date.getUTCDate()}`;
+}
+const shortRange = (range: { start: string; end: string }) =>
+  `${shortDate(range.start)}\u2013${shortDate(range.end)}`;
+
+interface WishRow {
+  plant: PlantRecord;
+  windows: SowingWindow[];
+  indoor: { start: string; end: string } | null;
+}
+
+function WishList() {
+  const { state, loading, saving, notice, noticeTone, dismissNotice, save } =
+    useGarden();
+  const [view, setView] = useState<WishView>("name");
+  const [query, setQuery] = useState("");
+  const [monthFilter, setMonthFilter] = useState<number | null>(null);
+  const [letterFilter, setLetterFilter] = useState<string | null>(null);
+  const [seasonFilter, setSeasonFilter] = useState<PlantingSeason | null>(null);
+  const [listOpen, setListOpen] = useState(false);
+
+  const garden = state?.garden;
+  const rows = useMemo<WishRow[]>(() => {
+    if (!garden) return [];
+    return localCatalog.map((plant) => ({
+      plant,
+      windows: sowingWindowsFor(plant, garden),
+      indoor: indoorWindowFor(plant, garden),
+    }));
+  }, [garden]);
+
+  const wishlist = state?.wishlist ?? [];
+  const wishKeys = useMemo(
+    () =>
+      new Set(wishlist.map((item) => `${item.plantId}|${item.windowIndex}`)),
+    [wishlist],
+  );
+  /* Plants already in the planner. Wanting a second sowing of something you
+     grow is perfectly reasonable, so this says so rather than blocking it. */
+  const planned = useMemo(
+    () =>
+      new Set(
+        (state?.entries ?? [])
+          .map((entry) => entry.plantId)
+          .filter((id): id is string => Boolean(id)),
+      ),
+    [state],
+  );
+
+  const letters = useMemo(() => {
+    const seen: string[] = [];
+    for (const row of rows) {
+      const initial = row.plant.commonName.charAt(0).toUpperCase();
+      if (!seen.includes(initial)) seen.push(initial);
+    }
+    return seen.sort();
+  }, [rows]);
+
+  // Which months the view cares about: when things go in, or when they come out.
+  const rowMonths = (row: WishRow) => {
+    const ranges =
+      view === "harvest"
+        ? row.windows.map((window) => window.harvest).filter((r) => r !== null)
+        : row.windows.map((window) => ({
+            start: window.start,
+            end: window.end,
+          }));
+    const busy = new Set<number>();
+    for (const range of ranges)
+      monthCoverage(range).forEach((share, month) => {
+        if (share >= PRESENT) busy.add(month);
+      });
+    return busy;
+  };
+
+  const monthTotals = useMemo(() => {
+    const totals = new Array(12).fill(0);
+    for (const row of rows)
+      for (const month of rowMonths(row)) totals[month] += 1;
+    return totals;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [rows, view]);
+
+  const visible = rows.filter((row) => {
+    if (
+      query &&
+      !row.plant.commonName.toLowerCase().includes(query.toLowerCase())
+    )
+      return false;
+    if (view === "name")
+      return (
+        !letterFilter ||
+        row.plant.commonName.charAt(0).toUpperCase() === letterFilter
+      );
+    if (monthFilter !== null && !rowMonths(row).has(monthFilter)) return false;
+    if (
+      seasonFilter &&
+      !row.windows.some((window) => window.seasons.includes(seasonFilter))
+    )
+      return false;
+    return true;
+  });
+
+  const firstSow = (row: WishRow) => row.windows[0]?.start ?? "";
+  const firstHarvest = (row: WishRow) =>
+    row.windows
+      .map((window) => window.harvest?.start)
+      .filter((value): value is string => Boolean(value))
+      .sort()[0];
+
+  const groups: Array<{ key: string; label: string; rows: WishRow[] }> = [];
+  if (view === "name") {
+    const sorted = [...visible].sort((a, b) =>
+      a.plant.commonName.localeCompare(b.plant.commonName),
+    );
+    for (const letter of letters) {
+      const inGroup = sorted.filter(
+        (row) => row.plant.commonName.charAt(0).toUpperCase() === letter,
+      );
+      if (inGroup.length)
+        groups.push({ key: letter, label: letter, rows: inGroup });
+    }
+  } else if (view === "sow") {
+    const sorted = [...visible].sort((a, b) =>
+      firstSow(a).localeCompare(firstSow(b)),
+    );
+    for (const season of PLANTING_SEASONS) {
+      const inGroup = sorted.filter(
+        (row) => row.windows[0] && seasonOfWindow(row.windows[0]) === season,
+      );
+      if (inGroup.length)
+        groups.push({
+          key: season,
+          label: `${PLANTING_SEASON_LABEL[season]} planting`,
+          rows: inGroup,
+        });
+    }
+  } else {
+    const sorted = [...visible].sort((a, b) =>
+      (firstHarvest(a) ?? "9").localeCompare(firstHarvest(b) ?? "9"),
+    );
+    for (let month = 0; month < 12; month += 1) {
+      const inGroup = sorted.filter((row) => {
+        const first = firstHarvest(row);
+        return first
+          ? new Date(`${first}T12:00:00Z`).getUTCMonth() === month
+          : false;
+      });
+      if (inGroup.length)
+        groups.push({
+          key: `m${month}`,
+          label: `First picks in ${MONTH_NAMES[month]}`,
+          rows: inGroup,
+        });
+    }
+    const undated = sorted.filter((row) => !firstHarvest(row));
+    if (undated.length)
+      groups.push({
+        key: "none",
+        label: "Picking dates not recorded",
+        rows: undated,
+      });
+  }
+
+  const toggleWish = async (plant: PlantRecord, window: SowingWindow) => {
+    if (!state) return;
+    const key = `${plant.id}|${window.index}`;
+    const next = wishKeys.has(key)
+      ? wishlist.filter((item) => `${item.plantId}|${item.windowIndex}` !== key)
+      : [
+          ...wishlist,
+          {
+            id: crypto.randomUUID(),
+            plantId: plant.id,
+            windowIndex: window.index,
+            addedAt: localToday(),
+          } satisfies WishlistItem,
+        ];
+    await save({ ...state, wishlist: next });
+  };
+
+  const changeView = (next: WishView) => {
+    setView(next);
+    // A filter from one view means nothing in the next.
+    setMonthFilter(null);
+    setSeasonFilter(null);
+    setLetterFilter(null);
+  };
+
+  const thisMonth = new Date().getMonth();
+
+  if (loading || !state || !garden)
+    return <main className={styles.loading}>Opening the garden…</main>;
+
+  return (
+    <Page className={styles.wishPage}>
+      <div className={styles.wishTools}>
+        <div className={styles.wishToolRow}>
+          <input
+            className={styles.wishSearch}
+            type="search"
+            aria-label="Find a plant"
+            placeholder="Find a plant…"
+            value={query}
+            onChange={(event) => setQuery(event.target.value)}
+          />
+          {view !== "name" && (
+            <button
+              className={styles.wishNow}
+              type="button"
+              aria-pressed={monthFilter === thisMonth}
+              onClick={() => {
+                setMonthFilter(monthFilter === thisMonth ? null : thisMonth);
+                setSeasonFilter(null);
+              }}
+            >
+              Now
+            </button>
+          )}
+        </div>
+        <div className={styles.wishViews} role="group" aria-label="Search by">
+          {(
+            [
+              ["name", "A\u2013Z"],
+              ["sow", "Sow date"],
+              ["harvest", "Harvest date"],
+            ] as Array<[WishView, string]>
+          ).map(([id, label]) => (
+            <button
+              key={id}
+              type="button"
+              className={styles.wishView}
+              aria-pressed={view === id}
+              onClick={() => changeView(id)}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+        {view === "name" ? (
+          <div
+            className={styles.wishKeys}
+            role="group"
+            aria-label="Jump to a letter"
+            style={{ "--keys": letters.length } as CSSProperties}
+          >
+            {letters.map((letter) => (
+              <button
+                key={letter}
+                type="button"
+                className={styles.wishKey}
+                aria-pressed={letterFilter === letter}
+                onClick={() =>
+                  setLetterFilter(letterFilter === letter ? null : letter)
+                }
+              >
+                {letter}
+              </button>
+            ))}
+          </div>
+        ) : (
+          <>
+            <div
+              className={styles.wishKeys}
+              role="group"
+              aria-label="Filter by month"
+              style={{ "--keys": 12 } as CSSProperties}
+            >
+              {MONTH_INITIALS.map((initial, month) => (
+                <button
+                  key={`${initial}${month}`}
+                  type="button"
+                  className={`${styles.wishKey} ${
+                    monthTotals[month] === 0 ? styles.wishKeyEmpty : ""
+                  } ${month === thisMonth ? styles.wishKeyNow : ""}`}
+                  aria-pressed={monthFilter === month}
+                  aria-label={`${MONTH_NAMES[month]}, ${monthTotals[month]} ${
+                    view === "sow" ? "to sow" : "ready"
+                  }`}
+                  onClick={() => {
+                    setMonthFilter(monthFilter === month ? null : month);
+                    setSeasonFilter(null);
+                  }}
+                >
+                  {initial}
+                </button>
+              ))}
+            </div>
+            <div
+              className={styles.wishBand}
+              role="group"
+              aria-label="Filter by season"
+            >
+              {PLANTING_SEASONS.map((season) => (
+                <button
+                  key={season}
+                  type="button"
+                  className={styles.wishSeason}
+                  data-season={season}
+                  aria-pressed={seasonFilter === season}
+                  onClick={() => {
+                    setSeasonFilter(seasonFilter === season ? null : season);
+                    setMonthFilter(null);
+                  }}
+                >
+                  {PLANTING_SEASON_LABEL[season]}
+                </button>
+              ))}
+            </div>
+          </>
+        )}
+        <p className={styles.wishKeyNote}>
+          Buttons read <b>sowing dates</b> → <b>picking dates</b>
+        </p>
+      </div>
+
+      {notice && (
+        <div
+          className={`${styles.toast} ${noticeTone === "saved" ? styles.toastSaved : styles.toastProblem}`}
+          role="status"
+          aria-live="polite"
+        >
+          <span>{notice}</span>
+          {noticeTone === "problem" && (
+            <button
+              type="button"
+              className={styles.toastDismiss}
+              aria-label="Dismiss message"
+              onClick={dismissNotice}
+            >
+              <CloseIcon size={12} />
+            </button>
+          )}
+        </div>
+      )}
+
+      <div className={styles.wishList}>
+        {groups.length === 0 && (
+          <p className={styles.wishEmpty}>
+            {view === "name"
+              ? "No plant by that name."
+              : view === "sow"
+                ? "Nothing in the catalog goes in the ground then."
+                : "Nothing in the catalog is ready to pick then."}
+          </p>
+        )}
+        {groups.map((group) => (
+          <section key={group.key}>
+            <h2
+              className={`${styles.wishGroup} ${
+                view === "name" ? styles.wishGroupAlpha : ""
+              }`}
+            >
+              {group.label}
+              <span className={styles.wishRule} />
+              <span className={styles.wishCount}>{group.rows.length}</span>
+            </h2>
+            {group.rows.map((row) => (
+              <article
+                key={row.plant.id}
+                className={`${styles.wishRow} ${
+                  row.windows.some((window) =>
+                    wishKeys.has(`${row.plant.id}|${window.index}`),
+                  )
+                    ? styles.wishRowPicked
+                    : ""
+                }`}
+              >
+                <div className={styles.wishRowMain}>
+                  <span className={styles.wishNameRow}>
+                    <Link
+                      className={styles.wishName}
+                      to={`/plants/${row.plant.id}`}
+                    >
+                      {row.plant.commonName}
+                    </Link>
+                    {planned.has(row.plant.id) && (
+                      <span
+                        className={styles.wishAlready}
+                        title="Already in your planner"
+                      >
+                        <TickIcon size={9} />
+                        <span className={styles.srOnly}>
+                          Already in your planner
+                        </span>
+                      </span>
+                    )}
+                  </span>
+                  <p className={styles.wishMeta}>
+                    {row.plant.daysToMaturity.value}
+                  </p>
+                </div>
+                <div className={styles.wishWindows}>
+                  {row.windows.map((window) => {
+                    const key = `${row.plant.id}|${window.index}`;
+                    const wanted = wishKeys.has(key);
+                    return (
+                      <button
+                        key={key}
+                        type="button"
+                        className={styles.wishBtn}
+                        data-season={seasonOfWindow(window)}
+                        aria-pressed={wanted}
+                        disabled={saving}
+                        title={`${sowingActionLabel(window)} ${shortRange(window)}`}
+                        onClick={() => void toggleWish(row.plant, window)}
+                      >
+                        <span className={styles.wishBtnSeason}>
+                          {wanted && <TickIcon size={11} />}
+                          {PLANTING_SEASON_LABEL[seasonOfWindow(window)]}
+                        </span>
+                        <span className={styles.wishBtnDates}>
+                          <span>{shortRange(window)}</span>
+                          <span className={styles.wishArrow}>→</span>
+                          {window.harvest ? (
+                            <span>{shortRange(window.harvest)}</span>
+                          ) : (
+                            <span className={styles.wishNoDate}>no date</span>
+                          )}
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </article>
+            ))}
+          </section>
+        ))}
+      </div>
+
+      <div className={styles.wishDock}>
+        <span className={styles.wishDockCount}>
+          <span className={styles.wishDockNumber}>{wishlist.length}</span>
+          <span>
+            {wishlist.length === 1 ? "plant wanted" : "plants wanted"}
+          </span>
+        </span>
+        <button
+          type="button"
+          className={styles.primary}
+          onClick={() => setListOpen(true)}
+        >
+          View list
+        </button>
+      </div>
+
+      {listOpen && (
+        <WishDrawer
+          state={state}
+          close={() => setListOpen(false)}
+          save={save}
+          saving={saving}
+        />
+      )}
+    </Page>
+  );
+}
+
+/** The list itself, grouped the two ways it is useful to read it. */
+function WishDrawer({
+  state,
+  close,
+  save,
+  saving,
+}: {
+  state: GardenState;
+  close: () => void;
+  save: (next: GardenState) => Promise<void>;
+  saving: boolean;
+}) {
+  const [grouping, setGrouping] = useState<"sow" | "harvest">("sow");
+  const items = state.wishlist
+    .map((item) => {
+      const plant = catalogById.get(item.plantId);
+      if (!plant) return null;
+      const window = sowingWindowsFor(plant, state.garden)[item.windowIndex];
+      return window ? { item, plant, window } : null;
+    })
+    .filter((entry) => entry !== null);
+
+  const remove = async (id: string) =>
+    save({
+      ...state,
+      wishlist: state.wishlist.filter((item) => item.id !== id),
+    });
+
+  /* Moving a wish into the planner is the point of keeping one. The entry
+     lands as "will plant" with no bed, which is exactly what a wish is: a
+     decision made about the plant, not yet about the ground. */
+  const moveAllToPlanner = async () => {
+    const entries: GardenEntry[] = items.map((entry, index) => ({
+      id: crypto.randomUUID(),
+      plantId: entry.plant.id,
+      name: entry.plant.commonName,
+      variety: null,
+      dtm: entry.plant.daysToMaturity.value,
+      qty: 1,
+      bedId: null,
+      status: "willplant",
+      sortOrder: state.entries.length + index,
+    }));
+    await save({
+      ...state,
+      entries: [...state.entries, ...entries],
+      wishlist: [],
+    });
+    close();
+  };
+
+  const groups: Array<{ key: string; label: string; rows: typeof items }> = [];
+  if (grouping === "sow") {
+    for (const season of PLANTING_SEASONS) {
+      const rows = items.filter(
+        (entry) => seasonOfWindow(entry.window) === season,
+      );
+      if (rows.length)
+        groups.push({
+          key: season,
+          label: `${PLANTING_SEASON_LABEL[season]} planting`,
+          rows,
+        });
+    }
+  } else {
+    for (let month = 0; month < 12; month += 1) {
+      const rows = items.filter(
+        (entry) =>
+          entry.window.harvest &&
+          new Date(`${entry.window.harvest.start}T12:00:00Z`).getUTCMonth() ===
+            month,
+      );
+      if (rows.length)
+        groups.push({
+          key: `m${month}`,
+          label: `Picking from ${MONTH_NAMES[month]}`,
+          rows,
+        });
+    }
+    const undated = items.filter((entry) => !entry.window.harvest);
+    if (undated.length)
+      groups.push({ key: "none", label: "No picking dates", rows: undated });
+  }
+
+  return (
+    <Dialog title="Your wish list" close={close}>
+      <div className={styles.wishViews} role="group" aria-label="Group by">
+        {(
+          [
+            ["sow", "By sow date"],
+            ["harvest", "By harvest date"],
+          ] as Array<["sow" | "harvest", string]>
+        ).map(([id, label]) => (
+          <button
+            key={id}
+            type="button"
+            className={styles.wishView}
+            aria-pressed={grouping === id}
+            onClick={() => setGrouping(id)}
+          >
+            {label}
+          </button>
+        ))}
+      </div>
+      {items.length === 0 ? (
+        <p className={styles.wishEmpty}>
+          Nothing yet. Tap a season on any plant to want it.
+        </p>
+      ) : (
+        groups.map((group) => (
+          <section key={group.key}>
+            <h3 className={styles.wishGroup}>
+              {group.label}
+              <span className={styles.wishRule} />
+              <span className={styles.wishCount}>{group.rows.length}</span>
+            </h3>
+            {group.rows.map((entry) => (
+              <div className={styles.wishSaved} key={entry.item.id}>
+                <span>
+                  <span className={styles.wishName}>
+                    {entry.plant.commonName}
+                  </span>
+                  <br />
+                  <span className={styles.wishMeta}>
+                    {grouping === "sow"
+                      ? `${sowingActionLabel(entry.window)} ${shortRange(entry.window)}`
+                      : entry.window.harvest
+                        ? `Ready ${shortRange(entry.window.harvest)}`
+                        : "No picking dates recorded"}
+                  </span>
+                </span>
+                <button
+                  type="button"
+                  className={styles.wishRemove}
+                  aria-label={`Take ${entry.plant.commonName} off the list`}
+                  disabled={saving}
+                  onClick={() => void remove(entry.item.id)}
+                >
+                  <CloseIcon size={12} />
+                </button>
+              </div>
+            ))}
+          </section>
+        ))
+      )}
+      {items.length > 0 && (
+        <button
+          type="button"
+          className={styles.primary}
+          disabled={saving}
+          onClick={() => void moveAllToPlanner()}
+        >
+          Add all {items.length} to the planner
+        </button>
+      )}
     </Dialog>
   );
 }
