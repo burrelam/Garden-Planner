@@ -1734,10 +1734,13 @@
 }
 .todayFlake {
   position: absolute;
-  top: 50%;
+  /* Sits astride the strip's own bottom edge — mostly below the letter,
+     pointing down at the line that starts exactly there — rather than
+     centered in the row where it would sit on top of the letter. */
+  top: 100%;
   left: calc(var(--today-pos, 0.5) * 100%);
-  width: var(--size-frost-flake);
-  height: var(--size-frost-flake);
+  width: 12px;
+  height: 12px;
   transform: translate(-50%, -50%);
   color: var(--color-now-mark);
   filter: drop-shadow(1px 0 0 var(--color-now-mark-edge))

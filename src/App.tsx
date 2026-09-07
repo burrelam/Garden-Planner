@@ -666,14 +666,14 @@ function Planner() {
             >
               {slot === currentSlot && (
                 <TodayTickIcon
-                  size={18}
+                  size={12}
                   className={styles.todayFlake}
                   style={{ "--today-pos": todayFraction } as CSSProperties}
                 />
               )}
               {frostMarks && (slot === last || slot === first) ? (
                 <SnowflakeIcon size={18} className={styles.frostFlake} />
-              ) : slot === currentSlot ? null : slot % 2 === 0 ? (
+              ) : slot % 2 === 0 ? (
                 "E"
               ) : (
                 "L"
