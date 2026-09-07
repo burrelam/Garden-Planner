@@ -3061,3 +3061,12 @@
   display: inline-flex;
   color: var(--color-accent);
 }
+/* The group's own commit button, sitting under the rows it acts on so the
+   scope is never in doubt. */
+.wishGroupAdd {
+  --lift: 0px;
+  --pad-y: 7px;
+  width: 100%;
+  margin: 2px 0 12px;
+  font-size: var(--type-wish-key);
+}

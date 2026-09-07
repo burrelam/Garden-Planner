@@ -2199,6 +2199,15 @@ function WishList() {
 }
 
 /** The list itself, grouped the two ways it is useful to read it. */
+/**
+ * The list itself, grouped the two ways it is useful to read it.
+ *
+ * A wish is not consumed by being acted on: it stays here, and committing it
+ * puts an "undecided" plant in the planner. That is what a wish is - a plant
+ * you mean to consider this year, not a bed you have promised it. So this
+ * list keeps working as a standing record of what you like to grow, and the
+ * ticks show how much of it has made it into the planner.
+ */
 function WishDrawer({
   state,
   close,
@@ -2211,6 +2220,11 @@ function WishDrawer({
   saving: boolean;
 }) {
   const [grouping, setGrouping] = useState<"sow" | "harvest">("sow");
+  const planned = new Set(
+    state.entries
+      .map((entry) => entry.plantId)
+      .filter((id): id is string => Boolean(id)),
+  );
   const items = state.wishlist
     .map((item) => {
       const plant = catalogById.get(item.plantId);
@@ -2226,11 +2240,15 @@ function WishDrawer({
       wishlist: state.wishlist.filter((item) => item.id !== id),
     });
 
-  /* Moving a wish into the planner is the point of keeping one. The entry
-     lands as "will plant" with no bed, which is exactly what a wish is: a
-     decision made about the plant, not yet about the ground. */
-  const moveAllToPlanner = async () => {
-    const entries: GardenEntry[] = items.map((entry, index) => ({
+  /* Only the ones not already in the planner: a wish that has been acted on
+     stays on the list, so without this a second press would duplicate it. */
+  const pending = (rows: typeof items) =>
+    rows.filter((entry) => !planned.has(entry.plant.id));
+
+  const addToPlanner = async (rows: typeof items) => {
+    const adding = pending(rows);
+    if (adding.length === 0) return;
+    const entries: GardenEntry[] = adding.map((entry, index) => ({
       id: crypto.randomUUID(),
       plantId: entry.plant.id,
       name: entry.plant.commonName,
@@ -2238,15 +2256,12 @@ function WishDrawer({
       dtm: entry.plant.daysToMaturity.value,
       qty: 1,
       bedId: null,
-      status: "willplant",
+      /* Undecided, not "will plant": moving a wish across records that you
+         are considering it, and the bed and the commitment come later. */
+      status: "undecided",
       sortOrder: state.entries.length + index,
     }));
-    await save({
-      ...state,
-      entries: [...state.entries, ...entries],
-      wishlist: [],
-    });
-    close();
+    await save({ ...state, entries: [...state.entries, ...entries] });
   };
 
   const groups: Array<{ key: string; label: string; rows: typeof items }> = [];
@@ -2282,6 +2297,8 @@ function WishDrawer({
       groups.push({ key: "none", label: "No picking dates", rows: undated });
   }
 
+  const allPending = pending(items);
+
   return (
     <Dialog title="Your wish list" close={close}>
       <div className={styles.wishViews} role="group" aria-label="Group by">
@@ -2307,50 +2324,78 @@ function WishDrawer({
           Nothing yet. Tap a season on any plant to want it.
         </p>
       ) : (
-        groups.map((group) => (
-          <section key={group.key}>
-            <h3 className={styles.wishGroup}>
-              {group.label}
-              <span className={styles.wishRule} />
-              <span className={styles.wishCount}>{group.rows.length}</span>
-            </h3>
-            {group.rows.map((entry) => (
-              <div className={styles.wishSaved} key={entry.item.id}>
-                <span>
-                  <span className={styles.wishName}>
-                    {entry.plant.commonName}
+        groups.map((group) => {
+          const waiting = pending(group.rows);
+          return (
+            <section key={group.key}>
+              <h3 className={styles.wishGroup}>
+                {group.label}
+                <span className={styles.wishRule} />
+                <span className={styles.wishCount}>{group.rows.length}</span>
+              </h3>
+              {group.rows.map((entry) => (
+                <div className={styles.wishSaved} key={entry.item.id}>
+                  <span>
+                    <span className={styles.wishNameRow}>
+                      <span className={styles.wishName}>
+                        {entry.plant.commonName}
+                      </span>
+                      {planned.has(entry.plant.id) && (
+                        <span
+                          className={styles.wishAlready}
+                          title="Already in your planner"
+                        >
+                          <TickIcon size={9} />
+                          <span className={styles.srOnly}>
+                            Already in your planner
+                          </span>
+                        </span>
+                      )}
+                    </span>
+                    <span className={styles.wishMeta}>
+                      {grouping === "sow"
+                        ? `${sowingActionLabel(entry.window)} ${shortRange(entry.window)}`
+                        : entry.window.harvest
+                          ? `Ready ${shortRange(entry.window.harvest)}`
+                          : "No picking dates recorded"}
+                    </span>
                   </span>
-                  <br />
-                  <span className={styles.wishMeta}>
-                    {grouping === "sow"
-                      ? `${sowingActionLabel(entry.window)} ${shortRange(entry.window)}`
-                      : entry.window.harvest
-                        ? `Ready ${shortRange(entry.window.harvest)}`
-                        : "No picking dates recorded"}
-                  </span>
-                </span>
-                <button
-                  type="button"
-                  className={styles.wishRemove}
-                  aria-label={`Take ${entry.plant.commonName} off the list`}
-                  disabled={saving}
-                  onClick={() => void remove(entry.item.id)}
-                >
-                  <CloseIcon size={12} />
-                </button>
-              </div>
-            ))}
-          </section>
-        ))
+                  <button
+                    type="button"
+                    className={styles.wishRemove}
+                    aria-label={`Take ${entry.plant.commonName} off the list`}
+                    disabled={saving}
+                    onClick={() => void remove(entry.item.id)}
+                  >
+                    <CloseIcon size={12} />
+                  </button>
+                </div>
+              ))}
+              {/* The scope follows whichever grouping you are reading. */}
+              <button
+                type="button"
+                className={styles.wishGroupAdd}
+                disabled={saving || waiting.length === 0}
+                onClick={() => void addToPlanner(group.rows)}
+              >
+                {waiting.length === 0
+                  ? "All in the planner"
+                  : `Add ${waiting.length} to the planner`}
+              </button>
+            </section>
+          );
+        })
       )}
       {items.length > 0 && (
         <button
           type="button"
           className={styles.primary}
-          disabled={saving}
-          onClick={() => void moveAllToPlanner()}
+          disabled={saving || allPending.length === 0}
+          onClick={() => void addToPlanner(items)}
         >
-          Add all {items.length} to the planner
+          {allPending.length === 0
+            ? "Everything is in the planner"
+            : `Add all ${allPending.length} to the planner`}
         </button>
       )}
     </Dialog>
@@ -2564,7 +2609,7 @@ function Settings({
   onChooseTheme: (preference: ThemePreference) => void;
   onLogout: () => void;
 }) {
-  const { state, loading, save, replace } = useGarden();
+  const { state, loading, saving, save, replace } = useGarden();
   const [meta, setMeta] = useState({ environment: "", revision: "" });
   const [history, setHistory] = useState<
     Array<{ id: string; revision: number; reason: string; createdAt: string }>
@@ -2981,6 +3026,7 @@ function Settings({
             Sign out on this device
           </button>
         </section>
+        <ClearPlannerPanel state={state} save={save} saving={saving} />
       </div>
       {message && (
         <p className={styles.notice} role="status">
@@ -2988,6 +3034,85 @@ function Settings({
         </p>
       )}
     </Page>
+  );
+}
+
+/**
+ * Starting the year over. This removes every plant from the planner,
+ * including ones marked as planted and any date logged against them, so it
+ * counts what it is about to take before it takes it. Beds, frost dates and
+ * the wish list are left alone: the wish list is what you would rebuild
+ * from.
+ */
+function ClearPlannerPanel({
+  state,
+  save,
+  saving,
+}: {
+  state: GardenState;
+  save: (next: GardenState) => Promise<void>;
+  saving: boolean;
+}) {
+  const [confirming, setConfirming] = useState(false);
+  const planted = state.entries.filter((entry) => entry.status === "planted");
+  const dated = state.entries.filter((entry) => entry.plantedDate);
+  const clear = async () => {
+    await save({ ...state, entries: [] });
+    setConfirming(false);
+  };
+  return (
+    <section className={styles.panel}>
+      <h2>Start the year over</h2>
+      {state.entries.length === 0 ? (
+        <p className={styles.muted}>
+          The planner is already empty. Your wish list is untouched by this.
+        </p>
+      ) : confirming ? (
+        <>
+          <p className={styles.muted}>
+            This removes all {state.entries.length} plants from the planner
+            {planted.length > 0 &&
+              `, including ${planted.length} you have marked as planted`}
+            {dated.length > 0 &&
+              ` and ${dated.length} with a planting date logged`}
+            . Your beds, frost dates and wish list stay as they are. This cannot
+            be undone from here — restore an earlier revision above if you
+            change your mind.
+          </p>
+          <div className={styles.actions}>
+            <button
+              type="button"
+              disabled={saving}
+              onClick={() => setConfirming(false)}
+            >
+              Keep my plants
+            </button>
+            <button
+              type="button"
+              className={styles.dangerButton}
+              disabled={saving}
+              onClick={() => void clear()}
+            >
+              {saving ? "Clearing…" : `Clear all ${state.entries.length}`}
+            </button>
+          </div>
+        </>
+      ) : (
+        <>
+          <p className={styles.muted}>
+            Empties the planner so you can plan a fresh year. Your wish list and
+            beds stay put.
+          </p>
+          <button
+            type="button"
+            className={styles.dangerButton}
+            onClick={() => setConfirming(true)}
+          >
+            Clear the planner
+          </button>
+        </>
+      )}
+    </section>
   );
 }
 
