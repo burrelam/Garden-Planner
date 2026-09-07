@@ -49,12 +49,12 @@ describe("the gardener's calendar", () => {
 
 describe("sowing windows", () => {
   it("merges overlapping transplant and direct windows into one", () => {
-    // Lettuce can be set out from 8 February and direct sown into April;
-    // those overlap, so the gardener sees one stretch, not two buttons.
+    // EC 871 puts lettuce in the ground April through August in the Western valleys, whether
+    // set out or direct sown; those overlap, so the gardener sees one stretch, not two buttons.
     const lettuce = windows("lettuce");
     expect(lettuce).toHaveLength(1);
-    expect(lettuce[0].start).toBe("2026-02-08");
-    expect(lettuce[0].end).toBe("2026-04-19");
+    expect(lettuce[0].start).toBe("2026-04-01");
+    expect(lettuce[0].end).toBe("2026-08-31");
     expect(sowingActionLabel(lettuce[0])).toBe("Sow or set out");
   });
 

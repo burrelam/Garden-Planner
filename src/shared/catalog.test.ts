@@ -18,8 +18,22 @@ describe("catalog provenance", () => {
         for (const id of fact.sourceIds)
           expect(sourceIds.has(id), `${plant.id} references ${id}`).toBe(true);
       }
-      for (const rule of plant.timing)
+      for (const cultivar of plant.cultivars) {
+        for (const fact of [cultivar.daysToMaturity, cultivar.notes]) {
+          if (!fact) continue;
+          expect(fact.reviewedAt).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+          expect(fact.sourceIds.length).toBeGreaterThan(0);
+          for (const id of fact.sourceIds)
+            expect(
+              sourceIds.has(id),
+              `${plant.id}/${cultivar.id} references ${id}`,
+            ).toBe(true);
+        }
+      }
+      for (const rule of plant.timing) {
+        expect(rule.sourceIds.length).toBeGreaterThan(0);
         for (const id of rule.sourceIds) expect(sourceIds.has(id)).toBe(true);
+      }
       for (const relationship of plant.companions) {
         expect([
           "research-supported",

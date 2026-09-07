@@ -73,14 +73,28 @@ export const sources: SourceRecord[] = [
     licenseNote:
       "Store prevention summaries and deep links, not frozen pesticide directions. The product label remains authoritative.",
   },
+  {
+    id: "osu-educators-guide",
+    publisher: "Oregon State University Extension Service",
+    title: "An Educator's Guide to Vegetable Gardening",
+    url: "https://extension.oregonstate.edu/catalog/em-9032-educators-guide-vegetable-gardening",
+    revision: "EM 9032, published September 2011, reviewed 2024",
+    accessedAt: "2026-09-07",
+    licenseNote:
+      "Copyrighted Extension guidance. Paraphrase discrete facts and link to the source. Carries the days-to-maturity and soil/air temperature tables.",
+  },
 ];
 
-const regionalFact = <T>(value: T, sourceIds = ["osu-vegetable-oregon"]) => ({
+const regionalFact = <T>(
+  value: T,
+  sourceIds = ["osu-vegetable-oregon"],
+  factReviewedAt = reviewedAt,
+) => ({
   value,
   sourceIds,
   locationScope: "western-oregon" as const,
   evidenceLevel: "extension-guidance" as const,
-  reviewedAt,
+  reviewedAt: factReviewedAt,
 });
 
 const timing = (
@@ -88,12 +102,26 @@ const timing = (
   anchor: PlantRecord["timing"][number]["anchor"],
   startOffsetDays: number,
   endOffsetDays: number,
+  sourceIds = ["osu-vegetable-oregon"],
 ) => ({
   phase,
   anchor,
   startOffsetDays,
   endOffsetDays,
-  sourceIds: ["osu-vegetable-oregon"],
+  sourceIds,
+});
+
+// Lettuce was re-sourced field by field against the OSU publications on this date. The other
+// entries still carry the original catalog review date until they get the same treatment.
+const lettuceReviewedAt = "2026-09-07";
+const lettuceFact = <T>(value: T, sourceIds: string[]) =>
+  regionalFact(value, sourceIds, lettuceReviewedAt);
+
+// EC 871 lists recommended lettuce varieties for Oregon grouped by type; the group is the note.
+const lettuceCultivar = (id: string, name: string, type: string) => ({
+  id,
+  name,
+  notes: lettuceFact([type], ["osu-vegetable-oregon"]),
 });
 
 export const catalog: PlantRecord[] = [
@@ -199,23 +227,86 @@ export const catalog: PlantRecord[] = [
     commonName: "Lettuce",
     scientificName: "Lactuca sativa",
     category: "vegetable",
-    summary: "A quick cool-season crop that can be succession-sown.",
-    daysToMaturity: regionalFact("35–70 days"),
-    sun: regionalFact("Full sun in cool weather; afternoon shade as days warm"),
-    water: regionalFact("Consistent shallow moisture"),
-    spacing: regionalFact("4–12 inches by type"),
+    summary:
+      "A cool-season salad crop for the Western valleys, sown in short succession rows from spring into late summer.",
+    // EM 9032 gives seed-to-harvest maturity separately for leaf and head types.
+    daysToMaturity: lettuceFact(
+      "Leaf types 35–40 days from seed; head types 53–73 days",
+      ["osu-educators-guide"],
+    ),
+    sun: lettuceFact(
+      "Full sun in cool weather; partial shade once it turns hot",
+      ["osu-educators-guide"],
+    ),
+    water: lettuceFact(
+      "Water often — lettuce draws from the top foot of soil or less",
+      ["osu-growing-your-own"],
+    ),
+    // Row spacing from EC 871 region 2; leaf thinning distance from EM 9032.
+    spacing: lettuceFact(
+      "Rows 12 inches apart; thin leaf types to 4–6 inches and head types to 12 inches",
+      ["osu-vegetable-oregon", "osu-educators-guide"],
+    ),
+    // EC 871 and EM 9027 agree for region 2 (Western valleys, Portland to Roseburg): plant out
+    // April–July for head and April–August for leaf, starting transplants five weeks earlier.
+    // Offsets are days from the last frost date the gardener has set.
     timing: [
-      timing("indoor", "lastFrost", -56, -28),
-      timing("transplant", "lastFrost", -28, 21),
-      timing("direct", "lastFrost", -35, 35),
-      timing("harvest", "lastFrost", 0, 80),
+      timing("indoor", "lastFrost", -18, 134),
+      timing("transplant", "lastFrost", 17, 169),
+      timing("direct", "lastFrost", 17, 169),
+      // Harvest spans the earliest sowing plus the shortest leaf maturity through the latest
+      // sowing plus the longest head maturity.
+      timing("harvest", "lastFrost", 52, 242, [
+        "osu-vegetable-oregon",
+        "osu-educators-guide",
+      ]),
     ],
-    cultivars: [{ id: "mix", name: "Mix" }],
+    // Varieties recommended for Oregon in EC 871.
+    cultivars: [
+      lettuceCultivar("summertime", "Summertime", "Heading, main season"),
+      lettuceCultivar("ithaca", "Ithaca", "Heading, main season"),
+      lettuceCultivar("salinas", "Salinas", "Heading, fall crop"),
+      lettuceCultivar("prizehead", "Prizehead", "Red leaf"),
+      lettuceCultivar("red-sails", "Red Sails", "Red leaf"),
+      lettuceCultivar("redina", "Redina", "Red leaf"),
+      lettuceCultivar("new-red-fire", "New Red Fire", "Red leaf"),
+      lettuceCultivar("salad-bowl", "Salad Bowl", "Green leaf"),
+      lettuceCultivar("grand-rapids", "Grand Rapids", "Green leaf"),
+      lettuceCultivar("slobolt", "Slobolt", "Green leaf"),
+      lettuceCultivar("green-vision", "Green Vision", "Green leaf"),
+      lettuceCultivar("oaky-red-splash", "Oaky Red Splash", "Oak leaf"),
+      lettuceCultivar("paris-island", "Paris Island", "Romaine"),
+      lettuceCultivar("valmaine", "Valmaine", "Romaine"),
+      lettuceCultivar("green-towers", "Green Towers", "Romaine"),
+      lettuceCultivar("outredgeous", "Outredgeous", "Romaine"),
+      lettuceCultivar("devils-tongue", "Devils Tongue", "Romaine"),
+      lettuceCultivar("little-gem", "Little Gem", "Romaine"),
+      lettuceCultivar("freckles", "Freckles", "Romaine"),
+      lettuceCultivar("summer-bibb", "Summer Bibb", "Bibb"),
+      lettuceCultivar("ovation", "Ovation", "Bibb"),
+      lettuceCultivar("optima", "Optima", "Bibb"),
+      lettuceCultivar("buttercrunch", "Buttercrunch", "Bibb"),
+      lettuceCultivar("esmeralda", "Esmeralda", "Butterhead"),
+      lettuceCultivar(
+        "marvel-of-four-seasons",
+        "Marvel of Four Seasons",
+        "Butterhead",
+      ),
+      lettuceCultivar("nevada", "Nevada", "Batavian"),
+      lettuceCultivar("sierra", "Sierra", "Batavian"),
+    ],
     companions: [],
-    growingTips: regionalFact([
-      "Use repeated small sowings for a longer harvest.",
-      "Heat and long days can cause bolting.",
-    ]),
+    growingTips: lettuceFact(
+      [
+        "Sow short rows every 14 days so the harvest arrives in usable amounts.",
+        "Choose heat-resistant varieties for later sowings; heat and long days push plants to bolt.",
+        "Set the first transplants out alongside early cabbage.",
+        "Sow the small seed about half an inch deep.",
+        "Cut head lettuce when the head feels firm, leaving 2–3 inches above the crown so it releafs.",
+        "Thin young plantings by eating the thinnings as salad.",
+      ],
+      ["osu-vegetable-oregon", "osu-growing-your-own", "osu-educators-guide"],
+    ),
     reviewStatus: "reviewed",
   },
   {
