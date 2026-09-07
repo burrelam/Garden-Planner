@@ -14,6 +14,8 @@ describe("catalog provenance", () => {
         plant.growingTips,
       ];
       for (const fact of facts) {
+        // A missing fact is allowed — a fact that exists must be able to name its source.
+        if (!fact) continue;
         expect(fact.reviewedAt).toMatch(/^\d{4}-\d{2}-\d{2}$/);
         expect(fact.sourceIds.length).toBeGreaterThan(0);
         for (const id of fact.sourceIds)

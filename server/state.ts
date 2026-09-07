@@ -222,7 +222,7 @@ export function mapLegacyExport(
       plantId: catalogPlant?.id ?? null,
       name: plant.name,
       variety: plant.variety ?? null,
-      dtm: plant.dtm ?? catalogPlant?.daysToMaturity.value ?? null,
+      dtm: plant.dtm ?? catalogPlant?.daysToMaturity?.value ?? null,
       qty: plant.qty ?? 1,
       bedId: plant.bed ? (bedByLegacyValue.get(plant.bed) ?? null) : null,
       status: plant.status ?? "undecided",

@@ -1,4 +1,5 @@
 import {
+  Fragment,
   useEffect,
   useMemo,
   useRef,
@@ -315,6 +316,7 @@ function Shell({
           <Route path="/wishlist" element={<WishList />} />
           <Route path="/plants" element={<PlantLibrary />} />
           <Route path="/plants/:slug" element={<PlantDetail />} />
+          <Route path="/plants/:slug/:cultivarId" element={<VarietyDetail />} />
           <Route
             path="/settings"
             element={
@@ -1386,7 +1388,8 @@ function PlantDialog({
   const varietyGroups = useMemo(() => {
     const groups = new Map<string, string[]>();
     for (const cultivar of selected?.cultivars ?? []) {
-      const group = cultivar.type?.value ?? "Other";
+      // Varieties the publications do not list still belong somewhere the gardener can find them.
+      const group = cultivar.type?.value ?? "Also grown";
       groups.set(group, [...(groups.get(group) ?? []), cultivar.name]);
     }
     return [...groups];
@@ -1401,7 +1404,7 @@ function PlantDialog({
       plantId: custom ? null : plantId,
       name: custom ? name : selected!.commonName,
       variety: resolvedVariety || null,
-      dtm: custom ? null : selected!.daysToMaturity.value,
+      dtm: custom ? null : (selected!.daysToMaturity?.value ?? null),
       qty: clampQty(qty),
       bedId: bedId || null,
       status: "willplant",
@@ -2292,7 +2295,7 @@ function WishList() {
                     )}
                   </span>
                   <p className={styles.wishMeta}>
-                    {row.plant.daysToMaturity.value}
+                    {row.plant.daysToMaturity?.value ?? "—"}
                   </p>
                 </div>
                 <div className={styles.wishWindows}>
@@ -2416,7 +2419,7 @@ function WishDrawer({
       plantId: entry.plant.id,
       name: entry.plant.commonName,
       variety: null,
-      dtm: entry.plant.daysToMaturity.value,
+      dtm: entry.plant.daysToMaturity?.value ?? null,
       qty: 1,
       bedId: null,
       /* Undecided, not "will plant": moving a wish across records that you
@@ -2569,9 +2572,31 @@ function PlantLibrary() {
   const [plants, setPlants] = useState<PlantRecord[]>([]);
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState("all");
+  // Gardeners look for "Sun Gold" far more often than for "Tomato", so varieties lead.
+  const [view, setView] = useState<"varieties" | "plants">("varieties");
   useEffect(() => {
     api.catalog().then(setPlants);
   }, []);
+  const varieties = useMemo(
+    () =>
+      plants
+        .flatMap((plant) =>
+          plant.cultivars.map((cultivar) => ({ plant, cultivar })),
+        )
+        .filter(
+          ({ plant, cultivar }) =>
+            (category === "all" || plant.category === category) &&
+            `${cultivar.name} ${cultivar.type?.value ?? ""} ${plant.commonName} ${plant.scientificName ?? ""}`
+              .toLowerCase()
+              .includes(query.toLowerCase()),
+        )
+        .sort((a, b) =>
+          a.cultivar.name.localeCompare(b.cultivar.name, undefined, {
+            sensitivity: "base",
+          }),
+        ),
+    [plants, category, query],
+  );
   const filtered = plants
     .filter(
       (plant) =>
@@ -2601,6 +2626,18 @@ function PlantLibrary() {
           />
           <span className={styles.selectWrap}>
             <select
+              aria-label="Show varieties or plants"
+              value={view}
+              onChange={(event) =>
+                setView(event.target.value as "varieties" | "plants")
+              }
+            >
+              <option value="varieties">Varieties</option>
+              <option value="plants">Plants</option>
+            </select>
+          </span>
+          <span className={styles.selectWrap}>
+            <select
               aria-label="Plant category"
               value={category}
               onChange={(event) => setCategory(event.target.value)}
@@ -2615,22 +2652,196 @@ function PlantLibrary() {
         </>
       }
     >
-      <div className={styles.cardGrid}>
-        {filtered.map((plant) => (
-          <Link
-            className={styles.plantCard}
-            to={`/plants/${plant.id}`}
-            key={plant.id}
-          >
-            <span className={styles.chip}>{plant.category}</span>
-            <h2>{plant.commonName}</h2>
-            <em>{plant.scientificName}</em>
-            <p>{plant.summary}</p>
-            <span className={styles.reviewed}>
-              ✓ Reviewed · {plant.daysToMaturity.value}
-            </span>
-          </Link>
-        ))}
+      {view === "varieties" ? (
+        <>
+          <p className={styles.muted}>
+            {varieties.length} varieties across {plants.length} plants. Growing
+            details come from the plant each one belongs to.
+          </p>
+          <div className={styles.cardGrid}>
+            {varieties.map(({ plant, cultivar }) => (
+              <Link
+                className={styles.plantCard}
+                to={`/plants/${plant.id}/${cultivar.id}`}
+                key={`${plant.id}-${cultivar.id}`}
+              >
+                <span className={styles.chip}>
+                  {cultivar.type?.value ?? plant.commonName}
+                </span>
+                <h2>{cultivar.name}</h2>
+                <em>{plant.commonName}</em>
+                <p>{plant.summary}</p>
+                <span className={styles.reviewed}>
+                  {cultivar.daysToMaturity?.value ??
+                    plant.daysToMaturity?.value ??
+                    "No maturity figure recorded"}
+                </span>
+              </Link>
+            ))}
+          </div>
+        </>
+      ) : (
+        <div className={styles.cardGrid}>
+          {filtered.map((plant) => (
+            <Link
+              className={styles.plantCard}
+              to={`/plants/${plant.id}`}
+              key={plant.id}
+            >
+              <span className={styles.chip}>{plant.category}</span>
+              <h2>{plant.commonName}</h2>
+              <em>{plant.scientificName}</em>
+              <p>{plant.summary}</p>
+              <span className={styles.reviewed}>
+                {plant.cultivars.length} varieties
+                {plant.daysToMaturity ? ` · ${plant.daysToMaturity.value}` : ""}
+              </span>
+            </Link>
+          ))}
+        </div>
+      )}
+    </Page>
+  );
+}
+
+function VarietyDetail() {
+  const { slug, cultivarId } = useParams();
+  const [plant, setPlant] = useState<PlantRecord | null>(null);
+  const [notFound, setNotFound] = useState(false);
+  useEffect(() => {
+    if (slug)
+      api
+        .plant(slug)
+        .then(setPlant)
+        .catch(() => setNotFound(true));
+  }, [slug]);
+  const back = { to: "/plants", label: "Back to plant library" };
+  const cultivar = plant?.cultivars.find((item) => item.id === cultivarId);
+  if (notFound || (plant && !cultivar))
+    return (
+      <Page title="Variety not found" back={back}>
+        <Link to="/plants">Return to the library</Link>
+      </Page>
+    );
+  if (!plant || !cultivar)
+    return (
+      <Page title="Plant Library" back={back}>
+        <p>Loading variety details…</p>
+      </Page>
+    );
+  // A variety carries only what the publications say about it by name. Everything else on this
+  // page belongs to the plant, and is labelled as such rather than restated as the variety's own.
+  const inherited = [
+    ["Days to maturity", plant.daysToMaturity],
+    ["Sun", plant.sun],
+    ["Water", plant.water],
+    ["Soil", plant.soil],
+    ["Spacing", plant.spacing],
+  ] as const;
+  return (
+    <Page
+      eyebrow={`${plant.commonName} · variety`}
+      title={cultivar.name}
+      intro={
+        cultivar.type
+          ? `${cultivar.type.value} ${plant.commonName.toLowerCase()}.`
+          : `A ${plant.commonName.toLowerCase()} variety kept in your own list.`
+      }
+      back={back}
+      actions={
+        <Link className={styles.button} to={`/plants/${plant.id}`}>
+          All {plant.commonName}
+        </Link>
+      }
+    >
+      <div className={styles.detailGrid}>
+        <section className={styles.panel}>
+          <h2>This variety</h2>
+          <dl>
+            <dt>Plant</dt>
+            <dd>
+              <Link to={`/plants/${plant.id}`}>{plant.commonName}</Link>
+            </dd>
+            {plant.scientificName && (
+              <>
+                <dt>Botanical name</dt>
+                <dd>
+                  <em>{plant.scientificName}</em>
+                </dd>
+              </>
+            )}
+            {cultivar.type && (
+              <>
+                <dt>Type</dt>
+                <dd>{cultivar.type.value}</dd>
+              </>
+            )}
+            {cultivar.daysToMaturity && (
+              <>
+                <dt>Days to maturity</dt>
+                <dd>{cultivar.daysToMaturity.value}</dd>
+              </>
+            )}
+          </dl>
+          {cultivar.type ? (
+            <SourceLinks ids={cultivar.type.sourceIds} />
+          ) : (
+            <p className={styles.muted}>
+              Not on the Extension list — this one is here because you grow it.
+            </p>
+          )}
+          {cultivar.notes && (
+            <ul>
+              {cultivar.notes.value.map((note) => (
+                <li key={note}>{note}</li>
+              ))}
+            </ul>
+          )}
+        </section>
+        <section className={styles.panel}>
+          <h2>From {plant.commonName}</h2>
+          <p className={styles.muted}>
+            The publications describe {plant.commonName.toLowerCase()} as a
+            crop, not variety by variety, so this guidance is the plant&rsquo;s.
+          </p>
+          <dl>
+            {inherited.map(([label, fact]) =>
+              fact ? (
+                <Fragment key={label}>
+                  <dt>{label}</dt>
+                  <dd>{fact.value}</dd>
+                </Fragment>
+              ) : null,
+            )}
+          </dl>
+        </section>
+        <section className={styles.panel}>
+          <h2>Timing rules</h2>
+          <p className={styles.muted}>
+            Calculated from your explicit frost dates, never from the hardiness
+            zone.
+          </p>
+          {plant.timing.map((rule, index) => (
+            <div className={styles.rule} key={index}>
+              <strong>{phaseLabels[rule.phase]}</strong>
+              <span>
+                {offset(rule.startOffsetDays)} to {offset(rule.endOffsetDays)}{" "}
+                {rule.anchor === "lastFrost"
+                  ? "last spring frost"
+                  : "first fall frost"}
+              </span>
+            </div>
+          ))}
+        </section>
+        <section className={styles.panel}>
+          <h2>Growing notes</h2>
+          <ul>
+            {plant.growingTips.value.map((tip) => (
+              <li key={tip}>{tip}</li>
+            ))}
+          </ul>
+          <SourceLinks ids={plant.growingTips.sourceIds} />
+        </section>
       </div>
     </Page>
   );
@@ -2680,20 +2891,22 @@ function PlantDetail() {
             <dd>
               <em>{plant.scientificName}</em>
             </dd>
-            <dt>Days to maturity</dt>
-            <dd>{plant.daysToMaturity.value}</dd>
-            <dt>Sun</dt>
-            <dd>{plant.sun.value}</dd>
-            <dt>Water</dt>
-            <dd>{plant.water.value}</dd>
-            {plant.soil && (
-              <>
-                <dt>Soil</dt>
-                <dd>{plant.soil.value}</dd>
-              </>
+            {(
+              [
+                ["Days to maturity", plant.daysToMaturity],
+                ["Sun", plant.sun],
+                ["Water", plant.water],
+                ["Soil", plant.soil],
+                ["Spacing", plant.spacing],
+              ] as const
+            ).map(([label, fact]) =>
+              fact ? (
+                <Fragment key={label}>
+                  <dt>{label}</dt>
+                  <dd>{fact.value}</dd>
+                </Fragment>
+              ) : null,
             )}
-            <dt>Spacing</dt>
-            <dd>{plant.spacing.value}</dd>
           </dl>
         </section>
         <section className={styles.panel}>

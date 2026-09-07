@@ -129,6 +129,10 @@ const osuFact = <T>(
   reviewedAt: resourcedAt,
 });
 
+// A variety the gardener grows that OSU does not list. It carries no sourced claim, only a name,
+// so nothing here pretends the publications recommend it.
+const ownCultivar = (id: string, name: string) => ({ id, name });
+
 // EC 871 lists recommended varieties for Oregon grouped by horticultural type.
 const osuCultivar = (id: string, name: string, type: string) => ({
   id,
@@ -208,6 +212,7 @@ export const catalog: PlantRecord[] = [
       osuCultivar("macero-ii", "Macero II", "Paste"),
       osuCultivar("health-kick", "Health Kick", "Paste"),
       osuCultivar("brandywine", "Brandywine", "Heirloom"),
+      ownCultivar("cherokee-purple", "Cherokee Purple"),
     ],
     companions: [
       {
@@ -318,6 +323,7 @@ export const catalog: PlantRecord[] = [
       osuCultivar("cherry-bomb", "Cherry Bomb", "Specialty hot"),
       osuCultivar("serrano", "Serrano", "Specialty hot"),
       osuCultivar("anaheim-tmr-23", "Anaheim TMR 23", "Specialty hot"),
+      ownCultivar("shishito", "Shishito"),
     ],
     companions: [],
     growingTips: osuFact(
@@ -767,46 +773,55 @@ export const catalog: PlantRecord[] = [
     commonName: "Shallots",
     scientificName: "Allium cepa Aggregatum Group",
     category: "herb",
-    summary: "A multiplier allium commonly planted in fall or early spring.",
-    daysToMaturity: regionalFact("90–120 days"),
-    sun: regionalFact("Full sun"),
-    water: regionalFact("Moderate, tapering near maturity"),
-    spacing: regionalFact("6–8 inches"),
+    summary:
+      "A multiplier allium for the Willamette Valley, sown after mid-February or again in September.",
+    // EM 9032's Appendix C calendar is the only OSU publication that carries shallots at all, and
+    // it gives sowing months only — no maturity, spacing, sun or water figure exists to cite.
     timing: [
-      timing("transplant", "lastFrost", -42, 14),
-      timing("harvest", "lastFrost", 80, 130),
+      timing("direct", "lastFrost", -27, -15, ["osu-educators-guide"]),
+      timing("direct", "firstFrost", -75, -46, ["osu-educators-guide"]),
     ],
     cultivars: [],
     companions: [],
-    growingTips: regionalFact([
-      "Use well-drained soil.",
-      "Harvest when tops yellow and fall.",
-    ]),
+    growingTips: osuFact(
+      [
+        "EM 9032 sows shallots outdoors after 15 February, alongside garlic and onion sets.",
+        "They can go in again in September for the following season.",
+      ],
+      ["osu-educators-guide"],
+      "willamette-valley",
+    ),
     reviewStatus: "reviewed",
   },
+
   {
     id: "basil",
     commonName: "Basil",
     scientificName: "Ocimum basilicum",
     category: "herb",
-    summary: "A frost-tender herb that grows best after nights become warm.",
-    daysToMaturity: regionalFact("25–60 days"),
-    sun: regionalFact("Full sun"),
-    water: regionalFact("Consistent moisture in well-drained soil"),
-    spacing: regionalFact("8–12 inches"),
+    summary:
+      "A frost-tender herb for the Willamette Valley, started under cover in mid-April and set out once the nights turn mild.",
+    // EC 871's herbs note names sweet basil directly. It gives no maturity or spacing figure, so
+    // this entry has none — a gap is honest where a borrowed number would not be.
+    sun: osuFact("A sunny position", ["osu-vegetable-oregon"]),
+    water: osuFact("Little water or feeding needed", ["osu-vegetable-oregon"]),
     timing: [
-      timing("indoor", "lastFrost", -42, -21),
-      timing("transplant", "lastFrost", 21, 42),
-      timing("harvest", "lastFrost", 45, 145),
+      timing("indoor", "lastFrost", 32, 46, ["osu-educators-guide"]),
+      timing("transplant", "lastFrost", 32, 77, ["osu-educators-guide"]),
     ],
     cultivars: [],
     companions: [],
-    growingTips: regionalFact([
-      "Pinch growing tips to encourage branching.",
-      "Protect from cold nights and frost.",
-    ]),
+    growingTips: osuFact(
+      [
+        "Most common herbs, sweet basil among them, grow readily from seed.",
+        "Herbs do best in a sunny spot and ask for little care, water or fertiliser.",
+        "EM 9032 starts basil in flats from mid-April and sets it out under a cloche or row cover from mid-April into May.",
+      ],
+      ["osu-vegetable-oregon", "osu-educators-guide"],
+    ),
     reviewStatus: "reviewed",
   },
+
   {
     id: "marigold",
     commonName: "Marigolds",

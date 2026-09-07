@@ -163,7 +163,8 @@ export interface CultivarRecord {
   id: string;
   name: string;
   // The horticultural group a variety belongs to — romaine, butterhead, bibb. Gardeners shop by
-  // this before they shop by cultivar name, so the variety picker groups on it.
+  // this before they shop by cultivar name, so the variety picker groups on it. A variety with
+  // no type is one the publications do not list; the picker files those under "Also grown".
   type?: SourcedFact<string>;
   daysToMaturity?: SourcedFact<string>;
   notes?: SourcedFact<string[]>;
@@ -189,13 +190,13 @@ export interface PlantRecord {
   scientificName?: string;
   category: "vegetable" | "herb" | "flower" | "fruit";
   summary: string;
-  daysToMaturity: SourcedFact<string>;
-  sun: SourcedFact<string>;
-  water: SourcedFact<string>;
-  // Optional: OSU gives soil guidance for vegetables generally rather than per crop, so an
-  // entry carries this only once it has been re-sourced against the publications.
+  // Every fact is optional. A plant the publications do not describe should say nothing rather
+  // than carry a number nobody can point at — the catalog would rather have a gap than a guess.
+  daysToMaturity?: SourcedFact<string>;
+  sun?: SourcedFact<string>;
+  water?: SourcedFact<string>;
   soil?: SourcedFact<string>;
-  spacing: SourcedFact<string>;
+  spacing?: SourcedFact<string>;
   timing: TimingRule[];
   cultivars: CultivarRecord[];
   companions: CompanionRelationship[];
