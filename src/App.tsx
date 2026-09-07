@@ -79,6 +79,7 @@ import {
   SnowflakeIcon,
   SourcesIcon,
   SproutNavIcon,
+  TodayTickIcon,
 } from "./icons";
 
 // This file is the visible application. Each named function below is either a whole page
@@ -579,6 +580,19 @@ function Planner() {
             ];
   const now = new Date();
   const currentSlot = now.getMonth() * 2 + (now.getDate() > 15 ? 1 : 0);
+  // Same half-month-slot fraction math as frostPosition, but against the
+  // browser's own local date rather than a stored ISO string — "today"
+  // means today where the gardener is sitting, not in UTC.
+  const todayDay = now.getDate();
+  const todayDaysInMonth = new Date(
+    now.getFullYear(),
+    now.getMonth() + 1,
+    0,
+  ).getDate();
+  const todayFraction =
+    todayDay > 15
+      ? (todayDay - 15.5) / (todayDaysInMonth - 15)
+      : (todayDay - 0.5) / 15;
   const selectedEntry = state.entries.find(
     (entry) => entry.id === selectedEntryId,
   );
@@ -642,7 +656,7 @@ function Planner() {
           ))}
           {Array.from({ length: 24 }, (_, slot) => (
             <div
-              className={`${styles.halfHead} ${slot === currentSlot ? styles.currentHead : ""} ${slot === last || slot === first ? styles.frostHead : ""}`}
+              className={`${styles.halfHead} ${slot === currentSlot ? `${styles.currentHead} ${styles.todayHead}` : ""} ${slot === last || slot === first ? styles.frostHead : ""}`}
               style={
                 {
                   "--frost-pos": frostFractionForSlot(slot),
@@ -650,15 +664,30 @@ function Planner() {
               }
               key={`half-${slot}`}
             >
+              {slot === currentSlot && (
+                <TodayTickIcon
+                  size={18}
+                  className={styles.todayFlake}
+                  style={{ "--today-pos": todayFraction } as CSSProperties}
+                />
+              )}
               {frostMarks && (slot === last || slot === first) ? (
                 <SnowflakeIcon size={18} className={styles.frostFlake} />
-              ) : slot % 2 === 0 ? (
+              ) : slot === currentSlot ? null : slot % 2 === 0 ? (
                 "E"
               ) : (
                 "L"
               )}
             </div>
           ))}
+          <div
+            className={styles.todayLine}
+            style={
+              {
+                "--today-slot": currentSlot + todayFraction,
+              } as CSSProperties
+            }
+          />
           {[lastFrostPos, firstFrostPos].map((pos, index) =>
             frostMarks &&
             Number.isFinite(pos.slot) &&
@@ -1066,6 +1095,13 @@ function PlannerMore({
           <SnowflakeIcon size={14} className={styles.legendIcon} />
           Frost date
         </span>
+        <span>
+          <TodayTickIcon
+            size={14}
+            className={`${styles.legendIcon} ${styles.legendToday}`}
+          />
+          Today
+        </span>
         {state.garden.showPillPredictions && (
           <>
             <span>
@@ -1218,17 +1254,18 @@ function PlantSheet({
               </select>
             </span>
           </label>
-          {(state.garden.showPillPredictions ||
-            state.garden.showPlantedMarkers) && (
-            <label className={styles.sheetBed}>
-              Actual planting date
-              <input
-                type="date"
-                value={plantedDate}
-                onChange={(event) => setPlantedDate(event.target.value)}
-              />
-            </label>
-          )}
+          {/* Logging the date itself never depends on whether either
+              display setting is on — those only control whether the
+              calendar shows anything from it, not whether it can be
+              recorded at all. */}
+          <label className={styles.sheetBed}>
+            Actual planting date
+            <input
+              type="date"
+              value={plantedDate}
+              onChange={(event) => setPlantedDate(event.target.value)}
+            />
+          </label>
         </div>
         {entry.plantId && (
           <Link className={styles.button} to={`/plants/${entry.plantId}`}>

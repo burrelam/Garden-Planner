@@ -264,6 +264,8 @@
   --color-now-bg: #cbd98f;
   --color-now-ink: #232c10;
   --color-now-wash: rgba(203, 217, 143, 0.42);
+  --color-now-mark: #7bc142;
+  --color-now-mark-edge: var(--color-frost-mark-edge);
   --stage-indoor: #b54c35;
   --stage-transplant: #ecd866;
   --stage-direct: #d88930;
@@ -334,6 +336,8 @@
   --color-now-bg: #a8cde8;
   --color-now-ink: #041f33;
   --color-now-wash: rgba(168, 205, 232, 0.46);
+  --color-now-mark: #34d058;
+  --color-now-mark-edge: var(--color-frost-mark-edge);
   --stage-indoor: #af4b40;
   --stage-transplant: #d3c266;
   --stage-direct: #c88132;
@@ -404,6 +408,8 @@
   --color-now-bg: #b6e285;
   --color-now-ink: #17330f;
   --color-now-wash: rgba(182, 226, 133, 0.46);
+  --color-now-mark: #c6e21e;
+  --color-now-mark-edge: var(--color-frost-mark-edge);
   --stage-indoor: #d0543a;
   --stage-transplant: #f3de45;
   --stage-direct: #ea9128;
@@ -474,6 +480,8 @@
   --color-now-bg: #8fdcb4;
   --color-now-ink: #06291f;
   --color-now-wash: rgba(143, 220, 180, 0.46);
+  --color-now-mark: #a8e62e;
+  --color-now-mark-edge: var(--color-frost-mark-edge);
   --stage-indoor: #ca432a;
   --stage-transplant: #f1dc2f;
   --stage-direct: #e88a09;
@@ -550,6 +558,8 @@
   --color-now-bg: #3b3566;
   --color-now-ink: #cbd2fd;
   --color-now-wash: rgba(203, 210, 253, 0.14);
+  --color-now-mark: #4ade80;
+  --color-now-mark-edge: var(--color-frost-mark-edge);
   --stage-indoor: #e28168;
   --stage-transplant: #f9e689;
   --stage-direct: #fbb167;
@@ -1561,6 +1571,9 @@
   flex: 0 0 auto;
   color: var(--color-text-muted);
 }
+.legendToday {
+  color: var(--color-now-mark);
+}
 .moreHint {
   margin: 0;
   color: var(--color-text-muted);
@@ -1639,6 +1652,27 @@
     var(--color-frost-mark-edge) calc(100% - 1px) 100%
   );
 }
+/* Today's own line, drawn exactly like the frost line above — same shape,
+   same cross-ground casing trick, just the green "now" pair instead of
+   frost's blue, so the two are never confused even where they'd land
+   close together. Always on: unlike the frost marks, this one has no
+   settings toggle to turn off. */
+.todayLine {
+  position: absolute;
+  top: 60px;
+  bottom: 0;
+  left: calc(var(--cal-name-col) + var(--cal-slot-w) * var(--today-slot));
+  z-index: 3;
+  width: var(--size-frost-tick);
+  transform: translateX(calc(var(--size-frost-tick) / -2));
+  pointer-events: none;
+  background: linear-gradient(
+    90deg,
+    var(--color-now-mark-edge) 0 1px,
+    var(--color-now-mark) 1px calc(100% - 1px),
+    var(--color-now-mark-edge) calc(100% - 1px) 100%
+  );
+}
 .monthHead,
 .halfHead {
   position: sticky;
@@ -1692,6 +1726,24 @@
     drop-shadow(-1px 0 0 var(--color-frost-mark-edge))
     drop-shadow(0 1px 0 var(--color-frost-mark-edge))
     drop-shadow(0 -1px 0 var(--color-frost-mark-edge));
+}
+/* Same overflow problem as .frostHead, same fix — a today triangle near
+   the end of its half-month puts half the glyph over the next cell. */
+.todayHead {
+  z-index: 11;
+}
+.todayFlake {
+  position: absolute;
+  top: 50%;
+  left: calc(var(--today-pos, 0.5) * 100%);
+  width: var(--size-frost-flake);
+  height: var(--size-frost-flake);
+  transform: translate(-50%, -50%);
+  color: var(--color-now-mark);
+  filter: drop-shadow(1px 0 0 var(--color-now-mark-edge))
+    drop-shadow(-1px 0 0 var(--color-now-mark-edge))
+    drop-shadow(0 1px 0 var(--color-now-mark-edge))
+    drop-shadow(0 -1px 0 var(--color-now-mark-edge));
 }
 .stickyPlant {
   position: sticky;

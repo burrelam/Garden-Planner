@@ -306,6 +306,22 @@ export function SnowflakeIcon(props: IconProps) {
   );
 }
 
+// Today's own tick mark in the half-month strip, the same job the
+// snowflake does for a frost date — a small stepped triangle pointing at
+// the exact day, rather than a flake, so the two are never mistaken for
+// each other even in the same color.
+export function TodayTickIcon(props: IconProps) {
+  return (
+    <Pixels viewBox="0 0 16 16" fill="currentColor" {...props}>
+      <rect x="3" y="3" width="10" height="1" />
+      <rect x="4" y="4" width="8" height="1" />
+      <rect x="5" y="5" width="6" height="1" />
+      <rect x="6" y="6" width="4" height="1" />
+      <rect x="7" y="7" width="2" height="1" />
+    </Pixels>
+  );
+}
+
 export function ShovelIcon(props: IconProps) {
   return (
     <Pixels viewBox="0 0 16 16" {...props}>
