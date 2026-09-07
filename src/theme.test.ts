@@ -1,5 +1,6 @@
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
+import { plantingSeasonOf } from "./shared/seasons";
 import {
   SEASON_STARTS,
   THEME_IDS,
@@ -197,6 +198,34 @@ describe("bed colours", () => {
   it("darkens no further than it needs to", () => {
     for (const hex of ["#8A9A6B", "#9C7B5A", "#888888"]) {
       expect(contrastOf(BED_INK, bedSurfaceFor(hex))).toBeLessThan(6.5);
+    }
+  });
+});
+
+/* The app runs two calendars on purpose. This one picks the palette and
+   follows the equinoxes; the gardener's calendar in shared/seasons.ts files
+   sowings by whole months. Changing either must not quietly change the other,
+   so the places they disagree are pinned here. */
+describe("the theme's seasons against the gardener's calendar", () => {
+  it("disagrees in the three weeks before each equinox and solstice", () => {
+    const midMarch = new Date("2026-03-10T12:00:00Z");
+    expect(seasonForDate(midMarch)).toBe("winter");
+    expect(plantingSeasonOf(midMarch)).toBe("spring");
+
+    const earlyDecember = new Date("2026-12-06T12:00:00Z");
+    expect(seasonForDate(earlyDecember)).toBe("fall");
+    expect(plantingSeasonOf(earlyDecember)).toBe("winter");
+  });
+
+  it("agrees once a season is properly under way", () => {
+    for (const day of [
+      "2026-04-15",
+      "2026-07-15",
+      "2026-10-15",
+      "2026-01-15",
+    ]) {
+      const date = new Date(`${day}T12:00:00Z`);
+      expect(plantingSeasonOf(date)).toBe(seasonForDate(date));
     }
   });
 });

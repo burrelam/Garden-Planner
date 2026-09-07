@@ -67,6 +67,20 @@ export const GardenEntrySchema = z.object({
     .optional(),
 });
 
+/**
+ * Something a gardener wants to grow but has not committed to a bed yet.
+ * It points at a catalog plant and at one of that plant's sowing windows, so
+ * the same plant can be wanted for two different times of year. The window is
+ * held by index rather than by its dates: frost dates move, and the wish
+ * should move with them rather than freeze last year's calendar.
+ */
+export const WishlistItemSchema = z.object({
+  id: z.string().min(1),
+  plantId: z.string().min(1),
+  windowIndex: z.number().int().nonnegative(),
+  addedAt: z.string().date(),
+});
+
 export const GardenStateSchema = z.object({
   version: z.literal(2),
   revision: z.number().int().nonnegative(),
@@ -74,11 +88,15 @@ export const GardenStateSchema = z.object({
   beds: z.array(BedSchema),
   entries: z.array(GardenEntrySchema),
   customVarieties: z.record(z.string(), z.array(z.string())),
+  /* Gardens saved before the wish list existed simply have an empty one, so
+     no stored state needs migrating. */
+  wishlist: z.array(WishlistItemSchema).default([]),
 });
 
 export type GardenSettings = z.infer<typeof GardenSettingsSchema>;
 export type Bed = z.infer<typeof BedSchema>;
 export type GardenEntry = z.infer<typeof GardenEntrySchema>;
+export type WishlistItem = z.infer<typeof WishlistItemSchema>;
 export type GardenState = z.infer<typeof GardenStateSchema>;
 
 export const LegacyExportSchema = z.object({

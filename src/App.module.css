@@ -220,6 +220,13 @@
 
 :global(:root),
 :global(:root[data-theme="fall"]) {
+  /* Season identities for the wish list, taken from each seasonal theme's own
+     accent. They do not retint with the theme: a spring sowing has to stay
+     recognisably spring while the app is painted for autumn. */
+  --season-spring: #356524;
+  --season-summer: #a85e08;
+  --season-fall: #93380f;
+  --season-winter: #1f5478;
   --color-bg: #e7d3a8;
   --color-surface: #f5e1bc;
   --color-surface-muted: #cfb684;
@@ -500,6 +507,12 @@
 }
 
 :global(:root[data-theme="night"]) {
+  /* Lightened against the dark ground, so the ink on a filled season button
+     stays the dark --color-on-accent rather than vanishing. */
+  --season-spring: #b6e285;
+  --season-summer: #f0b429;
+  --season-fall: #e0885f;
+  --season-winter: #7fc4ea;
   --color-bg: #14111f;
   --color-surface: #221d36;
   --color-surface-muted: #332c50;
@@ -590,6 +603,15 @@
   --type-plant-sub: 0.95rem;
   --type-group-header: 0.82rem;
   --type-corner-sort: 0.95rem;
+  /* Wish list. The buttons are one line wide, so their type has to be sized
+     with the row, not inside the component rule. */
+  --type-wish-name: 1.08rem;
+  --type-wish-meta: 0.76rem;
+  --type-wish-tag: 0.5rem;
+  --type-wish-dates: 0.8rem;
+  --type-wish-key: 0.52rem;
+  --type-wish-group: 0.55rem;
+  --type-wish-letter: 0.95rem;
   /* Calendar geometry. Same on both widths today, but they belong here with
      the other sizes: set in a component rule, the phone block cancels them. */
   /* Three lines: the name with its variety, the species, and the status. */
@@ -608,6 +630,13 @@
     --type-plant-sub: 0.63rem;
     --type-group-header: 0.82rem;
     --type-corner-sort: 0.88rem;
+    --type-wish-name: 1rem;
+    --type-wish-meta: 0.7rem;
+    --type-wish-tag: 0.46rem;
+    --type-wish-dates: 0.74rem;
+    --type-wish-key: 0.48rem;
+    --type-wish-group: 0.5rem;
+    --type-wish-letter: 0.88rem;
     --size-cal-row: 58px;
   }
 }
@@ -2702,4 +2731,383 @@
   .bedSwatches {
     grid-template-columns: repeat(5, 1fr);
   }
+}
+
+/* ============================================================
+   Wish list
+
+   A dense browsing list: name and grow time on the left, one button per
+   sowing window on the right carrying the dates in and the dates out. The
+   season colours are the four seasonal themes' own identities, so a spring
+   sowing is the spring green whichever theme is painting the app.
+   ============================================================ */
+.wishPage {
+  width: 100%;
+  max-width: none;
+  padding-bottom: 96px;
+}
+
+.wishTools {
+  position: sticky;
+  top: 0;
+  z-index: 4;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 0 0 12px;
+  padding: 10px 0 11px;
+  background: var(--color-bg);
+}
+.wishToolRow {
+  display: flex;
+  gap: 7px;
+}
+.wishSearch {
+  flex: 1;
+  min-width: 0;
+}
+.wishNow {
+  --fill: var(--color-gold);
+  flex: none;
+  color: color-mix(in srgb, var(--color-gold) 20%, #000);
+}
+.wishNow[aria-pressed="true"] {
+  --fill: var(--color-accent);
+  color: var(--color-on-accent);
+}
+
+/* One segmented control: these are three views of one list, not three pages. */
+.wishViews {
+  display: flex;
+  gap: 0;
+}
+.wishView {
+  --lift: 0px;
+  --pad-y: 8px;
+  --pad-x: 4px;
+  flex: 1;
+  min-width: 0;
+  min-height: 40px;
+  font-size: var(--type-wish-key);
+  clip-path: none;
+}
+.wishView + .wishView {
+  border-left-width: 0;
+}
+.wishView[aria-pressed="true"] {
+  --fill: var(--color-accent);
+  color: var(--color-on-accent);
+}
+
+/* The month keys and the letter keys share this strip; only the count of
+   columns changes, so the two views feel like one control. */
+.wishKeys {
+  display: grid;
+  grid-template-columns: repeat(var(--keys, 12), 1fr);
+  gap: 2px;
+}
+.wishKey {
+  --lift: 0px;
+  --pad-y: 7px;
+  --pad-x: 0px;
+  --notch: 1px;
+  min-height: 32px;
+  font-size: var(--type-wish-key);
+  clip-path: var(--o-nick);
+}
+.wishKeyEmpty {
+  --fill: var(--color-surface-muted);
+  color: var(--color-text-muted);
+}
+.wishKeyNow {
+  border-color: var(--color-accent);
+}
+.wishKey[aria-pressed="true"] {
+  --fill: var(--color-accent);
+  color: var(--color-on-accent);
+}
+
+.wishBand {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 2px;
+}
+.wishSeason {
+  --lift: 0px;
+  --pad-y: 6px;
+  --pad-x: 2px;
+  --notch: 1px;
+  min-height: 28px;
+  font-size: var(--type-wish-tag);
+  clip-path: var(--o-nick);
+}
+.wishSeason[data-season="spring"] {
+  --fill: var(--season-spring);
+}
+.wishSeason[data-season="summer"] {
+  --fill: var(--season-summer);
+}
+.wishSeason[data-season="fall"] {
+  --fill: var(--season-fall);
+}
+.wishSeason[data-season="winter"] {
+  --fill: var(--season-winter);
+}
+.wishSeason[data-season] {
+  color: var(--color-on-accent);
+}
+.wishSeason[aria-pressed="true"] {
+  box-shadow: inset 0 0 0 3px var(--color-focus);
+}
+
+.wishKeyNote {
+  margin: 0;
+  font-size: var(--type-wish-meta);
+  text-align: center;
+  color: var(--color-text-muted);
+}
+.wishKeyNote b {
+  font-weight: normal;
+  color: var(--color-text);
+}
+
+.wishList {
+  display: flex;
+  flex-direction: column;
+}
+.wishGroup {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 10px 0 5px;
+  font-family: "Silkscreen", ui-monospace, monospace;
+  font-size: var(--type-wish-group);
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+}
+/* A letter is the thing you scan for, so it is set larger and in the accent. */
+.wishGroupAlpha {
+  font-size: var(--type-wish-letter);
+  letter-spacing: 0.1em;
+  color: var(--color-accent);
+}
+.wishRule {
+  flex: 1;
+  height: 3px;
+  background: var(--color-border);
+}
+.wishCount {
+  color: var(--color-text-muted);
+}
+
+/* Row height is set by whichever side is taller, so a plant with one sowing
+   costs about half of one with two and twice as many names fit on a screen. */
+.wishRow {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin-bottom: 6px;
+  padding: 7px 9px;
+  background: var(--color-surface);
+  border: 3px solid var(--color-border);
+  clip-path: var(--o-step);
+}
+.wishRowPicked {
+  border-color: var(--color-accent);
+  box-shadow: inset 4px 0 0 0 var(--color-accent);
+}
+.wishRowMain {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+.wishName {
+  font-size: var(--type-wish-name);
+  line-height: 1.12;
+  color: var(--color-text);
+  text-decoration: none;
+}
+.wishName:hover {
+  text-decoration: underline;
+}
+.wishMeta {
+  margin: 0;
+  font-size: var(--type-wish-meta);
+  line-height: 1.2;
+  color: var(--color-text-muted);
+}
+
+.wishWindows {
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.wishBtn {
+  --lift: 0px;
+  --pad-y: 4px;
+  --pad-x: 7px;
+  --notch: 1px;
+  --fill: transparent;
+  min-height: 0;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 7px;
+  border: 3px solid var(--season, var(--color-accent));
+  color: var(--season, var(--color-accent));
+  background: transparent;
+  box-shadow: none;
+  clip-path: var(--o-nick);
+}
+.wishBtn[data-season="spring"] {
+  --season: var(--season-spring);
+}
+.wishBtn[data-season="summer"] {
+  --season: var(--season-summer);
+}
+.wishBtn[data-season="fall"] {
+  --season: var(--season-fall);
+}
+.wishBtn[data-season="winter"] {
+  --season: var(--season-winter);
+}
+.wishBtn:hover {
+  background: color-mix(in srgb, var(--season) 12%, transparent);
+}
+.wishBtn[aria-pressed="true"] {
+  background: var(--season);
+  color: var(--color-on-accent);
+  box-shadow: none;
+}
+.wishBtn[aria-pressed="true"]:active {
+  padding: var(--pad-y) var(--pad-x);
+}
+.wishBtnSeason {
+  flex: none;
+  width: 58px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: var(--type-wish-tag);
+  letter-spacing: 0.02em;
+}
+.wishBtnDates {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  white-space: nowrap;
+  font-family: "VT323", ui-monospace, monospace;
+  font-size: var(--type-wish-dates);
+  font-weight: 400;
+  letter-spacing: 0;
+  text-transform: none;
+  color: currentColor;
+}
+.wishArrow {
+  opacity: 0.55;
+}
+.wishNoDate {
+  opacity: 0.62;
+}
+
+.wishEmpty {
+  padding: 22px 10px;
+  text-align: center;
+  color: var(--color-text-muted);
+}
+
+/* The floating dock, matching the planner's. */
+.wishDock {
+  position: fixed;
+  left: 12px;
+  right: 12px;
+  bottom: calc(12px + env(safe-area-inset-bottom));
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 8px 9px 8px 13px;
+  background: var(--color-inverse-bg);
+  color: var(--color-inverse-text);
+  border: 3px solid var(--color-border-strong);
+  clip-path: var(--o-step);
+}
+.wishDockCount {
+  display: flex;
+  align-items: baseline;
+  gap: 7px;
+  font-size: var(--type-wish-meta);
+}
+.wishDockNumber {
+  font-size: 1.45rem;
+  line-height: 1;
+  color: var(--color-gold);
+}
+
+.wishSaved {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 5px;
+  padding: 6px 5px 6px 10px;
+  background: var(--color-bg);
+  border: 3px solid var(--color-border);
+  clip-path: var(--o-nick);
+}
+.wishRemove {
+  --lift: 0px;
+  --pad-y: 5px;
+  --pad-x: 5px;
+  --notch: 1px;
+  flex: none;
+  min-height: 0;
+  clip-path: var(--o-nick);
+}
+/* Said plainly rather than enforced: a second sowing of something already
+   growing is a normal thing to want. A tick on the name line rather than a
+   sentence, so it can never push a row onto another line. */
+.wishNameRow {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  min-width: 0;
+}
+.wishAlready {
+  flex: none;
+  display: inline-flex;
+  color: var(--color-accent);
+}
+/* The group's own commit button, sitting under the rows it acts on so the
+   scope is never in doubt. */
+.wishGroupAdd {
+  --lift: 0px;
+  --pad-y: 7px;
+  width: 100%;
+  margin: 2px 0 12px;
+  font-size: var(--type-wish-key);
+}
+/* Sits in the filter summary line, so it has to read as a control without
+   becoming another chunky button in an already busy strip. */
+.wishClearFilters {
+  --lift: 0px;
+  --pad-y: 2px;
+  --pad-x: 6px;
+  --notch: 1px;
+  min-height: 0;
+  margin-left: 8px;
+  font-size: var(--type-wish-tag);
+  clip-path: var(--o-nick);
+}
+/* Several seasons can be on at once, so "selected" has to be legible across
+   four buttons at a glance. Once anything is chosen the rest step back,
+   which reads faster than an outline on the ones that are picked. */
+.wishBand[data-filtering] .wishSeason:not([aria-pressed="true"]),
+.wishKeys[data-filtering] .wishKey:not([aria-pressed="true"]) {
+  opacity: 0.4;
 }

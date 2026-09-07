@@ -452,3 +452,53 @@ export function CloseIcon(props: IconProps) {
     </Pixels>
   );
 }
+
+/**
+ * A seed packet with its corner turned, for the wish list. Reads as a thing
+ * you set aside rather than a star, which would have said "favourite" — the
+ * list is what you mean to plant, not what you like best.
+ */
+export function WishlistIcon(props: IconProps) {
+  return (
+    <Pixels viewBox="0 0 16 16" fill="currentColor" {...props}>
+      <rect x="3" y="1" width="7" height="1" />
+      <rect x="10" y="2" width="1" height="1" />
+      <rect x="11" y="3" width="1" height="1" />
+      <rect x="10" y="1" width="1" height="1" opacity="0.45" />
+      <rect x="11" y="2" width="1" height="1" opacity="0.45" />
+      <rect x="3" y="2" width="1" height="12" />
+      <rect x="12" y="4" width="1" height="10" />
+      <rect x="3" y="14" width="10" height="1" />
+      <rect x="5" y="5" width="2" height="2" fill="var(--color-accent-light)" />
+      <rect x="9" y="5" width="2" height="2" fill="var(--color-accent-light)" />
+      <rect x="7" y="8" width="2" height="2" fill="var(--color-accent-light)" />
+      <rect
+        x="5"
+        y="11"
+        width="2"
+        height="2"
+        fill="var(--color-accent-light)"
+      />
+      <rect
+        x="9"
+        y="11"
+        width="2"
+        height="2"
+        fill="var(--color-accent-light)"
+      />
+    </Pixels>
+  );
+}
+
+/** The confirm mark on a wish list button. Same stair-step as the UI. */
+export function TickIcon(props: IconProps) {
+  return (
+    <Pixels viewBox="0 0 11 8" fill="currentColor" {...props}>
+      <rect x="0" y="4" width="2" height="2" />
+      <rect x="2" y="6" width="2" height="2" />
+      <rect x="4" y="4" width="2" height="2" />
+      <rect x="6" y="2" width="2" height="2" />
+      <rect x="8" y="0" width="2" height="2" />
+    </Pixels>
+  );
+}
