@@ -2032,28 +2032,9 @@
    timeline agree on a slot, the plain colors above still apply untouched —
    that agreement is the point, not something to call out. Where they
    disagree, whichever one "wins" that slot reads differently: a
-   guideline-only slot goes hollow and dashed, an actual-only slot stays
-   solid but lighter than the settled color. */
-.indoorGhost {
-  background: transparent !important;
-  border: 1.5px dashed var(--stage-indoor);
-}
-.transplantGhost {
-  background: transparent !important;
-  border: 1.5px dashed var(--stage-transplant);
-}
-.directGhost {
-  background: transparent !important;
-  border: 1.5px dashed var(--stage-direct);
-}
-.harvestGhost {
-  background: transparent !important;
-  border: 1.5px dashed var(--stage-harvest);
-}
-.bloomGhost {
-  background: transparent !important;
-  border: 1.5px dashed var(--stage-bloom);
-}
+   guideline-only slot gets the same tinted-and-dashed look as Undecided
+   below (a dashed outline alone was too quiet at 14px to read as a shape),
+   an actual-only slot stays solid but lighter than the settled color. */
 .indoorActual {
   background: color-mix(in srgb, var(--stage-indoor) 55%, white) !important;
 }
@@ -2111,10 +2092,12 @@
   ) !important;
   border: 1.5px solid var(--stage-bloom);
 }
-/* An "undecided" entry: a dashed outline alone was too quiet at 14px tall —
-   a couple of short dashes, easy to miss against the row. A light tint
-   keeps the dashed edge as the "not settled yet" signal but gives the pill
-   an actual silhouette, in the phase's own color. */
+/* Shared by two things that both mean "not settled yet": an "undecided"
+   entry's whole timeline, and a single guideline-only slot once a planting
+   date is logged. A dashed outline alone was too quiet at 14px tall — a
+   couple of short dashes, easy to miss against the row. A light tint keeps
+   the dashed edge as the "not settled" signal but gives the pill an actual
+   silhouette, in the phase's own color. */
 .indoorTint {
   background: color-mix(in srgb, var(--stage-indoor) 24%, transparent) !important;
   border: 1.5px dashed var(--stage-indoor);

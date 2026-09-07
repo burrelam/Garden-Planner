@@ -25,9 +25,12 @@ export const GardenSettingsSchema = z.object({
   firstFrost: z.string().date(),
   /* Gardens saved before this existed simply have the marks on. */
   showFrostMarks: z.boolean().default(true),
-  /* New, opt-in: gardens saved before this existed default to off, so
-     nobody's calendar changes shape until they turn it on deliberately. */
-  showActualTimeline: z.boolean().default(false),
+  /* Both new, opt-in, and independent of each other: a gardener may want
+     the pillbox overlay without the markers, or the markers without the
+     overlay, so gardens saved before these existed default both to off
+     rather than bundling them under one switch. */
+  showPillPredictions: z.boolean().default(false),
+  showPlantedMarkers: z.boolean().default(false),
 });
 
 export const BedSchema = z.object({

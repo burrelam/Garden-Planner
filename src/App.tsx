@@ -109,14 +109,16 @@ const phaseLabels = {
 /** Where the guideline and an actual planting date agree on a slot, the
  * plain color still applies — that agreement is the point. Where they
  * disagree, whichever timeline has a phase here "wins" the slot's display,
- * marked as either guideline-only (ghost) or actual-only (actual). */
+ * marked as either guideline-only (tinted, dashed) or actual-only (actual).
+ * "Tint" is the same treatment Undecided uses, and for the same reason: a
+ * dashed outline alone is too quiet at 14px to read as a shape. */
 function combinedSlotPhase(
   guidePhase: Phase | null,
   actualPhase: Phase | null,
-): { phase: Phase | null; variant: "" | "Ghost" | "Actual" } {
+): { phase: Phase | null; variant: "" | "Tint" | "Actual" } {
   if (guidePhase === actualPhase) return { phase: guidePhase, variant: "" };
   if (actualPhase) return { phase: actualPhase, variant: "Actual" };
-  return { phase: guidePhase, variant: "Ghost" };
+  return { phase: guidePhase, variant: "Tint" };
 }
 const CATEGORY_ORDER = ["herb", "vegetable", "fruit", "flower"] as const;
 type PlantCategory = (typeof CATEGORY_ORDER)[number];
@@ -692,13 +694,13 @@ function Planner() {
               )}
               {group.entries.map((entry) => {
                 const timeline = timelineForEntry(entry, state.garden);
-                const actualTimeline = state.garden.showActualTimeline
+                const actualTimeline = state.garden.showPillPredictions
                   ? actualTimelineForEntry(entry, state.garden)
                   : null;
-                const pinPos = state.garden.showActualTimeline
+                const pinPos = state.garden.showPlantedMarkers
                   ? plantedDatePosition(entry)
                   : null;
-                const flagPos = state.garden.showActualTimeline
+                const flagPos = state.garden.showPlantedMarkers
                   ? actualHarvestPosition(entry, state.garden)
                   : null;
                 const editLabel = `Edit ${entry.name}${entry.variety ? ` — ${entry.variety}` : ""}`;
@@ -755,7 +757,7 @@ function Planner() {
                             <span
                               title={
                                 overlay.phase
-                                  ? `${phaseLabels[overlay.phase]}${overlay.variant === "Ghost" ? " (guideline)" : overlay.variant === "Actual" ? " (actual)" : ""}`
+                                  ? `${phaseLabels[overlay.phase]}${overlay.variant === "Tint" ? " (guideline)" : overlay.variant === "Actual" ? " (actual)" : ""}`
                                   : undefined
                               }
                               className={
@@ -1064,16 +1066,20 @@ function PlannerMore({
           <SnowflakeIcon size={14} className={styles.legendIcon} />
           Frost date
         </span>
-        {state.garden.showActualTimeline && (
+        {state.garden.showPillPredictions && (
           <>
             <span>
-              <i className={styles.harvestGhost} />
+              <i className={styles.harvestTint} />
               Guideline only — no planting date logged there yet
             </span>
             <span>
               <i className={styles.harvestActual} />
               Actual — from a logged planting date
             </span>
+          </>
+        )}
+        {state.garden.showPlantedMarkers && (
+          <>
             <span>
               <span className={styles.legendPin}>
                 <img
@@ -1212,7 +1218,8 @@ function PlantSheet({
               </select>
             </span>
           </label>
-          {state.garden.showActualTimeline && (
+          {(state.garden.showPillPredictions ||
+            state.garden.showPlantedMarkers) && (
             <label className={styles.sheetBed}>
               Actual planting date
               <input
@@ -2723,7 +2730,8 @@ function Settings({
         lastFrost: String(data.get("lastFrost")),
         firstFrost: String(data.get("firstFrost")),
         showFrostMarks: data.get("showFrostMarks") !== null,
-        showActualTimeline: data.get("showActualTimeline") !== null,
+        showPillPredictions: data.get("showPillPredictions") !== null,
+        showPlantedMarkers: data.get("showPlantedMarkers") !== null,
       },
     });
     setMessage("Garden settings saved.");
@@ -2921,11 +2929,18 @@ function Settings({
             <label className={styles.checkLine}>
               <input
                 type="checkbox"
-                name="showActualTimeline"
-                defaultChecked={state.garden.showActualTimeline === true}
+                name="showPillPredictions"
+                defaultChecked={state.garden.showPillPredictions === true}
               />
-              Show each plant's actual timeline once you've logged a planting
-              date
+              Show pillbox phase predictions
+            </label>
+            <label className={styles.checkLine}>
+              <input
+                type="checkbox"
+                name="showPlantedMarkers"
+                defaultChecked={state.garden.showPlantedMarkers === true}
+              />
+              Show planted and harvest prediction icons
             </label>
             <p className={styles.muted}>
               Hardiness describes perennial cold survival. Your frost dates
