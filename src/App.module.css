@@ -2744,7 +2744,11 @@
 .wishPage {
   width: 100%;
   max-width: none;
-  padding-bottom: 96px;
+  /* The dock's own offset grows with the safe area on a phone with a home
+     indicator, so this has to grow with it too, or the last card ends up
+     sitting behind the dock instead of just above it — the same gap that
+     hid the calendar's last row before its own reservation added this. */
+  padding-bottom: calc(96px + env(safe-area-inset-bottom));
 }
 
 .wishTools {
