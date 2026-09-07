@@ -62,23 +62,28 @@ describe("sowing windows", () => {
     const tomato = windows("tomato");
     expect(tomato).toHaveLength(1);
     expect(tomato[0].phases).toEqual(["transplant"]);
+    // EC 871 starts tomatoes indoors 8 weeks before the region 2 May planting.
     expect(indoorWindowFor(plant("tomato"), garden)).toEqual({
-      start: "2026-01-18",
-      end: "2026-02-01",
+      start: "2026-03-06",
+      end: "2026-04-05",
     });
   });
 
   it("files a window under the season it starts in", () => {
     expect(seasonOfWindow(windows("peas")[0])).toBe("winter");
     expect(seasonOfWindow(windows("tomato")[0])).toBe("spring");
-    // Garlic goes in on 11 October, which is fall planting either way.
-    expect(seasonOfWindow(windows("garlic")[0])).toBe("fall");
+    // EC 871 plants garlic any time from September to February in the Western valleys, so it
+    // has two windows: the main fall one and a late-winter one either side of the new year.
+    const garlic = windows("garlic");
+    expect(garlic).toHaveLength(2);
+    expect(seasonOfWindow(garlic[0])).toBe("winter");
+    expect(seasonOfWindow(garlic[1])).toBe("fall");
   });
 
   it("carries the picking dates the catalog records", () => {
     expect(windows("tomato")[0].harvest).toEqual({
-      start: "2026-05-24",
-      end: "2026-08-12",
+      start: "2026-06-30",
+      end: "2026-08-14",
     });
     // Marigolds bloom rather than being picked, and still get a window.
     expect(windows("marigold")[0].harvest).not.toBeNull();
@@ -92,8 +97,8 @@ describe("sowing windows", () => {
   it("moves with the garden's frost dates", () => {
     const later = { ...garden, lastFrost: "2026-04-15" };
     expect(sowingWindowsFor(plant("tomato"), later)[0].start).toBe(
-      "2026-04-29",
+      "2026-06-01",
     );
-    expect(harvestWindowFor(plant("tomato"), later)?.start).toBe("2026-06-24");
+    expect(harvestWindowFor(plant("tomato"), later)?.start).toBe("2026-07-31");
   });
 });
