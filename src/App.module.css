@@ -2154,23 +2154,43 @@
    the dashed edge as the "not settled" signal but gives the pill an actual
    silhouette, in the phase's own color. */
 .indoorTint {
-  background: color-mix(in srgb, var(--stage-indoor) 24%, transparent) !important;
+  background: color-mix(
+    in srgb,
+    var(--stage-indoor) 24%,
+    transparent
+  ) !important;
   border: 1.5px dashed var(--stage-indoor);
 }
 .transplantTint {
-  background: color-mix(in srgb, var(--stage-transplant) 24%, transparent) !important;
+  background: color-mix(
+    in srgb,
+    var(--stage-transplant) 24%,
+    transparent
+  ) !important;
   border: 1.5px dashed var(--stage-transplant);
 }
 .directTint {
-  background: color-mix(in srgb, var(--stage-direct) 24%, transparent) !important;
+  background: color-mix(
+    in srgb,
+    var(--stage-direct) 24%,
+    transparent
+  ) !important;
   border: 1.5px dashed var(--stage-direct);
 }
 .harvestTint {
-  background: color-mix(in srgb, var(--stage-harvest) 24%, transparent) !important;
+  background: color-mix(
+    in srgb,
+    var(--stage-harvest) 24%,
+    transparent
+  ) !important;
   border: 1.5px dashed var(--stage-harvest);
 }
 .bloomTint {
-  background: color-mix(in srgb, var(--stage-bloom) 24%, transparent) !important;
+  background: color-mix(
+    in srgb,
+    var(--stage-bloom) 24%,
+    transparent
+  ) !important;
   border: 1.5px dashed var(--stage-bloom);
 }
 .currentColumn {
@@ -3152,4 +3172,32 @@
 .wishBand[data-filtering] .wishSeason:not([aria-pressed="true"]),
 .wishKeys[data-filtering] .wishKey:not([aria-pressed="true"]) {
   opacity: 0.4;
+}
+
+/* Varieties on a plant page. Buttons rather than a list, because a gardener browsing tomatoes
+   is picking one to read, not reading a column of names. */
+.varietyGroup {
+  margin-top: 14px;
+}
+
+.varietyGroupLabel {
+  margin: 0 0 6px;
+  font-family: "Silkscreen", ui-monospace, monospace;
+  font-size: 0.56rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.varietyButtons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.varietyButtons .button {
+  --pad-y: 7px;
+  --pad-x: 11px;
+  font-size: 0.66rem;
 }

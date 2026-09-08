@@ -2710,6 +2710,17 @@ function PlantLibrary() {
   );
 }
 
+// Varieties read better grouped the way the publications group them — romaine, cherry, paste —
+// than as one long alphabetical run.
+function groupCultivars(cultivars: PlantRecord["cultivars"]) {
+  const groups = new Map<string, PlantRecord["cultivars"]>();
+  for (const cultivar of cultivars) {
+    const group = cultivar.type?.value ?? "Other";
+    groups.set(group, [...(groups.get(group) ?? []), cultivar]);
+  }
+  return [...groups];
+}
+
 const problemIcons: Record<PlantProblem["kind"], string> = {
   pest: "🐛",
   disease: "🦠",
@@ -3017,6 +3028,36 @@ function PlantDetail() {
           icon="♡"
           relationships={plant.companions.filter((c) => c.effect !== "avoid")}
         />
+        <section className={styles.panel}>
+          <h2>
+            {plant.cultivars.length
+              ? `${plant.cultivars.length} varieties`
+              : "Varieties"}
+          </h2>
+          {plant.cultivars.length ? (
+            groupCultivars(plant.cultivars).map(([group, cultivars]) => (
+              <div className={styles.varietyGroup} key={group}>
+                <p className={styles.varietyGroupLabel}>{group}</p>
+                <div className={styles.varietyButtons}>
+                  {cultivars.map((cultivar) => (
+                    <Link
+                      className={styles.button}
+                      to={`/plants/${plant.id}/${cultivar.id}`}
+                      key={cultivar.id}
+                    >
+                      {cultivar.name}
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            ))
+          ) : (
+            <p className={styles.muted}>
+              Not available — no named varieties are recorded for this plant
+              yet.
+            </p>
+          )}
+        </section>
       </div>
     </Page>
   );
