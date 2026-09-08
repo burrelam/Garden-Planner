@@ -184,6 +184,18 @@ export interface CompanionRelationship {
   sourceIds: string[];
 }
 
+// What tends to go wrong with a plant. Kept separate from companions: a problem is something
+// this plant suffers, a companion is a relationship with another plant.
+export interface PlantProblem {
+  id: string;
+  name: string;
+  kind: "pest" | "disease" | "disorder";
+  symptom: string;
+  response: string;
+  evidenceLevel: EvidenceLevel;
+  sourceIds: string[];
+}
+
 export interface PlantRecord {
   id: string;
   commonName: string;
@@ -199,6 +211,7 @@ export interface PlantRecord {
   spacing?: SourcedFact<string>;
   timing: TimingRule[];
   cultivars: CultivarRecord[];
+  problems: PlantProblem[];
   companions: CompanionRelationship[];
   growingTips: SourcedFact<string[]>;
   reviewStatus: "reviewed" | "legacy-unreviewed";

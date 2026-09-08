@@ -29,6 +29,7 @@ import type {
   GardenEntry,
   GardenState,
   Phase,
+  PlantProblem,
   PlantRecord,
   SourceRecord,
   TimingRule,
@@ -2709,6 +2710,53 @@ function PlantLibrary() {
   );
 }
 
+const problemIcons: Record<PlantProblem["kind"], string> = {
+  pest: "🐛",
+  disease: "🦠",
+  disorder: "⚠",
+};
+
+function CompanionPanel({
+  title,
+  empty,
+  icon,
+  relationships,
+}: {
+  title: string;
+  empty: string;
+  icon: string;
+  relationships: PlantRecord["companions"];
+}) {
+  return (
+    <section className={styles.panel}>
+      <h2>{title}</h2>
+      {relationships.length ? (
+        relationships.map((relationship) => (
+          <div className={styles.companion} key={relationship.plantId}>
+            <span>{icon}</span>
+            <div>
+              <strong>
+                <Link to={`/plants/${relationship.plantId}`}>
+                  {localCatalog.find((item) => item.id === relationship.plantId)
+                    ?.commonName ?? relationship.plantId}
+                </Link>
+              </strong>
+              <small>
+                {relationship.mechanism.replace("-", " ")} ·{" "}
+                {relationship.evidenceLevel.replace("-", " ")}
+              </small>
+              <p>{relationship.explanation}</p>
+              <SourceLinks ids={relationship.sourceIds} />
+            </div>
+          </div>
+        ))
+      ) : (
+        <p className={styles.muted}>{empty}</p>
+      )}
+    </section>
+  );
+}
+
 function VarietyDetail() {
   const { slug, cultivarId } = useParams();
   const [plant, setPlant] = useState<PlantRecord | null>(null);
@@ -2934,32 +2982,41 @@ function PlantDetail() {
           <SourceLinks ids={plant.growingTips.sourceIds} />
         </section>
         <section className={styles.panel}>
-          <h2>Companions—with context</h2>
-          {plant.companions.length ? (
-            plant.companions.map((relationship) => (
-              <div className={styles.companion} key={relationship.plantId}>
-                <span>{relationship.effect === "avoid" ? "⚠" : "♡"}</span>
+          <h2>Pests &amp; problems</h2>
+          {plant.problems.length ? (
+            plant.problems.map((problem) => (
+              <div className={styles.companion} key={problem.id}>
+                <span>{problemIcons[problem.kind]}</span>
                 <div>
-                  <strong>
-                    {localCatalog.find(
-                      (item) => item.id === relationship.plantId,
-                    )?.commonName ?? relationship.plantId}
-                  </strong>
+                  <strong>{problem.name}</strong>
                   <small>
-                    {relationship.mechanism.replace("-", " ")} ·{" "}
-                    {relationship.evidenceLevel.replace("-", " ")}
+                    {problem.kind} · {problem.evidenceLevel.replace("-", " ")}
                   </small>
-                  <p>{relationship.explanation}</p>
+                  <p>{problem.symptom}</p>
+                  <p>{problem.response}</p>
+                  <SourceLinks ids={problem.sourceIds} />
                 </div>
               </div>
             ))
           ) : (
-            <p>
-              No reviewed companion claim is attached. GardenBuddy won’t turn
-              folklore into a promise.
+            <p className={styles.muted}>
+              Not available — nothing we cite records a common problem for this
+              plant yet.
             </p>
           )}
         </section>
+        <CompanionPanel
+          title="Keep apart"
+          empty="Not available — no documented conflict with anything else in the library."
+          icon="⚠"
+          relationships={plant.companions.filter((c) => c.effect === "avoid")}
+        />
+        <CompanionPanel
+          title="Grows well with"
+          empty="No reviewed companion claim is attached. GardenBuddy won’t turn folklore into a promise."
+          icon="♡"
+          relationships={plant.companions.filter((c) => c.effect !== "avoid")}
+        />
       </div>
     </Page>
   );

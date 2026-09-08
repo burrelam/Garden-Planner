@@ -268,6 +268,50 @@ export const catalog: PlantRecord[] = [
       osuCultivar("brandywine", "Brandywine", "Heirloom"),
       wikiCultivar("cherokee-purple", "Cherokee Purple", "Heirloom"),
     ],
+    problems: [
+      {
+        id: "flea-beetle",
+        name: "Flea beetle",
+        kind: "pest",
+        symptom:
+          "A tiny blue-black beetle chewing small holes in the leaves; young plants suffer most.",
+        response:
+          "Floating row covers keep them off. A mature plant carries a lot of damage without losing yield, so often nothing needs doing.",
+        evidenceLevel: "extension-guidance",
+        sourceIds: ["osu-growing-your-own"],
+      },
+      {
+        id: "cutworm",
+        name: "Cutworm",
+        kind: "pest",
+        symptom: "Seedlings cut off at the soil line overnight.",
+        response:
+          "Hand pick climbing cutworms in the evening, or stand a three-inch cardboard collar around each stem.",
+        evidenceLevel: "extension-guidance",
+        sourceIds: ["osu-growing-your-own"],
+      },
+      {
+        id: "blossom-end-rot",
+        name: "Blossom end rot",
+        kind: "disorder",
+        symptom: "A dark sunken patch on the base of the fruit.",
+        response:
+          "Water regularly and evenly; the cause is uneven moisture rather than an infection.",
+        evidenceLevel: "extension-guidance",
+        sourceIds: ["osu-vegetable-oregon"],
+      },
+      {
+        id: "tomato-blight",
+        name: "Tomato blight",
+        kind: "disease",
+        symptom:
+          "Brown patches spreading on leaves and fruit in warm, still, humid weather.",
+        response:
+          "Give the plants air. Stagnant humid air is what lets it take hold, so space and stake them, and water at the base in the morning.",
+        evidenceLevel: "extension-guidance",
+        sourceIds: ["osu-growing-your-own"],
+      },
+    ],
     companions: [
       {
         plantId: "marigold",
@@ -277,6 +321,15 @@ export const catalog: PlantRecord[] = [
         explanation:
           "Flowers can support beneficial insects; this is not a guarantee of pest control.",
         sourceIds: ["umn-companions"],
+      },
+      {
+        plantId: "pepper",
+        effect: "avoid",
+        mechanism: "rotation-conflict",
+        evidenceLevel: "extension-guidance",
+        explanation:
+          "Both are Solanaceae. EC 871 advises against planting the same family in the same place two years running, because a soil-borne disease carries straight over.",
+        sourceIds: ["osu-vegetable-oregon"],
       },
     ],
     growingTips: osuFact(
@@ -379,7 +432,18 @@ export const catalog: PlantRecord[] = [
       osuCultivar("anaheim-tmr-23", "Anaheim TMR 23", "Specialty hot"),
       wikiCultivar("shishito", "Shishito", "Specialty sweet"),
     ],
-    companions: [],
+    problems: [],
+    companions: [
+      {
+        plantId: "tomato",
+        effect: "avoid",
+        mechanism: "rotation-conflict",
+        evidenceLevel: "extension-guidance",
+        explanation:
+          "Both are Solanaceae. EC 871 advises against planting the same family in the same place two years running, because a soil-borne disease carries straight over.",
+        sourceIds: ["osu-vegetable-oregon"],
+      },
+    ],
     growingTips: osuFact(
       [
         "Heat lovers — grow from transplants rather than direct sowing.",
@@ -434,7 +498,41 @@ export const catalog: PlantRecord[] = [
       osuCultivar("sugar-snap", "Sugar Snap", "Snap pea, pole"),
       osuCultivar("super-sugar-snap", "Super Sugar Snap", "Snap pea, pole"),
     ],
-    companions: [],
+    problems: [
+      {
+        id: "pea-insects",
+        name: "Insect pressure",
+        kind: "pest",
+        symptom:
+          "Peas are among the crops insects find first, so they need watching more than most.",
+        response:
+          "Check the plants regularly and catch an infestation early, when it is still easy to deal with.",
+        evidenceLevel: "extension-guidance",
+        sourceIds: ["osu-growing-your-own"],
+      },
+      {
+        id: "slugs",
+        name: "Slugs",
+        kind: "pest",
+        symptom:
+          "Slime trails and irregular holes with smooth edges, worst in a wet spring or a mild winter.",
+        response:
+          "Hand pick about two hours after sunset, or use copper bands, trap boards or beer traps. Clear dark damp hiding places and till to six inches to reach their eggs.",
+        evidenceLevel: "extension-guidance",
+        sourceIds: ["osu-growing-your-own"],
+      },
+    ],
+    companions: [
+      {
+        plantId: "bean",
+        effect: "avoid",
+        mechanism: "rotation-conflict",
+        evidenceLevel: "extension-guidance",
+        explanation:
+          "Both are Fabaceae. EC 871 advises against planting the same family in the same place two years running, because a soil-borne disease carries straight over.",
+        sourceIds: ["osu-vegetable-oregon"],
+      },
+    ],
     growingTips: osuFact(
       [
         "Plant early and sow successively, or mix varieties with different maturity dates.",
@@ -525,6 +623,19 @@ export const catalog: PlantRecord[] = [
       osuCultivar("nevada", "Nevada", "Batavian"),
       osuCultivar("sierra", "Sierra", "Batavian"),
     ],
+    problems: [
+      {
+        id: "slugs",
+        name: "Slugs",
+        kind: "pest",
+        symptom:
+          "Slime trails and irregular holes with smooth edges, worst in a wet spring or a mild winter.",
+        response:
+          "Hand pick about two hours after sunset, or use copper bands, trap boards or beer traps. Clear dark damp hiding places and till to six inches to reach their eggs.",
+        evidenceLevel: "extension-guidance",
+        sourceIds: ["osu-growing-your-own"],
+      },
+    ],
     companions: [],
     growingTips: osuFact(
       [
@@ -583,6 +694,7 @@ export const catalog: PlantRecord[] = [
       osuCultivar("parmex", "Parmex", "Baby"),
       osuCultivar("thumbelina", "Thumbelina", "Baby"),
     ],
+    problems: [],
     companions: [],
     growingTips: osuFact(
       [
@@ -643,6 +755,19 @@ export const catalog: PlantRecord[] = [
       osuCultivar("amira", "Amira", "Slicing"),
       osuCultivar("armenian", "Armenian", "Novelty"),
       osuCultivar("lemon", "Lemon", "Novelty"),
+    ],
+    problems: [
+      {
+        id: "cucumber-low-pest",
+        name: "Little trouble expected",
+        kind: "pest",
+        symptom:
+          "Cucumbers are relatively safe from insect pests in Oregon gardens.",
+        response:
+          "Worth a look over rather than a routine spray — treat only if you find something doing damage.",
+        evidenceLevel: "extension-guidance",
+        sourceIds: ["osu-growing-your-own"],
+      },
     ],
     companions: [],
     growingTips: osuFact(
@@ -711,7 +836,51 @@ export const catalog: PlantRecord[] = [
       osuCultivar("butterbean", "Butterbean", "Edamame"),
       osuCultivar("sayamusume", "Sayamusume", "Edamame"),
     ],
-    companions: [],
+    problems: [
+      {
+        id: "black-aphid",
+        name: "Black aphid",
+        kind: "pest",
+        symptom:
+          "Colonies of black aphids on green beans late in summer, weakening the plant and able to carry viruses.",
+        response:
+          "Ladybirds and other resident predators knock the numbers down; protect them rather than spraying.",
+        evidenceLevel: "extension-guidance",
+        sourceIds: ["osu-growing-your-own"],
+      },
+      {
+        id: "bean-mold",
+        name: "Mold on the pods",
+        kind: "disease",
+        symptom: "Mold on green beans where the air sits still and humid.",
+        response:
+          "Space for a breeze, and never work among the plants while the foliage is wet.",
+        evidenceLevel: "extension-guidance",
+        sourceIds: ["osu-growing-your-own"],
+      },
+      {
+        id: "slugs",
+        name: "Slugs",
+        kind: "pest",
+        symptom:
+          "Slime trails and irregular holes with smooth edges, worst in a wet spring or a mild winter.",
+        response:
+          "Hand pick about two hours after sunset, or use copper bands, trap boards or beer traps. Clear dark damp hiding places and till to six inches to reach their eggs.",
+        evidenceLevel: "extension-guidance",
+        sourceIds: ["osu-growing-your-own"],
+      },
+    ],
+    companions: [
+      {
+        plantId: "peas",
+        effect: "avoid",
+        mechanism: "rotation-conflict",
+        evidenceLevel: "extension-guidance",
+        explanation:
+          "Both are Fabaceae. EC 871 advises against planting the same family in the same place two years running, because a soil-borne disease carries straight over.",
+        sourceIds: ["osu-vegetable-oregon"],
+      },
+    ],
     growingTips: osuFact(
       [
         "Easy from seed; they can also be started in pots and transplanted.",
@@ -769,7 +938,27 @@ export const catalog: PlantRecord[] = [
       osuCultivar("tokyo-long-white", "Tokyo Long White", "Green bunching"),
       osuCultivar("he-shi-ko", "He-shi-ko", "Green bunching"),
     ],
-    companions: [],
+    problems: [],
+    companions: [
+      {
+        plantId: "garlic",
+        effect: "avoid",
+        mechanism: "rotation-conflict",
+        evidenceLevel: "extension-guidance",
+        explanation:
+          "Both are Liliaceae. EC 871 advises against planting the same family in the same place two years running, because a soil-borne disease carries straight over.",
+        sourceIds: ["osu-vegetable-oregon"],
+      },
+      {
+        plantId: "shallot",
+        effect: "avoid",
+        mechanism: "rotation-conflict",
+        evidenceLevel: "extension-guidance",
+        explanation:
+          "Both are Liliaceae. EC 871 advises against planting the same family in the same place two years running, because a soil-borne disease carries straight over.",
+        sourceIds: ["osu-vegetable-oregon"],
+      },
+    ],
     growingTips: osuFact(
       [
         "Plant as early as spring allows, so tops grow well before bulbing begins.",
@@ -809,7 +998,27 @@ export const catalog: PlantRecord[] = [
       timing("harvest", "lastFrost", 105, 170, ["osu-educators-guide"]),
     ],
     cultivars: [],
-    companions: [],
+    problems: [],
+    companions: [
+      {
+        plantId: "onion",
+        effect: "avoid",
+        mechanism: "rotation-conflict",
+        evidenceLevel: "extension-guidance",
+        explanation:
+          "Both are Liliaceae. EC 871 advises against planting the same family in the same place two years running, because a soil-borne disease carries straight over.",
+        sourceIds: ["osu-vegetable-oregon"],
+      },
+      {
+        plantId: "shallot",
+        effect: "avoid",
+        mechanism: "rotation-conflict",
+        evidenceLevel: "extension-guidance",
+        explanation:
+          "Both are Liliaceae. EC 871 advises against planting the same family in the same place two years running, because a soil-borne disease carries straight over.",
+        sourceIds: ["osu-vegetable-oregon"],
+      },
+    ],
     growingTips: osuFact(
       [
         "EC 871 plants garlic in the Western valleys any time from September to February.",
@@ -836,7 +1045,27 @@ export const catalog: PlantRecord[] = [
       timing("direct", "firstFrost", -75, -46, ["osu-educators-guide"]),
     ],
     cultivars: [],
-    companions: [],
+    problems: [],
+    companions: [
+      {
+        plantId: "garlic",
+        effect: "avoid",
+        mechanism: "rotation-conflict",
+        evidenceLevel: "extension-guidance",
+        explanation:
+          "Both are Liliaceae. EC 871 advises against planting the same family in the same place two years running, because a soil-borne disease carries straight over.",
+        sourceIds: ["osu-vegetable-oregon"],
+      },
+      {
+        plantId: "onion",
+        effect: "avoid",
+        mechanism: "rotation-conflict",
+        evidenceLevel: "extension-guidance",
+        explanation:
+          "Both are Liliaceae. EC 871 advises against planting the same family in the same place two years running, because a soil-borne disease carries straight over.",
+        sourceIds: ["osu-vegetable-oregon"],
+      },
+    ],
     growingTips: osuFact(
       [
         "EM 9032 sows shallots outdoors after 15 February, alongside garlic and onion sets.",
@@ -864,6 +1093,19 @@ export const catalog: PlantRecord[] = [
       timing("transplant", "lastFrost", 32, 77, ["osu-educators-guide"]),
     ],
     cultivars: [],
+    problems: [
+      {
+        id: "slugs",
+        name: "Slugs",
+        kind: "pest",
+        symptom:
+          "Slime trails and irregular holes with smooth edges, worst in a wet spring or a mild winter.",
+        response:
+          "Hand pick about two hours after sunset, or use copper bands, trap boards or beer traps. Clear dark damp hiding places and till to six inches to reach their eggs.",
+        evidenceLevel: "extension-guidance",
+        sourceIds: ["osu-growing-your-own"],
+      },
+    ],
     companions: [],
     growingTips: osuFact(
       [
@@ -925,6 +1167,19 @@ export const catalog: PlantRecord[] = [
       ncsuCultivar("ground-control", "Ground Control"),
       ncsuCultivar("janie-deep-orange", "Janie Deep Orange"),
       ncsuCultivar("janie-spry", "Janie Spry"),
+    ],
+    problems: [
+      {
+        id: "marigold-slugs",
+        name: "Slugs",
+        kind: "pest",
+        symptom:
+          "Slugs are drawn to marigolds more than to most things in the bed.",
+        response:
+          "That appetite is why marigolds get planted along a border as a trap crop: hand pick from them in the late evening.",
+        evidenceLevel: "extension-guidance",
+        sourceIds: ["osu-growing-your-own"],
+      },
     ],
     companions: [
       {
@@ -994,6 +1249,7 @@ export const catalog: PlantRecord[] = [
       ncsuCultivar("silver-posie", "Silver Posie"),
       ncsuCultivar("tabor", "Tabor"),
     ],
+    problems: [],
     companions: [],
     growingTips: osuFact(
       [
@@ -1041,6 +1297,7 @@ export const catalog: PlantRecord[] = [
       ncsuCultivar("greek", "Greek oregano", "Culinary"),
       ncsuCultivar("aureum", "Aureum", "Ornamental"),
     ],
+    problems: [],
     companions: [],
     growingTips: osuFact(
       [
@@ -1091,6 +1348,7 @@ export const catalog: PlantRecord[] = [
       ncsuCultivar("purpurascens", "Purpurascens", "Ornamental"),
       ncsuCultivar("tricolor", "Tricolor", "Ornamental"),
     ],
+    problems: [],
     companions: [],
     growingTips: osuFact(
       [
@@ -1135,6 +1393,7 @@ export const catalog: PlantRecord[] = [
       ncsuCultivar("tuscan-blue", "Tuscan Blue"),
       ncsuCultivar("albus", "Albus"),
     ],
+    problems: [],
     companions: [],
     growingTips: osuFact(
       [
@@ -1178,6 +1437,19 @@ export const catalog: PlantRecord[] = [
       ncsuCultivar("curly", "Curly leaf", "Leaf type"),
       ncsuCultivar("flat", "Flat leaf, Italian", "Leaf type"),
       ncsuCultivar("hamburg", "Hamburg", "Root type"),
+    ],
+    problems: [
+      {
+        id: "slugs",
+        name: "Slugs",
+        kind: "pest",
+        symptom:
+          "Slime trails and irregular holes with smooth edges, worst in a wet spring or a mild winter.",
+        response:
+          "Hand pick about two hours after sunset, or use copper bands, trap boards or beer traps. Clear dark damp hiding places and till to six inches to reach their eggs.",
+        evidenceLevel: "extension-guidance",
+        sourceIds: ["osu-growing-your-own"],
+      },
     ],
     companions: [],
     growingTips: osuFact(
@@ -1225,6 +1497,19 @@ export const catalog: PlantRecord[] = [
       ncsuCultivar("fernleaf", "Fernleaf", "Dwarf"),
       ncsuCultivar("hera", "Hera", "Bunching"),
       ncsuCultivar("long-island-mammoth", "Long Island Mammoth", "Pickling"),
+    ],
+    problems: [
+      {
+        id: "slugs",
+        name: "Slugs",
+        kind: "pest",
+        symptom:
+          "Slime trails and irregular holes with smooth edges, worst in a wet spring or a mild winter.",
+        response:
+          "Hand pick about two hours after sunset, or use copper bands, trap boards or beer traps. Clear dark damp hiding places and till to six inches to reach their eggs.",
+        evidenceLevel: "extension-guidance",
+        sourceIds: ["osu-growing-your-own"],
+      },
     ],
     companions: [],
     growingTips: osuFact(
@@ -1283,6 +1568,19 @@ export const catalog: PlantRecord[] = [
       ncsuCultivar("psyche-mix", "Psyche Mix"),
       ncsuCultivar("seashells-mix", "Seashells Mix"),
       ncsuCultivar("sonata-series", "Sonata Series"),
+    ],
+    problems: [
+      {
+        id: "slugs",
+        name: "Slugs",
+        kind: "pest",
+        symptom:
+          "Slime trails and irregular holes with smooth edges, worst in a wet spring or a mild winter.",
+        response:
+          "Hand pick about two hours after sunset, or use copper bands, trap boards or beer traps. Clear dark damp hiding places and till to six inches to reach their eggs.",
+        evidenceLevel: "extension-guidance",
+        sourceIds: ["osu-growing-your-own"],
+      },
     ],
     companions: [],
     growingTips: osuFact(
@@ -1353,6 +1651,19 @@ export const catalog: PlantRecord[] = [
       ncsuCultivar("snapshot-yellow", "Snapshot Yellow"),
       ncsuCultivar("snaptastic-yellow", "Snaptastic Yellow"),
     ],
+    problems: [
+      {
+        id: "slugs",
+        name: "Slugs",
+        kind: "pest",
+        symptom:
+          "Slime trails and irregular holes with smooth edges, worst in a wet spring or a mild winter.",
+        response:
+          "Hand pick about two hours after sunset, or use copper bands, trap boards or beer traps. Clear dark damp hiding places and till to six inches to reach their eggs.",
+        evidenceLevel: "extension-guidance",
+        sourceIds: ["osu-growing-your-own"],
+      },
+    ],
     companions: [],
     growingTips: osuFact(
       [
@@ -1407,6 +1718,19 @@ export const catalog: PlantRecord[] = [
       ncsuCultivar("benary-s-giants", "Benary's Giants"),
       ncsuCultivar("purple-prince", "Purple Prince"),
       ncsuCultivar("thumbelina", "Thumbelina"),
+    ],
+    problems: [
+      {
+        id: "zinnia-leaf-fungus",
+        name: "Fungal leaf spot",
+        kind: "disease",
+        symptom:
+          "Spotting and blotching on the leaves in damp, crowded conditions.",
+        response:
+          "Good air circulation, full sun and sharp drainage keep it away.",
+        evidenceLevel: "extension-guidance",
+        sourceIds: ["ncsu-plant-toolbox"],
+      },
     ],
     companions: [],
     growingTips: osuFact(
