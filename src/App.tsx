@@ -3017,14 +3017,14 @@ function PlantDetail() {
           )}
         </section>
         <CompanionPanel
-          title="Keep apart"
-          empty="Not available — no documented conflict with anything else in the library."
+          title="Keep to separate beds"
+          empty="Nothing else in the library clashes with this one."
           icon="⚠"
           relationships={plant.companions.filter((c) => c.effect === "avoid")}
         />
         <CompanionPanel
-          title="Grows well with"
-          empty="No reviewed companion claim is attached. GardenBuddy won’t turn folklore into a promise."
+          title="Good neighbours"
+          empty="No friendships worth promising yet. Plenty of pairings get passed around, but we would rather stay quiet than repeat garden folklore."
           icon="♡"
           relationships={plant.companions.filter((c) => c.effect !== "avoid")}
         />
