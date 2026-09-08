@@ -176,6 +176,20 @@ const ncsuCultivar = (id: string, name: string, type = "Named cultivar") => ({
   type: osuFact(type, ["ncsu-plant-toolbox"], "national"),
 });
 
+// Wikipedia's species articles carry a variety's growth habit and maturity in their infobox,
+// which no Extension list we use records variety by variety.
+const withHabit = (
+  cultivar: ReturnType<typeof osuCultivar>,
+  habit: string,
+  daysToMaturity?: string,
+) => ({
+  ...cultivar,
+  habit: osuFact(habit, ["wikipedia"], "national"),
+  ...(daysToMaturity
+    ? { daysToMaturity: osuFact(daysToMaturity, ["wikipedia"], "national") }
+    : {}),
+});
+
 // A variety Wikipedia classifies, for the ones the Extension lists leave out.
 const wikiCultivar = (id: string, name: string, type: string) => ({
   id,
@@ -228,7 +242,11 @@ export const catalog: PlantRecord[] = [
     ],
     cultivars: [
       osuCultivar("oregon-eleven", "Oregon Eleven", "Very early"),
-      osuCultivar("early-girl", "Early Girl", "Early"),
+      withHabit(
+        osuCultivar("early-girl", "Early Girl", "Early"),
+        "Indeterminate",
+        "50–62 days from transplant",
+      ),
       osuCultivar("oregon-spring", "Oregon Spring", "Early"),
       osuCultivar("santiam", "Santiam", "Early"),
       osuCultivar("oregon-pride", "Oregon Pride", "Early"),
@@ -237,7 +255,11 @@ export const catalog: PlantRecord[] = [
       osuCultivar("legend", "Legend", "Early"),
       osuCultivar("willamette", "Willamette", "Midseason"),
       osuCultivar("pik-red", "Pik Red", "Midseason"),
-      osuCultivar("celebrity", "Celebrity", "Midseason"),
+      withHabit(
+        osuCultivar("celebrity", "Celebrity", "Midseason"),
+        "Semi-determinate",
+        "70–75 days",
+      ),
       osuCultivar("sunleaper", "Sunleaper", "Midseason"),
       osuCultivar("mountain-spring", "Mountain Spring", "Midseason"),
       osuCultivar("medford", "Medford", "Midseason"),
@@ -265,8 +287,15 @@ export const catalog: PlantRecord[] = [
       osuCultivar("super-marzano", "Super Marzano", "Paste"),
       osuCultivar("macero-ii", "Macero II", "Paste"),
       osuCultivar("health-kick", "Health Kick", "Paste"),
-      osuCultivar("brandywine", "Brandywine", "Heirloom"),
-      wikiCultivar("cherokee-purple", "Cherokee Purple", "Heirloom"),
+      withHabit(
+        osuCultivar("brandywine", "Brandywine", "Heirloom"),
+        "Indeterminate",
+        "80–100 days",
+      ),
+      withHabit(
+        wikiCultivar("cherokee-purple", "Cherokee Purple", "Heirloom"),
+        "Indeterminate",
+      ),
     ],
     problems: [
       {

@@ -2843,6 +2843,12 @@ function VarietyDetail() {
                 <dd>{cultivar.type.value}</dd>
               </>
             )}
+            {/* Always shown, even when unknown: whether a tomato is determinate decides how you
+                support it, so a blank here is a question worth seeing rather than hiding. */}
+            <dt>Growth habit</dt>
+            <dd className={cultivar.habit ? undefined : styles.muted}>
+              {cultivar.habit ? cultivar.habit.value : "Not available"}
+            </dd>
             {cultivar.daysToMaturity && (
               <>
                 <dt>Days to maturity</dt>
@@ -2942,8 +2948,10 @@ function VarietyDetail() {
               how advice written for a whole crop — cage the indeterminate ones, leave the
               determinate ones — ended up reading as advice for this one variety. */}
           <p className={styles.muted}>
-            Written for {plant.commonName.toLowerCase()} as a crop, so some of
-            it depends on which variety you have.
+            Written for {plant.commonName.toLowerCase()} as a crop.{" "}
+            {cultivar.habit
+              ? `This one is ${cultivar.habit.value.toLowerCase()}, so read the lines that say so.`
+              : "Some of it depends on which variety you have."}
           </p>
           <ul>
             {plant.growingTips.value.map((tip) => (

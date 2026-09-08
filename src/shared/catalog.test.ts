@@ -26,6 +26,7 @@ describe("catalog provenance", () => {
           cultivar.daysToMaturity,
           cultivar.notes,
           cultivar.type,
+          cultivar.habit,
         ]) {
           if (!fact) continue;
           expect(fact.reviewedAt).toMatch(/^\d{4}-\d{2}-\d{2}$/);

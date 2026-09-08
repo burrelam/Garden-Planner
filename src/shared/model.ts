@@ -166,6 +166,9 @@ export interface CultivarRecord {
   // this before they shop by cultivar name, so the variety picker groups on it. A variety with
   // no type is one the publications do not list; the picker files those under "Also grown".
   type?: SourcedFact<string>;
+  // Determinate or indeterminate. A crop-wide note has to hedge across both — cage the one,
+  // leave the other — so a variety that knows its own habit can be told which half is its.
+  habit?: SourcedFact<string>;
   daysToMaturity?: SourcedFact<string>;
   notes?: SourcedFact<string[]>;
 }
