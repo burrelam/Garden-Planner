@@ -336,7 +336,7 @@ export const catalog: PlantRecord[] = [
       [
         "Choose early varieties with compact growth; they suit most of Oregon best.",
         "Set out well-grown plants after the last frost.",
-        "Cage or trellis indeterminate varieties; determinate ones need no support.",
+        "Indeterminate kinds keep growing and need a cage or trellis; determinate kinds stop at a set height and hold themselves up.",
         "Watch for flea beetle damage on young plants.",
       ],
       ["osu-vegetable-oregon"],

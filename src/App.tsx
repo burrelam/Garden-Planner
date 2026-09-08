@@ -2924,7 +2924,7 @@ function VarietyDetail() {
           )}
         </section>
         <section className={styles.panel}>
-          <h2>Timing rules</h2>
+          <h2>Timing</h2>
           <p className={styles.muted}>
             Calculated from your explicit frost dates, never from the hardiness
             zone.
@@ -2938,6 +2938,13 @@ function VarietyDetail() {
         </section>
         <section className={styles.panel}>
           <h2>Growing notes</h2>
+          {/* Facts on this page already say they are the plant's; the notes did not, which is
+              how advice written for a whole crop — cage the indeterminate ones, leave the
+              determinate ones — ended up reading as advice for this one variety. */}
+          <p className={styles.muted}>
+            Written for {plant.commonName.toLowerCase()} as a crop, so some of
+            it depends on which variety you have.
+          </p>
           <ul>
             {plant.growingTips.value.map((tip) => (
               <li key={tip}>{tip}</li>
@@ -3011,7 +3018,7 @@ function PlantDetail() {
           </dl>
         </section>
         <section className={styles.panel}>
-          <h2>Timing rules</h2>
+          <h2>Timing</h2>
           <p className={styles.muted}>
             Calculated from your explicit frost dates, never from the hardiness
             zone.
