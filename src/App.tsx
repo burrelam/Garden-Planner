@@ -2721,6 +2721,9 @@ function groupCultivars(cultivars: PlantRecord["cultivars"]) {
   return [...groups];
 }
 
+// Stands alone so the drawing that replaces it has one place to go.
+const INCOMPATIBLE_MARK = "🚫";
+
 const problemIcons: Record<PlantProblem["kind"], string> = {
   pest: "🐛",
   disease: "🦠",
@@ -3012,10 +3015,12 @@ function PlantDetail() {
                 </div>
               ))}
               {/* A clash with another plant is a problem this plant has, so it belongs here
-                  rather than in a panel of its own opposite the friendly pairings. */}
+                  rather than in a panel of its own opposite the friendly pairings.
+                  The mark is its own, not the ⚠ the disorders use, so incompatibility reads at
+                  a glance. Swap this span for Amanda's drawing when it lands. */}
               {avoids.map((relationship) => (
                 <div className={styles.companion} key={relationship.plantId}>
-                  <span>⚠</span>
+                  <span>{INCOMPATIBLE_MARK}</span>
                   <div>
                     <strong>
                       <Link to={`/plants/${relationship.plantId}`}>
