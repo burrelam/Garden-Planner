@@ -393,7 +393,7 @@ function Page({
   className,
   back,
 }: {
-  eyebrow?: string;
+  eyebrow?: React.ReactNode;
   title?: string;
   intro?: string;
   children: React.ReactNode;
@@ -2850,9 +2850,10 @@ function groupCultivars(cultivars: PlantRecord["cultivars"]) {
   return [...groups];
 }
 
-// "an indeterminate variety", "a pole variety" — the habits are words of both kinds.
-function article(word: string) {
-  return /^[aeiou]/i.test(word) ? "an" : "a";
+// Common names are plural for some crops. "Grown like any other carrots" reads wrong, so prose
+// uses the singular the catalog's own lookup already trims to.
+function singular(name: string) {
+  return name.toLowerCase().replace(/s$/, "");
 }
 
 // Stands alone so the drawing that replaces it has one place to go.
@@ -2930,25 +2931,21 @@ function VarietyDetail() {
         <p>Loading variety details…</p>
       </Page>
     );
-  // A variety carries only what the publications say about it by name. Everything else on this
-  // page belongs to the plant, and is labelled as such rather than restated as the variety's own.
-  const inheritedProblems = plant.problems;
-  const inheritedAvoids = plant.companions.filter((c) => c.effect === "avoid");
-  const inherited = [
-    ["Days to maturity", plant.daysToMaturity],
-    ["Sun", plant.sun],
-    ["Water", plant.water],
-    ["Soil", plant.soil],
-    ["Spacing", plant.spacing],
-  ] as const;
+  const siblings = plant.cultivars.filter((item) => item.id !== cultivar.id);
   return (
     <Page
-      eyebrow={`${plant.commonName} · variety`}
+      // The library is one rung up and the plant is the next, so the plant's name is a way
+      // there rather than a label. Most gardeners arrive at a variety from its plant page.
+      eyebrow={
+        <>
+          <Link to={`/plants/${plant.id}`}>{plant.commonName}</Link> · variety
+        </>
+      }
       title={cultivar.name}
       intro={
         cultivar.type
-          ? `${cultivar.type.value} ${plant.commonName.toLowerCase()}.`
-          : `A ${plant.commonName.toLowerCase()} variety kept in your own list.`
+          ? `${cultivar.type.value} ${singular(plant.commonName)}.`
+          : `A ${singular(plant.commonName)} variety kept in your own list.`
       }
       back={back}
     >
@@ -2974,18 +2971,16 @@ function VarietyDetail() {
                 <dd>{cultivar.type.value}</dd>
               </>
             )}
-            {/* Always shown, even when unknown: whether a tomato is determinate decides how you
-                support it, so a blank here is a question worth seeing rather than hiding. */}
             <dt>Growth habit</dt>
             <dd className={cultivar.habit ? undefined : styles.muted}>
               {cultivar.habit ? cultivar.habit.value : "Not available"}
             </dd>
-            {cultivar.daysToMaturity && (
-              <>
-                <dt>Days to maturity</dt>
-                <dd>{cultivar.daysToMaturity.value}</dd>
-              </>
-            )}
+            <dt>Days to maturity</dt>
+            <dd className={cultivar.daysToMaturity ? undefined : styles.muted}>
+              {cultivar.daysToMaturity
+                ? cultivar.daysToMaturity.value
+                : "Not available"}
+            </dd>
           </dl>
           {cultivar.type ? (
             <SourceLinks ids={cultivar.type.sourceIds} />
@@ -3002,95 +2997,45 @@ function VarietyDetail() {
             </ul>
           )}
         </section>
+        {/* The crop's own guidance is written once, on the plant's page. This panel points at
+            it rather than keeping a second copy in step with the first. */}
         <section className={styles.panel}>
-          <h2>From {plant.commonName}</h2>
-          <p className={styles.muted}>
-            The publications describe {plant.commonName.toLowerCase()} as a
-            crop, not variety by variety, so this guidance is the plant&rsquo;s.
+          <h2>All {plant.commonName}</h2>
+          <p>
+            Grown like any other {singular(plant.commonName)}. Sun, water,
+            sowing dates and what to watch for can be found on the{" "}
+            {plant.commonName} plant page.
           </p>
-          <dl>
-            {inherited.map(([label, fact]) => (
-              <Fragment key={label}>
-                <dt>{label}</dt>
-                <dd className={fact ? undefined : styles.muted}>
-                  {fact ? fact.value : "Not available"}
-                </dd>
-              </Fragment>
+          <Link className={styles.button} to={`/plants/${plant.id}`}>
+            See the {plant.commonName} plant page
+          </Link>
+        </section>
+        {siblings.length > 0 && (
+          <section className={styles.panel}>
+            {/* "24 other beans" and "39 other tomatoes" pluralise differently, and some common
+                names are plural already. "Varieties" is right for all twenty-one plants. */}
+            <h2>
+              {siblings.length} other{" "}
+              {siblings.length === 1 ? "variety" : "varieties"}
+            </h2>
+            {groupCultivars(siblings).map(([group, cultivars]) => (
+              <div className={styles.varietyGroup} key={group}>
+                <p className={styles.varietyGroupLabel}>{group}</p>
+                <div className={styles.varietyButtons}>
+                  {cultivars.map((item) => (
+                    <Link
+                      className={styles.button}
+                      to={`/plants/${plant.id}/${item.id}`}
+                      key={item.id}
+                    >
+                      {item.name}
+                    </Link>
+                  ))}
+                </div>
+              </div>
             ))}
-          </dl>
-          {/* A summary rather than a copy of the plant's two panels. Every variety of a plant
-              shares its pests and its family clashes, so repeating four panels on forty pages
-              would say the same thing forty times and bury what makes this one itself. */}
-          {(inheritedProblems.length > 0 || inheritedAvoids.length > 0) && (
-            <p className={styles.inheritedWarning}>
-              <span>{INCOMPATIBLE_MARK}</span>
-              <span>
-                {inheritedProblems.length > 0 && (
-                  <>
-                    Shares {plant.commonName.toLowerCase()}&rsquo;s problems —{" "}
-                    {inheritedProblems
-                      .map((p) => p.name.toLowerCase())
-                      .join(", ")}
-                  </>
-                )}
-                {inheritedProblems.length > 0 && inheritedAvoids.length > 0
-                  ? " — and keep"
-                  : inheritedAvoids.length > 0
-                    ? "Keep"
-                    : "."}
-                {inheritedAvoids.length > 0 && (
-                  <>
-                    {" "}
-                    it out of last year&rsquo;s{" "}
-                    {inheritedAvoids
-                      .map(
-                        (a) =>
-                          localCatalog
-                            .find((item) => item.id === a.plantId)
-                            ?.commonName.toLowerCase() ?? a.plantId,
-                      )
-                      .join(" or ")}{" "}
-                    bed.
-                  </>
-                )}{" "}
-                <Link to={`/plants/${plant.id}`}>
-                  See them all on {plant.commonName} →
-                </Link>
-              </span>
-            </p>
-          )}
-        </section>
-        <section className={styles.panel}>
-          <h2>Timing</h2>
-          <p className={styles.muted}>
-            Calculated from your explicit frost dates, never from the hardiness
-            zone.
-          </p>
-          {plant.timing.map((rule, index) => (
-            <div className={styles.rule} key={index}>
-              <strong>{phaseLabels[rule.phase]}</strong>
-              <span>{timingPhrase(rule)}</span>
-            </div>
-          ))}
-        </section>
-        <section className={styles.panel}>
-          <h2>Growing notes</h2>
-          {/* Facts on this page already say they are the plant's; the notes did not, which is
-              how advice written for a whole crop — cage the indeterminate ones, leave the
-              determinate ones — ended up reading as advice for this one variety. */}
-          <p className={styles.muted}>
-            Written for {plant.commonName.toLowerCase()} as a crop.{" "}
-            {cultivar.habit
-              ? `This is ${article(cultivar.habit.value)} ${cultivar.habit.value.toLowerCase()} variety, so read the lines that mention it.`
-              : "Some of it depends on which variety you have."}
-          </p>
-          <ul>
-            {plant.growingTips.value.map((tip) => (
-              <li key={tip}>{tip}</li>
-            ))}
-          </ul>
-          <SourceLinks ids={plant.growingTips.sourceIds} />
-        </section>
+          </section>
+        )}
       </div>
     </Page>
   );

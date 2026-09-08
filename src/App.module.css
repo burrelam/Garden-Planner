@@ -3212,19 +3212,6 @@
   font-size: 0.66rem;
 }
 
-/* The variety page's one-line stand-in for the plant's pests and clash panels. */
-.inheritedWarning {
-  display: flex;
-  gap: 9px;
-  align-items: flex-start;
-  margin: 14px 0 0;
-  padding: 11px 12px;
-  border: 2px solid var(--color-border);
-  background: color-mix(in srgb, var(--color-accent-soft) 40%, transparent);
-  font-size: 0.82rem;
-  line-height: 1.5;
-}
-
 /* ── Plant type: the fourth filter row ──────────────────────────────
    Sits below the seasons and shows in every view, because what kind of
    plant something is has nothing to do with how the list is ordered. */
