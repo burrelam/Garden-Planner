@@ -404,7 +404,7 @@ function Page({
   return (
     <main className={`${styles.page} ${className ?? ""}`}>
       {back && (
-        <Link className={styles.backLink} to={back.to}>
+        <Link className={`${styles.button} ${styles.backLink}`} to={back.to}>
           <ChevronIcon direction="left" size={12} />
           {back.label}
         </Link>
@@ -2801,6 +2801,8 @@ function VarietyDetail() {
     );
   // A variety carries only what the publications say about it by name. Everything else on this
   // page belongs to the plant, and is labelled as such rather than restated as the variety's own.
+  const inheritedProblems = plant.problems;
+  const inheritedAvoids = plant.companions.filter((c) => c.effect === "avoid");
   const inherited = [
     ["Days to maturity", plant.daysToMaturity],
     ["Sun", plant.sun],
@@ -2818,11 +2820,6 @@ function VarietyDetail() {
           : `A ${plant.commonName.toLowerCase()} variety kept in your own list.`
       }
       back={back}
-      actions={
-        <Link className={styles.button} to={`/plants/${plant.id}`}>
-          All {plant.commonName}
-        </Link>
-      }
     >
       <div className={styles.detailGrid}>
         <section className={styles.panel}>
@@ -2884,6 +2881,47 @@ function VarietyDetail() {
               </Fragment>
             ))}
           </dl>
+          {/* A summary rather than a copy of the plant's two panels. Every variety of a plant
+              shares its pests and its family clashes, so repeating four panels on forty pages
+              would say the same thing forty times and bury what makes this one itself. */}
+          {(inheritedProblems.length > 0 || inheritedAvoids.length > 0) && (
+            <p className={styles.inheritedWarning}>
+              <span>{INCOMPATIBLE_MARK}</span>
+              <span>
+                {inheritedProblems.length > 0 && (
+                  <>
+                    Shares {plant.commonName.toLowerCase()}&rsquo;s problems —{" "}
+                    {inheritedProblems
+                      .map((p) => p.name.toLowerCase())
+                      .join(", ")}
+                  </>
+                )}
+                {inheritedProblems.length > 0 && inheritedAvoids.length > 0
+                  ? " — and keep"
+                  : inheritedAvoids.length > 0
+                    ? "Keep"
+                    : "."}
+                {inheritedAvoids.length > 0 && (
+                  <>
+                    {" "}
+                    it out of last year&rsquo;s{" "}
+                    {inheritedAvoids
+                      .map(
+                        (a) =>
+                          localCatalog
+                            .find((item) => item.id === a.plantId)
+                            ?.commonName.toLowerCase() ?? a.plantId,
+                      )
+                      .join(" or ")}{" "}
+                    bed.
+                  </>
+                )}{" "}
+                <Link to={`/plants/${plant.id}`}>
+                  See them all on {plant.commonName} →
+                </Link>
+              </span>
+            </p>
+          )}
         </section>
         <section className={styles.panel}>
           <h2>Timing rules</h2>
@@ -2943,11 +2981,6 @@ function PlantDetail() {
       title={plant.commonName}
       intro={plant.summary}
       back={back}
-      actions={
-        <Link className={styles.button} to="/planner">
-          View planner
-        </Link>
-      }
     >
       <div className={styles.detailGrid}>
         <section className={styles.panel}>

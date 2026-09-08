@@ -667,7 +667,10 @@
   background: var(--color-bg);
   color: var(--color-text);
   font-family: "VT323", sans-serif;
-  overflow-x: hidden;
+  /* clip, not hidden: `hidden` makes the body a scroll container, and a sticky header inside a
+     scroll container scrolls away with it. `clip` keeps sideways overflow contained and lets
+     the header stay put. */
+  overflow-x: clip;
 }
 :global(button),
 :global(input),
@@ -1062,22 +1065,10 @@
 }
 /* A hinge back to where you came from, not a control worth pressing — flat,
    quiet, and pinned above the title where the eye lands first. */
+/* A button, not a whisper: going back is the most-pressed thing on these pages. */
 .backLink {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  margin-bottom: 14px;
-  color: var(--color-text-muted);
-  text-decoration: none;
-  font-size: 0.85rem;
-  font-weight: 600;
-}
-.backLink:hover {
-  color: var(--color-accent);
-}
-.backLink:focus-visible {
-  outline: 3px solid var(--color-focus);
-  outline-offset: 2px;
+  margin-bottom: 16px;
+  gap: 6px;
 }
 .pageHead > div:first-child {
   max-width: 760px;
@@ -2528,12 +2519,17 @@
      "View planner" needs more than that at the desktop size and wraps to two
      lines, so controls step down here while staying larger than they were. */
   .header {
-    position: relative;
+    /* Stays sticky on phones too. It was set to relative here, which is exactly where the
+       title bar was wanted most and exactly where it scrolled away. */
+    position: sticky;
+    top: 0;
     min-height: 58px;
     padding: 6px 14px;
     display: flex;
     align-items: center;
     backdrop-filter: none;
+    /* No blur at this size, so the bar needs to be opaque or the page shows through it. */
+    background: var(--color-bg);
   }
   .brand {
     width: fit-content;
@@ -3200,4 +3196,17 @@
   --pad-y: 7px;
   --pad-x: 11px;
   font-size: 0.66rem;
+}
+
+/* The variety page's one-line stand-in for the plant's pests and clash panels. */
+.inheritedWarning {
+  display: flex;
+  gap: 9px;
+  align-items: flex-start;
+  margin: 14px 0 0;
+  padding: 11px 12px;
+  border: 2px solid var(--color-border);
+  background: color-mix(in srgb, var(--color-accent-soft) 40%, transparent);
+  font-size: 0.82rem;
+  line-height: 1.5;
 }
