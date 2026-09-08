@@ -1,11 +1,7 @@
 import { describe, expect, it } from "vitest";
 import type { GardenEntry, GardenSettings, TimingRule } from "./model";
-import {
-  dateToSlot,
-  frostPosition,
-  rulesToTimeline,
-  sowingLanesForEntry,
-} from "./timing";
+import { dateToSlot, frostPosition, rulesToTimeline } from "./timing";
+import { sowingLanesForEntry } from "./seasons";
 
 const garden: GardenSettings = {
   id: "primary",

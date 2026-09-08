@@ -83,14 +83,64 @@ describe("the gardener's calendar", () => {
 });
 
 describe("sowing windows", () => {
-  it("merges overlapping transplant and direct windows into one", () => {
+  it("merges overlapping transplant and direct windows, then cuts by season", () => {
     // EC 871 puts lettuce in the ground April through August in the Western valleys, whether
-    // set out or direct sown; those overlap, so the gardener sees one stretch, not two buttons.
+    // set out or direct sown; those overlap, so they read as one stretch, not two buttons.
+    // Five months is two growing seasons though — sow in spring and you pick in summer, sow in
+    // summer and you pick in the fall — so the stretch is cut where the seasons change.
     const lettuce = windows("lettuce");
-    expect(lettuce).toHaveLength(1);
-    expect(lettuce[0].start).toBe("2026-04-01");
-    expect(lettuce[0].end).toBe("2026-08-31");
+    expect(lettuce).toHaveLength(2);
+    expect([lettuce[0].start, lettuce[0].end]).toEqual([
+      "2026-04-01",
+      "2026-05-31",
+    ]);
+    expect([lettuce[1].start, lettuce[1].end]).toEqual([
+      "2026-06-01",
+      "2026-08-31",
+    ]);
+    // Both halves still describe the act the same way, because the phases came with them.
     expect(sowingActionLabel(lettuce[0])).toBe("Sow or set out");
+    expect(sowingActionLabel(lettuce[1])).toBe("Sow or set out");
+  });
+
+  it("gives each season's sowing the picking dates that sowing produces", () => {
+    // Carrots are 60–88 days, which the catalog's own sowing and harvest rules already imply.
+    // The spring sowing is picked from late April, the summer one not until the end of July —
+    // instead of one smear claiming carrots are pickable from April right through October.
+    const [spring, summer] = windows("carrot");
+    expect(spring.harvest).toEqual({
+      start: "2026-04-30",
+      end: "2026-08-27",
+    });
+    expect(summer.harvest).toEqual({
+      start: "2026-07-31",
+      end: "2026-10-11",
+    });
+    // Between them they still cover exactly what the plant's own harvest rule says.
+    const whole = harvestWindowFor(plant("carrot"), garden)!;
+    expect(spring.harvest!.start).toBe(whole.start);
+    expect(summer.harvest!.end).toBe(whole.end);
+  });
+
+  it("leaves a short stretch whole, however the calendar labels it", () => {
+    // Beans go in through May and June. That crosses from spring into summer on the calendar
+    // without being two growing seasons by any gardener's reckoning, so it stays one sowing.
+    const beans = windows("bean");
+    expect(beans).toHaveLength(1);
+    expect([beans[0].start, beans[0].end]).toEqual([
+      "2026-05-01",
+      "2026-06-30",
+    ]);
+  });
+
+  it("does not work out maturity for a crop that overwinters", () => {
+    // Garlic goes in during autumn and is lifted the following summer. Measuring its harvest
+    // against its sowing gives a negative maturity and dates that run backwards, so it keeps
+    // the single harvest rule the catalog states for it.
+    for (const window of windows("garlic")) {
+      expect(window.harvest).toEqual(harvestWindowFor(plant("garlic"), garden));
+      expect(window.harvest!.start <= window.harvest!.end).toBe(true);
+    }
   });
 
   it("ignores indoor starts, which are not going in the ground", () => {

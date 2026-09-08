@@ -1,6 +1,12 @@
 import { catalogById } from "./catalog";
-import { addDays } from "./timing";
-import type { GardenSettings, Phase, PlantRecord } from "./model";
+import {
+  addDays,
+  dateToSlot,
+  rulesForEntry,
+  rulesToTimeline,
+  type TimelineSlot,
+} from "./timing";
+import type { GardenEntry, GardenSettings, Phase, PlantRecord } from "./model";
 
 /**
  * The gardener's calendar.
@@ -79,6 +85,13 @@ export interface SowingWindow {
    * harvest rule that every window shares.
    */
   harvest: DateRange | null;
+  /**
+   * When to start this sowing under cover. Derived the same way as the
+   * harvest: the catalog's indoor rule sits a fixed lead ahead of the whole
+   * plant-out stretch, so each piece of that stretch keeps the same lead.
+   * Null when the catalog gives the plant no indoor start.
+   */
+  indoor: DateRange | null;
 }
 
 const iso = (date: Date) => date.toISOString().slice(0, 10);
@@ -161,6 +174,94 @@ export function harvestWindowFor(
   return rule ? ruleRange(rule, garden) : null;
 }
 
+/** The first and last day of a month, as ISO dates. */
+function monthEdges(year: number, month: number) {
+  const last = new Date(Date.UTC(year, month + 1, 0)).getUTCDate();
+  const pad = (value: number) => String(value).padStart(2, "0");
+  return {
+    start: `${year}-${pad(month + 1)}-01`,
+    end: `${year}-${pad(month + 1)}-${pad(last)}`,
+  };
+}
+
+/**
+ * A stretch in the ground, cut at the planting seasons it crosses.
+ *
+ * Sowing carrots in March and sowing them in July are two growing seasons, not
+ * one long one: the first is picked through the summer and the second in the
+ * fall. A window that runs across seasons is therefore split at the season
+ * boundaries, and each piece becomes a sowing a gardener can actually plan.
+ * A window that sits inside one season is left whole.
+ */
+export function splitRangeBySeason(range: DateRange): DateRange[] {
+  const start = new Date(`${range.start}T12:00:00Z`);
+  const end = new Date(`${range.end}T12:00:00Z`);
+  const year = start.getUTCFullYear();
+  const pieces: DateRange[] = [];
+
+  for (
+    let month = start.getUTCMonth();
+    month <= end.getUTCMonth();
+    month += 1
+  ) {
+    const season = plantingSeasonOfMonth(month);
+    const edges = monthEdges(year, month);
+    const from = edges.start < range.start ? range.start : edges.start;
+    const to = edges.end > range.end ? range.end : edges.end;
+    const last = pieces[pieces.length - 1];
+    // Months of the same season join up; a new season starts a new piece.
+    if (last && plantingSeasonOfMonth(month - 1) === season) last.end = to;
+    else pieces.push({ start: from, end: to });
+  }
+
+  return pieces.length > 0 ? pieces : [range];
+}
+
+/**
+ * How long this plant takes, read back out of the dates the catalog already
+ * carries rather than parsed out of its prose. The harvest rule was written as
+ * "the earliest sowing plus the shortest maturity through the latest sowing
+ * plus the longest maturity", so the two ends give the two maturities — and a
+ * piece of that sowing window can then carry the harvest it alone produces.
+ */
+function maturityDays(
+  ground: DateRange,
+  harvest: DateRange | null,
+): { shortest: number; longest: number } | null {
+  if (!harvest) return null;
+  const days = (from: string, to: string) =>
+    Math.round(
+      (new Date(`${to}T12:00:00Z`).getTime() -
+        new Date(`${from}T12:00:00Z`).getTime()) /
+        86400000,
+    );
+  return {
+    shortest: days(ground.start, harvest.start),
+    longest: days(ground.end, harvest.end),
+  };
+}
+
+/** Shift an ISO date by whole days. */
+function shift(date: string, days: number) {
+  return iso(addDays(date, days));
+}
+
+function spanDays(range: DateRange) {
+  return Math.round(
+    (new Date(`${range.end}T12:00:00Z`).getTime() -
+      new Date(`${range.start}T12:00:00Z`).getTime()) /
+      86400000,
+  );
+}
+
+/**
+ * How long a stretch in the ground has to be before it is worth cutting into
+ * separate growing seasons. Ten weeks: long enough that the near end and the
+ * far end really are different plantings with different pickings, short enough
+ * that carrots (March to mid-July) and lettuce (April to August) are caught.
+ */
+const LONG_SOWING_DAYS = 70;
+
 /**
  * The windows in which this plant goes in the ground, merged so that a plant
  * whose transplant and direct-sow windows overlap reads as one stretch rather
@@ -217,17 +318,34 @@ export function sowingWindowsFor(
     const ranges = ground
       .map((rule) => ({ phase: rule.phase, ...ruleRange(rule, garden) }))
       .sort((a, b) => a.start.localeCompare(b.start));
+    const merged: typeof groups = [];
     for (const range of ranges) {
-      const last = groups[groups.length - 1];
+      const last = merged[merged.length - 1];
       if (last && range.start <= last.end) {
         last.end = range.end > last.end ? range.end : last.end;
         if (!last.phases.includes(range.phase)) last.phases.push(range.phase);
       } else
-        groups.push({
+        merged.push({
           phases: [range.phase],
           start: range.start,
           end: range.end,
         });
+    }
+    // Then cut each stretch at the seasons it crosses. Sowing in spring for a
+    // summer picking and sowing in summer for a fall one are two growing
+    // seasons, and a single stretch from March to July hides that.
+    //
+    // Only a genuinely long stretch is worth cutting. Beans go in through May
+    // and June, which crosses from spring into summer on the calendar without
+    // being two growing seasons by any gardener's reckoning; carrots run March
+    // to mid-July, which is. Ten weeks is the line.
+    for (const stretch of merged) {
+      const pieces =
+        spanDays(stretch) > LONG_SOWING_DAYS
+          ? splitRangeBySeason(stretch)
+          : [stretch];
+      for (const piece of pieces)
+        groups.push({ phases: stretch.phases, ...piece });
     }
   }
 
@@ -236,6 +354,43 @@ export function sowingWindowsFor(
   // what it meant.
   groups.sort((a, b) => a.start.localeCompare(b.start));
 
+  // A window cut out of a longer stretch carries the picking dates that piece
+  // alone produces, worked out from the maturities the whole stretch implies.
+  // Left whole, it keeps the plant's own harvest rule untouched.
+  const wholeGround =
+    groups.length > 0
+      ? {
+          start: groups[0].start,
+          end: groups.reduce(
+            (last, group) => (group.end > last ? group.end : last),
+            groups[0].end,
+          ),
+        }
+      : null;
+  const plantHarvest = harvestWindowFor(plant, garden);
+  const measured =
+    groups.length > 1 && wholeGround
+      ? maturityDays(wholeGround, plantHarvest)
+      : null;
+  /* Only where the crop is picked after it is sown, within the one year the
+     calendar draws. Garlic goes in during autumn and is lifted the following
+     summer, so measuring its harvest against its sowing gives a negative
+     maturity and dates running backwards. An overwintering crop keeps the
+     single harvest rule the catalog states for it. */
+  const maturity =
+    measured && measured.shortest >= 0 && measured.longest >= 0
+      ? measured
+      : null;
+
+  /* The indoor rule runs a fixed lead ahead of the whole plant-out stretch —
+     "start transplants five weeks earlier" — so each piece of that stretch
+     keeps the same lead rather than sharing one long indoor bar. */
+  const plantIndoor = indoorWindowFor(plant, garden);
+  const lead =
+    groups.length > 1 && wholeGround && plantIndoor
+      ? maturityDays(plantIndoor, wholeGround)
+      : null;
+
   return groups.map((window, index) => ({
     index,
     sowing: window.sowing,
@@ -243,7 +398,22 @@ export function sowingWindowsFor(
     start: window.start,
     end: window.end,
     seasons: seasonsOfRange(window),
-    harvest: harvestWindowFor(plant, garden, window.sowing),
+    harvest: window.sowing
+      ? harvestWindowFor(plant, garden, window.sowing)
+      : maturity
+        ? {
+            start: shift(window.start, maturity.shortest),
+            end: shift(window.end, maturity.longest),
+          }
+        : plantHarvest,
+    indoor: window.sowing
+      ? indoorWindowFor(plant, garden, window.sowing)
+      : lead
+        ? {
+            start: shift(window.start, -lead.shortest),
+            end: shift(window.end, -lead.longest),
+          }
+        : plantIndoor,
   }));
 }
 
@@ -292,4 +462,114 @@ export function sowingWindowFor(
 export function sowingLabel(sowing: string): string {
   const words = sowing.replace(/-/g, " ");
   return words.charAt(0).toUpperCase() + words.slice(1);
+}
+
+/** One lane of a planner row: a sowing, and where it falls across the year. */
+export interface SowingLane {
+  /** What to call this sowing on screen — its catalog name, or its season. */
+  sowing?: string;
+  slots: TimelineSlot[];
+}
+
+/** Paint a date range across the half-month slots, later phases winning. */
+function paintRange(
+  slots: TimelineSlot[],
+  range: DateRange | null,
+  phase: Phase,
+) {
+  if (!range) return;
+  const from = dateToSlot(new Date(`${range.start}T12:00:00Z`));
+  const to = dateToSlot(new Date(`${range.end}T12:00:00Z`));
+  for (
+    let index = Math.max(0, Math.min(from, to));
+    index <= Math.min(23, Math.max(from, to));
+    index += 1
+  )
+    slots[index].phase = phase;
+}
+
+function emptySlots(): TimelineSlot[] {
+  return Array.from({ length: 24 }, (_, index) => ({
+    phase: null,
+    month: Math.floor(index / 2),
+    half: index % 2 === 0 ? "early" : "late",
+  }));
+}
+
+function slotsForWindow(window: SowingWindow): TimelineSlot[] {
+  const slots = emptySlots();
+  // Same order the timing rules are painted in, so the later phase wins the
+  // cells the earlier one also wants.
+  paintRange(slots, window.indoor, "indoor");
+  paintRange(slots, window, window.phases[window.phases.length - 1]);
+  paintRange(slots, window.harvest, "harvest");
+  return slots;
+}
+
+/**
+ * A row's lanes, one per sowing.
+ *
+ * A plant sown once gives a single lane holding exactly the timeline it has
+ * always drawn. A plant sown across more than one growing season gives a lane
+ * each, so a spring crop still being picked and a summer sowing going in the
+ * ground sit above and below one another in the same cells instead of one
+ * painting over the other.
+ *
+ * A row carrying the gardener's own dates is drawn from those and nothing
+ * else — their override says what they meant, and second-guessing it by
+ * season would take their garden off them.
+ */
+export function sowingLanesForEntry(
+  entry: GardenEntry,
+  garden: GardenSettings,
+): SowingLane[] {
+  const plant =
+    !entry.timingOverride && entry.plantId
+      ? catalogById.get(entry.plantId)
+      : undefined;
+  if (!plant) {
+    const rules = rulesForEntry(entry);
+    const names = [...new Set(rules.map((rule) => rule.sowing))].filter(
+      (name): name is string => name !== undefined,
+    );
+    // Their own dates, drawn as they wrote them. Named sowings still get a
+    // lane each; unnamed ones are left alone rather than cut up by season,
+    // because an override says what they meant.
+    if (names.length === 0)
+      return [{ sowing: undefined, slots: rulesToTimeline(rules, garden) }];
+    const shared = rules.filter((rule) => rule.sowing === undefined);
+    return names
+      .map((sowing) => {
+        const own = rules.filter((rule) => rule.sowing === sowing);
+        return {
+          sowing,
+          slots: rulesToTimeline([...shared, ...own], garden),
+          startsAt: own
+            .filter(
+              (rule) => rule.phase === "transplant" || rule.phase === "direct",
+            )
+            .reduce(
+              (first, rule) =>
+                Math.min(
+                  first,
+                  addDays(garden[rule.anchor], rule.startOffsetDays).getTime(),
+                ),
+              Number.POSITIVE_INFINITY,
+            ),
+        };
+      })
+      .sort((a, b) => a.startsAt - b.startsAt)
+      .map(({ sowing, slots }) => ({ sowing, slots }));
+  }
+
+  const windows = sowingWindowsFor(plant, garden);
+  if (windows.length <= 1)
+    return [
+      { sowing: undefined, slots: rulesToTimeline(plant.timing, garden) },
+    ];
+
+  return windows.map((window) => ({
+    sowing: window.sowing ?? PLANTING_SEASON_LABEL[seasonOfWindow(window)],
+    slots: slotsForWindow(window),
+  }));
 }

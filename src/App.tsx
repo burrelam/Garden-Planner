@@ -45,6 +45,7 @@ import {
   seasonOfWindow,
   sowingActionLabel,
   sowingLabel,
+  sowingLanesForEntry,
   sowingWindowsFor,
 } from "./shared/seasons";
 import {
@@ -67,7 +68,6 @@ import {
   actualTimelineForEntry,
   frostPosition,
   plantedDatePosition,
-  sowingLanesForEntry,
 } from "./shared/timing";
 import styles from "./App.module.css";
 import {

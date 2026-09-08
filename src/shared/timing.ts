@@ -52,7 +52,7 @@ export function rulesToTimeline(
   return slots;
 }
 
-function rulesForEntry(entry: GardenEntry) {
+export function rulesForEntry(entry: GardenEntry) {
   return (
     entry.timingOverride ??
     (entry.plantId ? catalogById.get(entry.plantId)?.timing : undefined) ??
@@ -62,64 +62,6 @@ function rulesForEntry(entry: GardenEntry) {
 
 export function timelineForEntry(entry: GardenEntry, garden: GardenSettings) {
   return rulesToTimeline(rulesForEntry(entry), garden);
-}
-
-/** One lane of a planner row: a sowing, and where it falls across the year. */
-export interface SowingLane {
-  /** The catalog's name for this sowing, absent when the plant has only one. */
-  sowing?: string;
-  slots: TimelineSlot[];
-}
-
-/**
- * A row's lanes, one per sowing the plant is sown in.
- *
- * A plant sown once gives a single lane holding exactly the timeline it has
- * always drawn. A plant whose rules name their sowings gives a lane each, so
- * a spring crop still being picked and a late-summer crop going in the ground
- * sit above and below one another in the same cells instead of one painting
- * over the other.
- *
- * Rules that name no sowing belong to the plant as a whole and are painted
- * into every lane.
- */
-export function sowingLanesForEntry(
-  entry: GardenEntry,
-  garden: GardenSettings,
-): SowingLane[] {
-  const rules = rulesForEntry(entry);
-  const names = [...new Set(rules.map((rule) => rule.sowing))].filter(
-    (name): name is string => name !== undefined,
-  );
-  if (names.length === 0)
-    return [{ sowing: undefined, slots: rulesToTimeline(rules, garden) }];
-
-  const shared = rules.filter((rule) => rule.sowing === undefined);
-  const lanes = names.map((sowing) => {
-    const own = rules.filter((rule) => rule.sowing === sowing);
-    return {
-      sowing,
-      slots: rulesToTimeline([...shared, ...own], garden),
-      // Ordered by when this sowing goes in the ground, so the lane a gardener
-      // reaches first in the year is the one on top. Measured as a date, not
-      // as an offset: a sowing counted back from the first frost and one
-      // counted forward from the last are not comparable as raw numbers.
-      startsAt: own
-        .filter(
-          (rule) => rule.phase === "transplant" || rule.phase === "direct",
-        )
-        .reduce(
-          (first, rule) =>
-            Math.min(
-              first,
-              addDays(garden[rule.anchor], rule.startOffsetDays).getTime(),
-            ),
-          Number.POSITIVE_INFINITY,
-        ),
-    };
-  });
-  lanes.sort((a, b) => a.startsAt - b.startsAt);
-  return lanes.map(({ sowing, slots }) => ({ sowing, slots }));
 }
 
 // The rule whose start date a recorded planting date is measured against —
