@@ -2069,6 +2069,21 @@
   clip-path: var(--o-nick);
   background: transparent;
 }
+/* A crop sown more than once draws a lane per sowing in the same cell, the
+   earlier sowing above the later one. The lanes divide the pill's height
+   between them instead of adding to it, so a row stays exactly as tall as
+   every other row and the calendar keeps its rhythm on a phone.
+   Named rather than matched as a bare span, so the height never reaches the
+   planted pin or the harvest flag sharing the cell. */
+.slotCell .pill {
+  height: var(--size-pill);
+}
+.slotCell[data-lanes="2"] {
+  row-gap: 2px;
+}
+.slotCell[data-lanes="2"] .pill {
+  height: calc((var(--size-pill) - 2px) / 2);
+}
 .indoor {
   background: var(--stage-indoor) !important;
 }

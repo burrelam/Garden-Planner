@@ -143,12 +143,17 @@ const timing = (
   startOffsetDays: number,
   endOffsetDays: number,
   sourceIds = ["osu-vegetable-oregon"],
+  // Naming a sowing files this rule under it, for a crop that is sown more than
+  // once a year and picked at a different time for each. Rules left unnamed
+  // belong to the plant as a whole, which is what a crop sown once wants.
+  sowing?: string,
 ) => ({
   phase,
   anchor,
   startOffsetDays,
   endOffsetDays,
   sourceIds,
+  sowing,
 });
 
 // Entries re-sourced field by field against the OSU publications carry this date. Anything still

@@ -65,6 +65,10 @@ export const GardenEntrySchema = z.object({
         anchor: z.enum(["lastFrost", "firstFrost"]),
         startOffsetDays: z.number().int(),
         endOffsetDays: z.number().int(),
+        /* Which of the plant's sowings this rule is part of, so a gardener's
+           own dates can describe a crop they sow twice the same way the
+           catalog does. Left off, the rule belongs to the row as a whole. */
+        sowing: z.string().max(40).optional(),
       }),
     )
     .optional(),

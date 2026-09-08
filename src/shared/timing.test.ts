@@ -1,6 +1,11 @@
 import { describe, expect, it } from "vitest";
-import type { GardenSettings, TimingRule } from "./model";
-import { dateToSlot, frostPosition, rulesToTimeline } from "./timing";
+import type { GardenEntry, GardenSettings, TimingRule } from "./model";
+import {
+  dateToSlot,
+  frostPosition,
+  rulesToTimeline,
+  sowingLanesForEntry,
+} from "./timing";
 
 const garden: GardenSettings = {
   id: "primary",
@@ -50,7 +55,10 @@ describe("garden timing", () => {
     });
     // A late-half date (e.g. the 20th of a 30-day month) should fall partway
     // across the late column, proportional to its distance from day 16.
-    const lateHalf = frostPosition({ ...garden, lastFrost: "2026-04-20" }, "lastFrost");
+    const lateHalf = frostPosition(
+      { ...garden, lastFrost: "2026-04-20" },
+      "lastFrost",
+    );
     expect(lateHalf.slot).toBe(7);
     expect(lateHalf.fraction).toBeCloseTo((20 - 15.5) / (30 - 15));
   });
@@ -68,5 +76,104 @@ describe("garden timing", () => {
     const a = rulesToTimeline(rules, garden);
     const b = rulesToTimeline(rules, { ...garden, hardinessZone: "5a" });
     expect(a).toEqual(b);
+  });
+});
+
+describe("a row's sowing lanes", () => {
+  const entry = (
+    timingOverride: GardenEntry["timingOverride"],
+  ): GardenEntry => ({
+    id: "e1",
+    plantId: null,
+    name: "Test Crop",
+    variety: null,
+    dtm: null,
+    qty: 1,
+    bedId: null,
+    status: "willplant",
+    sortOrder: 0,
+    timingOverride,
+  });
+
+  it("gives a plant sown once the single timeline it always drew", () => {
+    const lanes = sowingLanesForEntry(
+      entry([
+        {
+          phase: "direct",
+          anchor: "lastFrost",
+          startOffsetDays: 14,
+          endOffsetDays: 35,
+        },
+      ]),
+      garden,
+    );
+    expect(lanes).toHaveLength(1);
+    expect(lanes[0].sowing).toBeUndefined();
+    expect(lanes[0].slots[5].phase).toBe("direct");
+  });
+
+  it("gives a crop sown twice a lane each, earliest on top", () => {
+    // Written late sowing first, to prove the lanes are ordered by when they
+    // go in the ground rather than by the order the rules are listed.
+    const lanes = sowingLanesForEntry(
+      entry([
+        {
+          phase: "direct",
+          anchor: "firstFrost",
+          startOffsetDays: -95,
+          endOffsetDays: -70,
+          sowing: "late-summer",
+        },
+        {
+          phase: "direct",
+          anchor: "lastFrost",
+          startOffsetDays: 17,
+          endOffsetDays: 55,
+          sowing: "spring",
+        },
+      ]),
+      garden,
+    );
+    expect(lanes.map((lane) => lane.sowing)).toEqual(["spring", "late-summer"]);
+    // Spring is in the ground in April; the late-summer sowing is not.
+    expect(lanes[0].slots[6].phase).toBe("direct");
+    expect(lanes[1].slots[6].phase).toBeNull();
+    // And in August the late-summer sowing is, while spring is done.
+    expect(lanes[1].slots[14].phase).toBe("direct");
+    expect(lanes[0].slots[14].phase).toBeNull();
+  });
+
+  it("paints a rule that names no sowing into every lane", () => {
+    const lanes = sowingLanesForEntry(
+      entry([
+        {
+          phase: "direct",
+          anchor: "lastFrost",
+          startOffsetDays: 17,
+          endOffsetDays: 55,
+          sowing: "spring",
+        },
+        {
+          phase: "direct",
+          anchor: "firstFrost",
+          startOffsetDays: -95,
+          endOffsetDays: -70,
+          sowing: "late-summer",
+        },
+        {
+          phase: "indoor",
+          anchor: "lastFrost",
+          startOffsetDays: -40,
+          endOffsetDays: -30,
+        },
+      ]),
+      garden,
+    );
+    expect(
+      lanes[0].slots[dateToSlot(new Date("2026-02-10T12:00:00Z"))].phase,
+    ).toBe("indoor");
+    expect(
+      lanes[1].slots[dateToSlot(new Date("2026-02-10T12:00:00Z"))].phase,
+    ).toBe("indoor");
   });
 });

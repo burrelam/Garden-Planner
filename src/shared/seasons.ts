@@ -284,3 +284,12 @@ export function sowingWindowFor(
   if (!plant) return null;
   return sowingWindowsFor(plant, garden)[windowIndex] ?? null;
 }
+
+/**
+ * A sowing's name as a gardener would read it, so the catalog can key its
+ * rules on something short and the screen can still say "Late summer".
+ */
+export function sowingLabel(sowing: string): string {
+  const words = sowing.replace(/-/g, " ");
+  return words.charAt(0).toUpperCase() + words.slice(1);
+}

@@ -44,6 +44,7 @@ import {
   indoorWindowFor,
   seasonOfWindow,
   sowingActionLabel,
+  sowingLabel,
   sowingWindowsFor,
 } from "./shared/seasons";
 import {
@@ -66,7 +67,7 @@ import {
   actualTimelineForEntry,
   frostPosition,
   plantedDatePosition,
-  timelineForEntry,
+  sowingLanesForEntry,
 } from "./shared/timing";
 import styles from "./App.module.css";
 import {
@@ -727,10 +728,15 @@ function Planner() {
                 </div>
               )}
               {group.entries.map((entry) => {
-                const timeline = timelineForEntry(entry, state.garden);
-                const actualTimeline = state.garden.showPillPredictions
-                  ? actualTimelineForEntry(entry, state.garden)
-                  : null;
+                const lanes = sowingLanesForEntry(entry, state.garden);
+                /* The overlay measures one logged date against one timeline,
+                   so it belongs to a plant sown once. A row with a lane per
+                   sowing carries a single date and several sowings, and
+                   picking which sowing it meant would shift the wrong crop. */
+                const actualTimeline =
+                  state.garden.showPillPredictions && lanes.length === 1
+                    ? actualTimelineForEntry(entry, state.garden)
+                    : null;
                 const pinPos = state.garden.showPlantedMarkers
                   ? plantedDatePosition(entry)
                   : null;
@@ -774,71 +780,81 @@ function Planner() {
                           : entry.status === "undecided"
                             ? "Tint"
                             : "";
-                      return timeline.map((slot, index) => {
-                        const overlay = actualTimeline
-                          ? combinedSlotPhase(
-                              slot.phase,
-                              actualTimeline[index].phase,
-                            )
-                          : { phase: slot.phase, variant: "" as const };
-                        const variant = overlay.variant || statusVariant;
-                        return (
-                          <div
-                            className={`${styles.slotCell} ${index === currentSlot ? styles.currentColumn : ""}`}
-                            data-slot={index}
-                            key={index}
-                          >
+                      return Array.from({ length: 24 }, (_, index) => (
+                        <div
+                          className={`${styles.slotCell} ${index === currentSlot ? styles.currentColumn : ""}`}
+                          data-slot={index}
+                          /* Read by the stylesheet: a cell holding two
+                             sowings splits its height between them rather
+                             than letting one paint over the other. */
+                          data-lanes={lanes.length}
+                          key={index}
+                        >
+                          {lanes.map((lane, laneIndex) => {
+                            const overlay = actualTimeline
+                              ? combinedSlotPhase(
+                                  lane.slots[index].phase,
+                                  actualTimeline[index].phase,
+                                )
+                              : {
+                                  phase: lane.slots[index].phase,
+                                  variant: "" as const,
+                                };
+                            const variant = overlay.variant || statusVariant;
+                            return (
+                              <span
+                                key={lane.sowing ?? laneIndex}
+                                title={
+                                  overlay.phase
+                                    ? `${phaseLabels[overlay.phase]}${lane.sowing ? ` — ${sowingLabel(lane.sowing)}` : ""}${overlay.variant === "Tint" ? " (guideline)" : overlay.variant === "Actual" ? " (actual)" : ""}`
+                                    : undefined
+                                }
+                                className={`${styles.pill} ${
+                                  overlay.phase
+                                    ? styles[`${overlay.phase}${variant}`]
+                                    : ""
+                                }`}
+                              />
+                            );
+                          })}
+                          {pinPos && index === pinPos.slot && (
                             <span
-                              title={
-                                overlay.phase
-                                  ? `${phaseLabels[overlay.phase]}${overlay.variant === "Tint" ? " (guideline)" : overlay.variant === "Actual" ? " (actual)" : ""}`
-                                  : undefined
+                              className={styles.plantedPin}
+                              style={
+                                {
+                                  "--marker-pos": pinPos.fraction,
+                                } as CSSProperties
                               }
-                              className={
-                                overlay.phase
-                                  ? styles[`${overlay.phase}${variant}`]
-                                  : ""
+                              title={`Planted ${prettyDate(entry.plantedDate!)}`}
+                            >
+                              <img
+                                src="/icons/status-planted.png"
+                                alt=""
+                                width={12}
+                                height={12}
+                              />
+                            </span>
+                          )}
+                          {flagPos && index === flagPos.slot && (
+                            <span
+                              className={styles.harvestFlag}
+                              style={
+                                {
+                                  "--marker-pos": flagPos.fraction,
+                                } as CSSProperties
                               }
-                            />
-                            {pinPos && index === pinPos.slot && (
-                              <span
-                                className={styles.plantedPin}
-                                style={
-                                  {
-                                    "--marker-pos": pinPos.fraction,
-                                  } as CSSProperties
-                                }
-                                title={`Planted ${prettyDate(entry.plantedDate!)}`}
-                              >
-                                <img
-                                  src="/icons/status-planted.png"
-                                  alt=""
-                                  width={12}
-                                  height={12}
-                                />
-                              </span>
-                            )}
-                            {flagPos && index === flagPos.slot && (
-                              <span
-                                className={styles.harvestFlag}
-                                style={
-                                  {
-                                    "--marker-pos": flagPos.fraction,
-                                  } as CSSProperties
-                                }
-                                title={`Harvest starts ${prettyDate(flagPos.date)}`}
-                              >
-                                <img
-                                  src="/icons/harvest-flag.png"
-                                  alt=""
-                                  width={12}
-                                  height={14}
-                                />
-                              </span>
-                            )}
-                          </div>
-                        );
-                      });
+                              title={`Harvest starts ${prettyDate(flagPos.date)}`}
+                            >
+                              <img
+                                src="/icons/harvest-flag.png"
+                                alt=""
+                                width={12}
+                                height={14}
+                              />
+                            </span>
+                          )}
+                        </div>
+                      ));
                     })()}
                   </div>
                 );
