@@ -1871,6 +1871,7 @@ function WishList() {
   const [monthFilter, setMonthFilter] = useState<number[]>([]);
   const [letterFilter, setLetterFilter] = useState<string | null>(null);
   const [seasonFilter, setSeasonFilter] = useState<PlantingSeason[]>([]);
+  const [typeFilter, setTypeFilter] = useState<PlantCategory[]>([]);
   const [listOpen, setListOpen] = useState(false);
 
   const garden = state?.garden;
@@ -1940,6 +1941,8 @@ function WishList() {
       query &&
       !row.plant.commonName.toLowerCase().includes(query.toLowerCase())
     )
+      return false;
+    if (typeFilter.length && !typeFilter.includes(row.plant.category))
       return false;
     if (view === "name")
       return (
@@ -2051,6 +2054,15 @@ function WishList() {
     );
     setSeasonFilter([]);
   };
+  const toggleType = (category: PlantCategory) => {
+    setTypeFilter((current) =>
+      current.includes(category)
+        ? current.filter((value) => value !== category)
+        : CATEGORY_ORDER.filter(
+            (value) => value === category || current.includes(value),
+          ),
+    );
+  };
   const toggleSeason = (season: PlantingSeason) => {
     setSeasonFilter((current) =>
       current.includes(season)
@@ -2064,6 +2076,7 @@ function WishList() {
   const clearFilters = () => {
     setMonthFilter([]);
     setSeasonFilter([]);
+    setTypeFilter([]);
   };
 
   const changeView = (next: WishView) => {
@@ -2073,6 +2086,25 @@ function WishList() {
     setSeasonFilter([]);
     setLetterFilter(null);
   };
+
+  /* What the summary line says. Seasons and months are the same question, so
+     only one of them can be on; type is a separate one and joins whichever. */
+  const timeLabel = seasonFilter.length
+    ? PLANTING_SEASONS.filter((season) => seasonFilter.includes(season))
+        .map((season) => PLANTING_SEASON_LABEL[season])
+        .join(" + ")
+    : monthFilter
+        .slice()
+        .sort((a, b) => a - b)
+        .map((month) => MONTH_NAMES[month])
+        .join(" + ");
+  const typeLabel = CATEGORY_ORDER.filter((category) =>
+    typeFilter.includes(category),
+  )
+    .map((category) => categoryLabels[category])
+    .join(" + ");
+  const activeFilters =
+    monthFilter.length + seasonFilter.length + typeFilter.length > 0;
 
   const thisMonth = new Date().getMonth();
 
@@ -2191,24 +2223,47 @@ function WishList() {
             </div>
           </>
         )}
+        <div
+          className={styles.wishTypes}
+          role="group"
+          aria-label="Filter by plant type"
+          data-filtering={typeFilter.length > 0 ? "yes" : undefined}
+        >
+          {CATEGORY_ORDER.map((category) => {
+            const count = rows.filter(
+              (row) => row.plant.category === category,
+            ).length;
+            return (
+              <button
+                key={category}
+                type="button"
+                className={styles.wishType}
+                aria-pressed={typeFilter.includes(category)}
+                /* A kind the catalog has none of is shown rather than hidden:
+                   the gap is worth knowing about, but there is nothing to
+                   filter to, so it does not take a press. */
+                disabled={count === 0}
+                onClick={() => toggleType(category)}
+              >
+                {categoryLabels[category]}
+                <span className={styles.wishTypeCount}>{count}</span>
+              </button>
+            );
+          })}
+        </div>
         {/* With more than one filter on at a time, what is selected has to be
-            readable at a glance and clearable in one press. */}
-        {monthFilter.length + seasonFilter.length > 0 ? (
+            readable at a glance and clearable in one press. Type and time are
+            two different questions, so the line names both when both are on. */}
+        {activeFilters ? (
           <p className={styles.wishKeyNote}>
-            {view === "sow" ? "Sowing in " : "Ready in "}
-            <b>
-              {seasonFilter.length
-                ? PLANTING_SEASONS.filter((season) =>
-                    seasonFilter.includes(season),
-                  )
-                    .map((season) => PLANTING_SEASON_LABEL[season])
-                    .join(" + ")
-                : monthFilter
-                    .slice()
-                    .sort((a, b) => a - b)
-                    .map((month) => MONTH_NAMES[month])
-                    .join(" + ")}
-            </b>
+            {typeLabel && <b>{typeLabel}</b>}
+            {typeLabel &&
+              timeLabel &&
+              (view === "sow" ? ", sowing in " : ", ready in ")}
+            {!typeLabel &&
+              timeLabel &&
+              (view === "sow" ? "Sowing in " : "Ready in ")}
+            {timeLabel && <b>{timeLabel}</b>}
             <button
               type="button"
               className={styles.wishClearFilters}
@@ -2224,9 +2279,9 @@ function WishList() {
         )}
       </div>
 
-      {notice && (
+      {notice && noticeTone === "problem" && (
         <div
-          className={`${styles.toast} ${noticeTone === "saved" ? styles.toastSaved : styles.toastProblem}`}
+          className={`${styles.toast} ${styles.toastProblem}`}
           role="status"
           aria-live="polite"
         >
@@ -2311,7 +2366,6 @@ function WishList() {
                         className={styles.wishBtn}
                         data-season={seasonOfWindow(window)}
                         aria-pressed={wanted}
-                        disabled={saving}
                         title={`${sowingActionLabel(window)} ${shortRange(window)}`}
                         onClick={() => void toggleWish(row.plant, window)}
                       >
@@ -2408,15 +2462,17 @@ function WishDrawer({
       wishlist: state.wishlist.filter((item) => item.id !== id),
     });
 
-  /* Only the ones not already in the planner: a wish that has been acted on
-     stays on the list, so without this a second press would duplicate it. */
-  const pending = (rows: typeof items) =>
-    rows.filter((entry) => !planned.has(entry.plant.id));
+  /* How many of a set you already grow. Wanting a second sowing of something
+     is a real thing to want, so this is said out loud rather than blocked. */
+  const duplicates = (rows: typeof items) =>
+    rows.filter((entry) => planned.has(entry.plant.id));
 
+  /* A wish is spent by being acted on: it becomes a planner entry and leaves
+     the list. That keeps the count on the dock meaning "still to decide"
+     rather than a running tally of everything ever wanted. */
   const addToPlanner = async (rows: typeof items) => {
-    const adding = pending(rows);
-    if (adding.length === 0) return;
-    const entries: GardenEntry[] = adding.map((entry, index) => ({
+    if (rows.length === 0) return;
+    const entries: GardenEntry[] = rows.map((entry, index) => ({
       id: crypto.randomUUID(),
       plantId: entry.plant.id,
       name: entry.plant.commonName,
@@ -2429,7 +2485,12 @@ function WishDrawer({
       status: "undecided",
       sortOrder: state.entries.length + index,
     }));
-    await save({ ...state, entries: [...state.entries, ...entries] });
+    const moved = new Set(rows.map((entry) => entry.item.id));
+    await save({
+      ...state,
+      entries: [...state.entries, ...entries],
+      wishlist: state.wishlist.filter((item) => !moved.has(item.id)),
+    });
   };
 
   const groups: Array<{ key: string; label: string; rows: typeof items }> = [];
@@ -2465,7 +2526,7 @@ function WishDrawer({
       groups.push({ key: "none", label: "No picking dates", rows: undated });
   }
 
-  const allPending = pending(items);
+  const allDuplicates = duplicates(items);
 
   return (
     <Dialog title="Your wish list" close={close}>
@@ -2493,7 +2554,7 @@ function WishDrawer({
         </p>
       ) : (
         groups.map((group) => {
-          const waiting = pending(group.rows);
+          const repeats = duplicates(group.rows);
           return (
             <section key={group.key}>
               <h3 className={styles.wishGroup}>
@@ -2543,27 +2604,39 @@ function WishDrawer({
               <button
                 type="button"
                 className={styles.wishGroupAdd}
-                disabled={saving || waiting.length === 0}
+                disabled={saving}
                 onClick={() => void addToPlanner(group.rows)}
               >
-                {waiting.length === 0
-                  ? "All in the planner"
-                  : `Add ${waiting.length} to the planner`}
+                {`Add ${group.rows.length} to the planner`}
               </button>
+              {repeats.length > 0 && (
+                <p className={styles.wishHeadsUp}>
+                  {repeats.length === 1
+                    ? `${repeats[0].plant.commonName} is already in your planner — adding it again gives you a second sowing.`
+                    : `${repeats.length} of these are already in your planner — adding them again gives you a second sowing of each.`}
+                </p>
+              )}
             </section>
           );
         })
+      )}
+      {/* With one group the group's own heads-up already said this; repeating
+          it under the button reads as two different warnings. */}
+      {allDuplicates.length > 0 && groups.length > 1 && (
+        <p className={styles.wishHeadsUp}>
+          {allDuplicates.length === 1
+            ? `1 of these is already in your planner.`
+            : `${allDuplicates.length} of these are already in your planner.`}
+        </p>
       )}
       {items.length > 0 && (
         <button
           type="button"
           className={styles.primary}
-          disabled={saving || allPending.length === 0}
+          disabled={saving}
           onClick={() => void addToPlanner(items)}
         >
-          {allPending.length === 0
-            ? "Everything is in the planner"
-            : `Add all ${allPending.length} to the planner`}
+          {`Add all ${items.length} to the planner`}
         </button>
       )}
     </Dialog>

@@ -622,6 +622,8 @@
   --type-wish-key: 0.52rem;
   --type-wish-group: 0.55rem;
   --type-wish-letter: 0.95rem;
+  --type-wish-type: 0.46rem;
+  --type-wish-headsup: 0.78rem;
   /* Calendar geometry. Same on both widths today, but they belong here with
      the other sizes: set in a component rule, the phone block cancels them. */
   /* Three lines: the name with its variety, the species, and the status. */
@@ -647,6 +649,8 @@
     --type-wish-key: 0.48rem;
     --type-wish-group: 0.5rem;
     --type-wish-letter: 0.88rem;
+    --type-wish-type: 0.42rem;
+    --type-wish-headsup: 0.72rem;
     --size-cal-row: 58px;
   }
 }
@@ -3037,10 +3041,19 @@
 .wishBtn:hover {
   background: color-mix(in srgb, var(--season) 12%, transparent);
 }
+/* Wanted, not pressed. Every button in the app takes the sunken "stack-down"
+   treatment while it is held, and a wanted sowing was borrowing it — so a
+   plant you had claimed sat permanently in the pose of a button being pushed,
+   which read as something being done to it rather than something you own.
+   It keeps the season fill and gains a lit top edge, so it sits up off the
+   row as a live thing you can still press again to give back. */
 .wishBtn[aria-pressed="true"] {
+  padding: var(--pad-y) var(--pad-x);
   background: var(--season);
   color: var(--color-on-accent);
-  box-shadow: none;
+  box-shadow:
+    inset 0 2px 0 0 color-mix(in srgb, var(--season) 62%, #fff),
+    inset 0 -2px 0 0 color-mix(in srgb, var(--season) 58%, #000);
 }
 .wishBtn[aria-pressed="true"]:active {
   padding: var(--pad-y) var(--pad-x);
@@ -3210,4 +3223,52 @@
   background: color-mix(in srgb, var(--color-accent-soft) 40%, transparent);
   font-size: 0.82rem;
   line-height: 1.5;
+}
+
+/* ── Plant type: the fourth filter row ──────────────────────────────
+   Sits below the seasons and shows in every view, because what kind of
+   plant something is has nothing to do with how the list is ordered. */
+.wishTypes {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 2px;
+}
+.wishType {
+  --lift: 0px;
+  --pad-y: 6px;
+  --pad-x: 2px;
+  --notch: 1px;
+  min-height: 30px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1px;
+  font-size: var(--type-wish-type);
+  clip-path: var(--o-nick);
+}
+.wishTypeCount {
+  font-family: "VT323", ui-monospace, monospace;
+  font-size: var(--type-wish-dates);
+  font-weight: 400;
+  line-height: 1;
+  letter-spacing: 0;
+  text-transform: none;
+}
+.wishType[aria-pressed="true"] {
+  --fill: var(--color-accent);
+  color: var(--color-on-accent);
+}
+
+/* A repeat is allowed but announced: wanting a second sowing of something
+   you already grow is a real thing to want, so this says so rather than
+   quietly dropping it. */
+.wishHeadsUp {
+  margin: 0 0 10px;
+  padding: 7px 10px;
+  font-size: var(--type-wish-headsup);
+  color: var(--color-warn-fg);
+  background: var(--color-warn-bg);
+  border: 3px solid color-mix(in srgb, var(--color-warn-bg) 62%, #000);
+  clip-path: var(--o-nick);
 }
