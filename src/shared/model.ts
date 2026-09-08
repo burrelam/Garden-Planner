@@ -157,6 +157,18 @@ export interface TimingRule {
   startOffsetDays: number;
   endOffsetDays: number;
   sourceIds: string[];
+  /**
+   * Which sowing of this plant the rule belongs to, for crops that are sown
+   * more than once a year and picked at different times for it. Rules sharing
+   * a name are one sowing: its indoor start, its time in the ground, and the
+   * harvest that sowing actually produces.
+   *
+   * Left off, a rule belongs to the plant as a whole and the windows are
+   * derived from the dates as before, which is what every single-sowing plant
+   * does. Naming the sowings is what stops one lettuce row claiming a harvest
+   * from May to November that no single planting ever delivers.
+   */
+  sowing?: string;
 }
 
 export interface CultivarRecord {

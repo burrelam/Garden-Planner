@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { catalogById } from "./catalog";
-import type { GardenSettings } from "./model";
+import type { GardenSettings, PlantRecord, TimingRule } from "./model";
 import {
   harvestWindowFor,
   indoorWindowFor,
@@ -26,6 +26,41 @@ const garden: GardenSettings = {
 
 const plant = (id: string) => catalogById.get(id)!;
 const windows = (id: string) => sowingWindowsFor(plant(id), garden);
+
+/* A plant made up on the spot, so the named-sowing rules can be exercised
+   without putting dates nobody has sourced into the shipped catalog. */
+const rule = (
+  phase: TimingRule["phase"],
+  startOffsetDays: number,
+  endOffsetDays: number,
+  sowing?: string,
+): TimingRule => ({
+  phase,
+  anchor: "lastFrost",
+  startOffsetDays,
+  endOffsetDays,
+  sourceIds: ["osu-vegetable-oregon"],
+  sowing,
+});
+
+const sown = (timing: TimingRule[]): PlantRecord => ({
+  id: "test-crop",
+  commonName: "Test Crop",
+  category: "vegetable",
+  summary: "A crop that exists only in this test.",
+  timing,
+  cultivars: [],
+  problems: [],
+  companions: [],
+  growingTips: {
+    value: [],
+    sourceIds: ["osu-vegetable-oregon"],
+    locationScope: "western-oregon",
+    evidenceLevel: "extension-guidance",
+    reviewedAt: "2026-09-08",
+  },
+  reviewStatus: "reviewed",
+});
 
 describe("the gardener's calendar", () => {
   it("puts whole months in one season", () => {
@@ -106,6 +141,63 @@ describe("sowing windows", () => {
     // Every plant now has a sourced window. The list is kept, and kept empty, so that adding a
     // plant nobody has dated fails here rather than sliding in with a borrowed date.
     expect(withoutTiming.sort()).toEqual([]);
+  });
+
+  it("keeps named sowings apart even where they run into each other", () => {
+    // The lettuce shape: the ground is occupied continuously from April to
+    // August, so merging by overlap gives one stretch and one smeared harvest.
+    // Naming the sowings splits the same dates into the two plantings a
+    // gardener actually makes, each carrying what it alone produces.
+    const twiceSown = sown([
+      rule("direct", 17, 55, "spring"),
+      rule("harvest", 52, 100, "spring"),
+      rule("direct", 56, 169, "late-summer"),
+      rule("harvest", 120, 242, "late-summer"),
+    ]);
+    const windows = sowingWindowsFor(twiceSown, garden);
+    expect(windows).toHaveLength(2);
+    expect(windows.map((window) => window.sowing)).toEqual([
+      "spring",
+      "late-summer",
+    ]);
+    expect(windows[0].harvest).toEqual({
+      start: "2026-05-06",
+      end: "2026-06-23",
+    });
+    expect(windows[1].harvest).toEqual({
+      start: "2026-07-13",
+      end: "2026-11-12",
+    });
+  });
+
+  it("numbers named sowings by date, not by the order they are written", () => {
+    // A wish already saved against window 0 has to keep meaning the year's
+    // first sowing, however the rules happen to be listed in the catalog.
+    const outOfOrder = sown([
+      rule("direct", 120, 169, "late-summer"),
+      rule("direct", 17, 55, "spring"),
+    ]);
+    const windows = sowingWindowsFor(outOfOrder, garden);
+    expect(windows.map((window) => window.sowing)).toEqual([
+      "spring",
+      "late-summer",
+    ]);
+    expect(windows.map((window) => window.index)).toEqual([0, 1]);
+  });
+
+  it("gives a sowing only the indoor start that is its own", () => {
+    const twiceSown = sown([
+      rule("indoor", -18, 0, "spring"),
+      rule("direct", 17, 55, "spring"),
+      rule("direct", 120, 169, "late-summer"),
+    ]);
+    expect(indoorWindowFor(twiceSown, garden, "spring")).toEqual({
+      start: "2026-02-25",
+      end: "2026-03-15",
+    });
+    // The late-summer sowing goes straight in the ground. It says nothing
+    // rather than borrowing the spring sowing's indoor dates.
+    expect(indoorWindowFor(twiceSown, garden, "late-summer")).toBeNull();
   });
 
   it("moves with the garden's frost dates", () => {
