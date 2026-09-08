@@ -1,4 +1,16 @@
-import { expect, test } from "@playwright/test";
+import { expect, test, type Page } from "@playwright/test";
+
+/**
+ * Settings panels fold, and only one stands open at a time, so a test that
+ * wants a field has to open its panel first. A shut panel's button carries
+ * its summary line in the accessible name too, hence matching on the start.
+ */
+async function openSettingsPanel(page: Page, title: string) {
+  const head = page.getByRole("button", { name: new RegExp(`^${title}`) });
+  if ((await head.getAttribute("aria-expanded")) === "false")
+    await head.click();
+  await expect(head).toHaveAttribute("aria-expanded", "true");
+}
 
 test.beforeEach(async ({ page }) => {
   await page.goto("/");
@@ -226,6 +238,7 @@ test("More holds the garden's facts, and the ZIP can be changed there", async ({
 
   // Settings is the same record, so it shows the same zone.
   await sheet.getByRole("link", { name: /All garden settings/ }).click();
+  await openSettingsPanel(page, "Garden and growing season");
   await expect(page.getByLabel("Hardiness zone", { exact: true })).toHaveValue(
     next,
   );
@@ -234,33 +247,76 @@ test("More holds the garden's facts, and the ZIP can be changed there", async ({
 
 test("frost markers can be switched off, and come back", async ({ page }) => {
   const calendar = page.getByLabel("Annual planting calendar");
-  const toggle = page.getByLabel("Show frost markers on the calendar");
-  const save = async () => {
-    await page.getByRole("button", { name: "Save settings" }).click();
-    await expect(page.getByText("Garden settings saved.")).toBeVisible();
+  // The switch writes itself now, so the only thing to wait for is the line
+  // saying it landed. Without it, the next goto can outrun the save.
+  const setFrostMarks = async (on: boolean) => {
+    await page.goto("/settings");
+    await openSettingsPanel(page, "Planner options");
+    const toggle = page.getByLabel("Frost markers", { exact: true });
+    // Already there: nothing is written, so there is no line to wait for.
+    if ((await toggle.isChecked()) === on) return;
+    await toggle.setChecked(on);
+    await expect(page.getByText("Planner options saved.")).toBeVisible();
   };
 
   // Every project shares one database, so this starts by putting the setting
   // where it wants it rather than trusting whatever an earlier run left.
-  await page.goto("/settings");
-  await toggle.check();
-  await save();
+  await setFrostMarks(true);
   await page.goto("/planner");
   await expect(calendar).toBeVisible();
   expect(await page.locator("[class*=frostLine]").count()).toBe(2);
 
-  await page.goto("/settings");
-  await page.getByLabel("Show frost markers on the calendar").uncheck();
-  await save();
+  await setFrostMarks(false);
   await page.goto("/planner");
   await expect(calendar).toBeVisible();
   // Both halves of the marker answer to the one switch: the line and the glyph.
   expect(await page.locator("[class*=frostLine]").count()).toBe(0);
   expect(await page.locator("[class*=frostFlake]").count()).toBe(0);
 
+  await setFrostMarks(true);
+});
+
+test("a shut settings panel still answers, and only one opens", async ({
+  page,
+}) => {
   await page.goto("/settings");
-  await page.getByLabel("Show frost markers on the calendar").check();
-  await save();
+  const garden = page.getByRole("button", {
+    name: /^Garden and growing season/,
+  });
+  const planner = page.getByRole("button", { name: /^Planner options/ });
+
+  // Shut, the growing season still says the zone and the frost dates.
+  await expect(garden).toHaveAttribute("aria-expanded", "false");
+  await expect(garden).toContainText(/zone \w+ · frost/);
+
+  await openSettingsPanel(page, "Garden and growing season");
+  await expect(page.getByLabel("ZIP code", { exact: true })).toBeVisible();
+
+  // Opening another shuts the first: one at a time.
+  await openSettingsPanel(page, "Planner options");
+  await expect(garden).toHaveAttribute("aria-expanded", "false");
+  await expect(planner).toHaveAttribute("aria-expanded", "true");
+
+  // Shut is genuinely shut. A clipped field still counts as visible to
+  // Playwright, so measure the two things that actually matter: the body has
+  // no height, and nothing inside it can take focus.
+  const shutFold = page.locator("#settings-garden");
+  // It folds over 180ms, so wait for it to arrive rather than catching it
+  // partway down.
+  await expect.poll(async () => (await shutFold.boundingBox())?.height).toBe(0);
+  const reachable = await page
+    .getByLabel("ZIP code", { exact: true })
+    .evaluate((el) => {
+      (el as HTMLElement).focus();
+      return document.activeElement === el;
+    });
+  expect(reachable, "a shut panel's field should not take focus").toBe(false);
+
+  // And the choice survives a reload.
+  await page.reload();
+  await expect(
+    page.getByRole("button", { name: /^Planner options/ }),
+  ).toHaveAttribute("aria-expanded", "true");
 });
 
 test("settings fields stay inside their panel", async ({ page }, info) => {
@@ -277,6 +333,7 @@ test("settings fields stay inside their panel", async ({ page }, info) => {
   // own intrinsic width, and desktop WebKit does not draw date inputs the same
   // way, so this passes with or without that fix. It guards the geometry
   // against every other cause, and a real phone is still the only check.
+  await openSettingsPanel(page, "Garden and growing season");
   const zip = page.getByLabel("ZIP code", { exact: true });
   await expect(zip).toBeVisible();
   const panel = page.locator("section", { has: zip }).last();
@@ -284,9 +341,10 @@ test("settings fields stay inside their panel", async ({ page }, info) => {
   for (const label of ["Last spring frost", "First fall frost", "ZIP code"]) {
     const box = await page.getByLabel(label, { exact: true }).boundingBox();
     expect(box, `${label} has no box`).not.toBeNull();
-    expect(box!.x + box!.width, `${label} runs past its panel`).toBeLessThanOrEqual(
-      bounds!.x + bounds!.width + 1,
-    );
+    expect(
+      box!.x + box!.width,
+      `${label} runs past its panel`,
+    ).toBeLessThanOrEqual(bounds!.x + bounds!.width + 1);
   }
 });
 

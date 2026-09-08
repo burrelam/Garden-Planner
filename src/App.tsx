@@ -6,6 +6,7 @@ import {
   useState,
   type CSSProperties,
   type FormEvent,
+  type ReactNode,
 } from "react";
 import {
   Link,
@@ -3228,6 +3229,135 @@ function SourceLinks({ ids }: { ids: string[] }) {
   );
 }
 
+/**
+ * Settings folds. Seven panels is a long scroll on a phone, so each heading
+ * is the control that opens its own panel, and only one stands open at a
+ * time — arriving at Settings shows a list of headings rather than a wall.
+ */
+const SETTINGS_PANEL_IDS = [
+  "appearance",
+  "garden",
+  "planner",
+  "data",
+  "history",
+  "release",
+  "clear",
+] as const;
+type SettingsPanelId = (typeof SETTINGS_PANEL_IDS)[number];
+
+const OPEN_PANEL_KEY = "gardenbuddy.settings.panel";
+/** Long enough to gather a run of switches into one save, short enough that
+    leaving the page straight after a switch still writes it. */
+const PLANNER_OPTION_SAVE_MS = 600;
+/** Appearance is first in the grid, so an unremembered visit opens it. */
+const DEFAULT_OPEN_PANEL: SettingsPanelId = "appearance";
+
+/** Reading storage can throw in private windows, so never let it break the page. */
+function readOpenPanel(): SettingsPanelId | null {
+  try {
+    const stored = window.localStorage.getItem(OPEN_PANEL_KEY);
+    if (stored === null) return DEFAULT_OPEN_PANEL;
+    // An empty string is a remembered "everything shut", not a missing value.
+    if (stored === "") return null;
+    return SETTINGS_PANEL_IDS.includes(stored as SettingsPanelId)
+      ? (stored as SettingsPanelId)
+      : DEFAULT_OPEN_PANEL;
+  } catch {
+    return DEFAULT_OPEN_PANEL;
+  }
+}
+
+function writeOpenPanel(id: SettingsPanelId | null): void {
+  try {
+    window.localStorage.setItem(OPEN_PANEL_KEY, id ?? "");
+  } catch {
+    // A panel we cannot remember still opens for this visit.
+  }
+}
+
+/**
+ * One folding panel. The whole heading row takes the press, and a shut panel
+ * keeps one line of what is inside it — so most trips to Settings can end
+ * without opening anything at all.
+ */
+function SettingsPanel({
+  id,
+  title,
+  summary,
+  open,
+  onToggle,
+  children,
+}: {
+  id: SettingsPanelId;
+  title: string;
+  summary: ReactNode;
+  open: boolean;
+  onToggle: (id: SettingsPanelId) => void;
+  children: ReactNode;
+}) {
+  return (
+    <section className={`${styles.panel} ${styles.foldingPanel}`}>
+      <button
+        type="button"
+        className={styles.panelHead}
+        aria-expanded={open}
+        aria-controls={`settings-${id}`}
+        onClick={() => onToggle(id)}
+      >
+        <span className={styles.panelHeadText}>
+          <h2>{title}</h2>
+          <span className={styles.panelSummary}>{summary}</span>
+        </span>
+        <span className={styles.panelCaret} aria-hidden="true">
+          <span />
+        </span>
+      </button>
+      <div className={styles.fold} id={`settings-${id}`}>
+        {/* Shut is genuinely shut: nothing inside takes a tab stop. */}
+        <div className={styles.foldInner} inert={!open}>
+          <div className={styles.foldBody}>{children}</div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/** Names the options that are switched on, for the shut panel's one line. */
+function listPhrase(items: string[]) {
+  if (items.length <= 1) return items.join("");
+  return `${items.slice(0, -1).join(", ")} and ${items[items.length - 1]}`;
+}
+
+/**
+ * What the planner draws on top of the calendar. One table, so the switch,
+ * the line that explains it, and the word the shut panel uses cannot drift
+ * apart from one another.
+ */
+const PLANNER_OPTIONS = [
+  {
+    key: "showFrostMarks",
+    title: "Frost markers",
+    short: "Frost marks",
+    description:
+      "Your last spring and first fall frost, ticked on the calendar.",
+  },
+  {
+    key: "showPillPredictions",
+    title: "Pillbox phase predictions",
+    short: "Pillbox",
+    description:
+      "Shades each month by the phase a plant should be in — sowing, growing, picking.",
+  },
+  {
+    key: "showPlantedMarkers",
+    title: "Planted and harvest icons",
+    short: "Planted icons",
+    description:
+      "Marks the day you planted something, and when it should be ready to pick.",
+  },
+] as const;
+type PlannerOptionKey = (typeof PLANNER_OPTIONS)[number]["key"];
+
 function Settings({
   themePreference,
   onChooseTheme,
@@ -3264,6 +3394,18 @@ function Settings({
     firstFrost: "2026-11-15",
   });
   const [message, setMessage] = useState("");
+  const [openPanel, setOpenPanel] = useState<SettingsPanelId | null>(
+    readOpenPanel,
+  );
+  // The three calendar toggles write themselves, so they keep a local mirror:
+  // a checkbox that waited for the round trip would not move under her thumb.
+  const [plannerOptions, setPlannerOptions] = useState({
+    showFrostMarks: state?.garden.showFrostMarks !== false,
+    showPillPredictions: state?.garden.showPillPredictions === true,
+    showPlantedMarkers: state?.garden.showPlantedMarkers === true,
+  });
+  const optionsTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const optionsPending = useRef(false);
   const loadHistory = () => api.history().then(setHistory);
   useEffect(() => {
     void api.meta().then(setMeta);
@@ -3275,6 +3417,17 @@ function Settings({
     if (!state) return;
     setZip(state.garden.zip);
     setHardinessZone(state.garden.hardinessZone);
+  }, [state?.revision]);
+  // Same sync for the toggles, except while one of our own writes is still in
+  // flight — otherwise a second switch flicks back to the value the first
+  // save happened to land with.
+  useEffect(() => {
+    if (!state || optionsPending.current) return;
+    setPlannerOptions({
+      showFrostMarks: state.garden.showFrostMarks !== false,
+      showPillPredictions: state.garden.showPillPredictions === true,
+      showPlantedMarkers: state.garden.showPlantedMarkers === true,
+    });
   }, [state?.revision]);
   if (loading || !state)
     return (
@@ -3294,12 +3447,39 @@ function Settings({
         hardinessZone,
         lastFrost: String(data.get("lastFrost")),
         firstFrost: String(data.get("firstFrost")),
-        showFrostMarks: data.get("showFrostMarks") !== null,
-        showPillPredictions: data.get("showPillPredictions") !== null,
-        showPlantedMarkers: data.get("showPlantedMarkers") !== null,
+        // The toggles live in their own panel now, so they are no longer on
+        // this form — carry the live values rather than reading them back as
+        // three missing checkboxes, which would switch all three off.
+        ...plannerOptions,
       },
     });
     setMessage("Garden settings saved.");
+  };
+  const togglePanel = (id: SettingsPanelId) => {
+    const next = openPanel === id ? null : id;
+    setOpenPanel(next);
+    writeOpenPanel(next);
+  };
+  /**
+   * A planner option applies as soon as it is switched, but the write waits a
+   * moment. Every save keeps a snapshot and the history only holds five, so
+   * switching all three in a row must not spend her whole undo history.
+   */
+  const setPlannerOption = (key: PlannerOptionKey, value: boolean) => {
+    const next = { ...plannerOptions, [key]: value };
+    setPlannerOptions(next);
+    optionsPending.current = true;
+    if (optionsTimer.current) clearTimeout(optionsTimer.current);
+    optionsTimer.current = setTimeout(() => {
+      void save({ ...state, garden: { ...state.garden, ...next } })
+        .then(() => setMessage("Planner options saved."))
+        // The context reports the failure itself; this only stops an unhandled
+        // rejection and lets the next sync through.
+        .catch(() => {})
+        .finally(() => {
+          optionsPending.current = false;
+        });
+    }, PLANNER_OPTION_SAVE_MS);
   };
   // Auto-fills the hardiness zone from the ZIP; the zone field stays a normal
   // input afterward, so typing in it simply overrides the looked-up value.
@@ -3340,6 +3520,19 @@ function Settings({
       );
     }
   };
+  // What each shut panel answers with. Most visits to Settings are a question
+  // — which zone am I, what build is this — and these lines are the answer.
+  const seasonalName = THEMES.find((t) => t.id === resolveTheme("auto"))?.name;
+  const appearanceSummary =
+    themePreference === "auto"
+      ? `Seasonal — currently ${seasonalName}`
+      : (THEMES.find((t) => t.id === themePreference)?.name ?? "Seasonal");
+  const optionsOn = PLANNER_OPTIONS.filter(
+    (option) => plannerOptions[option.key],
+  ).map((option) => option.short);
+  const plannerSummary = optionsOn.length
+    ? `${listPhrase(optionsOn)} on`
+    : "Nothing drawn on the calendar";
   return (
     <Page
       eyebrow={`${meta.environment} environment`}
@@ -3347,8 +3540,13 @@ function Settings({
       intro="Garden dates, portable data, history, and release identity."
     >
       <div className={styles.settingsGrid}>
-        <section className={styles.panel}>
-          <h2>Appearance</h2>
+        <SettingsPanel
+          id="appearance"
+          title="Appearance"
+          summary={appearanceSummary}
+          open={openPanel === "appearance"}
+          onToggle={togglePanel}
+        >
           <p className={styles.muted}>
             GardenBuddy follows the season by default, changing at each equinox
             and solstice. Pick a season to hold it there instead.
@@ -3426,9 +3624,14 @@ function Settings({
               </button>
             ))}
           </div>
-        </section>
-        <section className={styles.panel}>
-          <h2>Garden and growing season</h2>
+        </SettingsPanel>
+        <SettingsPanel
+          id="garden"
+          title="Garden and growing season"
+          summary={`${state.garden.name} \u00b7 zone ${state.garden.hardinessZone} \u00b7 frost ${shortDate(state.garden.lastFrost)} to ${shortDate(state.garden.firstFrost)}`}
+          open={openPanel === "garden"}
+          onToggle={togglePanel}
+        >
           <form onSubmit={updateGarden} className={styles.stack}>
             <label>
               Garden name
@@ -3483,39 +3686,56 @@ function Settings({
                 />
               </label>
             </div>
-            <label className={styles.checkLine}>
-              <input
-                type="checkbox"
-                name="showFrostMarks"
-                defaultChecked={state.garden.showFrostMarks !== false}
-              />
-              Show frost markers on the calendar
-            </label>
-            <label className={styles.checkLine}>
-              <input
-                type="checkbox"
-                name="showPillPredictions"
-                defaultChecked={state.garden.showPillPredictions === true}
-              />
-              Show pillbox phase predictions
-            </label>
-            <label className={styles.checkLine}>
-              <input
-                type="checkbox"
-                name="showPlantedMarkers"
-                defaultChecked={state.garden.showPlantedMarkers === true}
-              />
-              Show planted and harvest prediction icons
-            </label>
             <p className={styles.muted}>
               Hardiness describes perennial cold survival. Your frost dates
               drive the vegetable calendar.
             </p>
             <button className={styles.primary}>Save settings</button>
           </form>
-        </section>
-        <section className={styles.panel}>
-          <h2>Import or export</h2>
+        </SettingsPanel>
+        <SettingsPanel
+          id="planner"
+          title="Planner options"
+          summary={plannerSummary}
+          open={openPanel === "planner"}
+          onToggle={togglePanel}
+        >
+          <p className={styles.muted}>
+            What the planner draws on top of the calendar. These take effect the
+            moment you switch them — there is nothing to save.
+          </p>
+          <div className={styles.options}>
+            {PLANNER_OPTIONS.map((option) => (
+              /* The whole row is the label, so it is an easy target with a
+                 thumb; aria-label keeps the switch's name to the short title
+                 rather than reading the explanation out as its name too. */
+              <label className={styles.optionLine} key={option.key}>
+                <input
+                  type="checkbox"
+                  aria-label={option.title}
+                  aria-describedby={`option-${option.key}`}
+                  checked={plannerOptions[option.key]}
+                  onChange={(event) =>
+                    setPlannerOption(option.key, event.target.checked)
+                  }
+                />
+                <span>
+                  <strong>{option.title}</strong>
+                  <small id={`option-${option.key}`}>
+                    {option.description}
+                  </small>
+                </span>
+              </label>
+            ))}
+          </div>
+        </SettingsPanel>
+        <SettingsPanel
+          id="data"
+          title="Import or export"
+          summary="Bring in the old planner, or save a copy"
+          open={openPanel === "data"}
+          onToggle={togglePanel}
+        >
           <p>
             Import the original v1 JSON. Computed month cells are ignored;
             plants, beds, varieties, quantities, and DTM overrides are kept.
@@ -3613,9 +3833,18 @@ function Settings({
           <a className={styles.button} href="/api/export" download>
             Export GardenBuddy JSON
           </a>
-        </section>
-        <section className={styles.panel}>
-          <h2>Recent history</h2>
+        </SettingsPanel>
+        <SettingsPanel
+          id="history"
+          title="Recent history"
+          summary={
+            history.length
+              ? `${history.length} ${history.length === 1 ? "snapshot" : "snapshots"} \u00b7 newest revision ${history[0].revision}`
+              : "No snapshots yet"
+          }
+          open={openPanel === "history"}
+          onToggle={togglePanel}
+        >
           {history.length ? (
             history.map((item) => (
               <div className={styles.history} key={item.id}>
@@ -3643,9 +3872,14 @@ function Settings({
               No snapshots yet. The five most recent changes will appear here.
             </p>
           )}
-        </section>
-        <section className={styles.panel}>
-          <h2>Release and session</h2>
+        </SettingsPanel>
+        <SettingsPanel
+          id="release"
+          title="Release and session"
+          summary={`${meta.environment} \u00b7 ${meta.revision}`}
+          open={openPanel === "release"}
+          onToggle={togglePanel}
+        >
           <dl>
             <dt>Environment</dt>
             <dd>
@@ -3661,8 +3895,14 @@ function Settings({
           <button onClick={() => void onLogout()}>
             Sign out on this device
           </button>
-        </section>
-        <ClearPlannerPanel state={state} save={save} saving={saving} />
+        </SettingsPanel>
+        <ClearPlannerPanel
+          state={state}
+          save={save}
+          saving={saving}
+          open={openPanel === "clear"}
+          onToggle={togglePanel}
+        />
       </div>
       {message && (
         <p className={styles.notice} role="status">
@@ -3684,10 +3924,14 @@ function ClearPlannerPanel({
   state,
   save,
   saving,
+  open,
+  onToggle,
 }: {
   state: GardenState;
   save: (next: GardenState) => Promise<void>;
   saving: boolean;
+  open: boolean;
+  onToggle: (id: SettingsPanelId) => void;
 }) {
   const [confirming, setConfirming] = useState(false);
   const planted = state.entries.filter((entry) => entry.status === "planted");
@@ -3697,8 +3941,17 @@ function ClearPlannerPanel({
     setConfirming(false);
   };
   return (
-    <section className={styles.panel}>
-      <h2>Start the year over</h2>
+    <SettingsPanel
+      id="clear"
+      title="Start the year over"
+      summary={
+        state.entries.length === 0
+          ? "The planner is already empty"
+          : `Empties the planner of ${state.entries.length} plants · beds and wish list stay`
+      }
+      open={open}
+      onToggle={onToggle}
+    >
       {state.entries.length === 0 ? (
         <p className={styles.muted}>
           The planner is already empty. Your wish list is untouched by this.
@@ -3748,7 +4001,7 @@ function ClearPlannerPanel({
           </button>
         </>
       )}
-    </section>
+    </SettingsPanel>
   );
 }
 

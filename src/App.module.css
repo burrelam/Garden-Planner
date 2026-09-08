@@ -613,6 +613,8 @@
   --type-plant-sub: 0.95rem;
   --type-group-header: 0.82rem;
   --type-corner-sort: 0.95rem;
+  /* The line a shut Settings panel answers with. */
+  --type-panel-summary: 0.92rem;
   /* Wish list. The buttons are one line wide, so their type has to be sized
      with the row, not inside the component rule. */
   --type-wish-name: 1.08rem;
@@ -642,6 +644,7 @@
     --type-plant-sub: 0.63rem;
     --type-group-header: 0.82rem;
     --type-corner-sort: 0.88rem;
+    --type-panel-summary: 0.86rem;
     --type-wish-name: 1rem;
     --type-wish-meta: 0.7rem;
     --type-wish-tag: 0.46rem;
@@ -1862,7 +1865,8 @@
   align-items: center;
   gap: 10px;
 }
-.checkLine input[type="checkbox"] {
+.checkLine input[type="checkbox"],
+.optionLine input[type="checkbox"] {
   appearance: none;
   -webkit-appearance: none;
   flex: 0 0 auto;
@@ -1879,14 +1883,16 @@
   clip-path: var(--o-step);
   cursor: pointer;
 }
-.checkLine input[type="checkbox"]::after {
+.checkLine input[type="checkbox"]::after,
+.optionLine input[type="checkbox"]::after {
   content: "";
   width: 12px;
   height: 12px;
   background: transparent;
   clip-path: var(--o-nick);
 }
-.checkLine input[type="checkbox"]:checked::after {
+.checkLine input[type="checkbox"]:checked::after,
+.optionLine input[type="checkbox"]:checked::after {
   background: var(--color-accent);
 }
 
@@ -2455,6 +2461,168 @@
 .settingsGrid .panel:nth-child(1),
 .settingsGrid .panel:nth-child(3) {
   grid-column: span 1;
+}
+
+/* ============================================================
+   FOLDING PANELS
+
+   Settings runs to seven panels, which is a long scroll on a phone,
+   so the heading became the control that opens its own panel and
+   only one stands open at a time. A shut panel still answers the
+   question you arrived with: it keeps one line of what is inside it.
+
+   A shut panel must not stretch to the height of the open one beside
+   it, so the grid stops filling its rows.
+   ============================================================ */
+.settingsGrid {
+  align-items: start;
+}
+/* The head and the body carry the padding now, so that a press can light
+   the whole heading row out to the panel's own edge. */
+.foldingPanel {
+  padding: 0;
+}
+/* The whole heading row takes the press — an easy target with a thumb — which
+   means undoing everything a button wears here: the bevel, and the uppercase
+   Silkscreen label, which would otherwise inherit straight through to the
+   heading and shout it. */
+.panelHead {
+  --lift: 0px;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  padding: clamp(20px, 3vw, 30px);
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+  clip-path: none;
+  font: inherit;
+  letter-spacing: normal;
+  text-transform: none;
+  color: inherit;
+  text-align: left;
+}
+.panelHead h2 {
+  margin: 0;
+}
+.panelHead:hover {
+  background: color-mix(in srgb, var(--color-accent-soft) 45%, transparent);
+}
+/* The press tints instead of sinking. The panel frame around it does not
+   move, so a heading that dropped by the plinth's height would slide
+   inside its own box. */
+.panelHead:active {
+  padding: clamp(20px, 3vw, 30px);
+  background: color-mix(in srgb, var(--color-accent-soft) 72%, transparent);
+  box-shadow: none;
+}
+.panelHead:focus-visible {
+  outline: 3px solid var(--color-focus);
+  outline-offset: -6px;
+  box-shadow: none;
+}
+.panelHeadText {
+  display: grid;
+  gap: 5px;
+  min-width: 0;
+}
+/* Hidden rather than unmounted, so it does not flash back in halfway
+   through the panel folding closed. */
+.panelSummary {
+  color: var(--color-text-muted);
+  font-size: var(--type-panel-summary);
+  line-height: 1.35;
+}
+.panelHead[aria-expanded="true"] .panelSummary {
+  display: none;
+}
+/* Cased, the way the frost tick is: the case says "a control", the chevron
+   inside it says which way this one will go. */
+.panelCaret {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border: 3px solid var(--color-border-strong);
+  background: var(--color-field);
+  clip-path: var(--o-step);
+}
+.panelCaret span {
+  display: block;
+  width: 14px;
+  height: 8px;
+  background: var(--color-text);
+  -webkit-mask: var(--chevron-down) center / 100% 100% no-repeat;
+  mask: var(--chevron-down) center / 100% 100% no-repeat;
+  transition: transform 140ms steps(3, end);
+}
+.panelHead[aria-expanded="true"] .panelCaret {
+  background: var(--color-accent-soft);
+}
+.panelHead[aria-expanded="true"] .panelCaret span {
+  transform: scaleY(-1);
+}
+/* 0fr to 1fr animates a height the content decides, without measuring it
+   in script or hard-coding a max-height that clips the tall panels. */
+.fold {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 180ms ease;
+}
+.panelHead[aria-expanded="true"] + .fold {
+  grid-template-rows: 1fr;
+}
+.foldInner {
+  overflow: hidden;
+  min-height: 0;
+}
+/* Deliberately a plain block, not a gap grid: every panel's insides were
+   spaced by their own margins before they folded, and they still are. */
+.foldBody {
+  padding: 0 clamp(20px, 3vw, 30px) clamp(20px, 3vw, 30px);
+}
+/* The seam the heading lifts off. */
+.foldBody::before {
+  content: "";
+  display: block;
+  height: 3px;
+  margin-bottom: 18px;
+  background: var(--color-border);
+}
+/* The three planner options are new, so they bring their own spacing. */
+.options {
+  display: grid;
+  gap: 14px;
+}
+@media (prefers-reduced-motion: reduce) {
+  .fold,
+  .panelCaret span {
+    transition: none;
+  }
+}
+/* The three planner options, each with a line saying what it draws. */
+.optionLine {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: start;
+  gap: 12px;
+  cursor: pointer;
+}
+.optionLine input[type="checkbox"] {
+  margin-top: 2px;
+}
+.optionLine strong {
+  display: block;
+  font-weight: 600;
+}
+.optionLine small {
+  display: block;
+  margin-top: 2px;
+  color: var(--color-text-muted);
+  font-size: var(--type-panel-summary);
+  line-height: 1.4;
 }
 .fileButton {
   position: relative;
