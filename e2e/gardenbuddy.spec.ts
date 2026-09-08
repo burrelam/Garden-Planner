@@ -284,13 +284,17 @@ test("a shut settings panel still answers, and only one opens", async ({
     name: /^Garden and growing season/,
   });
   const planner = page.getByRole("button", { name: /^Planner options/ });
+  const appearance = page.getByRole("button", { name: /^Appearance/ });
 
-  // Shut, the growing season still says the zone and the frost dates.
-  await expect(garden).toHaveAttribute("aria-expanded", "false");
-  await expect(garden).toContainText(/zone \w+ · frost/);
-
-  await openSettingsPanel(page, "Garden and growing season");
+  // First in the grid, so a visit that remembers nothing arrives on it.
+  await expect(garden).toHaveAttribute("aria-expanded", "true");
   await expect(page.getByLabel("ZIP code", { exact: true })).toBeVisible();
+
+  // Shut, a panel still answers: Appearance names the season it is on.
+  await expect(appearance).toHaveAttribute("aria-expanded", "false");
+  await expect(appearance).toContainText(
+    /Seasonal|Spring|Summer|Fall|Winter|Twilight/,
+  );
 
   // Opening another shuts the first: one at a time.
   await openSettingsPanel(page, "Planner options");

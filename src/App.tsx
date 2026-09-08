@@ -3235,11 +3235,11 @@ function SourceLinks({ ids }: { ids: string[] }) {
  * time — arriving at Settings shows a list of headings rather than a wall.
  */
 const SETTINGS_PANEL_IDS = [
-  "appearance",
   "garden",
   "planner",
-  "data",
+  "appearance",
   "history",
+  "data",
   "release",
   "clear",
 ] as const;
@@ -3249,8 +3249,8 @@ const OPEN_PANEL_KEY = "gardenbuddy.settings.panel";
 /** Long enough to gather a run of switches into one save, short enough that
     leaving the page straight after a switch still writes it. */
 const PLANNER_OPTION_SAVE_MS = 600;
-/** Appearance is first in the grid, so an unremembered visit opens it. */
-const DEFAULT_OPEN_PANEL: SettingsPanelId = "appearance";
+/** The growing season is first in the grid, so an unremembered visit opens it. */
+const DEFAULT_OPEN_PANEL: SettingsPanelId = "garden";
 
 /** Reading storage can throw in private windows, so never let it break the page. */
 function readOpenPanel(): SettingsPanelId | null {
@@ -3541,91 +3541,6 @@ function Settings({
     >
       <div className={styles.settingsGrid}>
         <SettingsPanel
-          id="appearance"
-          title="Appearance"
-          summary={appearanceSummary}
-          open={openPanel === "appearance"}
-          onToggle={togglePanel}
-        >
-          <p className={styles.muted}>
-            GardenBuddy follows the season by default, changing at each equinox
-            and solstice. Pick a season to hold it there instead.
-          </p>
-          <div
-            className={styles.themeChoices}
-            role="radiogroup"
-            aria-label="Theme"
-            onKeyDown={(event) => {
-              // A radiogroup is one tab stop; the arrows move within it.
-              const step =
-                event.key === "ArrowRight" || event.key === "ArrowDown"
-                  ? 1
-                  : event.key === "ArrowLeft" || event.key === "ArrowUp"
-                    ? -1
-                    : 0;
-              if (!step) return;
-              event.preventDefault();
-              const order: ThemePreference[] = [
-                "auto",
-                ...THEMES.map((theme) => theme.id),
-              ];
-              const index = order.indexOf(themePreference);
-              const next = order[(index + step + order.length) % order.length];
-              onChooseTheme(next);
-              event.currentTarget
-                .querySelector<HTMLButtonElement>(
-                  `[data-theme-option="${next}"]`,
-                )
-                ?.focus();
-            }}
-          >
-            <button
-              type="button"
-              role="radio"
-              data-theme-option="auto"
-              aria-checked={themePreference === "auto"}
-              tabIndex={themePreference === "auto" ? 0 : -1}
-              className={styles.themeChoice}
-              onClick={() => onChooseTheme("auto")}
-            >
-              <span
-                className={styles.themeSwatch}
-                data-auto="true"
-                aria-hidden="true"
-              />
-              <span>
-                <strong>Seasonal</strong>
-                <small>
-                  Currently{" "}
-                  {THEMES.find((t) => t.id === resolveTheme("auto"))?.name}
-                </small>
-              </span>
-            </button>
-            {THEMES.map((theme) => (
-              <button
-                key={theme.id}
-                type="button"
-                role="radio"
-                data-theme-option={theme.id}
-                aria-checked={themePreference === theme.id}
-                tabIndex={themePreference === theme.id ? 0 : -1}
-                className={styles.themeChoice}
-                onClick={() => onChooseTheme(theme.id)}
-              >
-                <span
-                  className={styles.themeSwatch}
-                  data-theme-swatch={theme.id}
-                  aria-hidden="true"
-                />
-                <span>
-                  <strong>{theme.name}</strong>
-                  <small>{theme.blurb}</small>
-                </span>
-              </button>
-            ))}
-          </div>
-        </SettingsPanel>
-        <SettingsPanel
           id="garden"
           title="Garden and growing season"
           summary={`${state.garden.name} \u00b7 zone ${state.garden.hardinessZone} \u00b7 frost ${shortDate(state.garden.lastFrost)} to ${shortDate(state.garden.firstFrost)}`}
@@ -3730,9 +3645,133 @@ function Settings({
           </div>
         </SettingsPanel>
         <SettingsPanel
+          id="appearance"
+          title="Appearance"
+          summary={appearanceSummary}
+          open={openPanel === "appearance"}
+          onToggle={togglePanel}
+        >
+          <p className={styles.muted}>
+            GardenBuddy follows the season by default, changing at each equinox
+            and solstice. Pick a season to hold it there instead.
+          </p>
+          <div
+            className={styles.themeChoices}
+            role="radiogroup"
+            aria-label="Theme"
+            onKeyDown={(event) => {
+              // A radiogroup is one tab stop; the arrows move within it.
+              const step =
+                event.key === "ArrowRight" || event.key === "ArrowDown"
+                  ? 1
+                  : event.key === "ArrowLeft" || event.key === "ArrowUp"
+                    ? -1
+                    : 0;
+              if (!step) return;
+              event.preventDefault();
+              const order: ThemePreference[] = [
+                "auto",
+                ...THEMES.map((theme) => theme.id),
+              ];
+              const index = order.indexOf(themePreference);
+              const next = order[(index + step + order.length) % order.length];
+              onChooseTheme(next);
+              event.currentTarget
+                .querySelector<HTMLButtonElement>(
+                  `[data-theme-option="${next}"]`,
+                )
+                ?.focus();
+            }}
+          >
+            <button
+              type="button"
+              role="radio"
+              data-theme-option="auto"
+              aria-checked={themePreference === "auto"}
+              tabIndex={themePreference === "auto" ? 0 : -1}
+              className={styles.themeChoice}
+              onClick={() => onChooseTheme("auto")}
+            >
+              <span
+                className={styles.themeSwatch}
+                data-auto="true"
+                aria-hidden="true"
+              />
+              <span>
+                <strong>Seasonal</strong>
+                <small>
+                  Currently{" "}
+                  {THEMES.find((t) => t.id === resolveTheme("auto"))?.name}
+                </small>
+              </span>
+            </button>
+            {THEMES.map((theme) => (
+              <button
+                key={theme.id}
+                type="button"
+                role="radio"
+                data-theme-option={theme.id}
+                aria-checked={themePreference === theme.id}
+                tabIndex={themePreference === theme.id ? 0 : -1}
+                className={styles.themeChoice}
+                onClick={() => onChooseTheme(theme.id)}
+              >
+                <span
+                  className={styles.themeSwatch}
+                  data-theme-swatch={theme.id}
+                  aria-hidden="true"
+                />
+                <span>
+                  <strong>{theme.name}</strong>
+                  <small>{theme.blurb}</small>
+                </span>
+              </button>
+            ))}
+          </div>
+        </SettingsPanel>
+        <SettingsPanel
+          id="history"
+          title="Recent history"
+          summary={
+            history.length
+              ? `${history.length} ${history.length === 1 ? "snapshot" : "snapshots"} \u00b7 newest revision ${history[0].revision}`
+              : "No snapshots yet"
+          }
+          open={openPanel === "history"}
+          onToggle={togglePanel}
+        >
+          {history.length ? (
+            history.map((item) => (
+              <div className={styles.history} key={item.id}>
+                <div>
+                  <strong>Revision {item.revision}</strong>
+                  <span>
+                    {item.reason} · {new Date(item.createdAt).toLocaleString()}
+                  </span>
+                </div>
+                <button
+                  onClick={async () => {
+                    if (!confirm(`Restore revision ${item.revision}?`)) return;
+                    const restored = await api.restore(item.id);
+                    replace(restored);
+                    await loadHistory();
+                    setMessage(`Restored revision ${item.revision}.`);
+                  }}
+                >
+                  Restore
+                </button>
+              </div>
+            ))
+          ) : (
+            <p>
+              No snapshots yet. The five most recent changes will appear here.
+            </p>
+          )}
+        </SettingsPanel>
+        <SettingsPanel
           id="data"
           title="Import or export"
-          summary="Bring in the old planner, or save a copy"
+          summary="Import your saved data file, or export a data file to save your garden"
           open={openPanel === "data"}
           onToggle={togglePanel}
         >
@@ -3833,45 +3872,6 @@ function Settings({
           <a className={styles.button} href="/api/export" download>
             Export GardenBuddy JSON
           </a>
-        </SettingsPanel>
-        <SettingsPanel
-          id="history"
-          title="Recent history"
-          summary={
-            history.length
-              ? `${history.length} ${history.length === 1 ? "snapshot" : "snapshots"} \u00b7 newest revision ${history[0].revision}`
-              : "No snapshots yet"
-          }
-          open={openPanel === "history"}
-          onToggle={togglePanel}
-        >
-          {history.length ? (
-            history.map((item) => (
-              <div className={styles.history} key={item.id}>
-                <div>
-                  <strong>Revision {item.revision}</strong>
-                  <span>
-                    {item.reason} · {new Date(item.createdAt).toLocaleString()}
-                  </span>
-                </div>
-                <button
-                  onClick={async () => {
-                    if (!confirm(`Restore revision ${item.revision}?`)) return;
-                    const restored = await api.restore(item.id);
-                    replace(restored);
-                    await loadHistory();
-                    setMessage(`Restored revision ${item.revision}.`);
-                  }}
-                >
-                  Restore
-                </button>
-              </div>
-            ))
-          ) : (
-            <p>
-              No snapshots yet. The five most recent changes will appear here.
-            </p>
-          )}
         </SettingsPanel>
         <SettingsPanel
           id="release"
