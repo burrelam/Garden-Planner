@@ -31,6 +31,7 @@ import type {
   Phase,
   PlantRecord,
   SourceRecord,
+  TimingRule,
   WishlistItem,
 } from "./shared/model";
 import {
@@ -2824,12 +2825,7 @@ function VarietyDetail() {
           {plant.timing.map((rule, index) => (
             <div className={styles.rule} key={index}>
               <strong>{phaseLabels[rule.phase]}</strong>
-              <span>
-                {offset(rule.startOffsetDays)} to {offset(rule.endOffsetDays)}{" "}
-                {rule.anchor === "lastFrost"
-                  ? "last spring frost"
-                  : "first fall frost"}
-              </span>
+              <span>{timingPhrase(rule)}</span>
             </div>
           ))}
         </section>
@@ -2918,12 +2914,7 @@ function PlantDetail() {
           {plant.timing.map((rule, index) => (
             <div className={styles.rule} key={index}>
               <strong>{phaseLabels[rule.phase]}</strong>
-              <span>
-                {offset(rule.startOffsetDays)} to {offset(rule.endOffsetDays)}{" "}
-                {rule.anchor === "lastFrost"
-                  ? "last spring frost"
-                  : "first fall frost"}
-              </span>
+              <span>{timingPhrase(rule)}</span>
             </div>
           ))}
         </section>
@@ -3581,9 +3572,22 @@ function prettyDate(date: string) {
   });
 }
 function offset(days: number) {
+  // Zero reads as "on" on its own, but "on to 155 days after" is nonsense at the start of a
+  // range, so a range that opens on the frost date says "from".
   return days === 0
     ? "on"
     : `${Math.abs(days)} days ${days < 0 ? "before" : "after"}`;
+}
+// A whole phrase, because the pieces do not compose: a window opening exactly on the frost
+// date reads "from the last spring frost to 155 days after it", not "on to 155 days after".
+function timingPhrase(rule: TimingRule) {
+  const anchor =
+    rule.anchor === "lastFrost" ? "last spring frost" : "first fall frost";
+  if (rule.startOffsetDays === 0)
+    return `from the ${anchor} to ${offset(rule.endOffsetDays)} it`;
+  if (rule.endOffsetDays === 0)
+    return `${offset(rule.startOffsetDays)} the ${anchor}, until the day itself`;
+  return `${offset(rule.startOffsetDays)} to ${offset(rule.endOffsetDays)} ${anchor}`;
 }
 function clampQty(value: number | ""): number {
   if (value === "" || Number.isNaN(value)) return 1;

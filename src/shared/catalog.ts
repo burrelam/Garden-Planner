@@ -74,6 +74,16 @@ export const sources: SourceRecord[] = [
       "Store prevention summaries and deep links, not frozen pesticide directions. The product label remains authoritative.",
   },
   {
+    id: "wikipedia",
+    publisher: "Wikipedia contributors",
+    title: "Wikipedia species articles",
+    url: "https://en.wikipedia.org/",
+    revision: "CC BY-SA 4.0; cite the permanent revision, not the live page",
+    accessedAt: "2026-09-07",
+    licenseNote:
+      "Creative Commons Attribution-ShareAlike 4.0. Share-alike attaches to copied wording, so facts are paraphrased and never quoted, which keeps the licence off GardenBuddy's own text. Attribution and a link are still given. Useful for botanical characteristics; it carries no regional sowing dates.",
+  },
+  {
     id: "ncsu-plant-toolbox",
     publisher: "N.C. Cooperative Extension",
     title: "North Carolina Extension Gardener Plant Toolbox",
@@ -851,22 +861,22 @@ export const catalog: PlantRecord[] = [
     // would rather say nothing than borrow another crop's window.
     sun: osuFact(
       "Full sun, or partial shade of 2–6 hours",
-      ["ncsu-plant-toolbox"],
+      ["ncsu-plant-toolbox", "wikipedia"],
       "national",
     ),
     water: osuFact(
       "Wants good drainage; drought tolerant once established",
-      ["ncsu-plant-toolbox"],
+      ["ncsu-plant-toolbox", "wikipedia"],
       "national",
     ),
     soil: osuFact(
       "Clay, loam or sand at acid to neutral pH",
-      ["ncsu-plant-toolbox"],
+      ["ncsu-plant-toolbox", "wikipedia"],
       "national",
     ),
     spacing: osuFact(
       "Less than 12 inches apart",
-      ["ncsu-plant-toolbox"],
+      ["ncsu-plant-toolbox", "wikipedia"],
       "national",
     ),
     timing: [],
@@ -899,8 +909,10 @@ export const catalog: PlantRecord[] = [
         "Deadhead to keep it flowering from spring right through fall.",
         "'Janie Deep Orange' and 'Janie Spry' resist abiotic disorders well.",
         "EM 9027 notes that slugs are drawn to marigolds, which is why they turn up as a trap crop.",
+        "Frost intolerant: it comes through 34\u201341\u00b0F but freezing kills it.",
+        "Flowers from July into October.",
       ],
-      ["ncsu-plant-toolbox"],
+      ["ncsu-plant-toolbox", "wikipedia"],
       "national",
     ),
     reviewStatus: "reviewed",
@@ -1196,30 +1208,37 @@ export const catalog: PlantRecord[] = [
     category: "flower",
     summary:
       "An airy annual with a long bloom season, happy in poorer ground than most.",
-    // The Plant Toolbox gives this plant's characteristics but no sowing dates, and OSU's
-    // publications do not carry it at all. It therefore has no timing rules: the calendar
-    // would rather say nothing than borrow another crop's window.
+    // Wikipedia dates the flowering: 60–90 days after germination, and the plant is frost
+    // tender. That gives both ends of a sowing window without inventing either — it opens at
+    // the last frost and closes 90 days before the default first frost, which is the last
+    // sowing that can still bloom. A rule carries one anchor, so the closing date moves with
+    // the last frost rather than the first.
+    daysToMaturity: osuFact(
+      "60–90 days from germination to first flower",
+      ["wikipedia"],
+      "national",
+    ),
     sun: osuFact(
       "Full sun, or partial shade of 2–6 hours",
-      ["ncsu-plant-toolbox"],
+      ["ncsu-plant-toolbox", "wikipedia"],
       "national",
     ),
     water: osuFact(
       "Keep it moist for 5–10 days after sowing; drought tolerant once established",
-      ["ncsu-plant-toolbox"],
+      ["ncsu-plant-toolbox", "wikipedia"],
       "national",
     ),
     soil: osuFact(
       "Clay, loam or sand at neutral to alkaline pH, with good drainage",
-      ["ncsu-plant-toolbox"],
+      ["ncsu-plant-toolbox", "wikipedia"],
       "national",
     ),
     spacing: osuFact(
       "12 inches to 3 feet apart",
-      ["ncsu-plant-toolbox"],
+      ["ncsu-plant-toolbox", "wikipedia"],
       "national",
     ),
-    timing: [],
+    timing: [timing("direct", "lastFrost", 0, 155, ["wikipedia"])],
     cultivars: [
       ncsuCultivar("antiquity", "Antiquity"),
       ncsuCultivar("chocolate", "Chocolate"),
@@ -1235,8 +1254,10 @@ export const catalog: PlantRecord[] = [
         "Rake the seed into loose soil — sown too deep it will not come up.",
         "Germinates in 7 to 21 days once the soil is at least 65°F.",
         "Flowers spring, summer and fall.",
+        "Frost tender — sow only once the danger of frost has passed.",
+        "Flowers 60 to 90 days after the seed germinates.",
       ],
-      ["ncsu-plant-toolbox"],
+      ["ncsu-plant-toolbox", "wikipedia"],
       "national",
     ),
     reviewStatus: "reviewed",
@@ -1251,24 +1272,29 @@ export const catalog: PlantRecord[] = [
     // The Plant Toolbox gives this plant's characteristics but no sowing dates, and OSU's
     // publications do not carry it at all. It therefore has no timing rules: the calendar
     // would rather say nothing than borrow another crop's window.
+    daysToMaturity: osuFact(
+      "About 3 to 4 months from seed to flower",
+      ["wikipedia"],
+      "national",
+    ),
     sun: osuFact(
       "Full sun, or partial shade of 2–6 hours",
-      ["ncsu-plant-toolbox"],
+      ["ncsu-plant-toolbox", "wikipedia"],
       "national",
     ),
     water: osuFact(
       "Keep it consistently moist; it has little drought tolerance",
-      ["ncsu-plant-toolbox"],
+      ["ncsu-plant-toolbox", "wikipedia"],
       "national",
     ),
     soil: osuFact(
       "Moist, rich, well-drained soil with plenty of organic matter",
-      ["ncsu-plant-toolbox"],
+      ["ncsu-plant-toolbox", "wikipedia"],
       "national",
     ),
     spacing: osuFact(
       "Less than 12 inches apart",
-      ["ncsu-plant-toolbox"],
+      ["ncsu-plant-toolbox", "wikipedia"],
       "national",
     ),
     timing: [],
@@ -1292,8 +1318,10 @@ export const catalog: PlantRecord[] = [
         "Ranges from 6 inches to 3 feet tall depending on the cultivar, and 6–10 inches wide.",
         "Water at the base — overhead watering invites trouble.",
         "Flowers spring, summer and fall.",
+        "Grows readily from seed and flowers in about three to four months.",
+        "Takes a little frost and prefers 63–77°F, which is why it is grown as an annual where winters are cold.",
       ],
-      ["ncsu-plant-toolbox"],
+      ["ncsu-plant-toolbox", "wikipedia"],
       "national",
     ),
     reviewStatus: "reviewed",
@@ -1311,17 +1339,17 @@ export const catalog: PlantRecord[] = [
     sun: osuFact("Full sun", ["ncsu-plant-toolbox"], "national"),
     water: osuFact(
       "Wants good drainage and takes an occasional dry spell",
-      ["ncsu-plant-toolbox"],
+      ["ncsu-plant-toolbox", "wikipedia"],
       "national",
     ),
     soil: osuFact(
       "Loam with plenty of organic matter and good drainage; not fussy about pH",
-      ["ncsu-plant-toolbox"],
+      ["ncsu-plant-toolbox", "wikipedia"],
       "national",
     ),
     spacing: osuFact(
       "12 inches to 3 feet apart",
-      ["ncsu-plant-toolbox"],
+      ["ncsu-plant-toolbox", "wikipedia"],
       "national",
     ),
     timing: [],
@@ -1338,8 +1366,10 @@ export const catalog: PlantRecord[] = [
         "The Plant Toolbox sows it straight into the ground after the last frost date.",
         "Give it good air circulation, full sun and drainage to keep fungal leaf spot away.",
         "Blooms continuously through summer and fall in a cool summer; it slows in real heat.",
+        "Will not take freezing \u2014 sow only after all danger of frost has passed.",
+        "Prefers well-drained loamy soil and full sun, and many kinds tolerate drought.",
       ],
-      ["ncsu-plant-toolbox"],
+      ["ncsu-plant-toolbox", "wikipedia"],
       "national",
     ),
     reviewStatus: "reviewed",
