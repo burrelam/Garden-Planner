@@ -201,12 +201,31 @@ const wikiCultivar = (id: string, name: string, type: string) => ({
 // so nothing here pretends the publications recommend it.
 const ownCultivar = (id: string, name: string) => ({ id, name });
 
+// EC 871 groups some crops by habit rather than by season or colour: "Green bush", "Green pole",
+// "Snap pea, pole", "Heading, main season", "Red leaf". Where the group names the habit, the
+// variety inherits it from the same publication that drew the group — so a bean knows whether it
+// climbs without anyone having to look it up again.
+//
+// The patterns are deliberately narrow. Parsley's "Leaf type" and basil's "Purple-leaved" are not
+// habits, and must not be read as one.
+const habitFromType = (type: string) => {
+  if (/\bbush\b/i.test(type)) return "Bush";
+  if (/\bpole\b/i.test(type)) return "Pole";
+  if (/^heading\b/i.test(type)) return "Heading";
+  if (/\b(red|green|oak) leaf\b/i.test(type)) return "Leaf";
+  return undefined;
+};
+
 // EC 871 lists recommended varieties for Oregon grouped by horticultural type.
-const osuCultivar = (id: string, name: string, type: string) => ({
-  id,
-  name,
-  type: osuFact(type, ["osu-vegetable-oregon"]),
-});
+const osuCultivar = (id: string, name: string, type: string) => {
+  const habit = habitFromType(type);
+  return {
+    id,
+    name,
+    type: osuFact(type, ["osu-vegetable-oregon"]),
+    ...(habit ? { habit: osuFact(habit, ["osu-vegetable-oregon"]) } : {}),
+  };
+};
 
 export const catalog: PlantRecord[] = [
   {

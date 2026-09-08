@@ -2724,6 +2724,11 @@ function groupCultivars(cultivars: PlantRecord["cultivars"]) {
   return [...groups];
 }
 
+// "an indeterminate variety", "a pole variety" — the habits are words of both kinds.
+function article(word: string) {
+  return /^[aeiou]/i.test(word) ? "an" : "a";
+}
+
 // Stands alone so the drawing that replaces it has one place to go.
 const INCOMPATIBLE_MARK = "🚫";
 
@@ -2950,7 +2955,7 @@ function VarietyDetail() {
           <p className={styles.muted}>
             Written for {plant.commonName.toLowerCase()} as a crop.{" "}
             {cultivar.habit
-              ? `This one is ${cultivar.habit.value.toLowerCase()}, so read the lines that say so.`
+              ? `This is ${article(cultivar.habit.value)} ${cultivar.habit.value.toLowerCase()} variety, so read the lines that mention it.`
               : "Some of it depends on which variety you have."}
           </p>
           <ul>
