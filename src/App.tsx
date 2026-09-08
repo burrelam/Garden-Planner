@@ -2930,6 +2930,7 @@ function PlantDetail() {
         <p>Loading plant details…</p>
       </Page>
     );
+  const avoids = plant.companions.filter((c) => c.effect === "avoid");
   return (
     <Page
       eyebrow={`${plant.category} · ${plant.reviewStatus}`}
@@ -2994,34 +2995,52 @@ function PlantDetail() {
         </section>
         <section className={styles.panel}>
           <h2>Pests &amp; problems</h2>
-          {plant.problems.length ? (
-            plant.problems.map((problem) => (
-              <div className={styles.companion} key={problem.id}>
-                <span>{problemIcons[problem.kind]}</span>
-                <div>
-                  <strong>{problem.name}</strong>
-                  <small>
-                    {problem.kind} · {problem.evidenceLevel.replace("-", " ")}
-                  </small>
-                  <p>{problem.symptom}</p>
-                  <p>{problem.response}</p>
-                  <SourceLinks ids={problem.sourceIds} />
+          {plant.problems.length || avoids.length ? (
+            <>
+              {plant.problems.map((problem) => (
+                <div className={styles.companion} key={problem.id}>
+                  <span>{problemIcons[problem.kind]}</span>
+                  <div>
+                    <strong>{problem.name}</strong>
+                    <small>
+                      {problem.kind} · {problem.evidenceLevel.replace("-", " ")}
+                    </small>
+                    <p>{problem.symptom}</p>
+                    <p>{problem.response}</p>
+                    <SourceLinks ids={problem.sourceIds} />
+                  </div>
                 </div>
-              </div>
-            ))
+              ))}
+              {/* A clash with another plant is a problem this plant has, so it belongs here
+                  rather than in a panel of its own opposite the friendly pairings. */}
+              {avoids.map((relationship) => (
+                <div className={styles.companion} key={relationship.plantId}>
+                  <span>⚠</span>
+                  <div>
+                    <strong>
+                      <Link to={`/plants/${relationship.plantId}`}>
+                        {localCatalog.find(
+                          (item) => item.id === relationship.plantId,
+                        )?.commonName ?? relationship.plantId}
+                      </Link>
+                    </strong>
+                    <small>
+                      keep to separate beds ·{" "}
+                      {relationship.mechanism.replace("-", " ")}
+                    </small>
+                    <p>{relationship.explanation}</p>
+                    <SourceLinks ids={relationship.sourceIds} />
+                  </div>
+                </div>
+              ))}
+            </>
           ) : (
             <p className={styles.muted}>
-              Not available — nothing we cite records a common problem for this
-              plant yet.
+              Not available — nothing we cite records a pest, a disease or a
+              plant to keep this one away from.
             </p>
           )}
         </section>
-        <CompanionPanel
-          title="Keep to separate beds"
-          empty="Nothing else in the library clashes with this one."
-          icon="⚠"
-          relationships={plant.companions.filter((c) => c.effect === "avoid")}
-        />
         <CompanionPanel
           title="Good neighbours"
           empty="No friendships worth promising yet. Plenty of pairings get passed around, but we would rather stay quiet than repeat garden folklore."
