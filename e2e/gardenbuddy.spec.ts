@@ -2,8 +2,7 @@ import { expect, test, type Page } from "@playwright/test";
 
 /**
  * Settings panels fold, and only one stands open at a time, so a test that
- * wants a field has to open its panel first. A shut panel's button carries
- * its summary line in the accessible name too, hence matching on the start.
+ * wants a field has to open its panel first.
  */
 async function openSettingsPanel(page: Page, title: string) {
   const head = page.getByRole("button", { name: new RegExp(`^${title}`) });
@@ -276,7 +275,7 @@ test("frost markers can be switched off, and come back", async ({ page }) => {
   await setFrostMarks(true);
 });
 
-test("a shut settings panel still answers, and only one opens", async ({
+test("settings panels fold to their headings, and only one opens", async ({
   page,
 }) => {
   await page.goto("/settings");
@@ -290,11 +289,9 @@ test("a shut settings panel still answers, and only one opens", async ({
   await expect(garden).toHaveAttribute("aria-expanded", "true");
   await expect(page.getByLabel("ZIP code", { exact: true })).toBeVisible();
 
-  // Shut, a panel still answers: Appearance names the season it is on.
+  // A shut panel is its heading and nothing else.
   await expect(appearance).toHaveAttribute("aria-expanded", "false");
-  await expect(appearance).toContainText(
-    /Seasonal|Spring|Summer|Fall|Winter|Twilight/,
-  );
+  await expect(appearance).toHaveText("Appearance");
 
   // Opening another shuts the first: one at a time.
   await openSettingsPanel(page, "Planner options");

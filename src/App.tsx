@@ -3277,20 +3277,18 @@ function writeOpenPanel(id: SettingsPanelId | null): void {
 
 /**
  * One folding panel. The whole heading row takes the press, and a shut panel
- * keeps one line of what is inside it — so most trips to Settings can end
- * without opening anything at all.
+ * shows its heading and nothing else — so Settings reads as a short list of
+ * places to go rather than a wall of text.
  */
 function SettingsPanel({
   id,
   title,
-  summary,
   open,
   onToggle,
   children,
 }: {
   id: SettingsPanelId;
   title: string;
-  summary: ReactNode;
   open: boolean;
   onToggle: (id: SettingsPanelId) => void;
   children: ReactNode;
@@ -3304,10 +3302,7 @@ function SettingsPanel({
         aria-controls={`settings-${id}`}
         onClick={() => onToggle(id)}
       >
-        <span className={styles.panelHeadText}>
-          <h2>{title}</h2>
-          <span className={styles.panelSummary}>{summary}</span>
-        </span>
+        <h2>{title}</h2>
         <span className={styles.panelCaret} aria-hidden="true">
           <span />
         </span>
@@ -3322,36 +3317,26 @@ function SettingsPanel({
   );
 }
 
-/** Names the options that are switched on, for the shut panel's one line. */
-function listPhrase(items: string[]) {
-  if (items.length <= 1) return items.join("");
-  return `${items.slice(0, -1).join(", ")} and ${items[items.length - 1]}`;
-}
-
 /**
- * What the planner draws on top of the calendar. One table, so the switch,
- * the line that explains it, and the word the shut panel uses cannot drift
- * apart from one another.
+ * What the planner draws on top of the calendar. One table, so a switch and
+ * the line that explains it cannot drift apart from one another.
  */
 const PLANNER_OPTIONS = [
   {
     key: "showFrostMarks",
     title: "Frost markers",
-    short: "Frost marks",
     description:
       "Your last spring and first fall frost, ticked on the calendar.",
   },
   {
     key: "showPillPredictions",
     title: "Pillbox phase predictions",
-    short: "Pillbox",
     description:
       "Shades each month by the phase a plant should be in — sowing, growing, picking.",
   },
   {
     key: "showPlantedMarkers",
     title: "Planted and harvest icons",
-    short: "Planted icons",
     description:
       "Marks the day you planted something, and when it should be ready to pick.",
   },
@@ -3520,19 +3505,6 @@ function Settings({
       );
     }
   };
-  // What each shut panel answers with. Most visits to Settings are a question
-  // — which zone am I, what build is this — and these lines are the answer.
-  const seasonalName = THEMES.find((t) => t.id === resolveTheme("auto"))?.name;
-  const appearanceSummary =
-    themePreference === "auto"
-      ? `Seasonal — currently ${seasonalName}`
-      : (THEMES.find((t) => t.id === themePreference)?.name ?? "Seasonal");
-  const optionsOn = PLANNER_OPTIONS.filter(
-    (option) => plannerOptions[option.key],
-  ).map((option) => option.short);
-  const plannerSummary = optionsOn.length
-    ? `${listPhrase(optionsOn)} on`
-    : "Nothing drawn on the calendar";
   return (
     <Page
       eyebrow={`${meta.environment} environment`}
@@ -3543,7 +3515,6 @@ function Settings({
         <SettingsPanel
           id="garden"
           title="Garden and growing season"
-          summary={`${state.garden.name} \u00b7 zone ${state.garden.hardinessZone} \u00b7 frost ${shortDate(state.garden.lastFrost)} to ${shortDate(state.garden.firstFrost)}`}
           open={openPanel === "garden"}
           onToggle={togglePanel}
         >
@@ -3611,7 +3582,6 @@ function Settings({
         <SettingsPanel
           id="planner"
           title="Planner options"
-          summary={plannerSummary}
           open={openPanel === "planner"}
           onToggle={togglePanel}
         >
@@ -3647,7 +3617,6 @@ function Settings({
         <SettingsPanel
           id="appearance"
           title="Appearance"
-          summary={appearanceSummary}
           open={openPanel === "appearance"}
           onToggle={togglePanel}
         >
@@ -3732,11 +3701,6 @@ function Settings({
         <SettingsPanel
           id="history"
           title="Recent history"
-          summary={
-            history.length
-              ? `${history.length} ${history.length === 1 ? "snapshot" : "snapshots"} \u00b7 newest revision ${history[0].revision}`
-              : "No snapshots yet"
-          }
           open={openPanel === "history"}
           onToggle={togglePanel}
         >
@@ -3771,7 +3735,6 @@ function Settings({
         <SettingsPanel
           id="data"
           title="Import or export"
-          summary="Import your saved data file, or export a data file to save your garden"
           open={openPanel === "data"}
           onToggle={togglePanel}
         >
@@ -3876,7 +3839,6 @@ function Settings({
         <SettingsPanel
           id="release"
           title="Release and session"
-          summary={`${meta.environment} \u00b7 ${meta.revision}`}
           open={openPanel === "release"}
           onToggle={togglePanel}
         >
@@ -3944,11 +3906,6 @@ function ClearPlannerPanel({
     <SettingsPanel
       id="clear"
       title="Start the year over"
-      summary={
-        state.entries.length === 0
-          ? "The planner is already empty"
-          : `Empties the planner of ${state.entries.length} plants · beds and wish list stay`
-      }
       open={open}
       onToggle={onToggle}
     >

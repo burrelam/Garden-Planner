@@ -613,8 +613,8 @@
   --type-plant-sub: 0.95rem;
   --type-group-header: 0.82rem;
   --type-corner-sort: 0.95rem;
-  /* The line a shut Settings panel answers with. */
-  --type-panel-summary: 0.92rem;
+  /* The line under each planner option, saying what it draws. */
+  --type-option-note: 0.92rem;
   /* Wish list. The buttons are one line wide, so their type has to be sized
      with the row, not inside the component rule. */
   --type-wish-name: 1.08rem;
@@ -644,7 +644,7 @@
     --type-plant-sub: 0.63rem;
     --type-group-header: 0.82rem;
     --type-corner-sort: 0.88rem;
-    --type-panel-summary: 0.86rem;
+    --type-option-note: 0.86rem;
     --type-wish-name: 1rem;
     --type-wish-meta: 0.7rem;
     --type-wish-tag: 0.46rem;
@@ -2505,6 +2505,7 @@
   text-align: left;
 }
 .panelHead h2 {
+  min-width: 0;
   margin: 0;
 }
 .panelHead:hover {
@@ -2522,21 +2523,6 @@
   outline: 3px solid var(--color-focus);
   outline-offset: -6px;
   box-shadow: none;
-}
-.panelHeadText {
-  display: grid;
-  gap: 5px;
-  min-width: 0;
-}
-/* Hidden rather than unmounted, so it does not flash back in halfway
-   through the panel folding closed. */
-.panelSummary {
-  color: var(--color-text-muted);
-  font-size: var(--type-panel-summary);
-  line-height: 1.35;
-}
-.panelHead[aria-expanded="true"] .panelSummary {
-  display: none;
 }
 /* Cased, the way the frost tick is: the case says "a control", the chevron
    inside it says which way this one will go. */
@@ -2621,7 +2607,7 @@
   display: block;
   margin-top: 2px;
   color: var(--color-text-muted);
-  font-size: var(--type-panel-summary);
+  font-size: var(--type-option-note);
   line-height: 1.4;
 }
 .fileButton {
