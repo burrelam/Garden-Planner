@@ -74,6 +74,26 @@ export const sources: SourceRecord[] = [
       "Store prevention summaries and deep links, not frozen pesticide directions. The product label remains authoritative.",
   },
   {
+    id: "umn-flowers",
+    publisher: "University of Minnesota Extension",
+    title: "Growing flowers: zinnia and marigolds",
+    url: "https://extension.umn.edu/flowers",
+    revision:
+      "Nate Dalman, West Central Research and Outreach Center, reviewed 2026",
+    accessedAt: "2026-09-07",
+    licenseNote:
+      "Copyrighted Extension guidance. Paraphrase discrete facts and link the source. Its figures are frost-relative rather than calendar dates, so they travel from Minnesota to Oregon.",
+  },
+  {
+    id: "clemson-annuals",
+    publisher: "Clemson Cooperative Extension Home & Garden Information Center",
+    title: "Growing Annuals",
+    url: "https://hgic.clemson.edu/factsheet/growing-annuals/",
+    accessedAt: "2026-09-07",
+    licenseNote:
+      "Copyrighted Extension guidance. Used for the hardy, half-hardy and tender classification of annual flowers, which decides whether a plant goes out before or after the last frost.",
+  },
+  {
     id: "wikipedia",
     publisher: "Wikipedia contributors",
     title: "Wikipedia species articles",
@@ -154,6 +174,13 @@ const ncsuCultivar = (id: string, name: string, type = "Named cultivar") => ({
   id,
   name,
   type: osuFact(type, ["ncsu-plant-toolbox"], "national"),
+});
+
+// A variety Wikipedia classifies, for the ones the Extension lists leave out.
+const wikiCultivar = (id: string, name: string, type: string) => ({
+  id,
+  name,
+  type: osuFact(type, ["wikipedia"], "national"),
 });
 
 // A variety the gardener grows that OSU does not list. It carries no sourced claim, only a name,
@@ -239,7 +266,7 @@ export const catalog: PlantRecord[] = [
       osuCultivar("macero-ii", "Macero II", "Paste"),
       osuCultivar("health-kick", "Health Kick", "Paste"),
       osuCultivar("brandywine", "Brandywine", "Heirloom"),
-      ownCultivar("cherokee-purple", "Cherokee Purple"),
+      wikiCultivar("cherokee-purple", "Cherokee Purple", "Heirloom"),
     ],
     companions: [
       {
@@ -350,7 +377,7 @@ export const catalog: PlantRecord[] = [
       osuCultivar("cherry-bomb", "Cherry Bomb", "Specialty hot"),
       osuCultivar("serrano", "Serrano", "Specialty hot"),
       osuCultivar("anaheim-tmr-23", "Anaheim TMR 23", "Specialty hot"),
-      ownCultivar("shishito", "Shishito"),
+      wikiCultivar("shishito", "Shishito", "Specialty sweet"),
     ],
     companions: [],
     growingTips: osuFact(
@@ -856,30 +883,37 @@ export const catalog: PlantRecord[] = [
     category: "flower",
     summary:
       "A compact French marigold that flowers from spring into fall if it is kept deadheaded.",
-    // The Plant Toolbox gives this plant's characteristics but no sowing dates, and OSU's
-    // publications do not carry it at all. It therefore has no timing rules: the calendar
-    // would rather say nothing than borrow another crop's window.
+    // UMN starts marigold indoors 10 weeks before it goes out, and plants it out once the
+    // danger of frost has gone; Clemson classes it a tender annual, planted after frost in
+    // spring. So the indoor window closes on the last frost and the planting window opens
+    // there and runs to the end of spring.
     sun: osuFact(
       "Full sun, or partial shade of 2–6 hours",
-      ["ncsu-plant-toolbox", "wikipedia"],
+      ["ncsu-plant-toolbox", "wikipedia", "umn-flowers", "clemson-annuals"],
       "national",
     ),
     water: osuFact(
       "Wants good drainage; drought tolerant once established",
-      ["ncsu-plant-toolbox", "wikipedia"],
+      ["ncsu-plant-toolbox", "wikipedia", "umn-flowers", "clemson-annuals"],
       "national",
     ),
     soil: osuFact(
       "Clay, loam or sand at acid to neutral pH",
-      ["ncsu-plant-toolbox", "wikipedia"],
+      ["ncsu-plant-toolbox", "wikipedia", "umn-flowers", "clemson-annuals"],
       "national",
     ),
     spacing: osuFact(
       "Less than 12 inches apart",
-      ["ncsu-plant-toolbox", "wikipedia"],
+      ["ncsu-plant-toolbox", "wikipedia", "umn-flowers", "clemson-annuals"],
       "national",
     ),
-    timing: [],
+    timing: [
+      timing("indoor", "lastFrost", -70, 0, ["umn-flowers"]),
+      timing("transplant", "lastFrost", 0, 97, [
+        "umn-flowers",
+        "clemson-annuals",
+      ]),
+    ],
     cultivars: [
       ncsuCultivar("alumia-vanilla-cream", "Alumia Vanilla Cream"),
       ncsuCultivar("aurora-orange", "Aurora Orange"),
@@ -911,8 +945,11 @@ export const catalog: PlantRecord[] = [
         "EM 9027 notes that slugs are drawn to marigolds, which is why they turn up as a trap crop.",
         "Frost intolerant: it comes through 34\u201341\u00b0F but freezing kills it.",
         "Flowers from July into October.",
+        "Start seed indoors about 10 weeks before planting out; it sprouts in 5–8 days at 70–75°F.",
+        "Direct sowing works once the soil reaches 65°F.",
+        "French and Signet types sit close together; African kinds want a foot between them.",
       ],
-      ["ncsu-plant-toolbox", "wikipedia"],
+      ["ncsu-plant-toolbox", "wikipedia", "umn-flowers", "clemson-annuals"],
       "national",
     ),
     reviewStatus: "reviewed",
@@ -1269,9 +1306,9 @@ export const catalog: PlantRecord[] = [
     category: "flower",
     summary:
       "A cool-season favourite for cutting, grown as an annual and flowering spring through fall.",
-    // The Plant Toolbox gives this plant's characteristics but no sowing dates, and OSU's
-    // publications do not carry it at all. It therefore has no timing rules: the calendar
-    // would rather say nothing than borrow another crop's window.
+    // Clemson files snapdragon with the hardy and half-hardy annuals, set out in early spring
+    // rather than after the last frost, and Wikipedia notes it survives a certain amount of
+    // frost. Its window therefore opens before the frost date rather than on it.
     daysToMaturity: osuFact(
       "About 3 to 4 months from seed to flower",
       ["wikipedia"],
@@ -1279,25 +1316,30 @@ export const catalog: PlantRecord[] = [
     ),
     sun: osuFact(
       "Full sun, or partial shade of 2–6 hours",
-      ["ncsu-plant-toolbox", "wikipedia"],
+      ["ncsu-plant-toolbox", "wikipedia", "clemson-annuals"],
       "national",
     ),
     water: osuFact(
       "Keep it consistently moist; it has little drought tolerance",
-      ["ncsu-plant-toolbox", "wikipedia"],
+      ["ncsu-plant-toolbox", "wikipedia", "clemson-annuals"],
       "national",
     ),
     soil: osuFact(
       "Moist, rich, well-drained soil with plenty of organic matter",
-      ["ncsu-plant-toolbox", "wikipedia"],
+      ["ncsu-plant-toolbox", "wikipedia", "clemson-annuals"],
       "national",
     ),
     spacing: osuFact(
       "Less than 12 inches apart",
-      ["ncsu-plant-toolbox", "wikipedia"],
+      ["ncsu-plant-toolbox", "wikipedia", "clemson-annuals"],
       "national",
     ),
-    timing: [],
+    timing: [
+      timing("transplant", "lastFrost", -42, 14, [
+        "clemson-annuals",
+        "wikipedia",
+      ]),
+    ],
     cultivars: [
       ncsuCultivar("admiral-white", "Admiral White"),
       ncsuCultivar(
@@ -1320,8 +1362,10 @@ export const catalog: PlantRecord[] = [
         "Flowers spring, summer and fall.",
         "Grows readily from seed and flowers in about three to four months.",
         "Takes a little frost and prefers 63–77°F, which is why it is grown as an annual where winters are cold.",
+        "A cool-season annual: it goes out in early spring rather than waiting for the frost date to pass.",
+        "Most summer annuals are sown indoors 6 to 8 weeks before the last frost.",
       ],
-      ["ncsu-plant-toolbox", "wikipedia"],
+      ["ncsu-plant-toolbox", "wikipedia", "clemson-annuals"],
       "national",
     ),
     reviewStatus: "reviewed",
@@ -1333,26 +1377,31 @@ export const catalog: PlantRecord[] = [
     category: "flower",
     summary:
       "A dependable cutting annual that keeps flowering from summer into fall.",
-    // The Plant Toolbox gives this plant's characteristics but no sowing dates, and OSU's
-    // publications do not carry it at all. It therefore has no timing rules: the calendar
-    // would rather say nothing than borrow another crop's window.
+    // UMN starts zinnia indoors about 6 weeks before it goes out and sets transplants once the
+    // soil reaches 60°F; Clemson classes it a tender annual, planted after frost in spring.
     sun: osuFact("Full sun", ["ncsu-plant-toolbox"], "national"),
     water: osuFact(
       "Wants good drainage and takes an occasional dry spell",
-      ["ncsu-plant-toolbox", "wikipedia"],
+      ["ncsu-plant-toolbox", "wikipedia", "umn-flowers", "clemson-annuals"],
       "national",
     ),
     soil: osuFact(
       "Loam with plenty of organic matter and good drainage; not fussy about pH",
-      ["ncsu-plant-toolbox", "wikipedia"],
+      ["ncsu-plant-toolbox", "wikipedia", "umn-flowers", "clemson-annuals"],
       "national",
     ),
     spacing: osuFact(
       "12 inches to 3 feet apart",
-      ["ncsu-plant-toolbox", "wikipedia"],
+      ["ncsu-plant-toolbox", "wikipedia", "umn-flowers", "clemson-annuals"],
       "national",
     ),
-    timing: [],
+    timing: [
+      timing("indoor", "lastFrost", -42, 0, ["umn-flowers"]),
+      timing("transplant", "lastFrost", 0, 97, [
+        "umn-flowers",
+        "clemson-annuals",
+      ]),
+    ],
     cultivars: [
       ncsuCultivar("profusion-series", "Profusion Series"),
       ncsuCultivar("benary-s-giants", "Benary's Giants"),
@@ -1368,8 +1417,11 @@ export const catalog: PlantRecord[] = [
         "Blooms continuously through summer and fall in a cool summer; it slows in real heat.",
         "Will not take freezing \u2014 sow only after all danger of frost has passed.",
         "Prefers well-drained loamy soil and full sun, and many kinds tolerate drought.",
+        "Start seed indoors about 6 weeks before planting out; it germinates in 4–8 days at 70–75°F.",
+        "Direct sow once the soil is at least 70°F, a quarter of an inch deep.",
+        "Space 8 to 24 inches apart depending on how tall the kind grows.",
       ],
-      ["ncsu-plant-toolbox", "wikipedia"],
+      ["ncsu-plant-toolbox", "wikipedia", "umn-flowers", "clemson-annuals"],
       "national",
     ),
     reviewStatus: "reviewed",

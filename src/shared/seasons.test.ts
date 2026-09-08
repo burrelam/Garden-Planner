@@ -103,11 +103,9 @@ describe("sowing windows", () => {
         `${record.id} has timing rules but no sowing window`,
       ).toBeGreaterThan(0);
     }
-    // These three are described by NC State and Wikipedia but dated by neither, and OSU's
-    // vegetable guides do not carry them. Cosmos left this list once Wikipedia supplied a
-    // germination-to-bloom figure, which closes a window the frost dates can open. Shrinking
-    // it further means finding a source that dates the sowing.
-    expect(withoutTiming.sort()).toEqual(["marigold", "snapdragon", "zinnia"]);
+    // Every plant now has a sourced window. The list is kept, and kept empty, so that adding a
+    // plant nobody has dated fails here rather than sliding in with a borrowed date.
+    expect(withoutTiming.sort()).toEqual([]);
   });
 
   it("moves with the garden's frost dates", () => {

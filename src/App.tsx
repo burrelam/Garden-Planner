@@ -1390,7 +1390,7 @@ function PlantDialog({
     const groups = new Map<string, string[]>();
     for (const cultivar of selected?.cultivars ?? []) {
       // Varieties the publications do not list still belong somewhere the gardener can find them.
-      const group = cultivar.type?.value ?? "Also grown";
+      const group = cultivar.type?.value ?? "Other";
       groups.set(group, [...(groups.get(group) ?? []), cultivar.name]);
     }
     return [...groups];
@@ -2656,8 +2656,12 @@ function PlantLibrary() {
       {view === "varieties" ? (
         <>
           <p className={styles.muted}>
-            {varieties.length} varieties across {plants.length} plants. Growing
-            details come from the plant each one belongs to.
+            {/* Counting all the plants while showing a filtered list read as though the search
+                had not applied. Both numbers now describe what is actually on screen. */}
+            {varieties.length} varieties across{" "}
+            {new Set(varieties.map(({ plant }) => plant.id)).size} plants
+            {query ? ` matching “${query}”` : ""}. Growing details come from the
+            plant each one belongs to.
           </p>
           <div className={styles.cardGrid}>
             {varieties.map(({ plant, cultivar }) => (
@@ -2675,7 +2679,7 @@ function PlantLibrary() {
                 <span className={styles.reviewed}>
                   {cultivar.daysToMaturity?.value ??
                     plant.daysToMaturity?.value ??
-                    "No maturity figure recorded"}
+                    "Days to maturity not available"}
                 </span>
               </Link>
             ))}
@@ -2806,14 +2810,14 @@ function VarietyDetail() {
             crop, not variety by variety, so this guidance is the plant&rsquo;s.
           </p>
           <dl>
-            {inherited.map(([label, fact]) =>
-              fact ? (
-                <Fragment key={label}>
-                  <dt>{label}</dt>
-                  <dd>{fact.value}</dd>
-                </Fragment>
-              ) : null,
-            )}
+            {inherited.map(([label, fact]) => (
+              <Fragment key={label}>
+                <dt>{label}</dt>
+                <dd className={fact ? undefined : styles.muted}>
+                  {fact ? fact.value : "Not available"}
+                </dd>
+              </Fragment>
+            ))}
           </dl>
         </section>
         <section className={styles.panel}>
@@ -2895,14 +2899,16 @@ function PlantDetail() {
                 ["Soil", plant.soil],
                 ["Spacing", plant.spacing],
               ] as const
-            ).map(([label, fact]) =>
-              fact ? (
-                <Fragment key={label}>
-                  <dt>{label}</dt>
-                  <dd>{fact.value}</dd>
-                </Fragment>
-              ) : null,
-            )}
+            ).map(([label, fact]) => (
+              // A gap is shown, not hidden. An absent line looks like the app forgot; "Not
+              // available" says plainly that nobody we cite has published the figure.
+              <Fragment key={label}>
+                <dt>{label}</dt>
+                <dd className={fact ? undefined : styles.muted}>
+                  {fact ? fact.value : "Not available"}
+                </dd>
+              </Fragment>
+            ))}
           </dl>
         </section>
         <section className={styles.panel}>
