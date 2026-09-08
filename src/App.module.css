@@ -2318,7 +2318,8 @@
     inset 0 0 0 3px var(--color-focus),
     var(--stack-down);
 }
-.plantCard h2 {
+.plantCard h2,
+.plantCard h3 {
   margin: 18px 0 3px;
 }
 .plantCard em {

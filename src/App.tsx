@@ -2577,6 +2577,8 @@ function PlantLibrary() {
   // Opens on plants: 253 variety cards is a wall to land on, and the plant you want is the
   // shorter way in. Varieties are a toggle away, and search reaches them from either view.
   const [view, setView] = useState<"varieties" | "plants">("plants");
+  // Same jump-to-letter the wish list uses, so the two lists behave alike.
+  const [letter, setLetter] = useState<string | null>(null);
   useEffect(() => {
     api.catalog().then(setPlants);
   }, []);
@@ -2600,6 +2602,7 @@ function PlantLibrary() {
         ),
     [plants, category, query],
   );
+  const initialOf = (name: string) => name.charAt(0).toUpperCase();
   const filtered = plants
     .filter(
       (plant) =>
@@ -2613,6 +2616,58 @@ function PlantLibrary() {
         sensitivity: "base",
       }),
     );
+  // One card list whichever view is showing, so the letter keys and headings are written once.
+  const cards = useMemo(
+    () =>
+      view === "varieties"
+        ? varieties.map((entry) => ({
+            key: `${entry.plant.id}-${entry.cultivar.id}`,
+            name: entry.cultivar.name,
+            to: `/plants/${entry.plant.id}/${entry.cultivar.id}`,
+            chip: entry.cultivar.type?.value ?? entry.plant.commonName,
+            sub: entry.plant.commonName,
+            body: entry.plant.summary,
+            foot:
+              entry.cultivar.daysToMaturity?.value ??
+              entry.plant.daysToMaturity?.value ??
+              "Days to maturity not available",
+          }))
+        : filtered.map((plant) => ({
+            key: plant.id,
+            name: plant.commonName,
+            to: `/plants/${plant.id}`,
+            chip: plant.category,
+            sub: plant.scientificName ?? "",
+            body: plant.summary,
+            foot: `${
+              plant.cultivars.length
+                ? `${plant.cultivars.length} varieties`
+                : "No varieties listed"
+            }${plant.daysToMaturity ? ` · ${plant.daysToMaturity.value}` : ""}`,
+          })),
+    [view, varieties, filtered],
+  );
+  const letters = useMemo(() => {
+    const seen: string[] = [];
+    for (const card of cards) {
+      const initial = initialOf(card.name);
+      if (!seen.includes(initial)) seen.push(initial);
+    }
+    return seen.sort();
+  }, [cards]);
+  const visible = letter
+    ? cards.filter((card) => initialOf(card.name) === letter)
+    : cards;
+  const grouped = useMemo(() => {
+    const out: { letter: string; cards: typeof visible }[] = [];
+    for (const card of visible) {
+      const initial = initialOf(card.name);
+      const last = out[out.length - 1];
+      if (last && last.letter === initial) last.cards.push(card);
+      else out.push({ letter: initial, cards: [card] });
+    }
+    return out;
+  }, [visible]);
   return (
     <Page
       eyebrow="Reviewed plant knowledge"
@@ -2625,15 +2680,21 @@ function PlantLibrary() {
             aria-label="Search plants"
             placeholder="Search plants"
             value={query}
-            onChange={(event) => setQuery(event.target.value)}
+            onChange={(event) => {
+              setQuery(event.target.value);
+              setLetter(null);
+            }}
           />
           <span className={styles.selectWrap}>
             <select
               aria-label="Show varieties or plants"
               value={view}
-              onChange={(event) =>
-                setView(event.target.value as "varieties" | "plants")
-              }
+              onChange={(event) => {
+                setView(event.target.value as "varieties" | "plants");
+                // A letter with plants under it may have no varieties under it, and the other
+                // way round, so the jump-to-letter resets when the list changes beneath it.
+                setLetter(null);
+              }}
             >
               <option value="varieties">Varieties</option>
               <option value="plants">Plants</option>
@@ -2655,60 +2716,52 @@ function PlantLibrary() {
         </>
       }
     >
-      {view === "varieties" ? (
-        <>
-          <p className={styles.muted}>
-            {/* Counting all the plants while showing a filtered list read as though the search
-                had not applied. Both numbers now describe what is actually on screen. */}
-            {varieties.length} varieties across{" "}
-            {new Set(varieties.map(({ plant }) => plant.id)).size} plants
-            {query ? ` matching “${query}”` : ""}. Growing details come from the
-            plant each one belongs to.
-          </p>
+      <div
+        className={styles.wishKeys}
+        role="group"
+        aria-label="Jump to a letter"
+        data-filtering={letter ? "" : undefined}
+        style={{ "--keys": letters.length } as CSSProperties}
+      >
+        {letters.map((key) => (
+          <button
+            key={key}
+            type="button"
+            className={styles.wishKey}
+            aria-pressed={letter === key}
+            onClick={() => setLetter(letter === key ? null : key)}
+          >
+            {key}
+          </button>
+        ))}
+      </div>
+      <p className={styles.muted}>
+        {visible.length} {view === "varieties" ? "varieties" : "plants"}
+        {view === "varieties" &&
+          ` across ${new Set(varieties.map(({ plant }) => plant.id)).size} plants`}
+        {query ? ` matching “${query}”` : ""}
+        {letter ? ` starting with ${letter}` : ""}.
+      </p>
+      {grouped.map((group) => (
+        <section key={group.letter}>
+          <h2 className={`${styles.wishGroup} ${styles.wishGroupAlpha}`}>
+            {group.letter}
+            <span className={styles.wishRule} />
+            <span className={styles.wishCount}>{group.cards.length}</span>
+          </h2>
           <div className={styles.cardGrid}>
-            {varieties.map(({ plant, cultivar }) => (
-              <Link
-                className={styles.plantCard}
-                to={`/plants/${plant.id}/${cultivar.id}`}
-                key={`${plant.id}-${cultivar.id}`}
-              >
-                <span className={styles.chip}>
-                  {cultivar.type?.value ?? plant.commonName}
-                </span>
-                <h2>{cultivar.name}</h2>
-                <em>{plant.commonName}</em>
-                <p>{plant.summary}</p>
-                <span className={styles.reviewed}>
-                  {cultivar.daysToMaturity?.value ??
-                    plant.daysToMaturity?.value ??
-                    "Days to maturity not available"}
-                </span>
+            {group.cards.map((card) => (
+              <Link className={styles.plantCard} to={card.to} key={card.key}>
+                <span className={styles.chip}>{card.chip}</span>
+                <h3>{card.name}</h3>
+                <em>{card.sub}</em>
+                <p>{card.body}</p>
+                <span className={styles.reviewed}>{card.foot}</span>
               </Link>
             ))}
           </div>
-        </>
-      ) : (
-        <div className={styles.cardGrid}>
-          {filtered.map((plant) => (
-            <Link
-              className={styles.plantCard}
-              to={`/plants/${plant.id}`}
-              key={plant.id}
-            >
-              <span className={styles.chip}>{plant.category}</span>
-              <h2>{plant.commonName}</h2>
-              <em>{plant.scientificName}</em>
-              <p>{plant.summary}</p>
-              <span className={styles.reviewed}>
-                {plant.cultivars.length
-                  ? `${plant.cultivars.length} varieties`
-                  : "No varieties listed"}
-                {plant.daysToMaturity ? ` · ${plant.daysToMaturity.value}` : ""}
-              </span>
-            </Link>
-          ))}
-        </div>
-      )}
+        </section>
+      ))}
     </Page>
   );
 }
