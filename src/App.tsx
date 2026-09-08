@@ -2574,8 +2574,9 @@ function PlantLibrary() {
   const [plants, setPlants] = useState<PlantRecord[]>([]);
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState("all");
-  // Gardeners look for "Sun Gold" far more often than for "Tomato", so varieties lead.
-  const [view, setView] = useState<"varieties" | "plants">("varieties");
+  // Opens on plants: 253 variety cards is a wall to land on, and the plant you want is the
+  // shorter way in. Varieties are a toggle away, and search reaches them from either view.
+  const [view, setView] = useState<"varieties" | "plants">("plants");
   useEffect(() => {
     api.catalog().then(setPlants);
   }, []);
@@ -2699,7 +2700,9 @@ function PlantLibrary() {
               <em>{plant.scientificName}</em>
               <p>{plant.summary}</p>
               <span className={styles.reviewed}>
-                {plant.cultivars.length} varieties
+                {plant.cultivars.length
+                  ? `${plant.cultivars.length} varieties`
+                  : "No varieties listed"}
                 {plant.daysToMaturity ? ` · ${plant.daysToMaturity.value}` : ""}
               </span>
             </Link>
