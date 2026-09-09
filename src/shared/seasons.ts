@@ -496,13 +496,14 @@ function emptySlots(): TimelineSlot[] {
   }));
 }
 
-function slotsForWindow(window: SowingWindow): TimelineSlot[] {
+function slotsForWindows(windows: SowingWindow[]): TimelineSlot[] {
   const slots = emptySlots();
   // Same order the timing rules are painted in, so the later phase wins the
   // cells the earlier one also wants.
-  paintRange(slots, window.indoor, "indoor");
-  paintRange(slots, window, window.phases[window.phases.length - 1]);
-  paintRange(slots, window.harvest, "harvest");
+  for (const window of windows) paintRange(slots, window.indoor, "indoor");
+  for (const window of windows)
+    paintRange(slots, window, window.phases[window.phases.length - 1]);
+  for (const window of windows) paintRange(slots, window.harvest, "harvest");
   return slots;
 }
 
@@ -562,14 +563,30 @@ export function sowingLanesForEntry(
       .map(({ sowing, slots }) => ({ sowing, slots }));
   }
 
-  const windows = sowingWindowsFor(plant, garden);
-  if (windows.length <= 1)
+  /* Two windows that end in the same picking are one growing season with more
+     than one chance to plant it, not two seasons. Garlic goes in during the
+     autumn or in late winter and is lifted the same summer either way; a
+     shallot has two sowing months and one crop. Only a sowing that produces a
+     different harvest is a different growing season, and only that earns a
+     lane of its own — otherwise every plant with two sowing months would have
+     its row split and its pills halved for nothing. */
+  const bySeason = new Map<string, SowingWindow[]>();
+  for (const window of sowingWindowsFor(plant, garden)) {
+    const key = window.harvest
+      ? `${window.harvest.start}..${window.harvest.end}`
+      : "no picking dates";
+    const together = bySeason.get(key);
+    if (together) together.push(window);
+    else bySeason.set(key, [window]);
+  }
+
+  if (bySeason.size <= 1)
     return [
       { sowing: undefined, slots: rulesToTimeline(plant.timing, garden) },
     ];
 
-  return windows.map((window) => ({
-    sowing: window.sowing ?? PLANTING_SEASON_LABEL[seasonOfWindow(window)],
-    slots: slotsForWindow(window),
+  return [...bySeason.values()].map((group) => ({
+    sowing: group[0].sowing ?? PLANTING_SEASON_LABEL[seasonOfWindow(group[0])],
+    slots: slotsForWindows(group),
   }));
 }

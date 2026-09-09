@@ -788,6 +788,7 @@ function Planner() {
                              sowings splits its height between them rather
                              than letting one paint over the other. */
                           data-lanes={lanes.length}
+                          style={{ "--lanes": lanes.length } as CSSProperties}
                           key={index}
                         >
                           {lanes.map((lane, laneIndex) => {

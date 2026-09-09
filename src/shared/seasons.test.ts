@@ -1,6 +1,11 @@
 import { describe, expect, it } from "vitest";
 import { catalogById } from "./catalog";
-import type { GardenSettings, PlantRecord, TimingRule } from "./model";
+import type {
+  GardenEntry,
+  GardenSettings,
+  PlantRecord,
+  TimingRule,
+} from "./model";
 import {
   harvestWindowFor,
   indoorWindowFor,
@@ -8,6 +13,7 @@ import {
   seasonOfWindow,
   seasonsOfRange,
   sowingActionLabel,
+  sowingLanesForEntry,
   sowingWindowsFor,
 } from "./seasons";
 
@@ -256,5 +262,47 @@ describe("sowing windows", () => {
       "2026-06-01",
     );
     expect(harvestWindowFor(plant("tomato"), later)?.start).toBe("2026-07-31");
+  });
+});
+
+describe("what earns a lane of its own", () => {
+  const rowFor = (plantId: string): GardenEntry => ({
+    id: "e1",
+    plantId,
+    name: plantId,
+    variety: null,
+    dtm: null,
+    qty: 1,
+    bedId: null,
+    status: "willplant",
+    sortOrder: 0,
+  });
+  // Amanda's own frost dates rather than the defaults: they are what pushed
+  // garlic's autumn planting back into August and gave it a third window.
+  const hers: GardenSettings = {
+    ...garden,
+    lastFrost: "2026-04-15",
+    firstFrost: "2026-10-15",
+  };
+
+  it("keeps one lane where the sowings all end in the same picking", () => {
+    // Garlic goes in during the autumn or in late winter and is lifted the
+    // same summer either way. Two chances to plant one crop is not two
+    // growing seasons, and splitting it halved the pills and grew the row.
+    for (const settings of [garden, hers])
+      expect(sowingLanesForEntry(rowFor("garlic"), settings)).toHaveLength(1);
+  });
+
+  it("keeps one lane where the catalog records no picking dates at all", () => {
+    // Shallots have two sowing months and no maturity anyone has published,
+    // so there is nothing to tell two seasons apart by.
+    for (const settings of [garden, hers])
+      expect(sowingLanesForEntry(rowFor("shallot"), settings)).toHaveLength(1);
+  });
+
+  it("still gives a lane each where the pickings genuinely differ", () => {
+    const carrots = sowingLanesForEntry(rowFor("carrot"), hers);
+    expect(carrots).toHaveLength(2);
+    expect(carrots.map((lane) => lane.sowing)).toEqual(["Spring", "Summer"]);
   });
 });
