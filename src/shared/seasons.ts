@@ -92,6 +92,18 @@ export interface SowingWindow {
    * Null when the catalog gives the plant no indoor start.
    */
   indoor: DateRange | null;
+  /**
+   * Whether this sowing sits in the ground over the winter — put in during the
+   * autumn and lifted the following year, rather than sown and picked within
+   * the one season. Told by the dates themselves: a sowing whose picking falls
+   * earlier in the drawn year than its planting can only be picked the year
+   * after.
+   *
+   * A crop offering both ways of growing it, like garlic, gets a lane for each
+   * — they are two different plantings on two different timelines, even where
+   * they end up lifted in the same summer.
+   */
+  overwinters: boolean;
 }
 
 const iso = (date: Date) => date.toISOString().slice(0, 10);
@@ -391,30 +403,36 @@ export function sowingWindowsFor(
       ? maturityDays(plantIndoor, wholeGround)
       : null;
 
-  return groups.map((window, index) => ({
-    index,
-    sowing: window.sowing,
-    phases: window.phases,
-    start: window.start,
-    end: window.end,
-    seasons: seasonsOfRange(window),
-    harvest: window.sowing
+  return groups.map((window, index) => {
+    const harvest = window.sowing
       ? harvestWindowFor(plant, garden, window.sowing)
       : maturity
         ? {
             start: shift(window.start, maturity.shortest),
             end: shift(window.end, maturity.longest),
           }
-        : plantHarvest,
-    indoor: window.sowing
-      ? indoorWindowFor(plant, garden, window.sowing)
-      : lead
-        ? {
-            start: shift(window.start, -lead.shortest),
-            end: shift(window.end, -lead.longest),
-          }
-        : plantIndoor,
-  }));
+        : plantHarvest;
+    return {
+      index,
+      sowing: window.sowing,
+      phases: window.phases,
+      start: window.start,
+      end: window.end,
+      seasons: seasonsOfRange(window),
+      harvest,
+      indoor: window.sowing
+        ? indoorWindowFor(plant, garden, window.sowing)
+        : lead
+          ? {
+              start: shift(window.start, -lead.shortest),
+              end: shift(window.end, -lead.longest),
+            }
+          : plantIndoor,
+      // Picked earlier in the year than it is sown, so the picking belongs to
+      // the year after: this one sits in the ground over the winter.
+      overwinters: harvest ? harvest.start < window.start : false,
+    };
+  });
 }
 
 /**
@@ -572,9 +590,16 @@ export function sowingLanesForEntry(
      its row split and its pills halved for nothing. */
   const bySeason = new Map<string, SowingWindow[]>();
   for (const window of sowingWindowsFor(plant, garden)) {
-    const key = window.harvest
-      ? `${window.harvest.start}..${window.harvest.end}`
-      : "no picking dates";
+    /* Overwintering is its own way of growing a crop, so it gets its own lane
+       even where it ends in the same picking. Garlic put in during the autumn
+       sits through the winter; the same garlic put in during late winter does
+       not. Two plantings, two timelines, and a gardener choosing between them
+       wants to see both. Everything else groups by the picking it produces. */
+    const key = window.overwinters
+      ? "overwintering"
+      : window.harvest
+        ? `${window.harvest.start}..${window.harvest.end}`
+        : "no picking dates";
     const together = bySeason.get(key);
     if (together) together.push(window);
     else bySeason.set(key, [window]);
@@ -586,7 +611,11 @@ export function sowingLanesForEntry(
     ];
 
   return [...bySeason.values()].map((group) => ({
-    sowing: group[0].sowing ?? PLANTING_SEASON_LABEL[seasonOfWindow(group[0])],
+    sowing:
+      group[0].sowing ??
+      (group[0].overwinters
+        ? "Overwintering"
+        : PLANTING_SEASON_LABEL[seasonOfWindow(group[0])]),
     slots: slotsForWindows(group),
   }));
 }

@@ -2079,19 +2079,11 @@
   row-gap: 2px;
 }
 .slotCell .pill {
-  /* Whatever the lane count, the lanes and the gaps between them add up to
-     the one pill height, so a row is never taller than any other. Driven by
-     --lanes rather than matched per count, so a third lane divides the height
-     instead of falling through to the full-height default and growing the
-     row. */
-  /* Below about five pixels a pill stops reading as a bar at arm's length, so
-     a third or fourth lane is allowed to grow the row rather than shrink to a
-     hairline. One and two lanes still divide the height exactly and leave
-     every row the same height as before. */
-  height: max(
-    5px,
-    calc((var(--size-pill) - (var(--lanes, 1) - 1) * 2px) / var(--lanes, 1))
-  );
+  /* Every lane gets a full-height pill and the row grows to hold them, rather
+     than the lanes dividing one pill's height between them. Two stacked bars
+     at full size fit a row comfortably and stay readable at arm's length;
+     halving them to fit a fixed height only made them hard to see. */
+  height: var(--size-pill);
 }
 .indoor {
   background: var(--stage-indoor) !important;

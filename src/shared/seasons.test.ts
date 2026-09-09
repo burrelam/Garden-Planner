@@ -285,12 +285,28 @@ describe("what earns a lane of its own", () => {
     firstFrost: "2026-10-15",
   };
 
-  it("keeps one lane where the sowings all end in the same picking", () => {
-    // Garlic goes in during the autumn or in late winter and is lifted the
-    // same summer either way. Two chances to plant one crop is not two
-    // growing seasons, and splitting it halved the pills and grew the row.
-    for (const settings of [garden, hers])
-      expect(sowingLanesForEntry(rowFor("garlic"), settings)).toHaveLength(1);
+  it("gives an overwintering sowing a lane of its own", () => {
+    // Garlic can go in during the autumn and sit through the winter, or go in
+    // during late winter and not. Both are lifted the same summer, but they
+    // are two different plantings on two different timelines and a gardener
+    // choosing between them wants to see both.
+    for (const settings of [garden, hers]) {
+      const lanes = sowingLanesForEntry(rowFor("garlic"), settings);
+      expect(lanes).toHaveLength(2);
+      expect(lanes.map((lane) => lane.sowing)).toContain("Overwintering");
+    }
+  });
+
+  it("keeps every autumn planting of one crop in the same overwintering lane", () => {
+    // At Amanda's frost dates garlic's autumn stretch is long enough for the
+    // season splitter to cut it in two. Both halves overwinter, so they are
+    // one way of growing the crop and share a lane — cutting them apart is
+    // what gave garlic three lanes and a row half again as tall.
+    const windows = sowingWindowsFor(plant("garlic"), hers);
+    expect(
+      windows.filter((window) => window.overwinters).length,
+    ).toBeGreaterThan(1);
+    expect(sowingLanesForEntry(rowFor("garlic"), hers)).toHaveLength(2);
   });
 
   it("keeps one lane where the catalog records no picking dates at all", () => {
