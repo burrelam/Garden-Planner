@@ -74,6 +74,24 @@ export const sources: SourceRecord[] = [
       "Store prevention summaries and deep links, not frozen pesticide directions. The product label remains authoritative.",
   },
   {
+    id: "usu-yard-garden",
+    publisher: "Utah State University Extension",
+    title: "Yard and Garden: crop guides",
+    url: "https://extension.usu.edu/yardandgarden/fruits-vegetables-herbs",
+    accessedAt: "2026-09-08",
+    licenseNote:
+      "Copyrighted Extension guidance, one page per crop, including the herbs OSU covers only as a group. Its harvest figures are counted from planting rather than given as calendar dates, so they travel from Utah to Oregon.",
+  },
+  {
+    id: "illinois-herbs",
+    publisher: "University of Illinois Extension",
+    title: "Herb guides",
+    url: "https://extension.illinois.edu/herbs",
+    accessedAt: "2026-09-08",
+    licenseNote:
+      "Copyrighted Extension guidance. Used for cut-and-come-again herbs, where picking starts by the size of the plant rather than on a date.",
+  },
+  {
     id: "umn-flowers",
     publisher: "University of Minnesota Extension",
     title: "Growing flowers: zinnia and marigolds",
@@ -1094,8 +1112,34 @@ export const catalog: PlantRecord[] = [
     // EM 9032's Appendix C calendar is the only OSU publication that carries shallots at all, and
     // it gives sowing months only — no maturity, spacing, sun or water figure exists to cite.
     timing: [
-      timing("direct", "lastFrost", -27, -15, ["osu-educators-guide"]),
-      timing("direct", "firstFrost", -75, -46, ["osu-educators-guide"]),
+      // Two plantings that crop at different times, so each one is named and carries its own
+      // harvest. USU plants sets in autumn "for a late spring harvest", and gives green tops
+      // 50 to 60 days after planting.
+      timing(
+        "direct",
+        "lastFrost",
+        -27,
+        -15,
+        ["osu-educators-guide"],
+        "Late winter",
+      ),
+      timing(
+        "harvest",
+        "lastFrost",
+        23,
+        45,
+        ["usu-yard-garden"],
+        "Late winter",
+      ),
+      timing(
+        "direct",
+        "firstFrost",
+        -75,
+        -46,
+        ["osu-educators-guide"],
+        "Autumn",
+      ),
+      timing("harvest", "lastFrost", 47, 77, ["usu-yard-garden"], "Autumn"),
     ],
     cultivars: [],
     problems: [],
@@ -1123,8 +1167,10 @@ export const catalog: PlantRecord[] = [
       [
         "EM 9032 sows shallots outdoors after 15 February, alongside garlic and onion sets.",
         "They can go in again in September for the following season.",
+        "Sets put in during autumn crop the following late spring; lift them once the tops fall over.",
+        "Green tops can be pulled 50 to 60 days after planting.",
       ],
-      ["osu-educators-guide"],
+      ["osu-educators-guide", "usu-yard-garden"],
       "willamette-valley",
     ),
     reviewStatus: "reviewed",
@@ -1144,6 +1190,12 @@ export const catalog: PlantRecord[] = [
     timing: [
       timing("indoor", "lastFrost", 32, 46, ["osu-educators-guide"]),
       timing("transplant", "lastFrost", 32, 77, ["osu-educators-guide"]),
+      // USU begins picking once a plant has 6–8 leaves, UMN says any time, and basil is a
+      // tender annual, so the picking runs from about a month after sowing until frost.
+      timing("harvest", "lastFrost", 62, 245, [
+        "usu-yard-garden",
+        "umn-flowers",
+      ]),
     ],
     cultivars: [
       ncsuCultivar("genovese", "Genovese", "Sweet"),
@@ -1230,6 +1282,8 @@ export const catalog: PlantRecord[] = [
         "umn-flowers",
         "clemson-annuals",
       ]),
+      // Wikipedia dates the flowering: July into October.
+      timing("bloom", "lastFrost", 108, 230, ["wikipedia"]),
     ],
     cultivars: [
       ncsuCultivar("alumia-vanilla-cream", "Alumia Vanilla Cream"),
@@ -1311,6 +1365,13 @@ export const catalog: PlantRecord[] = [
     timing: [
       timing("indoor", "lastFrost", -14, 16, ["osu-educators-guide"]),
       timing("direct", "lastFrost", 62, 77, ["osu-educators-guide"]),
+      // A perennial cut leaf by leaf, pickable until frost. Counted from the outdoor sowing
+      // rather than the indoor one, so the picking never opens before the plant is in the
+      // ground — which is what reading it off the March flats did.
+      timing("harvest", "lastFrost", 62, 245, [
+        "illinois-herbs",
+        "ncsu-plant-toolbox",
+      ]),
     ],
     cultivars: [
       ncsuCultivar("argenteus", "Argenteus"),
@@ -1367,6 +1428,13 @@ export const catalog: PlantRecord[] = [
     timing: [
       timing("indoor", "lastFrost", -14, 16, ["osu-educators-guide"]),
       timing("direct", "lastFrost", 62, 77, ["osu-educators-guide"]),
+      // A perennial cut leaf by leaf, pickable until frost. Counted from the outdoor sowing
+      // rather than the indoor one, so the picking never opens before the plant is in the
+      // ground — which is what reading it off the March flats did.
+      timing("harvest", "lastFrost", 62, 245, [
+        "illinois-herbs",
+        "ncsu-plant-toolbox",
+      ]),
     ],
     cultivars: [
       ncsuCultivar("greek", "Greek oregano", "Culinary"),
@@ -1415,6 +1483,13 @@ export const catalog: PlantRecord[] = [
     timing: [
       timing("indoor", "lastFrost", -14, 16, ["osu-educators-guide"]),
       timing("direct", "lastFrost", 62, 77, ["osu-educators-guide"]),
+      // A perennial cut leaf by leaf, pickable until frost. Counted from the outdoor sowing
+      // rather than the indoor one, so the picking never opens before the plant is in the
+      // ground — which is what reading it off the March flats did.
+      timing("harvest", "lastFrost", 62, 245, [
+        "illinois-herbs",
+        "ncsu-plant-toolbox",
+      ]),
     ],
     cultivars: [
       ncsuCultivar("berggarten", "Berggarten", "Culinary"),
@@ -1458,6 +1533,13 @@ export const catalog: PlantRecord[] = [
     timing: [
       timing("indoor", "lastFrost", -14, 16, ["osu-educators-guide"]),
       timing("direct", "lastFrost", 62, 77, ["osu-educators-guide"]),
+      // A perennial cut leaf by leaf, pickable until frost. Counted from the outdoor sowing
+      // rather than the indoor one, so the picking never opens before the plant is in the
+      // ground — which is what reading it off the March flats did.
+      timing("harvest", "lastFrost", 62, 245, [
+        "illinois-herbs",
+        "ncsu-plant-toolbox",
+      ]),
     ],
     cultivars: [
       ncsuCultivar("arp", "Arp"),
@@ -1507,6 +1589,12 @@ export const catalog: PlantRecord[] = [
     timing: [
       timing("indoor", "lastFrost", -42, 77, ["osu-educators-guide"]),
       timing("direct", "lastFrost", -14, 138, ["osu-educators-guide"]),
+      // Illinois cuts parsley "any time after it has become large enough" and UMN reports new
+      // growth right through the season, so it is pickable from a month in until frost.
+      timing("harvest", "lastFrost", 16, 245, [
+        "illinois-herbs",
+        "ncsu-plant-toolbox",
+      ]),
     ],
     cultivars: [
       ncsuCultivar("curly", "Curly leaf", "Leaf type"),
@@ -1565,7 +1653,11 @@ export const catalog: PlantRecord[] = [
       ["ncsu-plant-toolbox"],
       "national",
     ),
-    timing: [timing("direct", "lastFrost", 47, 107, ["osu-educators-guide"])],
+    timing: [
+      timing("direct", "lastFrost", 47, 107, ["osu-educators-guide"]),
+      // USU harvests dill 6–8 weeks after sowing.
+      timing("harvest", "lastFrost", 89, 163, ["usu-yard-garden"]),
+    ],
     cultivars: [
       ncsuCultivar("bouquet", "Bouquet", "Tall"),
       ncsuCultivar("delikat", "Delikat", "Dense foliage"),
@@ -1635,7 +1727,12 @@ export const catalog: PlantRecord[] = [
       ["ncsu-plant-toolbox", "wikipedia"],
       "national",
     ),
-    timing: [timing("direct", "lastFrost", 0, 155, ["wikipedia"])],
+    timing: [
+      timing("direct", "lastFrost", 0, 155, ["wikipedia"]),
+      // Sixty to ninety days after germination, from the earliest sowing to the last that can
+      // still flower before frost.
+      timing("bloom", "lastFrost", 60, 245, ["wikipedia"]),
+    ],
     cultivars: [
       ncsuCultivar("antiquity", "Antiquity"),
       ncsuCultivar("chocolate", "Chocolate"),
@@ -1712,6 +1809,8 @@ export const catalog: PlantRecord[] = [
         "clemson-annuals",
         "wikipedia",
       ]),
+      // Three to four months from seed, across the window it is set out in.
+      timing("bloom", "lastFrost", 48, 134, ["wikipedia"]),
     ],
     cultivars: [
       ncsuCultivar("admiral-white", "Admiral White"),
@@ -1787,6 +1886,8 @@ export const catalog: PlantRecord[] = [
         "umn-flowers",
         "clemson-annuals",
       ]),
+      // NC State has it blooming through summer and fall, which ends at the first frost.
+      timing("bloom", "lastFrost", 78, 245, ["ncsu-plant-toolbox"]),
     ],
     cultivars: [
       ncsuCultivar("profusion-series", "Profusion Series"),

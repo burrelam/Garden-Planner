@@ -309,11 +309,19 @@ describe("what earns a lane of its own", () => {
     expect(sowingLanesForEntry(rowFor("garlic"), hers)).toHaveLength(2);
   });
 
-  it("keeps one lane where the catalog records no picking dates at all", () => {
-    // Shallots have two sowing months and no maturity anyone has published,
-    // so there is nothing to tell two seasons apart by.
-    for (const settings of [garden, hers])
-      expect(sowingLanesForEntry(rowFor("shallot"), settings)).toHaveLength(1);
+  it("gives shallots a lane each, now that both plantings have picking dates", () => {
+    // This used to be the case with nothing to tell two sowings apart, because
+    // OSU gives shallots sowing months and no maturity. Utah State dates both:
+    // autumn sets crop the following late spring, and a late-winter planting
+    // gives green tops 50 to 60 days on. Two crops, two lanes.
+    for (const settings of [garden, hers]) {
+      const lanes = sowingLanesForEntry(rowFor("shallot"), settings);
+      expect(lanes).toHaveLength(2);
+      expect(lanes.map((lane) => lane.sowing)).toEqual([
+        "Late winter",
+        "Autumn",
+      ]);
+    }
   });
 
   it("still gives a lane each where the pickings genuinely differ", () => {
