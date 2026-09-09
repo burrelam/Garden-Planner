@@ -134,12 +134,15 @@ function combinedSlotPhase(
   if (actualPhase) return { phase: actualPhase, variant: "Actual" };
   return { phase: guidePhase, variant: "Tint" };
 }
+/* Edibles first, then the ornamentals roughly by how big they get. */
 const CATEGORY_ORDER = [
   "herb",
   "vegetable",
   "fruit",
   "flower",
+  "grass",
   "shrub",
+  "tree",
 ] as const;
 type PlantCategory = (typeof CATEGORY_ORDER)[number];
 const categoryLabels: Record<PlantCategory, string> = {
@@ -147,14 +150,20 @@ const categoryLabels: Record<PlantCategory, string> = {
   vegetable: "Vegetables",
   fruit: "Fruits",
   flower: "Flowers",
+  grass: "Grasses",
   shrub: "Shrubs",
+  tree: "Trees",
 };
 const categoryColors: Record<PlantCategory, string> = {
   herb: "var(--stage-harvest)",
   vegetable: "var(--color-accent)",
   fruit: "var(--stage-indoor)",
   flower: "var(--stage-bloom)",
+  /* Straw for grasses and bark for trees: the two free stage colours, and far
+     enough from the herb green and the shrub rust to tell apart in a row. */
+  grass: "var(--stage-transplant)",
   shrub: "var(--color-secondary)",
+  tree: "var(--stage-direct)",
 };
 /* The three phases that describe putting something in the ground. Picking and
    flowering are what is left once they are dropped. */

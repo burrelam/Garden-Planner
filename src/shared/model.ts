@@ -241,8 +241,14 @@ export interface PlantRecord {
   /* Where a gardener would go looking for it, not where a botanist would file it.
      If it flowers, it is a flower — a rose is a flower, whatever its wood is doing.
      `shrub` is for the woody things grown without one, for their leaves, their bark
-     or their winter stems: ninebark, smoke bush, a redtwig dogwood. */
-  category: "vegetable" | "herb" | "flower" | "fruit" | "shrub";
+     or their winter stems: ninebark, smoke bush, a redtwig dogwood.
+
+     `tree` and `grass` are by habit rather than by flower, because that is how you
+     go looking for them — nobody hunts for a birch under flowers. Both are empty
+     today, and the plant library shows an empty kind greyed out with a count of
+     zero, the way Fruits has sat there all along. */
+  category:
+    "vegetable" | "herb" | "flower" | "fruit" | "shrub" | "tree" | "grass";
   summary: string;
   /**
    * The botanical family, e.g. "Asteraceae". The catalog carries exactly this much
