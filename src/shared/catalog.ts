@@ -2578,7 +2578,7 @@ export const catalog: PlantRecord[] = [
     id: "rose",
     commonName: "Roses",
     scientificName: "Rosa hybrids",
-    category: "shrub",
+    category: "flower",
     family: family("Rosaceae"),
     plantOnce: true,
     plantingLabel: "Plant bare root",

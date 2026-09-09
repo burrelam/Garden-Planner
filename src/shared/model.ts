@@ -238,8 +238,10 @@ export interface PlantRecord {
   id: string;
   commonName: string;
   scientificName?: string;
-  // Where a gardener would go looking for it, not where a botanist would file it.
-  // `shrub` catches the woody things that are neither a flower bed plant nor a herb.
+  /* Where a gardener would go looking for it, not where a botanist would file it.
+     If it flowers, it is a flower — a rose is a flower, whatever its wood is doing.
+     `shrub` is for the woody things grown without one, for their leaves, their bark
+     or their winter stems: ninebark, smoke bush, a redtwig dogwood. */
   category: "vegetable" | "herb" | "flower" | "fruit" | "shrub";
   summary: string;
   /**

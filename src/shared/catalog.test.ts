@@ -134,3 +134,19 @@ describe("plants that are planted once", () => {
     }
   });
 });
+
+describe("where a plant is filed", () => {
+  it("calls anything that flowers a flower", () => {
+    /* Amanda's rule: a rose is a flower, whatever its wood is doing. `shrub` is
+       reserved for woody plants grown without a flower worth having — for foliage,
+       bark or winter stems. So nothing that owns a bloom window may be a shrub. */
+    for (const plant of catalog) {
+      if (plant.category !== "shrub") continue;
+      const blooms = plant.timing.some((rule) => rule.phase === "bloom");
+      expect(
+        blooms,
+        `${plant.id} has a bloom window, so it belongs under flowers`,
+      ).toBe(false);
+    }
+  });
+});
