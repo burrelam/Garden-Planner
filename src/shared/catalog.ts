@@ -1,4 +1,9 @@
-import type { PlantRecord, SourceRecord, SourcedFact } from "./model";
+import type {
+  PlantRecord,
+  SourceRecord,
+  SourcedFact,
+  ToxicityRecord,
+} from "./model";
 
 // Plant pages read only this reviewed, version-controlled catalog. Source websites are editorial
 // inputs and citations, never runtime dependencies that could disappear during garden planning.
@@ -141,7 +146,67 @@ export const sources: SourceRecord[] = [
     licenseNote:
       "Copyrighted Extension guidance. Paraphrase discrete facts and link to the source. Carries the days-to-maturity and soil/air temperature tables.",
   },
+  {
+    id: "osu-dahlias",
+    publisher: "Oregon State University Extension Service",
+    title: "Dahlias in Oregon: Planting for a Parade of Late-season Blooms",
+    url: "https://extension.oregonstate.edu/catalog/pub/fs95",
+    revision: "FS 95, revised February 2024",
+    accessedAt: "2026-09-08",
+    licenseNote:
+      "Copyrighted Extension guidance written for Oregon growers, so its dates and soil temperatures travel to this garden unchanged. Paraphrase discrete facts and link the source. Its figures are credited to named OSU photographers and are not imported.",
+  },
+  {
+    id: "osu-bare-root-roses",
+    publisher: "Oregon State University Extension Service",
+    title: "Planting bare root roses in spring",
+    url: "https://extension.oregonstate.edu/catalog/em-9474-planting-bare-root-roses-spring",
+    revision: "EM 9474, revised September 2025",
+    accessedAt: "2026-09-08",
+    licenseNote:
+      "Copyrighted Extension guidance. Scoped to the Pacific Northwest and broken out by USDA zone, so the zone 7-8 window is the one that applies here. Paraphrase discrete facts and link the source.",
+  },
+  {
+    id: "osu-fall-bulbs",
+    publisher: "Oregon State University Extension Service",
+    title:
+      "Plant spring-blooming bulbs in fall for years of low-maintenance color",
+    url: "https://extension.oregonstate.edu/news/plant-spring-blooming-bulbs-fall-years-low-maintenance-color",
+    revision: "Published September 2025, reviewed 2025",
+    accessedAt: "2026-09-08",
+    licenseNote:
+      "An Extension news story rather than a peer-reviewed publication: it quotes an OSU horticulturist and separates western from central Oregon, which is what makes its planting months usable here. Weaker footing than a catalog publication, so it carries the bulb planting window and little else. Watch for it being archived, as OSU archives stories it no longer stands behind.",
+  },
+  {
+    id: "osu-sweet-peas",
+    publisher: "Oregon State University Extension Service",
+    title: "Sweet peas add color and fragrance to Oregon gardens",
+    url: "https://extension.oregonstate.edu/news/sweet-peas-add-color-fragrance-oregon-gardens",
+    revision: "Published March 2025, reviewed 2025",
+    accessedAt: "2026-09-08",
+    licenseNote:
+      "An Extension news story, same weaker footing as the bulb story above. Names a western Oregon sowing cutoff and sowing depths, which no OSU catalog publication covers for this plant. An earlier OSU sweet pea story has since been archived as out of date; this is the reviewed replacement.",
+  },
 ];
+
+/**
+ * Botanical families in plain words, for the line on a plant page that names a
+ * plant's relatives. The friendly names live here rather than on each record so
+ * that "daisy family" is written once and every Asteraceae inherits it.
+ */
+export const familyNames: Record<string, string> = {
+  Amaryllidaceae: "daffodil and onion family",
+  Apiaceae: "carrot family",
+  Asteraceae: "daisy family",
+  Cucurbitaceae: "gourd family",
+  Fabaceae: "pea family",
+  Lamiaceae: "mint family",
+  Paeoniaceae: "peony family",
+  Plantaginaceae: "plantain family",
+  Rosaceae: "rose family",
+  Solanaceae: "nightshade family",
+  Thymelaeaceae: "daphne family",
+};
 
 const regionalFact = <T>(
   value: T,
@@ -190,6 +255,68 @@ const osuFact = <T>(
   locationScope,
   evidenceLevel: "extension-guidance" as const,
   reviewedAt: resourcedAt,
+});
+
+// The date the cut-flower group was researched. Kept apart from the earlier review dates
+// so it stays obvious which facts were gathered in which pass.
+const flowersReviewedAt = "2026-09-08";
+
+// Taxonomy is the one claim in this file that is not paraphrased Extension guidance.
+// USDA PLANTS is a federal database whose terms allow taxonomy to be used outright with
+// a citation, so a family can be stated rather than hedged.
+const family = (value: string) => ({
+  value,
+  sourceIds: ["usda-plants"],
+  locationScope: "national" as const,
+  evidenceLevel: "research-supported" as const,
+  reviewedAt: flowersReviewedAt,
+});
+
+// Severity keeps the Plant Toolbox's own wording. Nothing here is re-graded by us.
+const toxic = (
+  severity: ToxicityRecord["severity"],
+  parts: string,
+  symptoms: string,
+  sourceIds = ["ncsu-plant-toolbox"],
+): ToxicityRecord => ({
+  severity,
+  parts,
+  symptoms,
+  sourceIds,
+  reviewedAt: flowersReviewedAt,
+});
+
+// A fact gathered in the cut-flower pass, dated to it.
+const flowerFact = <T>(
+  value: T,
+  sourceIds: string[],
+  locationScope: SourcedFact<T>["locationScope"] = "western-oregon",
+) => ({
+  value,
+  sourceIds,
+  locationScope,
+  evidenceLevel: "extension-guidance" as const,
+  reviewedAt: flowersReviewedAt,
+});
+
+// A cut-flower variety. Most are named in the Plant Toolbox's own cultivar lists; a
+// few come from the OSU stories, which name the kinds actually sold here. The scope
+// follows the source, so an OSU-named variety is not quietly claimed as national.
+const flowerCultivar = (
+  id: string,
+  name: string,
+  type: string,
+  sourceIds = ["ncsu-plant-toolbox"],
+) => ({
+  id,
+  name,
+  type: flowerFact(
+    type,
+    sourceIds,
+    sourceIds.some((source) => source.startsWith("osu-"))
+      ? "western-oregon"
+      : "national",
+  ),
 });
 
 // A cultivar the Plant Toolbox lists by name without assigning it a horticultural group.
@@ -256,6 +383,7 @@ export const catalog: PlantRecord[] = [
     commonName: "Tomato",
     scientificName: "Solanum lycopersicum",
     category: "vegetable",
+    family: family("Solanaceae"),
     summary:
       "A warm-season crop for the Western valleys, set out as transplants once May arrives.",
     daysToMaturity: osuFact("60–75 days from transplant", [
@@ -420,6 +548,7 @@ export const catalog: PlantRecord[] = [
     commonName: "Pepper",
     scientificName: "Capsicum annuum",
     category: "vegetable",
+    family: family("Solanaceae"),
     summary:
       "A heat lover for the Western valleys, best grown from transplants set out in May or June.",
     daysToMaturity: osuFact(
@@ -532,6 +661,7 @@ export const catalog: PlantRecord[] = [
     commonName: "Peas",
     scientificName: "Pisum sativum",
     category: "vegetable",
+    family: family("Fabaceae"),
     summary:
       "A cool-season crop direct sown in the Western valleys from February into May.",
     daysToMaturity: osuFact("About 60 days from seed", ["osu-educators-guide"]),
@@ -621,6 +751,7 @@ export const catalog: PlantRecord[] = [
     commonName: "Lettuce",
     scientificName: "Lactuca sativa",
     category: "vegetable",
+    family: family("Asteraceae"),
     summary:
       "A cool-season salad crop for the Western valleys, sown in short succession rows from spring into late summer.",
     // EM 9032 gives seed-to-harvest maturity separately for leaf and head types.
@@ -726,6 +857,7 @@ export const catalog: PlantRecord[] = [
     commonName: "Carrots",
     scientificName: "Daucus carota",
     category: "vegetable",
+    family: family("Apiaceae"),
     summary:
       "A direct-sown root crop for the Western valleys, sown March through mid-July.",
     daysToMaturity: osuFact("60–88 days from seed", ["osu-educators-guide"]),
@@ -784,6 +916,7 @@ export const catalog: PlantRecord[] = [
     commonName: "Cucumbers",
     scientificName: "Cucumis sativus",
     category: "vegetable",
+    family: family("Cucurbitaceae"),
     summary:
       "A warm-season vine for the Western valleys, planted out in May or June once the soil has warmed.",
     daysToMaturity: osuFact(
@@ -858,6 +991,7 @@ export const catalog: PlantRecord[] = [
     commonName: "Beans",
     scientificName: "Phaseolus vulgaris",
     category: "vegetable",
+    family: family("Fabaceae"),
     summary:
       "A warm-soil crop direct sown in the Western valleys through May and June.",
     daysToMaturity: osuFact("54–65 days from seed", ["osu-educators-guide"]),
@@ -969,6 +1103,7 @@ export const catalog: PlantRecord[] = [
     commonName: "Onions",
     scientificName: "Allium cepa",
     category: "vegetable",
+    family: family("Amaryllidaceae"),
     summary:
       "A cool-season allium for the Western valleys, planted March through May from seed, sets or transplants.",
     daysToMaturity: osuFact("110–120 days", ["osu-educators-guide"]),
@@ -1047,6 +1182,7 @@ export const catalog: PlantRecord[] = [
     commonName: "Garlic",
     scientificName: "Allium sativum",
     category: "herb",
+    family: family("Amaryllidaceae"),
     summary:
       "A fall-planted allium for the Western valleys, harvested the following summer.",
     daysToMaturity: osuFact(
@@ -1107,6 +1243,7 @@ export const catalog: PlantRecord[] = [
     commonName: "Shallots",
     scientificName: "Allium cepa Aggregatum Group",
     category: "herb",
+    family: family("Amaryllidaceae"),
     summary:
       "A multiplier allium for the Willamette Valley, sown after mid-February or again in September.",
     // EM 9032's Appendix C calendar is the only OSU publication that carries shallots at all, and
@@ -1181,6 +1318,7 @@ export const catalog: PlantRecord[] = [
     commonName: "Basil",
     scientificName: "Ocimum basilicum",
     category: "herb",
+    family: family("Lamiaceae"),
     summary:
       "A frost-tender herb for the Willamette Valley, started under cover in mid-April and set out once the nights turn mild.",
     // EC 871's herbs note names sweet basil directly. It gives no maturity or spacing figure, so
@@ -1250,6 +1388,7 @@ export const catalog: PlantRecord[] = [
     commonName: "Marigolds",
     scientificName: "Tagetes patula",
     category: "flower",
+    family: family("Asteraceae"),
     summary:
       "A compact French marigold that flowers from spring into fall if it is kept deadheaded.",
     // UMN starts marigold indoors 10 weeks before it goes out, and plants it out once the
@@ -1344,6 +1483,7 @@ export const catalog: PlantRecord[] = [
     commonName: "Thyme",
     scientificName: "Thymus vulgaris",
     category: "herb",
+    family: family("Lamiaceae"),
     summary:
       "A woody Mediterranean herb, started under cover in March or sown outdoors once the soil is warm.",
     sun: osuFact("Full sun", ["ncsu-plant-toolbox"], "national"),
@@ -1403,6 +1543,7 @@ export const catalog: PlantRecord[] = [
     commonName: "Oregano",
     scientificName: "Origanum vulgare",
     category: "herb",
+    family: family("Lamiaceae"),
     summary:
       "A hardy perennial herb for a sunny, well-drained corner of the bed.",
     sun: osuFact(
@@ -1458,6 +1599,7 @@ export const catalog: PlantRecord[] = [
     commonName: "Sage",
     scientificName: "Salvia officinalis",
     category: "herb",
+    family: family("Lamiaceae"),
     summary:
       "A short-lived perennial that resents wet feet and rewards a dry, sunny spot.",
     sun: osuFact(
@@ -1516,6 +1658,7 @@ export const catalog: PlantRecord[] = [
     commonName: "Rosemary",
     scientificName: "Salvia rosmarinus",
     category: "herb",
+    family: family("Lamiaceae"),
     summary:
       "An evergreen Mediterranean shrub that wants sun, sharp drainage and very little fuss.",
     sun: osuFact("Full sun", ["ncsu-plant-toolbox"], "national"),
@@ -1568,6 +1711,7 @@ export const catalog: PlantRecord[] = [
     commonName: "Parsley",
     scientificName: "Petroselinum crispum",
     category: "herb",
+    family: family("Apiaceae"),
     summary:
       "A biennial grown as an annual, sown outdoors from March right through July.",
     sun: osuFact("Full sun", ["ncsu-plant-toolbox"], "national"),
@@ -1631,6 +1775,7 @@ export const catalog: PlantRecord[] = [
     commonName: "Dill",
     scientificName: "Anethum graveolens",
     category: "herb",
+    family: family("Apiaceae"),
     summary:
       "An annual herb sown straight into the ground through May and June.",
     sun: osuFact(
@@ -1695,6 +1840,7 @@ export const catalog: PlantRecord[] = [
     commonName: "Cosmos",
     scientificName: "Cosmos bipinnatus",
     category: "flower",
+    family: family("Asteraceae"),
     summary:
       "An airy annual with a long bloom season, happy in poorer ground than most.",
     // Wikipedia dates the flowering: 60–90 days after germination, and the plant is frost
@@ -1774,6 +1920,7 @@ export const catalog: PlantRecord[] = [
     commonName: "Snapdragons",
     scientificName: "Antirrhinum majus",
     category: "flower",
+    family: family("Plantaginaceae"),
     summary:
       "A cool-season favourite for cutting, grown as an annual and flowering spring through fall.",
     // Clemson files snapdragon with the hardy and half-hardy annuals, set out in early spring
@@ -1860,6 +2007,7 @@ export const catalog: PlantRecord[] = [
     commonName: "Zinnias",
     scientificName: "Zinnia elegans",
     category: "flower",
+    family: family("Asteraceae"),
     summary:
       "A dependable cutting annual that keeps flowering from summer into fall.",
     // UMN starts zinnia indoors about 6 weeks before it goes out and sets transplants once the
@@ -1923,6 +2071,584 @@ export const catalog: PlantRecord[] = [
       ],
       ["ncsu-plant-toolbox", "wikipedia", "umn-flowers", "clemson-annuals"],
       "national",
+    ),
+    reviewStatus: "reviewed",
+  },
+  /* The cut-flower group starts here. Six plants chosen to cover every shape the
+     calendar has to draw: a tuberous root lifted each autumn, a bulb put in during
+     the fall, a hardy annual sown before the frost date, a tender annual sown after
+     it, a perennial crown, and a bare root shrub. */
+  {
+    id: "dahlia",
+    commonName: "Dahlia",
+    scientificName: "Dahlia hybrids",
+    category: "flower",
+    family: family("Asteraceae"),
+    plantingLabel: "Plant the tubers",
+    summary:
+      "Late summer's showpiece, grown from a tuber that comes up out of the ground each autumn.",
+    // FS 95 is written for Oregon, so its dates need no translating. Tubers go in when
+    // the soil holds 60°F for several days running — late April to the end of May,
+    // which is the same week the tomatoes go out. Flowering runs midsummer to frost.
+    sun: flowerFact("At least six hours of sun to get the most flowers", [
+      "osu-dahlias",
+    ]),
+    water: flowerFact(
+      "Keep the soil evenly moist, never soggy — and give it nothing at all between planting and the first two leaves, when the tuber rots easily",
+      ["osu-dahlias"],
+    ),
+    soil: flowerFact(
+      "Loose, fertile and well drained at pH 6.5–7.0, though it will grow in almost anything once amended",
+      ["osu-dahlias"],
+    ),
+    spacing: flowerFact("About 2 feet apart", ["osu-dahlias"]),
+    timing: [
+      // Cuttings and small plants indoors in February or March.
+      timing("indoor", "lastFrost", -42, 16, ["osu-dahlias"]),
+      timing("direct", "lastFrost", 45, 77, ["osu-dahlias"]),
+      timing("bloom", "lastFrost", 108, 230, ["osu-dahlias"]),
+    ],
+    cultivars: [
+      flowerCultivar("formal-decorative", "Formal Decorative", "Decorative", [
+        "osu-dahlias",
+      ]),
+      flowerCultivar(
+        "informal-decorative",
+        "Informal Decorative",
+        "Decorative",
+        ["osu-dahlias"],
+      ),
+      flowerCultivar("semi-cactus", "Semi Cactus", "Cactus", ["osu-dahlias"]),
+      flowerCultivar("cactus", "Cactus", "Cactus", ["osu-dahlias"]),
+      flowerCultivar("incurved-cactus", "Incurved Cactus", "Cactus", [
+        "osu-dahlias",
+      ]),
+      flowerCultivar("ball", "Ball", "Ball", ["osu-dahlias"]),
+      flowerCultivar("miniature-ball", "Miniature Ball", "Ball", [
+        "osu-dahlias",
+      ]),
+      flowerCultivar("pompon", "Pompon", "Ball", ["osu-dahlias"]),
+      flowerCultivar("waterlily", "Waterlily", "Open centred", ["osu-dahlias"]),
+      flowerCultivar("collarette", "Collarette", "Open centred", [
+        "osu-dahlias",
+      ]),
+      flowerCultivar("single", "Single", "Open centred", ["osu-dahlias"]),
+      flowerCultivar("stellar", "Stellar", "Open centred", ["osu-dahlias"]),
+    ],
+    problems: [
+      {
+        id: "dahlia-crown-gall",
+        name: "Crown gall",
+        kind: "disease",
+        symptom:
+          "Lumpy growths on the crown of the tuber, where the neck swells into a ridge.",
+        response:
+          "There is no treating it and it spreads easily. Throw the tuber out rather than composting it, and dip your tools in bleach before they touch another dahlia.",
+        evidenceLevel: "extension-guidance",
+        sourceIds: ["osu-dahlias"],
+      },
+      {
+        id: "dahlia-mosaic-virus",
+        name: "Dahlia mosaic virus",
+        kind: "disease",
+        symptom:
+          "Stunted growth with yellow streaks or spots on the leaves. Both the plant and its tuber carry it.",
+        response:
+          "No treatment exists. Pull the plant so it cannot spread, and do not compost it or its tuber.",
+        evidenceLevel: "extension-guidance",
+        sourceIds: ["osu-dahlias"],
+      },
+      {
+        id: "dahlia-powdery-mildew",
+        name: "Powdery mildew",
+        kind: "disease",
+        symptom: "A grey, dusty film across the leaves.",
+        response:
+          "Water at the base rather than over the top, thin out crowding so air moves through, and take off the leaves that are already covered.",
+        evidenceLevel: "extension-guidance",
+        sourceIds: ["osu-dahlias"],
+      },
+      {
+        id: "dahlia-earwigs",
+        name: "Earwigs",
+        kind: "pest",
+        symptom:
+          "Chewed blooms, done overnight — the flower is fine at dusk and ragged by morning.",
+        response: "Set traps; both the organic and conventional kinds work.",
+        evidenceLevel: "extension-guidance",
+        sourceIds: ["osu-dahlias"],
+      },
+      {
+        id: "dahlia-slugs",
+        name: "Slugs and snails",
+        kind: "pest",
+        symptom: "Young plants stripped at night, just as the sprouts appear.",
+        response:
+          "Put bait down two weeks after planting, or as soon as the first sprouts show.",
+        evidenceLevel: "extension-guidance",
+        sourceIds: ["osu-dahlias"],
+      },
+    ],
+    companions: [],
+    growingTips: flowerFact(
+      [
+        "Plant the tuber on its side in a hole 4–6 inches deep, eye facing up.",
+        "Drive the stake in before the tuber goes in — anything over 36 inches tall will need one, and staking later spears the tuber.",
+        "Do not water after planting until the first two leaves show. This is when tubers rot.",
+        "Feed a low-nitrogen fertiliser such as 5-10-10, starting 30 days after planting. Too much nitrogen buys weak stems and no flowers.",
+        "Stop feeding in September so the tubers harden off and store well.",
+        "Water at the roots, never over open blooms — wet flowers get heavy and snap their stems.",
+        "Dig the tubers after a hard frost has killed the stalks. Cut the stalks to 4–6 inches, then lift about 18 inches out from the stalk so you do not slice through them.",
+        "Autumn is the usual time to divide, and it tells you how many you have before you go shopping again.",
+      ],
+      ["osu-dahlias"],
+    ),
+    reviewStatus: "reviewed",
+  },
+  {
+    id: "daffodil",
+    commonName: "Daffodils",
+    scientificName: "Narcissus spp.",
+    category: "flower",
+    family: family("Amaryllidaceae"),
+    plantingLabel: "Plant the bulbs",
+    summary:
+      "Put in during the autumn and left alone, they come back every spring for years.",
+    // Two sources, each doing what it can. OSU gives the western Oregon planting months;
+    // the Plant Toolbox gives what the plant is, which travels anywhere.
+    sun: flowerFact(
+      "Full sun, or partial shade of 2–6 hours",
+      ["ncsu-plant-toolbox"],
+      "national",
+    ),
+    water: flowerFact(
+      "Naturally drought tolerant — it goes dormant over summer and wants no water then",
+      ["osu-fall-bulbs"],
+    ),
+    soil: flowerFact(
+      "Well drained and slightly acid. Never anywhere winter water pools; a raised bed or berm keeps it out of the wet",
+      ["osu-fall-bulbs", "ncsu-plant-toolbox"],
+    ),
+    spacing: flowerFact(
+      "Plant about three times as deep as the bulb is wide, in groups rather than one at a time",
+      ["osu-fall-bulbs"],
+    ),
+    timing: [
+      // October and November in most of western Oregon, and as late as mid-December
+      // if the ground can still be dug. Anchored to the first frost, which is the
+      // date the window sits around.
+      timing("direct", "firstFrost", -46, 30, ["osu-fall-bulbs"]),
+      // December through May, two or three weeks for any one plant.
+      timing("bloom", "lastFrost", -104, 61, ["ncsu-plant-toolbox"]),
+    ],
+    cultivars: [
+      flowerCultivar("chinita", "Chinita", "Small-cupped"),
+      flowerCultivar("dreamlight", "Dreamlight", "Small-cupped"),
+      flowerCultivar("eastern-dawn", "Eastern Dawn", "Large-cupped"),
+      flowerCultivar("tahiti", "Tahiti", "Double"),
+      flowerCultivar("hawera", "Hawera", "Triandrus"),
+      flowerCultivar("poeticus", "Poet's daffodil", "Species"),
+      flowerCultivar("jonquilla", "Jonquil", "Species"),
+      flowerCultivar("cyclamineus", "Cyclamen daffodil", "Species"),
+    ],
+    problems: [
+      {
+        id: "daffodil-bulb-rot",
+        name: "Bulb rot",
+        kind: "disease",
+        symptom:
+          "Bulbs soften and fail to come up, after a winter sitting in wet ground.",
+        response:
+          "Plant only where the soil drains. In our wet winters a raised bed or a berm is the fix; avoid any spot where water stands.",
+        evidenceLevel: "extension-guidance",
+        sourceIds: ["ncsu-plant-toolbox", "osu-fall-bulbs"],
+      },
+      {
+        id: "daffodil-bulb-fly",
+        name: "Narcissus bulb fly",
+        kind: "pest",
+        symptom:
+          "A bulb that comes up thin and grassy, or not at all, and is hollow when you lift it.",
+        response:
+          "Lift and destroy the bulbs that fail. Firming soil over the neck as the foliage dies back gives the fly less room to lay.",
+        evidenceLevel: "extension-guidance",
+        sourceIds: ["ncsu-plant-toolbox"],
+      },
+      {
+        id: "daffodil-slugs",
+        name: "Slugs and snails",
+        kind: "pest",
+        symptom: "Ragged holes chewed in the new leaves in a mild wet spring.",
+        response:
+          "Hand pick a couple of hours after sunset, or use traps and copper bands. Clear the damp dark places they shelter in.",
+        evidenceLevel: "extension-guidance",
+        sourceIds: ["ncsu-plant-toolbox", "osu-growing-your-own"],
+      },
+    ],
+    companions: [],
+    toxicity: toxic(
+      "medium",
+      "Flowers, leaves, roots and stems",
+      "Poisonous only if a lot is eaten, but the skin irritation is severe. Eating causes nausea, vomiting, diarrhoea, trembling and convulsions, and can be fatal. Handling the bulbs, flowers and stems brings on the contact dermatitis known as lily rash.",
+    ),
+    growingTips: flowerFact(
+      [
+        "October and November are the months in most of western Oregon; mid-December still works if the ground can be dug.",
+        "Buy big firm bulbs and skip any that are mouldy or soft — the bigger the bulb, the bigger the flower.",
+        "Dig one wide hole for a group rather than a hole per bulb. You get a drift instead of a row of dots.",
+        "Set the bulb pointed end up, about three times its own width deep, with compost in the bottom of the hole.",
+        "Fertiliser is optional. If you use any, put superphosphate in at planting, because phosphorus does not travel down through soil.",
+        "There is no need to lift them after flowering.",
+        "Snap the dead flowers off, but let the leaves brown and die back on their own — that is the bulb feeding next year's flower.",
+        "Reaches 8 inches to 2 feet 6 inches tall, hardy across zones 4a–8b.",
+      ],
+      ["osu-fall-bulbs", "ncsu-plant-toolbox"],
+    ),
+    reviewStatus: "reviewed",
+  },
+  {
+    id: "sweet-pea",
+    commonName: "Sweet peas",
+    scientificName: "Lathyrus odoratus",
+    category: "flower",
+    family: family("Fabaceae"),
+    summary:
+      "Scented climber for cutting. Sow it early, and keep picking or it stops.",
+    sun: flowerFact("A sunny site with air moving through it", [
+      "osu-sweet-peas",
+    ]),
+    water: flowerFact(
+      "Water as needed, especially through a dry spell, and mulch the base to keep the soil cool",
+      ["osu-sweet-peas"],
+    ),
+    soil: flowerFact(
+      "Well drained, and richly prepared — a trench about 10 inches deep, half filled with rotted manure or compost, topped with soil mixed with bone meal or a balanced fertiliser",
+      ["osu-sweet-peas"],
+    ),
+    spacing: flowerFact("Sow 2 inches apart, then thin to 5–6 inches", [
+      "osu-sweet-peas",
+    ]),
+    timing: [
+      // "Early spring in Western Oregon" with a hard cutoff of mid-March, which sits
+      // just before the default last frost. A hardy annual, so its window opens well
+      // ahead of the frost date rather than on it.
+      timing("direct", "lastFrost", -60, -1, ["osu-sweet-peas"]),
+      timing("bloom", "lastFrost", 47, 138, ["ncsu-plant-toolbox"]),
+    ],
+    cultivars: [
+      flowerCultivar("supersnoop", "Supersnoop", "Bush or dwarf", [
+        "osu-sweet-peas",
+      ]),
+      flowerCultivar("old-spice-mix", "Old Spice Mix", "Climbing", [
+        "osu-sweet-peas",
+      ]),
+      flowerCultivar("royal-family", "Royal Family", "Climbing", [
+        "osu-sweet-peas",
+      ]),
+      flowerCultivar("mars", "Mars", "Climbing"),
+      flowerCultivar("memories", "Memories", "Climbing"),
+      flowerCultivar("oban-bay", "Oban Bay", "Climbing"),
+    ],
+    problems: [
+      {
+        id: "sweet-pea-mildew",
+        name: "Powdery mildew",
+        kind: "disease",
+        symptom:
+          "A dusty grey film on the leaves, worst where plants are damp and crowded.",
+        response:
+          "Give them room and air. Keep them out of shady damp corners, and choose a resistant variety where one is offered.",
+        evidenceLevel: "extension-guidance",
+        sourceIds: ["osu-sweet-peas"],
+      },
+      {
+        id: "sweet-pea-enation",
+        name: "Pea enation virus",
+        kind: "disease",
+        symptom: "Distorted growth arriving with hot weather.",
+        response:
+          "Nothing cures it. Plant a resistant variety where you can, and get the crop growing early so it flowers before the heat.",
+        evidenceLevel: "extension-guidance",
+        sourceIds: ["osu-sweet-peas"],
+      },
+      {
+        id: "sweet-pea-slugs",
+        name: "Slugs and snails",
+        kind: "pest",
+        symptom: "Seedlings sheared off at ground level as they emerge.",
+        response:
+          "Protect the seedlings with traps or barriers from the moment they come up. This is the point at which a whole sowing can be lost overnight.",
+        evidenceLevel: "extension-guidance",
+        sourceIds: ["osu-sweet-peas"],
+      },
+    ],
+    companions: [],
+    toxicity: toxic(
+      "low",
+      "The seeds",
+      "The peas are inedible and poisonous in quantity. Eating them causes lathyrism — paralysis, a slow weak pulse, shallow breathing and convulsions.",
+      ["ncsu-plant-toolbox", "osu-sweet-peas"],
+    ),
+    growingTips: flowerFact(
+      [
+        "Get them in before mid-March in western Oregon, and cover the seedlings if a frost is coming.",
+        "Soaking the seed for 24 hours before sowing gets more of it up.",
+        "Sow three quarters of an inch to an inch deep.",
+        "Pinch the tips out once the seedlings are about 4 inches tall and you will get a bushier plant.",
+        "Pick off the dead flowers before they set pods, or the plant decides its year is done and stops.",
+        "Climbing kinds want a fence or trellis; the bush kinds make a low hedge along a path or sit in a planter.",
+        "Grows 3–8 feet tall and 2–3 feet wide, flowering May through July.",
+      ],
+      ["osu-sweet-peas", "ncsu-plant-toolbox"],
+    ),
+    reviewStatus: "reviewed",
+  },
+  {
+    id: "sunflower",
+    commonName: "Sunflowers",
+    scientificName: "Helianthus annuus",
+    category: "flower",
+    family: family("Asteraceae"),
+    summary:
+      "Sow a short row every couple of weeks and you will be cutting them until October.",
+    sun: flowerFact(
+      "Full sun, six hours or more",
+      ["ncsu-plant-toolbox"],
+      "national",
+    ),
+    water: flowerFact(
+      "Moist, well-drained ground; it will take the occasional dry spell",
+      ["ncsu-plant-toolbox"],
+      "national",
+    ),
+    soil: flowerFact(
+      "Good drainage, at neutral to alkaline pH",
+      ["ncsu-plant-toolbox"],
+      "national",
+    ),
+    spacing: flowerFact(
+      "12 inches to 3 feet apart, depending on how big the kind grows",
+      ["ncsu-plant-toolbox"],
+      "national",
+    ),
+    timing: [
+      // A tender annual, so its window opens at the last frost. It closes far enough
+      // ahead of the first frost that the last sowing still has time to flower.
+      timing("direct", "lastFrost", 0, 92, ["clemson-annuals"]),
+      timing("bloom", "lastFrost", 108, 230, ["ncsu-plant-toolbox"]),
+    ],
+    cultivars: [
+      flowerCultivar("teddy-bear", "Teddy Bear", "Dwarf, 2–3 ft"),
+      flowerCultivar("big-smile", "Big Smile", "Dwarf, 1–2 ft"),
+      flowerCultivar("aztec-sun", "Aztec Sun", "Medium, 3–4 ft"),
+      flowerCultivar("moonwalker", "Moonwalker", "Medium, 4–5 ft"),
+      flowerCultivar("pastiche", "Pastiche", "Medium, 4–5 ft"),
+      flowerCultivar("velvet-queen", "Velvet Queen", "Tall, to 5 ft"),
+      flowerCultivar("delta-sunflower", "Delta Sunflower", "Tall, to 6 ft"),
+      flowerCultivar("russian-giant", "Russian Giant", "Giant, to 10 ft"),
+      flowerCultivar("mongolian-giant", "Mongolian Giant", "Giant, 12–14 ft"),
+    ],
+    problems: [
+      {
+        id: "sunflower-mildew",
+        name: "Powdery mildew and leaf spots",
+        kind: "disease",
+        symptom:
+          "Grey film or brown blotches spreading up the lower leaves late in the season.",
+        response:
+          "Water at the base rather than overhead and leave room between plants so air moves. Strip the worst leaves; a sunflower usually keeps flowering regardless.",
+        evidenceLevel: "extension-guidance",
+        sourceIds: ["ncsu-plant-toolbox"],
+      },
+      {
+        id: "sunflower-slugs",
+        name: "Slugs and snails",
+        kind: "pest",
+        symptom: "Seedlings grazed off overnight in a wet spring.",
+        response:
+          "Hand pick about two hours after sunset, or use copper bands, boards or beer traps. Clear the damp dark places nearby.",
+        evidenceLevel: "extension-guidance",
+        sourceIds: ["ncsu-plant-toolbox", "osu-growing-your-own"],
+      },
+    ],
+    companions: [],
+    growingTips: flowerFact(
+      [
+        "Grows anywhere from 18 inches to 10 feet depending on the kind, and 18 inches to 3 feet wide.",
+        "Flowers July through October.",
+        "For cutting, pick a branching kind — a single-stem giant gives you one flower and then it is over.",
+        "Sowing a short row every two weeks keeps them coming rather than arriving all at once.",
+        "Caterpillars, slugs and beetles all chew the leaves without usually costing you the flower.",
+      ],
+      ["ncsu-plant-toolbox"],
+      "national",
+    ),
+    reviewStatus: "reviewed",
+  },
+  {
+    id: "peony",
+    commonName: "Peonies",
+    scientificName: "Paeonia lactiflora",
+    category: "flower",
+    family: family("Paeoniaceae"),
+    plantOnce: true,
+    plantingLabel: "Plant the crowns",
+    summary:
+      "Plant the crown once, shallow, and it will outlive most things in the garden.",
+    sun: flowerFact(
+      "Full sun, or partial shade of 2–6 hours",
+      ["ncsu-plant-toolbox"],
+      "national",
+    ),
+    water: flowerFact(
+      "Wants drainage above all; it will not sit in wet ground",
+      ["ncsu-plant-toolbox"],
+      "national",
+    ),
+    soil: flowerFact(
+      "Well drained and slightly acid",
+      ["ncsu-plant-toolbox"],
+      "national",
+    ),
+    spacing: flowerFact(
+      "1–3 feet tall and as wide, so give each plant about that much room",
+      ["ncsu-plant-toolbox"],
+      "national",
+    ),
+    timing: [
+      // Bare crowns go in during the autumn dormancy. Only drawn while she is still
+      // deciding where to put one: `plantOnce` hides this once the row says planted.
+      timing("direct", "firstFrost", -46, 30, ["ncsu-plant-toolbox"]),
+      // Late spring into early summer, about two weeks a plant.
+      timing("bloom", "lastFrost", 61, 107, ["ncsu-plant-toolbox"]),
+    ],
+    cultivars: [
+      flowerCultivar("festiva-maxima", "Festiva Maxima", "White, fragrant"),
+      flowerCultivar("shirley-temple", "Shirley Temple", "White"),
+      flowerCultivar("duchesse-de-nemours", "Duchesse de Nemours", "White"),
+      flowerCultivar("sarah-bernhardt", "Sarah Bernhardt", "Pink, fragrant"),
+      flowerCultivar("felix-crousse", "Felix Crousse", "Pink"),
+      flowerCultivar("monsieur-jules-elie", "Monsieur Jules Elie", "Pink"),
+      flowerCultivar("red-charm", "Red Charm", "Red, fragrant"),
+      flowerCultivar("karl-rosenfield", "Karl Rosenfield", "Red"),
+    ],
+    problems: [
+      {
+        id: "peony-powdery-mildew",
+        name: "Powdery mildew",
+        kind: "disease",
+        symptom:
+          "A grey bloom over the foliage, usually turning up in autumn once flowering is long finished.",
+        response:
+          "It disfigures the leaves without threatening the plant. Cut the foliage down and clear it away at the end of the season rather than leaving it lying.",
+        evidenceLevel: "extension-guidance",
+        sourceIds: ["ncsu-plant-toolbox"],
+      },
+      {
+        id: "peony-blight",
+        name: "Southern blight",
+        kind: "disease",
+        symptom: "Stems collapsing at ground level, with rot at the base.",
+        response:
+          "Take out affected growth and improve the drainage and airflow around the crown.",
+        evidenceLevel: "extension-guidance",
+        sourceIds: ["ncsu-plant-toolbox"],
+      },
+    ],
+    companions: [],
+    toxicity: toxic(
+      "low",
+      "The whole plant",
+      "Listed as a problem for dogs, cats and horses. Not a plant to let a pet chew on, though it is not a danger to handle.",
+    ),
+    growingTips: flowerFact(
+      [
+        "Do not plant the crown more than one inch deep. Buried too deep is the usual reason a peony grows well and never flowers.",
+        "Flowers late spring into early summer, about two weeks a plant.",
+        "Reaches 1–3 feet tall and as wide, hardy across zones 3a–8b and happiest in 5–7.",
+        "It needs a cold winter to set buds, which is exactly why it does well here and sulks in the South.",
+        "Left alone it will go on for decades; it resents being moved.",
+      ],
+      ["ncsu-plant-toolbox"],
+      "national",
+    ),
+    reviewStatus: "reviewed",
+  },
+  {
+    id: "rose",
+    commonName: "Roses",
+    scientificName: "Rosa hybrids",
+    category: "shrub",
+    family: family("Rosaceae"),
+    plantOnce: true,
+    plantingLabel: "Plant bare root",
+    summary:
+      "Bare root in late winter is the cheapest way in, and the plants come on stronger than potted ones.",
+    sun: flowerFact(
+      "At least 6–8 hours of direct sun, with the morning sun mattering most, somewhere sheltered from wind but not still",
+      ["osu-bare-root-roses"],
+    ),
+    water: flowerFact(
+      "Keep the soil evenly moist while it establishes and never waterlogged — this is the one thing that decides whether a bare root takes",
+      ["osu-bare-root-roses"],
+    ),
+    soil: flowerFact(
+      "Loose, well drained and rich in organic matter at pH 6.2–6.8. On clay, work compost through a wide area rather than just the hole, or water pools where the two soils meet",
+      ["osu-bare-root-roses"],
+    ),
+    spacing: flowerFact(
+      "Dig the hole 18–24 inches across and 18–20 inches deep, with a cone of soil in the middle to sit the roots over",
+      ["osu-bare-root-roses"],
+    ),
+    timing: [
+      // EM 9474 breaks the window out by zone. This garden is 8b, so the zone 7-8
+      // window applies: mid-February to March, well before the last frost.
+      timing("direct", "lastFrost", -30, 16, ["osu-bare-root-roses"]),
+      /* EM 9474 gives first flowers 8-12 weeks after planting, which across the
+         whole planting window works out at mid-April to late June. That is where
+         the band stops, because that is where the citation stops: an established
+         rose plainly keeps flowering later than this, but no source in here says
+         so, and the catalog would rather show a short true window than a long
+         invented one. Worth extending the day a rose bloom season is sourced. */
+      timing("bloom", "lastFrost", 26, 100, ["osu-bare-root-roses"]),
+    ],
+    cultivars: [],
+    problems: [
+      {
+        id: "rose-transplant-shock",
+        name: "Transplant shock",
+        kind: "disorder",
+        symptom:
+          "Wilting, yellowing leaves and growth that seems to have stalled in the weeks after planting.",
+        response:
+          "Normal, and it usually passes in four to six weeks. Keep the moisture steady and hold off on fertiliser until new growth is properly away.",
+        evidenceLevel: "extension-guidance",
+        sourceIds: ["osu-bare-root-roses"],
+      },
+      {
+        id: "rose-canker",
+        name: "Canker on the canes",
+        kind: "disease",
+        symptom:
+          "Dark spots or lesions on the canes of a plant that has just arrived.",
+        response:
+          "Check for it the moment the plant turns up, along with breaks, cracks and chewed patches. A bad one is worth sending back rather than planting.",
+        evidenceLevel: "extension-guidance",
+        sourceIds: ["osu-bare-root-roses"],
+      },
+    ],
+    companions: [],
+    growingTips: flowerFact(
+      [
+        "Mid-February to March is the window here. The soil wants to be above 40°F for roots to move.",
+        "Soak the whole root system in clean water for 2–24 hours before planting.",
+        "Trim damaged or overlong roots back to about 8 inches, using clean sharp tools.",
+        "Spread the roots over the cone of soil like an upside-down martini glass.",
+        "In this zone the bud union sits at soil level. On an own-root rose, put the crown about 2 inches under.",
+        "Mound soil 4–6 inches up around the plant to stop the buds drying out, then take the mound away over the next two or three weeks as growth comes.",
+        "Expect new growth in 2–4 weeks and the first flowers 8–12 weeks after planting. Slow at first is normal — it is building roots.",
+      ],
+      ["osu-bare-root-roses"],
     ),
     reviewStatus: "reviewed",
   },

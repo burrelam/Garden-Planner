@@ -23,6 +23,7 @@ import { GardenProvider, useGarden } from "./GardenContext";
 import {
   catalog as localCatalog,
   catalogById,
+  familyNames,
   findCatalogPlant,
 } from "./shared/catalog";
 import type {
@@ -38,6 +39,7 @@ import type {
 } from "./shared/model";
 import {
   type PlantingSeason,
+  type SowingLane,
   type SowingWindow,
   PLANTING_SEASONS,
   PLANTING_SEASON_LABEL,
@@ -111,6 +113,12 @@ const phaseLabels = {
   harvest: "Harvest",
   bloom: "Bloom",
 };
+/* "Direct sow" is right for a seed and wrong for everything you buy in a bag or a
+   pot. A plant that knows what it actually is gets to say so. */
+const phaseLabelFor = (phase: Phase, plant?: PlantRecord) =>
+  phase === "direct" && plant?.plantingLabel
+    ? plant.plantingLabel
+    : phaseLabels[phase];
 
 /** Where the guideline and an actual planting date agree on a slot, the
  * plain color still applies — that agreement is the point. Where they
@@ -126,20 +134,56 @@ function combinedSlotPhase(
   if (actualPhase) return { phase: actualPhase, variant: "Actual" };
   return { phase: guidePhase, variant: "Tint" };
 }
-const CATEGORY_ORDER = ["herb", "vegetable", "fruit", "flower"] as const;
+const CATEGORY_ORDER = [
+  "herb",
+  "vegetable",
+  "fruit",
+  "flower",
+  "shrub",
+] as const;
 type PlantCategory = (typeof CATEGORY_ORDER)[number];
 const categoryLabels: Record<PlantCategory, string> = {
   herb: "Herbs",
   vegetable: "Vegetables",
   fruit: "Fruits",
   flower: "Flowers",
+  shrub: "Shrubs",
 };
 const categoryColors: Record<PlantCategory, string> = {
   herb: "var(--stage-harvest)",
   vegetable: "var(--color-accent)",
   fruit: "var(--stage-indoor)",
   flower: "var(--stage-bloom)",
+  shrub: "var(--color-secondary)",
 };
+/* The three phases that describe putting something in the ground. Picking and
+   flowering are what is left once they are dropped. */
+const PLANTING_PHASES = new Set<Phase>(["indoor", "transplant", "direct"]);
+
+/* A rose, a peony, a daphne or a lavender goes in once and stays. The moment a row
+   says planted, its planting window describes a job already done, so those pills
+   come off and the bloom is left standing on its own. While she is still deciding —
+   Will plant, or Undecided — the window is the whole point, so it stays put.
+
+   Anything grown from a bulb, a corm or a tuber is deliberately left out of this,
+   even though it lives for years: she lifts the dahlias and gladioli every autumn
+   and rebuys the tulips, so hiding their planting window would hide real work. */
+const isSettledPerennial = (entry: GardenEntry) =>
+  entry.status === "planted" &&
+  Boolean(
+    entry.plantId ? catalogById.get(entry.plantId)?.plantOnce : undefined,
+  );
+
+const withoutPlantingPhases = (lanes: SowingLane[]): SowingLane[] =>
+  lanes.map((lane) => ({
+    ...lane,
+    slots: lane.slots.map((slot) =>
+      slot.phase && PLANTING_PHASES.has(slot.phase)
+        ? { ...slot, phase: null }
+        : slot,
+    ),
+  }));
+
 // An entry only has a category if it came from the catalog; hand-added plants
 // have none until someone links them to a catalog plant.
 // The row shows the species rather than days to maturity: the pills already
@@ -728,13 +772,23 @@ function Planner() {
                 </div>
               )}
               {group.entries.map((entry) => {
-                const lanes = sowingLanesForEntry(entry, state.garden);
+                const entryPlant = entry.plantId
+                  ? catalogById.get(entry.plantId)
+                  : undefined;
+                const settled = isSettledPerennial(entry);
+                const lanes = settled
+                  ? withoutPlantingPhases(
+                      sowingLanesForEntry(entry, state.garden),
+                    )
+                  : sowingLanesForEntry(entry, state.garden);
                 /* The overlay measures one logged date against one timeline,
                    so it belongs to a plant sown once. A row with a lane per
                    sowing carries a single date and several sowings, and
                    picking which sowing it meant would shift the wrong crop. */
                 const actualTimeline =
-                  state.garden.showPillPredictions && lanes.length === 1
+                  state.garden.showPillPredictions &&
+                  lanes.length === 1 &&
+                  !settled
                     ? actualTimelineForEntry(entry, state.garden)
                     : null;
                 const pinPos = state.garden.showPlantedMarkers
@@ -807,7 +861,7 @@ function Planner() {
                                 key={lane.sowing ?? laneIndex}
                                 title={
                                   overlay.phase
-                                    ? `${phaseLabels[overlay.phase]}${lane.sowing ? ` — ${sowingLabel(lane.sowing)}` : ""}${overlay.variant === "Tint" ? " (guideline)" : overlay.variant === "Actual" ? " (actual)" : ""}`
+                                    ? `${phaseLabelFor(overlay.phase, entryPlant)}${lane.sowing ? ` — ${sowingLabel(lane.sowing)}` : ""}${overlay.variant === "Tint" ? " (guideline)" : overlay.variant === "Actual" ? " (actual)" : ""}`
                                     : undefined
                                 }
                                 className={`${styles.pill} ${
@@ -3059,6 +3113,109 @@ function VarietyDetail() {
   );
 }
 
+/* The hazard mark. Drawn rather than written so it reads at a glance in either theme:
+   the GHS diamond a gardener already knows from a bottle of anything under the sink. */
+function ToxicMark({ size = 22 }: { size?: number }) {
+  return (
+    <svg
+      className={styles.toxicMark}
+      viewBox="0 0 24 24"
+      width={size}
+      height={size}
+      role="img"
+      aria-label="Poisonous"
+    >
+      <rect
+        x="12"
+        y="1.5"
+        width="14.85"
+        height="14.85"
+        transform="rotate(45 12 1.5)"
+        fill="#ffffff"
+        stroke="#b3261e"
+        strokeWidth="1.6"
+      />
+      <circle cx="12" cy="10.4" r="3.1" fill="#111111" />
+      <circle cx="10.8" cy="10" r="0.85" fill="#ffffff" />
+      <circle cx="13.2" cy="10" r="0.85" fill="#ffffff" />
+      <rect x="10.9" y="12.6" width="2.2" height="1.5" fill="#111111" />
+      <path
+        d="M7.6 16.4 L16.4 19.4 M16.4 16.4 L7.6 19.4"
+        stroke="#111111"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+      />
+    </svg>
+  );
+}
+
+const toxicSeverityLabel: Record<
+  NonNullable<PlantRecord["toxicity"]>["severity"],
+  string
+> = {
+  high: "Very poisonous",
+  medium: "Poisonous",
+  low: "Mildly poisonous",
+};
+
+/* Sits above everything else on the page. A warning found halfway down a panel is a
+   warning that arrives too late. */
+function ToxicWarning({ toxicity }: { toxicity: PlantRecord["toxicity"] }) {
+  if (!toxicity) return null;
+  return (
+    <aside className={styles.toxicBanner}>
+      <ToxicMark size={34} />
+      <div>
+        <strong>{toxicSeverityLabel[toxicity.severity]}</strong>
+        <p>
+          <span className={styles.toxicParts}>{toxicity.parts}.</span>{" "}
+          {toxicity.symptoms}
+        </p>
+        <SourceLinks ids={toxicity.sourceIds} />
+      </div>
+    </aside>
+  );
+}
+
+/* The only place taxonomy shows its face, and it is here to be charming rather than
+   correct: it names the plant's relatives, preferring the ones already in her garden,
+   because "so are your zinnias" lands where a family name on its own does not. It also
+   quietly explains why some plants catch the same things. */
+function RelativesLine({ plant }: { plant: PlantRecord }) {
+  const { state } = useGarden();
+  const botanical = plant.family?.value;
+  if (!botanical) return null;
+  const relatives = localCatalog.filter(
+    (other) => other.id !== plant.id && other.family?.value === botanical,
+  );
+  if (relatives.length === 0) return null;
+
+  const grown = new Set(
+    (state?.entries ?? [])
+      .map((entry) => entry.plantId)
+      .filter((id): id is string => id !== null),
+  );
+  const hers = relatives.filter((other) => grown.has(other.id));
+  // Hers if she has any, otherwise whatever else is in here. Five is as many as reads
+  // as a sentence rather than a list.
+  const shown = (hers.length ? hers : relatives).slice(0, 5);
+  const names = shown.map((other) => other.commonName.toLowerCase());
+  const joined =
+    names.length === 1
+      ? names[0]
+      : `${names.slice(0, -1).join(", ")} and ${names[names.length - 1]}`;
+  const friendly = familyNames[botanical];
+
+  return (
+    <p className={styles.relatives}>
+      {plant.commonName} are in the {friendly ?? botanical}
+      {friendly ? <em> ({botanical})</em> : null} — so{" "}
+      {names.length === 1 ? "is" : "are"} {hers.length ? "your " : ""}
+      {joined}.
+    </p>
+  );
+}
+
 function PlantDetail() {
   const { slug } = useParams();
   const [plant, setPlant] = useState<PlantRecord | null>(null);
@@ -3091,6 +3248,7 @@ function PlantDetail() {
       intro={plant.summary}
       back={back}
     >
+      <ToxicWarning toxicity={plant.toxicity} />
       <div className={styles.detailGrid}>
         <section className={styles.panel}>
           <h2>At a glance</h2>
@@ -3127,7 +3285,7 @@ function PlantDetail() {
           </p>
           {plant.timing.map((rule, index) => (
             <div className={styles.rule} key={index}>
-              <strong>{phaseLabels[rule.phase]}</strong>
+              <strong>{phaseLabelFor(rule.phase, plant)}</strong>
               <span>{timingPhrase(rule)}</span>
             </div>
           ))}
@@ -3140,6 +3298,7 @@ function PlantDetail() {
             ))}
           </ul>
           <SourceLinks ids={plant.growingTips.sourceIds} />
+          <RelativesLine plant={plant} />
         </section>
         <section className={styles.panel}>
           <h2>Pests &amp; problems</h2>

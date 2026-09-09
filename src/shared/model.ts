@@ -203,6 +203,25 @@ export interface CompanionRelationship {
   sourceIds: string[];
 }
 
+/**
+ * What a plant does to the gardener, as opposed to `PlantProblem`, which is what
+ * the world does to the plant. A daffodil bulb is not a pest problem; it is a
+ * thing you should not eat and should wash your hands after handling.
+ *
+ * `severity` keeps the Plant Toolbox's own three-step wording rather than being
+ * re-judged here, so a reader can check the claim against the page it came from.
+ * A plant with nothing worth warning about carries no record at all — the same
+ * rule the sourced facts follow, where a gap beats a guess.
+ */
+export interface ToxicityRecord {
+  severity: "high" | "medium" | "low";
+  /** Which bits are poisonous, in the source's own terms. */
+  parts: string;
+  symptoms: string;
+  sourceIds: string[];
+  reviewedAt: string;
+}
+
 // What tends to go wrong with a plant. Kept separate from companions: a problem is something
 // this plant suffers, a companion is a relationship with another plant.
 export interface PlantProblem {
@@ -219,8 +238,38 @@ export interface PlantRecord {
   id: string;
   commonName: string;
   scientificName?: string;
-  category: "vegetable" | "herb" | "flower" | "fruit";
+  // Where a gardener would go looking for it, not where a botanist would file it.
+  // `shrub` catches the woody things that are neither a flower bed plant nor a herb.
+  category: "vegetable" | "herb" | "flower" | "fruit" | "shrub";
   summary: string;
+  /**
+   * The botanical family, e.g. "Asteraceae". The catalog carries exactly this much
+   * taxonomy and no more: it is what the plant page uses to name a plant's relatives,
+   * and it is the one fact here that can be stated outright from a public-domain
+   * federal database rather than paraphrased out of copyrighted Extension guidance.
+   */
+  family?: SourcedFact<string>;
+  /**
+   * True for a plant that goes in the ground once and is then left there — a rose, a
+   * daphne, a peony, a lavender, a perennial clump. Its planting window is only worth
+   * drawing while the gardener is still deciding when to plant it, so the calendar
+   * hides those pills once the row is marked as planted.
+   *
+   * Deliberately NOT the same question as "is it a perennial". Anything grown from a
+   * bulb, corm or tuber is left false even though it lives for years, because so many
+   * of them are lifted and replanted (dahlia, gladiolus) or simply rebought each
+   * autumn (tulip) that hiding the planting window would hide a real job.
+   */
+  plantOnce?: boolean;
+  /**
+   * What the "direct" phase should be called for this plant, where "Direct sow"
+   * would simply be untrue — nobody sows a rose, a daffodil or a dahlia. Free text
+   * rather than an enum, so it can say the real thing: "Plant bare root", "Plant
+   * the bulbs". Left off, the phase keeps its ordinary name.
+   */
+  plantingLabel?: string;
+  /** Present only where the plant is genuinely worth a warning. */
+  toxicity?: ToxicityRecord;
   // Every fact is optional. A plant the publications do not describe should say nothing rather
   // than carry a number nobody can point at — the catalog would rather have a gap than a guess.
   daysToMaturity?: SourcedFact<string>;

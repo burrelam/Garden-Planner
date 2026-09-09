@@ -626,6 +626,10 @@
   --type-wish-letter: 0.95rem;
   --type-wish-type: 0.46rem;
   --type-wish-headsup: 0.78rem;
+  /* The poison banner and the family line on a plant page. */
+  --type-toxic-heading: 0.72rem;
+  --type-toxic-body: 0.95rem;
+  --type-relatives: 0.92rem;
   /* Calendar geometry. Same on both widths today, but they belong here with
      the other sizes: set in a component rule, the phone block cancels them. */
   /* Three lines: the name with its variety, the species, and the status. */
@@ -654,6 +658,9 @@
     --type-wish-letter: 0.88rem;
     --type-wish-type: 0.42rem;
     --type-wish-headsup: 0.72rem;
+    --type-toxic-heading: 0.68rem;
+    --type-toxic-body: 0.88rem;
+    --type-relatives: 0.86rem;
     --size-cal-row: 58px;
   }
 }
@@ -1353,7 +1360,8 @@
 .panel,
 .loginCard,
 .method,
-.plantCard {
+.plantCard,
+.toxicBanner {
   position: relative;
   z-index: 0;
   border: 0;
@@ -1365,7 +1373,8 @@
 .panel::before,
 .loginCard::before,
 .method::before,
-.plantCard::before {
+.plantCard::before,
+.toxicBanner::before {
   content: "";
   position: absolute;
   inset: 3px;
@@ -2450,6 +2459,56 @@
     margin-top: 10px;
   }
 }
+/* The poison warning. It sits above the panels rather than inside one: a warning
+   found halfway down a page has already been missed. It borrows the danger tokens
+   every theme already defines, so it stays legible from Spring through Twilight. */
+.toxicBanner {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  margin-bottom: 18px;
+  padding: 16px 18px;
+  --edge-c: var(--color-danger-border);
+  --fill-c: var(--color-danger-bg);
+  --outer-c: var(--o-stair);
+  --inner-c: var(--i-stair);
+}
+.toxicBanner strong {
+  display: block;
+  font-family: "Silkscreen", ui-monospace, monospace;
+  font-size: var(--type-toxic-heading);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-danger-fg);
+}
+.toxicBanner p {
+  margin: 6px 0 8px;
+  font-size: var(--type-toxic-body);
+  color: var(--color-text);
+}
+/* Which parts will hurt you, said first and said plainly. */
+.toxicParts {
+  font-weight: 700;
+  color: var(--color-danger-fg);
+}
+/* The diamond keeps its own red and white in both themes — a hazard mark that
+   restyles itself per season stops being a hazard mark. */
+.toxicMark {
+  flex: none;
+}
+
+/* Who its cousins are. Quiet, at the foot of the growing notes, and skippable. */
+.relatives {
+  margin: 14px 0 0;
+  padding-top: 12px;
+  border-top: 1px solid var(--color-border);
+  font-size: var(--type-relatives);
+  color: var(--color-text-muted);
+}
+.relatives em {
+  opacity: 0.75;
+}
+
 .companion {
   display: flex;
   gap: 12px;
