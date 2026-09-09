@@ -2130,13 +2130,17 @@
 .bloomActual {
   background: color-mix(in srgb, var(--stage-bloom) 55%, white) !important;
 }
-/* A "will plant" entry hasn't gone in the ground yet, so its whole timeline
-   stays transparent and slashed rather than solid. */
+/* A "will plant" entry hasn't gone in the ground yet, so its whole timeline is
+   slashed rather than solid. The slashes run between the two colors either
+   side of it: the settled color it will become once planted, and the same
+   light tint Undecided wears. Letting the row show through the gaps instead
+   left the pill without a silhouette and made it read as damage rather than
+   as a plan. */
 .indoorSlashed {
   background: repeating-linear-gradient(
     45deg,
     var(--stage-indoor) 0 2px,
-    transparent 2px 5px
+    color-mix(in srgb, var(--stage-indoor) 24%, transparent) 2px 5px
   ) !important;
   border: 1.5px solid var(--stage-indoor);
 }
@@ -2144,7 +2148,7 @@
   background: repeating-linear-gradient(
     45deg,
     var(--stage-transplant) 0 2px,
-    transparent 2px 5px
+    color-mix(in srgb, var(--stage-transplant) 24%, transparent) 2px 5px
   ) !important;
   border: 1.5px solid var(--stage-transplant);
 }
@@ -2152,7 +2156,7 @@
   background: repeating-linear-gradient(
     45deg,
     var(--stage-direct) 0 2px,
-    transparent 2px 5px
+    color-mix(in srgb, var(--stage-direct) 24%, transparent) 2px 5px
   ) !important;
   border: 1.5px solid var(--stage-direct);
 }
@@ -2160,7 +2164,7 @@
   background: repeating-linear-gradient(
     45deg,
     var(--stage-harvest) 0 2px,
-    transparent 2px 5px
+    color-mix(in srgb, var(--stage-harvest) 24%, transparent) 2px 5px
   ) !important;
   border: 1.5px solid var(--stage-harvest);
 }
@@ -2168,7 +2172,7 @@
   background: repeating-linear-gradient(
     45deg,
     var(--stage-bloom) 0 2px,
-    transparent 2px 5px
+    color-mix(in srgb, var(--stage-bloom) 24%, transparent) 2px 5px
   ) !important;
   border: 1.5px solid var(--stage-bloom);
 }
