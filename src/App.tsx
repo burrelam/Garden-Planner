@@ -48,6 +48,7 @@ import {
   seasonOfWindow,
   sowingActionLabel,
   sowingLabel,
+  plannerDatesForEntry,
   sowingLanesForEntry,
   sowingWindowsFor,
 } from "./shared/seasons";
@@ -487,9 +488,9 @@ function Planner() {
   // The id, not the bed: a copy of the bed would go on describing a bed the
   // garden no longer has, leaving its settings panel open over nothing.
   const [editingBedId, setEditingBedId] = useState<string | null>(null);
-  const [view, setView] = useState<"name" | "bed" | "status" | "category">(
-    "bed",
-  );
+  const [view, setView] = useState<
+    "name" | "bed" | "status" | "category" | "sow" | "harvest"
+  >("bed");
   const [selectedEntryId, setSelectedEntryId] = useState<string | null>(null);
   const [showMore, setShowMore] = useState(false);
   const calendarRef = useRef<HTMLElement>(null);
@@ -521,7 +522,28 @@ function Planner() {
     const category = entryCategory(entry);
     return category ? CATEGORY_ORDER.indexOf(category) : CATEGORY_ORDER.length;
   };
+  /* Worked out once per row rather than inside the comparator, which would ask
+     the same row for the same dates a dozen times over as it sorts. */
+  const plannerDates = new Map(
+    state.entries.map((entry) => [
+      entry.id,
+      plannerDatesForEntry(entry, state.garden),
+    ]),
+  );
+  /* A crop with two seasons sorts by the earlier of them — the first time in
+     the year it wants anything from you. A row the catalog has no such date
+     for waits at the end rather than pretending to be the 1st of January. */
+  const byDate =
+    (key: "sow" | "harvest") => (a: GardenEntry, b: GardenEntry) => {
+      const one = plannerDates.get(a.id)?.[key] ?? null;
+      const two = plannerDates.get(b.id)?.[key] ?? null;
+      if (one === null && two === null) return byName(a, b);
+      if (one === null) return 1;
+      if (two === null) return -1;
+      return one.localeCompare(two) || byName(a, b);
+    };
   const entries = [...state.entries].sort((a, b) => {
+    if (view === "sow" || view === "harvest") return byDate(view)(a, b);
     if (view === "bed")
       return (
         (beds.get(a.bedId ?? "")?.sortOrder ?? 99) -
@@ -703,6 +725,8 @@ function Planner() {
                 <option value="bed">By bed</option>
                 <option value="status">By status</option>
                 <option value="category">By category</option>
+                <option value="sow">By sow date</option>
+                <option value="harvest">By harvest date</option>
               </select>
             </span>
           </div>
@@ -818,9 +842,13 @@ function Planner() {
                             {entry.variety}
                           </span>
                         ) : null}
+                        {/* Name, variety, quantity. The status used to sit
+                            here too, but the pill already says it — solid for
+                            planted, slashed for will plant, dashed for
+                            undecided — and the row label is the narrow pinned
+                            column, where every word costs width. */}
                         <small className={styles.statusLine}>
-                          <StatusIcon status={entry.status} size={13} />
-                          {statusLabels[entry.status]} · qty {entry.qty}
+                          qty {entry.qty}
                         </small>
                       </div>
                       <button

@@ -8,6 +8,7 @@ import type {
 } from "./model";
 import {
   harvestWindowFor,
+  plannerDatesForEntry,
   indoorWindowFor,
   plantingSeasonOf,
   seasonOfWindow,
@@ -329,5 +330,88 @@ describe("what earns a lane of its own", () => {
     const carrots = sowingLanesForEntry(rowFor("carrot"), hers);
     expect(carrots).toHaveLength(2);
     expect(carrots.map((lane) => lane.sowing)).toEqual(["Spring", "Summer"]);
+  });
+});
+
+describe("the dates the planner sorts a row by", () => {
+  const row = (over: Partial<GardenEntry> = {}): GardenEntry => ({
+    id: "e1",
+    plantId: null,
+    name: "A row",
+    variety: null,
+    dtm: null,
+    qty: 1,
+    bedId: null,
+    status: "willplant",
+    sortOrder: 0,
+    ...over,
+  });
+
+  it("takes the earlier of two sowings, and the earlier of two pickings", () => {
+    // Cabbage is the case Amanda named: set out early for a summer cut, or in
+    // early summer to head in the fall. It must sort by the April, not the May.
+    const dates = plannerDatesForEntry(row({ plantId: "cabbage" }), garden);
+    expect(dates.sow).toBe("2026-04-01");
+    expect(dates.harvest).toBe("2026-05-26");
+  });
+
+  it("sorts a tomato by the day it goes out, not the day it is started", () => {
+    // "Sown" means put in the ground here, the same as it does on the wish
+    // list — otherwise everything started under cover bunches up in February.
+    const dates = plannerDatesForEntry(row({ plantId: "tomato" }), garden);
+    const indoor = indoorWindowFor(plant("tomato"), garden);
+    expect(dates.sow).toBe("2026-05-01");
+    expect(indoor && indoor.start < dates.sow!).toBe(true);
+  });
+
+  it("falls back to the indoor date when that is all a row has", () => {
+    const dates = plannerDatesForEntry(
+      row({
+        timingOverride: [
+          {
+            phase: "indoor",
+            anchor: "lastFrost",
+            startOffsetDays: 10,
+            endOffsetDays: 20,
+          },
+        ],
+      }),
+      garden,
+    );
+    expect(dates.sow).toBe("2026-03-25");
+    expect(dates.harvest).toBe(null);
+  });
+
+  it("reads the gardener's own dates over the catalog's", () => {
+    // A row she has re-dated herself sorts by what she wrote.
+    const dates = plannerDatesForEntry(
+      row({
+        plantId: "cabbage",
+        timingOverride: [
+          {
+            phase: "direct",
+            anchor: "lastFrost",
+            startOffsetDays: 60,
+            endOffsetDays: 70,
+          },
+          {
+            phase: "harvest",
+            anchor: "lastFrost",
+            startOffsetDays: 120,
+            endOffsetDays: 130,
+          },
+        ],
+      }),
+      garden,
+    );
+    expect(dates.sow).toBe("2026-05-14");
+    expect(dates.harvest).toBe("2026-07-13");
+  });
+
+  it("says nothing for a row the catalog has no dates for", () => {
+    expect(plannerDatesForEntry(row(), garden)).toEqual({
+      sow: null,
+      harvest: null,
+    });
   });
 });

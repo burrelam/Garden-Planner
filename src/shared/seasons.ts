@@ -111,13 +111,53 @@ const iso = (date: Date) => date.toISOString().slice(0, 10);
 /** Phases that actually put something in the ground. */
 const GROUND_PHASES: Phase[] = ["transplant", "direct"];
 
+/* Takes only the three fields it reads, so it works on a gardener's own dated
+   rule as well as a catalog one — an override carries no sourceIds. */
 function ruleRange(
-  rule: PlantRecord["timing"][number],
+  rule: Pick<
+    PlantRecord["timing"][number],
+    "anchor" | "startOffsetDays" | "endOffsetDays"
+  >,
   garden: GardenSettings,
 ) {
   return {
     start: iso(addDays(garden[rule.anchor], rule.startOffsetDays)),
     end: iso(addDays(garden[rule.anchor], rule.endOffsetDays)),
+  };
+}
+
+/**
+ * The first day of the year this row asks something of the gardener, and the
+ * first day it gives something back — the two dates the planner sorts by.
+ *
+ * A crop sown twice answers with the earlier of its sowings, and picked twice
+ * with the earlier of its pickings. That is the date she is planning around
+ * when she reads down the list: the first time this plant needs her.
+ *
+ * "Sown" means put in the ground, the same as it does on the wish list, so a
+ * tomato sorts by the May it goes out rather than the February it is started.
+ * A row whose only rule is an indoor one has nothing else to answer with, so
+ * that is what it gives.
+ *
+ * Reads the gardener's own dates where a row has them, through rulesForEntry —
+ * a row she has re-dated herself sorts by what she wrote, not by the catalog.
+ * Null where the row has no such date at all, which a custom plant may not.
+ */
+export function plannerDatesForEntry(
+  entry: GardenEntry,
+  garden: GardenSettings,
+): { sow: string | null; harvest: string | null } {
+  const rules = rulesForEntry(entry);
+  const earliest = (phases: Phase[]) => {
+    const starts = rules
+      .filter((rule) => phases.includes(rule.phase))
+      .map((rule) => ruleRange(rule, garden).start);
+    // ISO dates sort correctly as plain strings.
+    return starts.length ? starts.sort()[0] : null;
+  };
+  return {
+    sow: earliest(GROUND_PHASES) ?? earliest(["indoor"]),
+    harvest: earliest(["harvest", "bloom"]),
   };
 }
 

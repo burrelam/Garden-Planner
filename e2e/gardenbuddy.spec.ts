@@ -334,22 +334,27 @@ test("a wish arrives in the planner as whatever Settings says", async ({
     ).toHaveCount(1);
   };
 
-  /** The status line belonging to the one cabbage row. */
-  const cabbageStatus = () =>
-    page
-      .locator("[class*=plantRowTitle]")
-      .filter({ hasText: "Cabbage" })
-      .locator("[class*=statusLine]");
+  /* The row label is name, variety and quantity now — status lives in the
+     row's own editor, so that is where this reads it from. */
+  const cabbageStatus = async () => {
+    await page
+      .getByRole("button", { name: /^Edit Cabbage/ })
+      .first()
+      .click();
+    const status = await page.getByLabel("Status").inputValue();
+    await page.keyboard.press("Escape");
+    return status;
+  };
 
   await clearCabbages();
   await setDefault("Will plant");
   await wantACabbageAndMoveItAcross();
-  await expect(cabbageStatus()).toHaveText(/Will plant · qty 1/);
+  expect(await cabbageStatus()).toBe("willplant");
 
   await clearCabbages();
   await setDefault("Undecided");
   await wantACabbageAndMoveItAcross();
-  await expect(cabbageStatus()).toHaveText(/Undecided · qty 1/);
+  expect(await cabbageStatus()).toBe("undecided");
 
   await clearCabbages();
 });
@@ -605,4 +610,71 @@ test("the growing season block leaves room for the legend", async ({
   // The whole legend, not just its first row, sits on the phone screen.
   expect(measured.legendBottom).toBeLessThanOrEqual(measured.viewportHeight);
   await expect(panel.getByText("Start seeds indoors")).toBeVisible();
+});
+
+/**
+ * Sorting the planner by a date puts the rows in the order the calendar draws
+ * them: the first sowing pill, then the next, marching rightward down the
+ * list. Asserted as "never steps backwards" rather than as a fixed run of
+ * plant names, so the seeded garden can change without rewriting the test.
+ */
+test("the planner can be sorted by sow date and by harvest date", async ({
+  page,
+}) => {
+  const calendar = page.getByLabel("Annual planting calendar");
+  const sort = calendar.getByRole("combobox", { name: "Sort plants" });
+
+  /* The half-month column each row's first pill of a kind sits in. The pills
+     carry their phase in the title; the grid cell around them carries the
+     slot. A row with no such pill answers with a number past the end of the
+     year, which is where those rows are meant to sort. */
+  const firstSlots = (kind: "sow" | "harvest") =>
+    page.evaluate((which) => {
+      const wanted =
+        which === "sow"
+          ? /^(Direct sow|Transplant|Plant )/
+          : /^(Harvest|Bloom)/;
+      return [...document.querySelectorAll("[class*=calendarRow]")].map(
+        (row) => {
+          let first = 99;
+          for (const pill of row.querySelectorAll("[title]")) {
+            if (!wanted.test(pill.getAttribute("title") ?? "")) continue;
+            const slot = Number(
+              pill.closest("[data-slot]")?.getAttribute("data-slot"),
+            );
+            if (!Number.isNaN(slot) && slot < first) first = slot;
+          }
+          return first;
+        },
+      );
+    }, kind);
+
+  for (const kind of ["sow", "harvest"] as const) {
+    await sort.selectOption(kind);
+    const slots = await firstSlots(kind);
+    expect(slots.length).toBeGreaterThan(1);
+    // Sorted means it never steps backwards.
+    expect(slots).toEqual([...slots].sort((a, b) => a - b));
+  }
+
+  // And the two orders are genuinely different views of the same garden —
+  // garlic sows first but is nowhere near the first thing picked.
+  await sort.selectOption("sow");
+  const bySow = await page
+    .locator("[class*=plantRowTitle] strong")
+    .allInnerTexts();
+  await sort.selectOption("harvest");
+  const byHarvest = await page
+    .locator("[class*=plantRowTitle] strong")
+    .allInnerTexts();
+  expect(bySow).not.toEqual(byHarvest);
+});
+
+/** The pinned column is name, variety and quantity — the status is not there. */
+test("a planner row label does not carry its status", async ({ page }) => {
+  const labels = page.locator("[class*=plantRowTitle]");
+  await expect(labels.first()).toBeVisible();
+  const text = (await labels.allInnerTexts()).join(" ");
+  expect(text).toMatch(/qty \d/);
+  expect(text).not.toMatch(/Will plant|Undecided|Planted/);
 });
