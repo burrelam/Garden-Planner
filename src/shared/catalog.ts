@@ -187,6 +187,17 @@ export const sources: SourceRecord[] = [
     licenseNote:
       "An Extension news story, same weaker footing as the bulb story above. Names a western Oregon sowing cutoff and sowing depths, which no OSU catalog publication covers for this plant. An earlier OSU sweet pea story has since been archived as out of date; this is the reviewed replacement.",
   },
+  {
+    id: "ncsu-sweetpotato-guide",
+    publisher: "NC State Extension",
+    title:
+      "North Carolina Organic Commodities Production Guide, Chapter 8: Sweetpotatoes",
+    url: "https://content.ces.ncsu.edu/north-carolina-organic-commodities-production-guide/chapter-8-crop-production-management-sweetpotatoes",
+    revision: "AG-660, published March 2024",
+    accessedAt: "2026-09-09",
+    licenseNote:
+      "Copyrighted Extension guidance, and a commercial field guide rather than a home-garden one. Used for a single fact OSU does not carry anywhere: how long a sweet potato takes from planting to lifting. Nothing about acreage, rates or commercial practice belongs here.",
+  },
 ];
 
 /**
@@ -198,6 +209,8 @@ export const familyNames: Record<string, string> = {
   Amaryllidaceae: "daffodil and onion family",
   Apiaceae: "carrot family",
   Asteraceae: "daisy family",
+  Brassicaceae: "cabbage family",
+  Convolvulaceae: "morning glory family",
   Cucurbitaceae: "gourd family",
   Fabaceae: "pea family",
   Lamiaceae: "mint family",
@@ -278,12 +291,13 @@ const toxic = (
   parts: string,
   symptoms: string,
   sourceIds = ["ncsu-plant-toolbox"],
+  factReviewedAt = flowersReviewedAt,
 ): ToxicityRecord => ({
   severity,
   parts,
   symptoms,
   sourceIds,
-  reviewedAt: flowersReviewedAt,
+  reviewedAt: factReviewedAt,
 });
 
 // A fact gathered in the cut-flower pass, dated to it.
@@ -365,6 +379,32 @@ const habitFromType = (type: string) => {
   if (/\b(red|green|oak) leaf\b/i.test(type)) return "Leaf";
   return undefined;
 };
+
+// The date the potato-and-cabbage pass was researched, kept apart from the earlier
+// review dates the same way the cut-flower pass is.
+const groundCropsReviewedAt = "2026-09-09";
+
+// A fact gathered in that pass. EC 871 stays the regional baseline; where it simply has no
+// figure — a maturity, a soil texture — the scope drops to national rather than dressing
+// another state's number up as western Oregon guidance.
+const groundCropFact = <T>(
+  value: T,
+  sourceIds: string[],
+  locationScope: SourcedFact<T>["locationScope"] = "western-oregon",
+) => ({
+  value,
+  sourceIds,
+  locationScope,
+  evidenceLevel: "extension-guidance" as const,
+  reviewedAt: groundCropsReviewedAt,
+});
+
+// EC 871 names the cabbage varieties worth growing here but never says how long any of them
+// takes. USU times four of them by name, so those four — and only those four — can say.
+const withDays = (cultivar: ReturnType<typeof osuCultivar>, days: string) => ({
+  ...cultivar,
+  daysToMaturity: groundCropFact(days, ["usu-yard-garden"], "cultivar"),
+});
 
 // EC 871 lists recommended varieties for Oregon grouped by horticultural type.
 const osuCultivar = (id: string, name: string, type: string) => {
@@ -530,6 +570,15 @@ export const catalog: PlantRecord[] = [
           "Both are Solanaceae. EC 871 advises against planting the same family in the same place two years running, because a soil-borne disease carries straight over.",
         sourceIds: ["osu-vegetable-oregon"],
       },
+      {
+        plantId: "potato",
+        effect: "avoid",
+        mechanism: "rotation-conflict",
+        evidenceLevel: "extension-guidance",
+        explanation:
+          "Both are Solanaceae. EC 871 advises against planting the same family in the same place two years running, because a soil-borne disease carries straight over.",
+        sourceIds: ["osu-vegetable-oregon"],
+      },
     ],
     growingTips: osuFact(
       [
@@ -636,6 +685,15 @@ export const catalog: PlantRecord[] = [
     companions: [
       {
         plantId: "tomato",
+        effect: "avoid",
+        mechanism: "rotation-conflict",
+        evidenceLevel: "extension-guidance",
+        explanation:
+          "Both are Solanaceae. EC 871 advises against planting the same family in the same place two years running, because a soil-borne disease carries straight over.",
+        sourceIds: ["osu-vegetable-oregon"],
+      },
+      {
+        plantId: "potato",
         effect: "avoid",
         mechanism: "rotation-conflict",
         evidenceLevel: "extension-guidance",
@@ -1094,6 +1152,394 @@ export const catalog: PlantRecord[] = [
         "Sow about 6 beans per pole, or 3 to 4 inches apart for bush types.",
       ],
       ["osu-vegetable-oregon", "osu-educators-guide"],
+    ),
+    reviewStatus: "reviewed",
+  },
+
+  {
+    id: "potato",
+    commonName: "Potatoes",
+    scientificName: "Solanum tuberosum",
+    category: "vegetable",
+    family: family("Solanaceae"),
+    summary:
+      "A tuber crop for the Western valleys, planted April through June and dug from early summer onward.",
+    // "Direct sow" would be untrue: nothing is sown. A cut seed potato goes in the ground.
+    plantingLabel: "Plant seed potatoes",
+    daysToMaturity: groundCropFact(
+      "New potatoes 7–8 weeks after planting; a mature crop 3–4 months",
+      ["ncsu-plant-toolbox"],
+      "national",
+    ),
+    sun: groundCropFact("A sunny position", ["usu-yard-garden"], "national"),
+    water: groundCropFact(
+      "Water deeply, about 1–2 inches a week. Soaker hoses are not recommended for potatoes.",
+      ["osu-vegetable-oregon", "usu-yard-garden"],
+    ),
+    // EC 871 gives soil texture for vegetables as a group and nothing for potatoes in
+    // particular, so the texture here is USU's, stated at the scope it was written for.
+    soil: groundCropFact(
+      "Rich, well-drained sandy soil with plenty of organic matter",
+      ["usu-yard-garden"],
+      "national",
+    ),
+    spacing: groundCropFact("Rows 24 inches; 12 inches apart in the row", [
+      "osu-vegetable-oregon",
+    ]),
+    timing: [
+      // EC 871's region 2 column, Western valleys, Portland to Roseburg: April through June.
+      timing("direct", "lastFrost", 17, 107, ["osu-vegetable-oregon"]),
+      // Earliest planting plus the shortest new-potato figure, through the latest planting
+      // plus the longest mature-crop figure — the same arithmetic every other harvest here uses.
+      timing("harvest", "lastFrost", 66, 229, ["ncsu-plant-toolbox"]),
+    ],
+    // Recommended for Oregon in EC 871, grouped by its own skin-and-flesh headings.
+    cultivars: [
+      osuCultivar("red-pontiac", "Red Pontiac", "Red"),
+      osuCultivar("norland", "Norland", "Red"),
+      osuCultivar("red-la-soda", "Red La Soda", "Red"),
+      osuCultivar("cranberry-red", "Cranberry Red", "Red"),
+      osuCultivar("norgold-russet", "Norgold Russet", "White"),
+      osuCultivar("russet-burbank", "Russet Burbank", "White"),
+      osuCultivar("superior", "Superior", "White"),
+      osuCultivar("yellow-finn", "Yellow Finn", "Yellow"),
+      osuCultivar("yukon-gold", "Yukon Gold", "Yellow"),
+      osuCultivar("bintje", "Bintje", "Yellow"),
+      osuCultivar("desiree", "Desiree", "Yellow"),
+      osuCultivar("all-blue", "All Blue", "Purple"),
+    ],
+    problems: [
+      {
+        id: "colorado-potato-beetle",
+        name: "Colorado potato beetle",
+        kind: "pest",
+        symptom:
+          "Striped beetles and fat orange grubs stripping the leaves, worst on young plants.",
+        response:
+          "Look the plants over regularly and pick the beetles and the egg clusters off by hand. Rotating away from where potatoes, tomatoes or peppers grew last year gives them less to wake up to.",
+        evidenceLevel: "extension-guidance",
+        sourceIds: ["ncsu-plant-toolbox", "usu-yard-garden"],
+      },
+      {
+        id: "potato-late-blight",
+        name: "Late blight",
+        kind: "disease",
+        symptom:
+          "Dark greasy patches on leaves and stems that spread fast in wet weather, then rot in the tubers.",
+        response:
+          "Keep the foliage as dry as you can and give the plants room for air to move. Take out badly affected plants rather than leaving them to seed the rest of the row.",
+        evidenceLevel: "extension-guidance",
+        sourceIds: ["ncsu-plant-toolbox", "usu-yard-garden"],
+      },
+      {
+        id: "tuber-greening",
+        name: "Greening",
+        kind: "disorder",
+        symptom:
+          "Tubers that sat too near the surface turn green where the light reached them.",
+        response:
+          "Hill soil, straw or mulch up around the plants so the tubers stay covered. Green parts are not worth eating — cut them away or leave that potato.",
+        evidenceLevel: "extension-guidance",
+        sourceIds: ["osu-vegetable-oregon", "usu-yard-garden"],
+      },
+    ],
+    companions: [
+      {
+        plantId: "tomato",
+        effect: "avoid",
+        mechanism: "rotation-conflict",
+        evidenceLevel: "extension-guidance",
+        explanation:
+          "Both are Solanaceae. EC 871 advises against planting the same family in the same place two years running, because a soil-borne disease carries straight over.",
+        sourceIds: ["osu-vegetable-oregon"],
+      },
+      {
+        plantId: "pepper",
+        effect: "avoid",
+        mechanism: "rotation-conflict",
+        evidenceLevel: "extension-guidance",
+        explanation:
+          "Both are Solanaceae. EC 871 advises against planting the same family in the same place two years running, because a soil-borne disease carries straight over.",
+        sourceIds: ["osu-vegetable-oregon"],
+      },
+    ],
+    /* The Plant Toolbox's own "toxic parts" field for this plant reads "fruits, leaves,
+       roots and stems". Carried over word for word that would tell a gardener the thing
+       she is digging up is poisonous, which is the opposite of what the page means — it
+       says the green parts hold the alkaloids, and the tubers are the food crop. So the
+       wording below follows the page's meaning rather than its field. */
+    toxicity: toxic(
+      "high",
+      // No full stop at the end: the banner joins this to the symptoms with one of its own.
+      "The green parts — leaves, stems and the little tomato-like fruits. The tubers you dig are the food crop, but cut away any that have greened in the light",
+      "Nausea, vomiting, salivation, drowsiness, stomach pain, diarrhoea, weakness and slowed breathing. It can be fatal.",
+      ["ncsu-plant-toolbox"],
+      groundCropsReviewedAt,
+    ),
+    growingTips: groundCropFact(
+      [
+        "Cut the seed potatoes so every piece has at least three eyes on it.",
+        "EC 871 puts early potatoes in from mid-April to June; EM 9032's Willamette Valley calendar starts them a little sooner, any time after 15 March.",
+        "Plant 5 to 6 inches deep on the flat, or 4 inches deep if you mean to hill the rows.",
+        "Hill up soil, straw or mulch around the plants so the shallow tubers never see daylight.",
+        "New potatoes can be robbed from the edge of a plant as soon as they form; leave the rest until the tops have died back and the skins have set.",
+      ],
+      ["osu-vegetable-oregon", "osu-educators-guide", "usu-yard-garden"],
+    ),
+    reviewStatus: "reviewed",
+  },
+
+  {
+    id: "sweet-potato",
+    commonName: "Sweet potatoes",
+    scientificName: "Ipomoea batatas",
+    category: "vegetable",
+    family: family("Convolvulaceae"),
+    /* Said plainly, because the calendar below cannot say it. EC 871's table marks sweet
+       potatoes "not suitable" for regions 1, 2 and 3 and lists a variety for region 4 only
+       — the Columbia and Snake valleys, over the mountains, where the summer nights are
+       warm. The Willamette Valley is region 2. Everything here is a real, cited number;
+       what no publication offers is a western Oregon planting date, because OSU does not
+       think there is one. */
+    summary:
+      "A heat lover OSU does not recommend for the Western valleys — east of the Cascades it goes in during May. Worth a gamble here only in the warmest spot you have.",
+    plantingLabel: "Plant slips",
+    daysToMaturity: groundCropFact(
+      "Early varieties about 90–100 days from planting; later ones more than 115",
+      ["ncsu-sweetpotato-guide"],
+      "national",
+    ),
+    sun: groundCropFact(
+      "Full sun — six hours of direct sunlight a day or more",
+      ["ncsu-plant-toolbox"],
+      "national",
+    ),
+    water: groundCropFact(
+      "Tolerates drought and dry soil once it is going",
+      ["ncsu-plant-toolbox"],
+      "national",
+    ),
+    soil: groundCropFact(
+      "Well-drained loam with plenty of organic matter",
+      ["ncsu-plant-toolbox"],
+      "national",
+    ),
+    spacing: groundCropFact("Rows 24 inches; 12 inches apart in the row", [
+      "osu-vegetable-oregon",
+    ]),
+    timing: [
+      // EC 871's May, from the region 4 column — the only Oregon planting date that exists
+      // for this crop. Drawn here so the row has a band rather than a blank, not because
+      // OSU endorses it for her garden.
+      timing("direct", "lastFrost", 47, 77, ["osu-vegetable-oregon"]),
+      timing("harvest", "lastFrost", 137, 177, ["ncsu-sweetpotato-guide"]),
+    ],
+    // The one variety EC 871 names, and it names it for region 4 only.
+    cultivars: [
+      osuCultivar("jewell-centennial", "Jewell Centennial", "Standard"),
+    ],
+    problems: [
+      {
+        id: "sweet-potato-cold-summer",
+        name: "A summer that never gets hot enough",
+        kind: "disorder",
+        symptom:
+          "Vines that grow away happily all season and give you almost nothing underneath.",
+        response:
+          "Sweet potatoes want days near 90°F and nights in the upper 60s. Western Oregon rarely delivers that, which is why OSU leaves this crop out of the valley planting table. Black plastic, a south wall and the warmest bed you own are the way to try.",
+        evidenceLevel: "extension-guidance",
+        sourceIds: ["osu-vegetable-oregon", "ncsu-sweetpotato-guide"],
+      },
+      {
+        id: "sweet-potato-flea-beetle",
+        name: "Flea beetles",
+        kind: "pest",
+        symptom: "Small round shot holes peppering the leaves.",
+        response:
+          "A floating row cover over young plants keeps them off until the vines are big enough not to care.",
+        evidenceLevel: "extension-guidance",
+        sourceIds: ["ncsu-plant-toolbox"],
+      },
+    ],
+    companions: [],
+    growingTips: groundCropFact(
+      [
+        "OSU's planting table marks sweet potatoes not suitable for the Western valleys; the only Oregon region it lists them for is the Columbia and Snake valleys, in May.",
+        "They are grown from slips — rooted shoots — not from seed and not from a tuber put in whole.",
+        "Give them the hottest, best-drained ground you have, and black plastic to hold the heat in.",
+        "Jewell Centennial is the one variety OSU names, and it names it for east of the mountains.",
+      ],
+      ["osu-vegetable-oregon", "ncsu-plant-toolbox", "ncsu-sweetpotato-guide"],
+    ),
+    reviewStatus: "reviewed",
+  },
+
+  {
+    id: "cabbage",
+    commonName: "Cabbage",
+    scientificName: "Brassica oleracea (Capitata Group)",
+    category: "vegetable",
+    family: family("Brassicaceae"),
+    summary:
+      "A cool-season header for the Western valleys, set out early for a summer cut or in early summer for a fall one.",
+    daysToMaturity: groundCropFact(
+      "55–100 days from transplant, depending on the variety",
+      ["usu-yard-garden"],
+      "national",
+    ),
+    sun: groundCropFact("Full sun", ["usu-yard-garden"], "national"),
+    water: groundCropFact(
+      "Cool and uniformly moist — about 1–2 inches of water a week",
+      ["osu-vegetable-oregon", "usu-yard-garden"],
+    ),
+    soil: groundCropFact(
+      "Fertile and well drained. Most vegetables want pH 6.0–7.5; western Oregon soils run more acidic and usually need lime.",
+      ["osu-vegetable-oregon", "usu-yard-garden"],
+    ),
+    spacing: groundCropFact("Rows 24 inches; 24 inches apart in the row", [
+      "osu-vegetable-oregon",
+    ]),
+    /* Two sowings, because EC 871 describes two: "Set out plants of early-maturing varieties
+       as soon as spring conditions permit. Plant later-maturing varieties in late May or June
+       for heading in the fall." They are named so each carries its own indoor start and its
+       own picking dates, instead of one row claiming a harvest from May to October that no
+       single planting delivers. The maturities that turn a planting date into a picking date
+       are USU's, by variety: 55 and 65 days for the early kinds, 80 and 100 for the late. */
+    timing: [
+      timing(
+        "indoor",
+        "lastFrost",
+        -25,
+        4,
+        ["osu-vegetable-oregon"],
+        "spring heading",
+      ),
+      timing(
+        "transplant",
+        "lastFrost",
+        17,
+        46,
+        ["osu-vegetable-oregon"],
+        "spring heading",
+      ),
+      timing(
+        "harvest",
+        "lastFrost",
+        72,
+        111,
+        ["usu-yard-garden"],
+        "spring heading",
+      ),
+      timing(
+        "indoor",
+        "lastFrost",
+        24,
+        65,
+        ["osu-vegetable-oregon"],
+        "fall heading",
+      ),
+      timing(
+        "transplant",
+        "lastFrost",
+        66,
+        107,
+        ["osu-vegetable-oregon"],
+        "fall heading",
+      ),
+      timing(
+        "harvest",
+        "lastFrost",
+        146,
+        207,
+        ["usu-yard-garden"],
+        "fall heading",
+      ),
+    ],
+    // Recommended for Oregon in EC 871, under its own headings. The four that carry a day
+    // count are the four USU times by name; the rest say nothing rather than borrow a number.
+    cultivars: [
+      osuCultivar("dynamo", "Dynamo", "Early"),
+      osuCultivar("parel", "Parel", "Early"),
+      osuCultivar("primax", "Primax", "Early"),
+      osuCultivar("arrowhead", "Arrowhead", "Early"),
+      osuCultivar("capricorn", "Capricorn", "Early"),
+      osuCultivar("farao", "Farao", "Early"),
+      osuCultivar("tendersweet", "Tendersweet", "Early"),
+      withDays(
+        osuCultivar("golden-acre", "Golden Acre", "Main season"),
+        "65 days",
+      ),
+      osuCultivar("bravo", "Bravo", "Main season"),
+      osuCultivar("charmant", "Charmant", "Main season"),
+      withDays(
+        osuCultivar("danish-ballhead", "Danish Ballhead", "Late fall, winter"),
+        "100 days",
+      ),
+      osuCultivar("storage-hybrid-4", "Storage Hybrid #4", "Late fall, winter"),
+      osuCultivar("blue-thunder", "Blue Thunder", "Late fall, winter"),
+      osuCultivar("ruby-perfection", "Ruby Perfection", "Red"),
+      osuCultivar("regal-red", "Regal Red", "Red"),
+      osuCultivar("red-acre", "Red Acre", "Red"),
+      osuCultivar("melissa", "Melissa", "Savoy"),
+      osuCultivar("savoy-express", "Savoy Express", "Savoy"),
+      withDays(osuCultivar("savoy-ace", "Savoy Ace", "Savoy"), "80 days"),
+      osuCultivar("kilosa", "Kilosa", "Savoy"),
+    ],
+    problems: [
+      {
+        id: "cabbage-maggot",
+        name: "Cabbage maggot",
+        kind: "pest",
+        symptom:
+          "Young plants wilting and stalling for no visible reason; white grubs in the roots when you lift one.",
+        response:
+          "A floating row cover put on at planting and left until the plants are established keeps the fly from ever laying there.",
+        evidenceLevel: "extension-guidance",
+        sourceIds: ["osu-vegetable-oregon"],
+      },
+      {
+        id: "cabbage-flea-beetle",
+        name: "Flea beetles",
+        kind: "pest",
+        symptom: "Small round shot holes peppering the young leaves.",
+        response:
+          "Row covers again — the same cover does both jobs. Older plants shrug the damage off.",
+        evidenceLevel: "extension-guidance",
+        sourceIds: ["osu-vegetable-oregon"],
+      },
+      {
+        id: "cabbage-worm",
+        name: "Cabbage worms and loopers",
+        kind: "pest",
+        symptom:
+          "Green caterpillars chewing ragged holes through the wrapper leaves and into the head.",
+        response:
+          "Pick them off as you find them, and keep the row covered where you can. The white butterflies dancing over the bed are the ones laying the eggs.",
+        evidenceLevel: "extension-guidance",
+        sourceIds: ["usu-yard-garden"],
+      },
+      {
+        id: "cabbage-tipburn",
+        name: "Tipburn",
+        kind: "disorder",
+        symptom:
+          "The head looks fine from outside, but the leaf edges inside are tan or dark brown.",
+        response:
+          "It follows uneven watering rather than a pest. Keep the moisture steady rather than letting the bed swing from dry to soaked.",
+        evidenceLevel: "extension-guidance",
+        sourceIds: ["usu-yard-garden"],
+      },
+    ],
+    companions: [],
+    growingTips: groundCropFact(
+      [
+        "Cabbage does best in cool, uniformly moist ground — it is the drying out and soaking that spoils a head.",
+        "Set out early varieties as soon as spring conditions allow; plant the later-maturing ones in late May or June to head in the fall.",
+        "Start transplants about six weeks before they are due to go out.",
+        "Cut the head once it is full size and firm, before it splits.",
+        "EC 871 asks you not to follow cabbage with broccoli or any other of its family in the same ground two years running.",
+      ],
+      ["osu-vegetable-oregon", "usu-yard-garden"],
     ),
     reviewStatus: "reviewed",
   },
