@@ -829,10 +829,6 @@
   .fileButton {
     padding: var(--pad-y) var(--pad-x);
   }
-  /* No color-mix, so the row takes the flat surface tone it is mixed from. */
-  .wishRow {
-    background: var(--color-surface);
-  }
 }
 /* Recessed: the bevel inverted, so a field reads as a hole rather than a
    key. Same notch, same edge mix — only the direction of the light changes. */
@@ -3257,23 +3253,33 @@
 
 /* Row height is set by whichever side is taller, so a plant with one sowing
    costs about half of one with two and twice as many names fit on a screen. */
-/* A row is paper, not a control. It used to wear the button costume — cream
-   fill, a hard 3px edge, notched corners — but with none of the lit top edge
-   that says "raised" in here, which left every plant sitting in the pose of a
-   button being held down. The sowing buttons inside it are the only things on
-   this page you press, so the row steps back and lets them keep the edges.
-   Padding absorbs the border it no longer draws, so nothing shifts. */
+/* A row is paper, not a control — but it still has to look like live paper.
+   Two ways to get this wrong, and this row has been both. Dressed in the
+   button costume (surface fill, a hard 3px --color-border edge, notched
+   corners) it read as a button held down, because the lit top and left edges
+   are what say "raised" in here and it had none. Stripped bare and tinted
+   toward the page, it read as greyed out and inactive, because a faint wash of
+   --color-bg is the same move the zero-count filter chips make.
+
+   So: the full surface fill, as bright as anything active on the page, and an
+   edge that is unmistakably not a button's — two pixels rather than three, the
+   muted surface tone rather than the button's border tone, and the container
+   stair corner rather than the button's notch. The sowing buttons inside keep
+   the dark edges and the bevel, so they stay the only things you press. */
 .wishRow {
   display: flex;
   align-items: flex-start;
   gap: 10px;
   margin-bottom: 6px;
-  padding: 10px 12px;
-  background: color-mix(in srgb, var(--color-surface) 82%, var(--color-bg));
+  padding: 9px 11px;
+  background: var(--color-surface);
+  border: 2px solid var(--color-surface-muted);
+  clip-path: var(--o-stair);
 }
-/* Wanted: a spine down the side, the one mark the row itself carries. */
+/* Wanted: the edge turns accent and a spine runs down the side. */
 .wishRowPicked {
-  box-shadow: inset 4px 0 0 0 var(--color-accent);
+  border-color: var(--color-accent);
+  box-shadow: inset 3px 0 0 0 var(--color-accent);
 }
 .wishRowMain {
   flex: 1;
@@ -3416,16 +3422,24 @@
   color: var(--color-gold);
 }
 
+/* Same problem as .wishRow, one surface along. Filled with --color-bg it was
+   darker than the dialog it sits in and edged like a button, so a saved plant
+   looked like a heavy slab someone was leaning on. The dialog is already the
+   surface tone, so there is no fill to give it — the outline carries the row,
+   in the same two-pixel muted edge and stair corner the page rows use. */
 .wishSaved {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 8px;
   margin-bottom: 5px;
-  padding: 6px 5px 6px 10px;
-  background: var(--color-bg);
-  border: 3px solid var(--color-border);
-  clip-path: var(--o-nick);
+  padding: 7px 6px 7px 11px;
+  background: transparent;
+  border: 2px solid var(--color-surface-muted);
+  /* No clip here, unlike the page rows. The stair cuts the corners out of the
+     border, which a filled row hides and an unfilled one shows as four
+     detached ticks. With no fill to carry the shape, the outline has to close. */
+  clip-path: none;
 }
 .wishRemove {
   --lift: 0px;
