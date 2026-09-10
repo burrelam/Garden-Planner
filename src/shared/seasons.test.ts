@@ -348,23 +348,25 @@ describe("the dates the planner sorts a row by", () => {
   });
 
   it("takes the earlier of two sowings, and the earlier of two pickings", () => {
-    // Cabbage is the case Amanda named: set out early for a summer cut, or in
-    // early summer to head in the fall. It must sort by the April, not the May.
+    // Cabbage is the case Amanda named: started early for a summer cut, or in
+    // early summer to head in the fall. Both dates come from the first of the
+    // two sowings — the February tray, not the June one, and the May cut
+    // rather than the autumn head.
     const dates = plannerDatesForEntry(row({ plantId: "cabbage" }), garden);
-    expect(dates.sow).toBe("2026-04-01");
+    expect(dates.sow).toBe("2026-02-18");
     expect(dates.harvest).toBe("2026-05-26");
   });
 
-  it("sorts a tomato by the day it goes out, not the day it is started", () => {
-    // "Sown" means put in the ground here, the same as it does on the wish
-    // list — otherwise everything started under cover bunches up in February.
+  it("sorts a tomato by the day it is started, not the day it goes out", () => {
+    // Starting a tray indoors is still planting a seed, so that is the date
+    // the row sorts by — the first time this plant wants anything from you.
     const dates = plannerDatesForEntry(row({ plantId: "tomato" }), garden);
     const indoor = indoorWindowFor(plant("tomato"), garden);
-    expect(dates.sow).toBe("2026-05-01");
-    expect(indoor && indoor.start < dates.sow!).toBe(true);
+    expect(dates.sow).toBe(indoor!.start);
+    expect(dates.sow).toBe("2026-03-06");
   });
 
-  it("falls back to the indoor date when that is all a row has", () => {
+  it("takes an indoor date where that is all a row has", () => {
     const dates = plannerDatesForEntry(
       row({
         timingOverride: [

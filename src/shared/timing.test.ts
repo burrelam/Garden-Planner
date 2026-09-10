@@ -174,3 +174,43 @@ describe("a row's sowing lanes", () => {
     ).toBe("indoor");
   });
 });
+
+describe("a window that runs past the turn of the year", () => {
+  const rule = (
+    phase: TimingRule["phase"],
+    startOffsetDays: number,
+    endOffsetDays: number,
+  ): TimingRule => ({
+    phase,
+    anchor: "lastFrost",
+    startOffsetDays,
+    endOffsetDays,
+    sourceIds: ["osu-vegetable-oregon"],
+  });
+  const painted = (slots: ReturnType<typeof rulesToTimeline>) =>
+    slots.flatMap((slot, index) => (slot.phase ? [index] : []));
+
+  it("wraps around the calendar instead of painting backwards", () => {
+    // Onions: started indoors 21 December, set out 22 March. The year is a
+    // ring — December sits next to January, not eleven months from it.
+    const slots = rulesToTimeline([rule("indoor", -84, 7)], garden);
+    expect(painted(slots)).toEqual([0, 1, 2, 3, 4, 5, 23]);
+    // The months in between must stay empty: this used to say "start indoors"
+    // in June and again in October.
+    for (const june of [10, 11, 12]) expect(slots[june].phase).toBe(null);
+  });
+
+  it("still paints an ordinary window between its own two ends", () => {
+    // 14 April to 13 June: the back half of April through the front of June.
+    expect(painted(rulesToTimeline([rule("harvest", 30, 90)], garden))).toEqual(
+      [6, 7, 8, 9, 10],
+    );
+  });
+
+  it("marks only the start when the dates are backwards", () => {
+    // Malformed rather than wrapping — one cell beats swallowing the year.
+    expect(painted(rulesToTimeline([rule("direct", 60, 10)], garden))).toEqual([
+      8,
+    ]);
+  });
+});

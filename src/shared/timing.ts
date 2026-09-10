@@ -32,20 +32,32 @@ export function rulesToTimeline(
 
   for (const rule of rules) {
     const anchor = garden[rule.anchor];
-    const start = Math.max(
-      0,
-      Math.min(23, dateToSlot(addDays(anchor, rule.startOffsetDays))),
-    );
-    const end = Math.max(
-      0,
-      Math.min(23, dateToSlot(addDays(anchor, rule.endOffsetDays))),
-    );
-    for (
-      let index = Math.min(start, end);
-      index <= Math.max(start, end);
-      index += 1
-    ) {
-      slots[index].phase = rule.phase;
+    const startDate = addDays(anchor, rule.startOffsetDays);
+    const endDate = addDays(anchor, rule.endOffsetDays);
+    const start = dateToSlot(startDate);
+    const end = dateToSlot(endDate);
+    /* A window that runs past the turn of the year wraps around the calendar
+       rather than being painted backwards across everything in between.
+       Onions started indoors on 21 December and set out on 22 March used to
+       paint March through December — "start indoors" in June and again in
+       October — because the slot it ended on came before the slot it began
+       on, and the range was drawn between them. The year is a ring: December
+       is next to January, not eleven months from it. */
+    if (endDate.getTime() < startDate.getTime()) {
+      // Backwards dates are malformed rather than wrapping. Mark the start
+      // only, so bad data shows as one cell instead of swallowing the year.
+      slots[start].phase = rule.phase;
+      continue;
+    }
+    const paint = (from: number, to: number) => {
+      for (let index = from; index <= to; index += 1)
+        slots[index].phase = rule.phase;
+    };
+    if (endDate.getTime() - startDate.getTime() >= 364 * 86400000) paint(0, 23);
+    else if (start <= end) paint(start, end);
+    else {
+      paint(start, 23);
+      paint(0, end);
     }
   }
 

@@ -127,17 +127,18 @@ function ruleRange(
 }
 
 /**
- * The first day of the year this row asks something of the gardener, and the
- * first day it gives something back — the two dates the planner sorts by.
+ * The day this row first asks something of the gardener, and the day it first
+ * gives something back — the two dates the planner sorts by.
  *
  * A crop sown twice answers with the earlier of its sowings, and picked twice
  * with the earlier of its pickings. That is the date she is planning around
  * when she reads down the list: the first time this plant needs her.
  *
- * "Sown" means put in the ground, the same as it does on the wish list, so a
- * tomato sorts by the May it goes out rather than the February it is started.
- * A row whose only rule is an indoor one has nothing else to answer with, so
- * that is what it gives.
+ * "Sown" means the first time you plant the thing, wherever you plant it —
+ * starting a tray indoors is still planting a seed, just under cover, so a
+ * tomato sorts by the March it is sown rather than the May it goes out. Any
+ * phase that begins the plant counts: indoors, direct, or setting out a
+ * transplant. Only picking is excluded, because picking is the other sort.
  *
  * Reads the gardener's own dates where a row has them, through rulesForEntry —
  * a row she has re-dated herself sorts by what she wrote, not by the catalog.
@@ -156,7 +157,7 @@ export function plannerDatesForEntry(
     return starts.length ? starts.sort()[0] : null;
   };
   return {
-    sow: earliest(GROUND_PHASES) ?? earliest(["indoor"]),
+    sow: earliest(["indoor", ...GROUND_PHASES]),
     harvest: earliest(["harvest", "bloom"]),
   };
 }

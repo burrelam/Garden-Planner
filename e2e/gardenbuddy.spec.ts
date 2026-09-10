@@ -614,7 +614,7 @@ test("the growing season block leaves room for the legend", async ({
 
 /**
  * Sorting the planner by a date puts the rows in the order the calendar draws
- * them: the first sowing pill, then the next, marching rightward down the
+ * them: the first planting pill, then the next, marching rightward down the
  * list. Asserted as "never steps backwards" rather than as a fixed run of
  * plant names, so the seeded garden can change without rewriting the test.
  */
@@ -632,7 +632,7 @@ test("the planner can be sorted by sow date and by harvest date", async ({
     page.evaluate((which) => {
       const wanted =
         which === "sow"
-          ? /^(Direct sow|Transplant|Plant )/
+          ? /^(Start indoors|Direct sow|Transplant|Plant )/
           : /^(Harvest|Bloom)/;
       return [...document.querySelectorAll("[class*=calendarRow]")].map(
         (row) => {
@@ -644,17 +644,26 @@ test("the planner can be sorted by sow date and by harvest date", async ({
             );
             if (!Number.isNaN(slot) && slot < first) first = slot;
           }
-          return first;
+          const name =
+            row
+              .querySelector("[class*=plantRowTitle] strong")
+              ?.textContent?.trim() ?? "?";
+          // Name included so a failure says which row is out of place.
+          return `${String(first).padStart(2, "0")} ${name}`;
         },
       );
     }, kind);
 
   for (const kind of ["sow", "harvest"] as const) {
     await sort.selectOption(kind);
-    const slots = await firstSlots(kind);
-    expect(slots.length).toBeGreaterThan(1);
-    // Sorted means it never steps backwards.
-    expect(slots).toEqual([...slots].sort((a, b) => a - b));
+    const rows = await firstSlots(kind);
+    expect(rows.length).toBeGreaterThan(1);
+    /* Sorted means it never steps backwards. Only the slots have to climb:
+       two rows sharing a half-month may fall either way between themselves,
+       because the sort knows dates finer than the calendar can draw. The
+       labelled rows ride along as the failure message. */
+    const slots = rows.map((row) => Number(row.slice(0, 2)));
+    expect(slots, rows.join("  |  ")).toEqual([...slots].sort((a, b) => a - b));
   }
 
   // And the two orders are genuinely different views of the same garden —
