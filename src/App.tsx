@@ -2894,9 +2894,11 @@ function PlantLibrary() {
         ))}
       </div>
       <p className={styles.muted}>
-        {visible.length} {view === "varieties" ? "varieties" : "plants"}
+        {view === "varieties"
+          ? varietyCount(visible.length)
+          : counted(visible.length, "plant", "plants")}
         {view === "varieties" &&
-          ` across ${new Set(varieties.map(({ plant }) => plant.id)).size} plants`}
+          ` across ${counted(new Set(varieties.map(({ plant }) => plant.id)).size, "plant", "plants")}`}
         {query ? ` matching “${query}”` : ""}
         {letter ? ` starting with ${letter}` : ""}.
       </p>
@@ -2950,11 +2952,16 @@ function timingBySowing(plant: PlantRecord) {
   return groups;
 }
 
-/* One variety is a real case — sweet potatoes have exactly one OSU-named kind —
-   and "1 varieties" is the sort of thing that makes a page look untended. */
-function varietyCount(count: number) {
-  return `${count} ${count === 1 ? "variety" : "varieties"}`;
+/* Counting out loud. One of a thing is worth saying in words — "one variety"
+   rather than "1 variety", which reads like a machine tallying stock — and past
+   one the number is the useful part, so it stays a numeral. The plural is
+   spelled out by the caller because English will not be guessed at: one variety,
+   two varieties. */
+function counted(count: number, singular: string, plural: string) {
+  return count === 1 ? `one ${singular}` : `${count} ${plural}`;
 }
+
+const varietyCount = (count: number) => counted(count, "variety", "varieties");
 
 // Common names are plural for some crops. "Grown like any other carrots" reads wrong, so prose
 // uses the singular the catalog's own lookup already trims to.
@@ -3121,8 +3128,7 @@ function VarietyDetail() {
             {/* "24 other beans" and "39 other tomatoes" pluralise differently, and some common
                 names are plural already. "Varieties" is right for all twenty-one plants. */}
             <h2>
-              {siblings.length} other{" "}
-              {siblings.length === 1 ? "variety" : "varieties"}
+              {counted(siblings.length, "other variety", "other varieties")}
             </h2>
             {groupCultivars(siblings).map(([group, cultivars]) => (
               <div className={styles.varietyGroup} key={group}>
@@ -4082,8 +4088,9 @@ function Settings({
             <div className={styles.preview}>
               <strong>Ready to import</strong>
               <span>
-                {preview.plants} plants · {preview.beds} beds ·{" "}
-                {preview.varieties} varieties
+                {counted(preview.plants, "plant", "plants")} ·{" "}
+                {counted(preview.beds, "bed", "beds")} ·{" "}
+                {varietyCount(preview.varieties)}
               </span>
               {preview.customPlants.length > 0 && (
                 <span>Custom plants: {preview.customPlants.join(", ")}</span>
