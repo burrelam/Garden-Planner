@@ -324,9 +324,8 @@ test("a wish arrives in the planner as whatever Settings says", async ({
       .click();
     await page.getByRole("button", { name: "View list" }).click();
     const drawer = page.getByRole("dialog", { name: "Your wish list" });
-    await drawer
-      .getByRole("button", { name: /Add all 1 to the planner/i })
-      .click();
+    // One wish means one group, so the group's own button is the only one.
+    await drawer.getByRole("button", { name: /Add 1 to planner/i }).click();
     await expect(drawer.getByText(/Nothing yet/)).toBeVisible();
     await openPlanner();
     // Exactly one, or the status read below would be an arbitrary row's.

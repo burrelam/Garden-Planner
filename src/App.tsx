@@ -2692,7 +2692,7 @@ function WishDrawer({
                 disabled={saving}
                 onClick={() => void addToPlanner(group.rows)}
               >
-                {`Add ${group.rows.length} to the planner`}
+                {`Add ${group.rows.length} to planner`}
               </button>
               {repeats.length > 0 && (
                 <p className={styles.wishHeadsUp}>
@@ -2714,14 +2714,18 @@ function WishDrawer({
             : `${allDuplicates.length} of these are already in your planner.`}
         </p>
       )}
-      {items.length > 0 && (
+      {/* With one group this said exactly what that group's own button said,
+          one line above it — and "Add all 1 to planner" was never a sentence.
+          "All" means all of the groups, so it appears when there are groups to
+          be all of. */}
+      {items.length > 0 && groups.length > 1 && (
         <button
           type="button"
           className={styles.primary}
           disabled={saving}
           onClick={() => void addToPlanner(items)}
         >
-          {`Add all ${items.length} to the planner`}
+          {`Add all ${items.length} to planner`}
         </button>
       )}
     </Dialog>

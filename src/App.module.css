@@ -829,6 +829,10 @@
   .fileButton {
     padding: var(--pad-y) var(--pad-x);
   }
+  /* No color-mix, so the row takes the flat surface tone it is mixed from. */
+  .wishRow {
+    background: var(--color-surface);
+  }
 }
 /* Recessed: the bevel inverted, so a field reads as a hole rather than a
    key. Same notch, same edge mix — only the direction of the light changes. */
@@ -3253,18 +3257,22 @@
 
 /* Row height is set by whichever side is taller, so a plant with one sowing
    costs about half of one with two and twice as many names fit on a screen. */
+/* A row is paper, not a control. It used to wear the button costume — cream
+   fill, a hard 3px edge, notched corners — but with none of the lit top edge
+   that says "raised" in here, which left every plant sitting in the pose of a
+   button being held down. The sowing buttons inside it are the only things on
+   this page you press, so the row steps back and lets them keep the edges.
+   Padding absorbs the border it no longer draws, so nothing shifts. */
 .wishRow {
   display: flex;
   align-items: flex-start;
   gap: 10px;
   margin-bottom: 6px;
-  padding: 7px 9px;
-  background: var(--color-surface);
-  border: 3px solid var(--color-border);
-  clip-path: var(--o-step);
+  padding: 10px 12px;
+  background: color-mix(in srgb, var(--color-surface) 82%, var(--color-bg));
 }
+/* Wanted: a spine down the side, the one mark the row itself carries. */
 .wishRowPicked {
-  border-color: var(--color-accent);
   box-shadow: inset 4px 0 0 0 var(--color-accent);
 }
 .wishRowMain {
