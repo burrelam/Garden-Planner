@@ -2612,6 +2612,12 @@ function WishDrawer({
   }
 
   const allDuplicates = duplicates(items);
+  /* How many groups have a repeat in them, which is not the same as how many
+     groups there are. All the repeats sitting inside one group have already
+     been named by that group's own heads-up. */
+  const groupsWithRepeats = groups.filter(
+    (group) => duplicates(group.rows).length > 0,
+  ).length;
 
   return (
     <Dialog title="Your wish list" close={close}>
@@ -2705,13 +2711,15 @@ function WishDrawer({
           );
         })
       )}
-      {/* With one group the group's own heads-up already said this; repeating
-          it under the button reads as two different warnings. */}
-      {allDuplicates.length > 0 && groups.length > 1 && (
+      {/* Only worth saying when the repeats are spread across more than one
+          group. Gathered inside a single group they have already been named a
+          line or two above, and saying it again under the button reads as a
+          second, different warning rather than a summary of the first.
+          Spread across two groups there are at least two of them, so this
+          never needs a singular. */}
+      {groupsWithRepeats > 1 && (
         <p className={styles.wishHeadsUp}>
-          {allDuplicates.length === 1
-            ? `1 of these is already in your planner.`
-            : `${allDuplicates.length} of these are already in your planner.`}
+          {`${allDuplicates.length} of these are already in your planner.`}
         </p>
       )}
       {/* With one group this said exactly what that group's own button said,
