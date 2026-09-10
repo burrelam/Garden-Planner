@@ -28,6 +28,7 @@ const garden: GardenSettings = {
   showFrostMarks: true,
   showPillPredictions: false,
   showPlantedMarkers: false,
+  wishlistDefaultStatus: "undecided",
 };
 
 const plant = (id: string) => catalogById.get(id)!;

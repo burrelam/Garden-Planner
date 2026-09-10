@@ -23,7 +23,7 @@ test("planner calendar and navigation work at this viewport", async ({
 }) => {
   await expect(page.getByLabel("Annual planting calendar")).toBeVisible();
   await page.getByRole("button", { name: "Open menu" }).click();
-  await page.getByRole("link", { name: "Plants", exact: true }).click();
+  await page.getByRole("link", { name: "All Plants", exact: true }).click();
   await expect(
     page.getByRole("heading", { name: "Plant Library" }),
   ).toBeVisible();
@@ -273,6 +273,86 @@ test("frost markers can be switched off, and come back", async ({ page }) => {
   expect(await page.locator("[class*=frostFlake]").count()).toBe(0);
 
   await setFrostMarks(true);
+});
+
+test("a wish arrives in the planner as whatever Settings says", async ({
+  page,
+}) => {
+  // Same shape as the frost-marker test: put the setting where this test wants
+  // it rather than trusting what an earlier project left in the shared database.
+  const setDefault = async (choice: "Undecided" | "Will plant") => {
+    await page.goto("/settings");
+    await openSettingsPanel(page, "Planner options");
+    const option = page.getByRole("radio", { name: choice, exact: true });
+    if ((await option.getAttribute("aria-checked")) === "true") return;
+    await option.click();
+    await expect(page.getByText("Planner options saved.")).toBeVisible();
+  };
+
+  // Every project shares one database, so the row this test reads has to be the
+  // only cabbage in the planner however many earlier runs left one behind.
+  // Removing a row goes through a native confirm(), which Playwright dismisses
+  // unless something says otherwise.
+  page.on("dialog", (dialog) => dialog.accept());
+
+  const openPlanner = async () => {
+    await page.goto("/planner");
+    // goto resolves on load, the rows arrive with React. Counting before they
+    // are drawn reads zero and quietly skips the cleanup below.
+    await expect(page.getByLabel("Annual planting calendar")).toBeVisible();
+  };
+
+  const clearCabbages = async () => {
+    await openPlanner();
+    const edits = page.getByRole("button", { name: /^Edit Cabbage/ });
+    for (let left = await edits.count(); left > 0; left -= 1) {
+      await edits.first().click();
+      await page
+        .getByRole("button", { name: /^Remove Cabbage/ })
+        .first()
+        .click();
+      await expect(edits).toHaveCount(left - 1);
+    }
+  };
+
+  const wantACabbageAndMoveItAcross = async () => {
+    await page.goto("/wishlist");
+    // Cabbage's spring sowing: set out through April, cut early summer.
+    await page
+      .getByRole("button", { name: /Apr 1.*Apr 30/ })
+      .first()
+      .click();
+    await page.getByRole("button", { name: "View list" }).click();
+    const drawer = page.getByRole("dialog", { name: "Your wish list" });
+    await drawer
+      .getByRole("button", { name: /Add all 1 to the planner/i })
+      .click();
+    await expect(drawer.getByText(/Nothing yet/)).toBeVisible();
+    await openPlanner();
+    // Exactly one, or the status read below would be an arbitrary row's.
+    await expect(
+      page.getByRole("button", { name: /^Edit Cabbage/ }),
+    ).toHaveCount(1);
+  };
+
+  /** The status line belonging to the one cabbage row. */
+  const cabbageStatus = () =>
+    page
+      .locator("[class*=plantRowTitle]")
+      .filter({ hasText: "Cabbage" })
+      .locator("[class*=statusLine]");
+
+  await clearCabbages();
+  await setDefault("Will plant");
+  await wantACabbageAndMoveItAcross();
+  await expect(cabbageStatus()).toHaveText(/Will plant · qty 1/);
+
+  await clearCabbages();
+  await setDefault("Undecided");
+  await wantACabbageAndMoveItAcross();
+  await expect(cabbageStatus()).toHaveText(/Undecided · qty 1/);
+
+  await clearCabbages();
 });
 
 test("settings panels fold to their headings, and only one opens", async ({

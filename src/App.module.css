@@ -2326,7 +2326,10 @@
   --outer-c: var(--o-curved);
   --inner-c: var(--i-curved);
   display: block;
-  padding: 22px 22px calc(22px + var(--lift));
+  /* Side padding stays generous; only the vertical padding comes in, so a grid
+     of cards fits more of the list on a phone screen without the text feeling
+     cramped against the bevel. */
+  padding: 14px 22px calc(14px + var(--lift));
   color: var(--color-text);
   text-decoration: none;
   transition: background 0.08s linear;
@@ -2338,7 +2341,7 @@
   --fill-c: color-mix(in srgb, var(--fill) 86%, #fff);
 }
 .plantCard:active {
-  padding: calc(22px + var(--lift)) 22px 22px;
+  padding: calc(14px + var(--lift)) 22px 14px;
 }
 .plantCard:active::before {
   --fill-c: color-mix(in srgb, var(--fill) 88%, #000);
@@ -2359,10 +2362,15 @@
 }
 .plantCard h2,
 .plantCard h3 {
-  margin: 18px 0 3px;
+  margin: 10px 0 3px;
 }
 .plantCard em {
   color: var(--color-text-muted);
+}
+/* The summary sat on the browser's default 1em paragraph margins, which is a lot
+   of air for two lines of text between a name and a footnote. */
+.plantCard p {
+  margin: 6px 0 10px;
 }
 .reviewed {
   color: var(--color-accent);
@@ -2431,6 +2439,22 @@
   gap: 2px 20px;
   padding: 12px 0;
   border-top: 1px solid var(--color-border);
+}
+/* Names one sowing above the rules belonging to it. It carries the top border so
+   the first rule under it does not draw a second line right beneath. */
+.ruleGroupLabel {
+  margin: 0;
+  padding: 16px 0 2px;
+  border-top: 1px solid var(--color-border);
+  font-family: "Silkscreen", ui-monospace, monospace;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-accent);
+}
+.ruleGroupLabel + .rule {
+  border-top: 0;
 }
 .rule strong,
 .rule span {
@@ -2661,6 +2685,30 @@
   display: grid;
   gap: 14px;
 }
+/* A second group inside a settings panel. Quieter than the panel's own heading —
+   it divides, it does not announce a new section. */
+.optionGroupHeading {
+  margin: 22px 0 6px;
+  font-family: "Silkscreen", ui-monospace, monospace;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+/* The icon on a picker row sits where the theme swatch sits, without the swatch's
+   border — a shovel in a box would read as a colour sample. */
+.pickerIcon {
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  flex: 0 0 auto;
+  color: var(--color-text-muted);
+}
+.pickerChoice[aria-checked="true"] .pickerIcon {
+  color: var(--color-accent-hover);
+}
 @media (prefers-reduced-motion: reduce) {
   .fold,
   .panelCaret span {
@@ -2889,12 +2937,14 @@
 /* The theme picker. Each swatch shows the palette it switches to, so these
    literal colours are deliberate — they depict the other themes rather than
    using the active one. */
-.themeChoices {
+.themeChoices,
+.pickerChoices {
   display: grid;
   gap: 8px;
   margin-top: 14px;
 }
-.themeChoice {
+.themeChoice,
+.pickerChoice {
   /* Padding goes through the tokens, not a literal, so the press still
      lands: the label sinks by exactly the plinth's height. */
   --pad-y: 9px;
@@ -2912,21 +2962,25 @@
   letter-spacing: normal;
   text-transform: none;
 }
-.themeChoice strong {
+.themeChoice strong,
+.pickerChoice strong {
   display: block;
   font-weight: 600;
 }
-.themeChoice small {
+.themeChoice small,
+.pickerChoice small {
   display: block;
   color: var(--color-text-muted);
   font-size: 0.78rem;
 }
-.themeChoice[aria-checked="true"] {
+.themeChoice[aria-checked="true"],
+.pickerChoice[aria-checked="true"] {
   --fill: var(--color-accent-soft);
   padding: calc(var(--pad-y) + var(--lift)) var(--pad-x) var(--pad-y);
   box-shadow: var(--stack-down);
 }
-.themeChoice[aria-checked="true"] small {
+.themeChoice[aria-checked="true"] small,
+.pickerChoice[aria-checked="true"] small {
   color: var(--color-accent-hover);
 }
 .themeSwatch {

@@ -14,6 +14,7 @@ const garden: GardenSettings = {
   showFrostMarks: true,
   showPillPredictions: false,
   showPlantedMarkers: false,
+  wishlistDefaultStatus: "undecided",
 };
 
 describe("garden timing", () => {

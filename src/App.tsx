@@ -35,6 +35,7 @@ import type {
   PlantRecord,
   SourceRecord,
   TimingRule,
+  WishlistDefaultStatus,
   WishlistItem,
 } from "./shared/model";
 import {
@@ -351,7 +352,7 @@ function Shell({
             <span className={styles.navIcon} aria-hidden="true">
               <SproutNavIcon size={20} />
             </span>
-            <span>Plants</span>
+            <span>All Plants</span>
           </NavLink>
           <NavLink to="/sources">
             <span className={styles.navIcon} aria-hidden="true">
@@ -2506,10 +2507,11 @@ function WishList() {
  * The list itself, grouped the two ways it is useful to read it.
  *
  * A wish is not consumed by being acted on: it stays here, and committing it
- * puts an "undecided" plant in the planner. That is what a wish is - a plant
- * you mean to consider this year, not a bed you have promised it. So this
- * list keeps working as a standing record of what you like to grow, and the
- * ticks show how much of it has made it into the planner.
+ * puts a plant in the planner. That is what a wish is - a plant you mean to
+ * consider this year, not a bed you have promised it, so it arrives as
+ * "undecided" unless Settings says otherwise. This list keeps working as a
+ * standing record of what you like to grow, and the ticks show how much of it
+ * has made it into the planner.
  */
 function WishDrawer({
   state,
@@ -2561,9 +2563,11 @@ function WishDrawer({
       dtm: entry.plant.daysToMaturity?.value ?? null,
       qty: 1,
       bedId: null,
-      /* Undecided, not "will plant": moving a wish across records that you
-         are considering it, and the bed and the commitment come later. */
-      status: "undecided",
+      /* Undecided unless she has said otherwise in Settings. Moving a wish
+         across records that you are considering it, and the bed and the
+         commitment come later — but a gardener whose wish list *is* the plan
+         can have it land as "will plant" instead. */
+      status: state.garden.wishlistDefaultStatus ?? "undecided",
       sortOrder: state.entries.length + index,
     }));
     const moved = new Set(rows.map((entry) => entry.item.id));
@@ -2795,7 +2799,7 @@ function PlantLibrary() {
             body: plant.summary,
             foot: `${
               plant.cultivars.length
-                ? `${plant.cultivars.length} varieties`
+                ? varietyCount(plant.cultivars.length)
                 : "No varieties listed"
             }${plant.daysToMaturity ? ` · ${plant.daysToMaturity.value}` : ""}`,
           })),
@@ -2929,6 +2933,27 @@ function groupCultivars(cultivars: PlantRecord["cultivars"]) {
     groups.set(group, [...(groups.get(group) ?? []), cultivar]);
   }
   return [...groups];
+}
+
+/**
+ * A plant's timing rules in the order the catalog states them, grouped by the
+ * sowing each belongs to. A plant sown once has one unnamed group and reads
+ * exactly as it always has.
+ */
+function timingBySowing(plant: PlantRecord) {
+  const groups: Array<{ sowing?: string; rules: TimingRule[] }> = [];
+  for (const rule of plant.timing) {
+    const last = groups[groups.length - 1];
+    if (last && last.sowing === rule.sowing) last.rules.push(rule);
+    else groups.push({ sowing: rule.sowing, rules: [rule] });
+  }
+  return groups;
+}
+
+/* One variety is a real case — sweet potatoes have exactly one OSU-named kind —
+   and "1 varieties" is the sort of thing that makes a page look untended. */
+function varietyCount(count: number) {
+  return `${count} ${count === 1 ? "variety" : "varieties"}`;
 }
 
 // Common names are plural for some crops. "Grown like any other carrots" reads wrong, so prose
@@ -3292,10 +3317,22 @@ function PlantDetail() {
             Calculated from your explicit frost dates, never from the hardiness
             zone.
           </p>
-          {plant.timing.map((rule, index) => (
-            <div className={styles.rule} key={index}>
-              <strong>{phaseLabelFor(rule.phase, plant)}</strong>
-              <span>{timingPhrase(rule)}</span>
+          {/* A crop sown twice lists two starts, two plantings and two pickings.
+              Unlabelled that reads as the page repeating itself, so each named
+              sowing says which one it is before its rules. */}
+          {timingBySowing(plant).map((group) => (
+            <div key={group.sowing ?? "all"}>
+              {group.sowing && (
+                <p className={styles.ruleGroupLabel}>
+                  {sowingLabel(group.sowing)}
+                </p>
+              )}
+              {group.rules.map((rule, index) => (
+                <div className={styles.rule} key={index}>
+                  <strong>{phaseLabelFor(rule.phase, plant)}</strong>
+                  <span>{timingPhrase(rule)}</span>
+                </div>
+              ))}
             </div>
           ))}
         </section>
@@ -3368,7 +3405,7 @@ function PlantDetail() {
         <section className={styles.panel}>
           <h2>
             {plant.cultivars.length
-              ? `${plant.cultivars.length} varieties`
+              ? varietyCount(plant.cultivars.length)
               : "Varieties"}
           </h2>
           {plant.cultivars.length ? (
@@ -3528,6 +3565,40 @@ const PLANNER_OPTIONS = [
 ] as const;
 type PlannerOptionKey = (typeof PLANNER_OPTIONS)[number]["key"];
 
+/**
+ * Everything the Planner options panel writes, in one shape. The three
+ * switches above draw on the calendar; the fourth setting decides what a wish
+ * becomes when it is moved into the planner. They share a panel because they
+ * share the same "applies the moment you touch it" behaviour, and the same
+ * debounced write.
+ */
+type PlannerOptions = {
+  showFrostMarks: boolean;
+  showPillPredictions: boolean;
+  showPlantedMarkers: boolean;
+  wishlistDefaultStatus: WishlistDefaultStatus;
+};
+
+/* What a plant moved off the wish list should arrive as. Both are real answers:
+   a shortlist you are still thinking about wants Undecided, a list you have
+   already made up your mind about wants Will plant. */
+const WISHLIST_DEFAULTS = [
+  {
+    value: "undecided",
+    title: "Undecided",
+    description: "It lands as something you are still thinking about.",
+  },
+  {
+    value: "willplant",
+    title: "Will plant",
+    description: "It lands as a plant you have decided to grow.",
+  },
+] as const satisfies ReadonlyArray<{
+  value: WishlistDefaultStatus;
+  title: string;
+  description: string;
+}>;
+
 function Settings({
   themePreference,
   onChooseTheme,
@@ -3567,12 +3638,13 @@ function Settings({
   const [openPanel, setOpenPanel] = useState<SettingsPanelId | null>(
     readOpenPanel,
   );
-  // The three calendar toggles write themselves, so they keep a local mirror:
-  // a checkbox that waited for the round trip would not move under her thumb.
-  const [plannerOptions, setPlannerOptions] = useState({
+  // The planner options write themselves, so they keep a local mirror: a
+  // checkbox that waited for the round trip would not move under her thumb.
+  const [plannerOptions, setPlannerOptions] = useState<PlannerOptions>({
     showFrostMarks: state?.garden.showFrostMarks !== false,
     showPillPredictions: state?.garden.showPillPredictions === true,
     showPlantedMarkers: state?.garden.showPlantedMarkers === true,
+    wishlistDefaultStatus: state?.garden.wishlistDefaultStatus ?? "undecided",
   });
   const optionsTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const optionsPending = useRef(false);
@@ -3597,6 +3669,7 @@ function Settings({
       showFrostMarks: state.garden.showFrostMarks !== false,
       showPillPredictions: state.garden.showPillPredictions === true,
       showPlantedMarkers: state.garden.showPlantedMarkers === true,
+      wishlistDefaultStatus: state.garden.wishlistDefaultStatus ?? "undecided",
     });
   }, [state?.revision]);
   if (loading || !state)
@@ -3631,12 +3704,11 @@ function Settings({
     writeOpenPanel(next);
   };
   /**
-   * A planner option applies as soon as it is switched, but the write waits a
+   * A planner option applies as soon as it is touched, but the write waits a
    * moment. Every save keeps a snapshot and the history only holds five, so
-   * switching all three in a row must not spend her whole undo history.
+   * changing several in a row must not spend her whole undo history.
    */
-  const setPlannerOption = (key: PlannerOptionKey, value: boolean) => {
-    const next = { ...plannerOptions, [key]: value };
+  const savePlannerOptions = (next: PlannerOptions) => {
     setPlannerOptions(next);
     optionsPending.current = true;
     if (optionsTimer.current) clearTimeout(optionsTimer.current);
@@ -3651,6 +3723,10 @@ function Settings({
         });
     }, PLANNER_OPTION_SAVE_MS);
   };
+  const setPlannerOption = (key: PlannerOptionKey, value: boolean) =>
+    savePlannerOptions({ ...plannerOptions, [key]: value });
+  const setWishlistDefault = (value: WishlistDefaultStatus) =>
+    savePlannerOptions({ ...plannerOptions, wishlistDefaultStatus: value });
   // Auto-fills the hardiness zone from the ZIP; the zone field stays a normal
   // input afterward, so typing in it simply overrides the looked-up value.
   const handleZipChange = (value: string) => {
@@ -3797,6 +3873,73 @@ function Settings({
                 </span>
               </label>
             ))}
+          </div>
+          <h4 className={styles.optionGroupHeading}>Moving a wish across</h4>
+          <p className={styles.muted}>
+            What a plant arrives as when you send it from your wish list to the
+            planner. You can always change a row afterwards.
+          </p>
+          <div
+            className={styles.pickerChoices}
+            role="radiogroup"
+            aria-label="Status for plants moved from the wish list"
+            onKeyDown={(event) => {
+              // A radiogroup is one tab stop; the arrows move within it.
+              const step =
+                event.key === "ArrowRight" || event.key === "ArrowDown"
+                  ? 1
+                  : event.key === "ArrowLeft" || event.key === "ArrowUp"
+                    ? -1
+                    : 0;
+              if (!step) return;
+              event.preventDefault();
+              const index = WISHLIST_DEFAULTS.findIndex(
+                (choice) =>
+                  choice.value === plannerOptions.wishlistDefaultStatus,
+              );
+              const next =
+                WISHLIST_DEFAULTS[
+                  (index + step + WISHLIST_DEFAULTS.length) %
+                    WISHLIST_DEFAULTS.length
+                ];
+              setWishlistDefault(next.value);
+              event.currentTarget
+                .querySelector<HTMLButtonElement>(
+                  `[data-wish-default="${next.value}"]`,
+                )
+                ?.focus();
+            }}
+          >
+            {WISHLIST_DEFAULTS.map((choice) => {
+              const checked =
+                plannerOptions.wishlistDefaultStatus === choice.value;
+              return (
+                <button
+                  key={choice.value}
+                  type="button"
+                  role="radio"
+                  data-wish-default={choice.value}
+                  aria-checked={checked}
+                  /* Named by its title alone, the way the switches above are, so
+                     the choice is not read out as its own explanation. */
+                  aria-label={choice.title}
+                  aria-describedby={`wish-default-${choice.value}`}
+                  tabIndex={checked ? 0 : -1}
+                  className={styles.pickerChoice}
+                  onClick={() => setWishlistDefault(choice.value)}
+                >
+                  <span className={styles.pickerIcon} aria-hidden="true">
+                    <StatusIcon status={choice.value} size={20} />
+                  </span>
+                  <span>
+                    <strong>{choice.title}</strong>
+                    <small id={`wish-default-${choice.value}`}>
+                      {choice.description}
+                    </small>
+                  </span>
+                </button>
+              );
+            })}
           </div>
         </SettingsPanel>
         <SettingsPanel

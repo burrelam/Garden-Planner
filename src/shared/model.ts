@@ -31,6 +31,13 @@ export const GardenSettingsSchema = z.object({
      rather than bundling them under one switch. */
   showPillPredictions: z.boolean().default(false),
   showPlantedMarkers: z.boolean().default(false),
+  /* What a wish becomes when it is moved into the planner. "Undecided" is the
+     original behaviour and stays the default, so no stored garden changes its
+     mind about a row it already holds; a gardener who treats her wish list as
+     a plan rather than a shortlist can set it to "will plant" instead. */
+  wishlistDefaultStatus: z
+    .enum(["undecided", "willplant"])
+    .default("undecided"),
 });
 
 export const BedSchema = z.object({
@@ -101,6 +108,7 @@ export const GardenStateSchema = z.object({
 });
 
 export type GardenSettings = z.infer<typeof GardenSettingsSchema>;
+export type WishlistDefaultStatus = GardenSettings["wishlistDefaultStatus"];
 export type Bed = z.infer<typeof BedSchema>;
 export type GardenEntry = z.infer<typeof GardenEntrySchema>;
 export type WishlistItem = z.infer<typeof WishlistItemSchema>;
