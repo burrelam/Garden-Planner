@@ -2495,7 +2495,6 @@ function WishList() {
           state={state}
           close={() => setListOpen(false)}
           save={save}
-          saving={saving}
         />
       )}
     </Page>
@@ -2517,20 +2516,29 @@ function WishDrawer({
   state,
   close,
   save,
-  saving,
 }: {
   state: GardenState;
   close: () => void;
   save: (next: GardenState) => Promise<void>;
-  saving: boolean;
 }) {
   const [grouping, setGrouping] = useState<"sow" | "harvest">("sow");
+  /* Which wish is on its way out. The save is not optimistic — it waits for
+     the server — so without this the row you just tapped sits there for the
+     length of the round trip while the whole drawer greys out around it, and
+     then jumps. Hiding it here makes the tap land immediately; if the save
+     fails the row comes back. */
+  const [removing, setRemoving] = useState<string[]>([]);
+  /* Which kind of save is in flight, rather than the context's "is anything
+     saving". Taking one plant off the list has no business grey-ing out every
+     Add button in the drawer, which is what read as a flash. */
+  const [busy, setBusy] = useState<null | "remove" | "add">(null);
   const planned = new Set(
     state.entries
       .map((entry) => entry.plantId)
       .filter((id): id is string => Boolean(id)),
   );
   const items = state.wishlist
+    .filter((item) => !removing.includes(item.id))
     .map((item) => {
       const plant = catalogById.get(item.plantId);
       if (!plant) return null;
@@ -2539,11 +2547,25 @@ function WishDrawer({
     })
     .filter((entry) => entry !== null);
 
-  const remove = async (id: string) =>
-    save({
-      ...state,
-      wishlist: state.wishlist.filter((item) => item.id !== id),
-    });
+  const remove = async (id: string) => {
+    // One save at a time: the server checks the revision it was given, so two
+    // removals racing would make the second one a conflict.
+    if (busy) return;
+    setBusy("remove");
+    setRemoving((ids) => [...ids, id]);
+    try {
+      await save({
+        ...state,
+        wishlist: state.wishlist.filter((item) => item.id !== id),
+      });
+    } catch {
+      // The context has already said what went wrong; put the row back so the
+      // list still matches what is actually saved.
+      setRemoving((ids) => ids.filter((held) => held !== id));
+    } finally {
+      setBusy(null);
+    }
+  };
 
   /* How many of a set you already grow. Wanting a second sowing of something
      is a real thing to want, so this is said out loud rather than blocked. */
@@ -2554,7 +2576,7 @@ function WishDrawer({
      the list. That keeps the count on the dock meaning "still to decide"
      rather than a running tally of everything ever wanted. */
   const addToPlanner = async (rows: typeof items) => {
-    if (rows.length === 0) return;
+    if (rows.length === 0 || busy) return;
     const entries: GardenEntry[] = rows.map((entry, index) => ({
       id: crypto.randomUUID(),
       plantId: entry.plant.id,
@@ -2571,11 +2593,16 @@ function WishDrawer({
       sortOrder: state.entries.length + index,
     }));
     const moved = new Set(rows.map((entry) => entry.item.id));
-    await save({
-      ...state,
-      entries: [...state.entries, ...entries],
-      wishlist: state.wishlist.filter((item) => !moved.has(item.id)),
-    });
+    setBusy("add");
+    try {
+      await save({
+        ...state,
+        entries: [...state.entries, ...entries],
+        wishlist: state.wishlist.filter((item) => !moved.has(item.id)),
+      });
+    } finally {
+      setBusy(null);
+    }
   };
 
   const groups: Array<{ key: string; label: string; rows: typeof items }> = [];
@@ -2684,7 +2711,10 @@ function WishDrawer({
                     type="button"
                     className={styles.wishRemove}
                     aria-label={`Take ${entry.plant.commonName} off the list`}
-                    disabled={saving}
+                    /* Deliberately never disabled: the row it belongs to
+                       disappears the moment it is tapped, and greying the
+                       other rows' crosses for the length of a round trip is
+                       what made this flash. `remove` guards the race. */
                     onClick={() => void remove(entry.item.id)}
                   >
                     <CloseIcon size={12} />
@@ -2695,7 +2725,7 @@ function WishDrawer({
               <button
                 type="button"
                 className={styles.wishGroupAdd}
-                disabled={saving}
+                disabled={busy === "add"}
                 onClick={() => void addToPlanner(group.rows)}
               >
                 {`Add ${group.rows.length} to planner`}
@@ -2730,7 +2760,7 @@ function WishDrawer({
         <button
           type="button"
           className={styles.primary}
-          disabled={saving}
+          disabled={busy === "add"}
           onClick={() => void addToPlanner(items)}
         >
           {`Add all ${items.length} to planner`}
