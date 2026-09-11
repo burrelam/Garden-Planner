@@ -632,8 +632,11 @@
   --type-relatives: 0.92rem;
   /* Calendar geometry. Same on both widths today, but they belong here with
      the other sizes: set in a component rule, the phone block cancels them. */
-  /* Three lines: the name with its variety, the species, and the status. */
-  --size-cal-row: 58px;
+  /* The floor under a calendar row, measured against its tallest case: a label
+     of three lines — name, variety, quantity. Two pill lanes need less than
+     this, so the text is what sets it, and the phone's smaller type is why the
+     phone's floor is lower. */
+  --size-cal-row: 56px;
   --size-pill: 14px;
   --size-frost-tick: 5px;
   --size-frost-flake: 18px;
@@ -661,7 +664,7 @@
     --type-toxic-heading: 0.68rem;
     --type-toxic-body: 0.88rem;
     --type-relatives: 0.86rem;
-    --size-cal-row: 58px;
+    --size-cal-row: 50px;
   }
 }
 
@@ -1844,13 +1847,18 @@
   min-height: var(--size-cal-row);
   border-bottom: 1px solid var(--color-border);
 }
+/* Three lines in a narrow column: the name, the variety, the quantity. They
+   are set tight on purpose — the row's height is the label's height, since the
+   pills need less room than the text does, so every point of leading here is a
+   point of calendar the gardener does not see. */
 .plantRowTitle {
   display: grid;
   min-width: 0;
-  padding: 4px 12px 3px;
-  line-height: 1.1;
+  padding: 3px 12px 2px;
+  line-height: 1.05;
 }
 .plantRowTitle strong {
+  line-height: 1;
   overflow: hidden;
   color: var(--color-text);
   font:
@@ -1912,7 +1920,6 @@
   font-style: normal;
 }
 .plantRowTitle small {
-  margin-top: 1px;
   color: var(--color-accent);
 }
 .statusLine {
@@ -2862,9 +2869,9 @@
     grid-template-columns: var(--cal-name-col) repeat(24, var(--cal-slot-w));
   }
   .plantRowTitle {
-    padding: 5px 6px;
+    padding: 3px 6px 2px;
     align-content: center;
-    line-height: 1.2;
+    line-height: 1.05;
   }
 
   .plantRowTitle small {
