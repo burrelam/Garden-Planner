@@ -3810,6 +3810,11 @@ function Settings({
   );
   const [frostFrom, setFrostFrom] = useState("");
   const zoneLookupRequest = useRef(0);
+  /* This form saves on a button, but the planner toggles two panels down save
+     themselves and bump the revision. Without this, that write would pull these
+     fields back to what is stored and quietly discard a ZIP lookup she had not
+     pressed Save on yet. */
+  const gardenFormTouched = useRef(false);
   const [importData, setImportData] = useState<unknown>(null);
   const [preview, setPreview] = useState<{
     plants: number;
@@ -3842,10 +3847,11 @@ function Settings({
     void api.meta().then(setMeta);
     void loadHistory();
   }, []);
-  // The zip/zone fields are controlled (for the auto-fill), so they need to sync
-  // once the garden loads instead of only capturing an initial value at mount.
+  // These fields are controlled (for the auto-fill), so they need to sync once
+  // the garden loads instead of only capturing an initial value at mount — but
+  // never over the top of edits that have not been saved yet.
   useEffect(() => {
-    if (!state) return;
+    if (!state || gardenFormTouched.current) return;
     setZip(state.garden.zip);
     setHardinessZone(state.garden.hardinessZone);
     setLastFrost(state.garden.lastFrost);
@@ -3887,6 +3893,9 @@ function Settings({
         ...plannerOptions,
       },
     });
+    gardenFormTouched.current = false;
+    // The lookup's note says nothing is saved yet, which stops being true here.
+    setFrostFrom("");
     setMessage("Garden settings saved.");
   };
   const togglePanel = (id: SettingsPanelId) => {
@@ -3922,6 +3931,7 @@ function Settings({
   // normal input afterward, so typing in one simply overrides what came back —
   // which is how a gardener records a frost pocket or a warm south wall.
   const handleZipChange = (value: string) => {
+    gardenFormTouched.current = true;
     setZip(value);
     if (!/^\d{5}$/.test(value)) return;
     const requestId = ++zoneLookupRequest.current;
@@ -4004,7 +4014,10 @@ function Settings({
                 <input
                   name="hardinessZone"
                   value={hardinessZone}
-                  onChange={(event) => setHardinessZone(event.target.value)}
+                  onChange={(event) => {
+                    gardenFormTouched.current = true;
+                    setHardinessZone(event.target.value);
+                  }}
                 />
               </label>
             </div>
@@ -4029,7 +4042,10 @@ function Settings({
                   name="lastFrost"
                   type="date"
                   value={lastFrost}
-                  onChange={(event) => setLastFrost(event.target.value)}
+                  onChange={(event) => {
+                    gardenFormTouched.current = true;
+                    setLastFrost(event.target.value);
+                  }}
                   required
                 />
               </label>
@@ -4039,7 +4055,10 @@ function Settings({
                   name="firstFrost"
                   type="date"
                   value={firstFrost}
-                  onChange={(event) => setFirstFrost(event.target.value)}
+                  onChange={(event) => {
+                    gardenFormTouched.current = true;
+                    setFirstFrost(event.target.value);
+                  }}
                   required
                 />
               </label>
