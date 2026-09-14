@@ -3362,7 +3362,7 @@ function PlantDetail() {
       <div className={styles.detailGrid}>
         <section className={styles.panel}>
           <h2>At a glance</h2>
-          <dl>
+          <dl className={styles.factList}>
             <dt>Botanical name</dt>
             <dd>
               <em>{plant.scientificName}</em>

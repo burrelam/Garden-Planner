@@ -2424,6 +2424,27 @@
   margin: 0;
   font-weight: 600;
 }
+/* The plant page's facts, ruled the way the Timing section below them is, so
+   each one is read as its own line instead of the block running together.
+   The column gap goes to zero and the label carries its own right-hand padding
+   instead, because a gap would break the rule in half across the middle. */
+.panel .factList {
+  column-gap: 0;
+  row-gap: 0;
+}
+.panel .factList dt,
+.panel .factList dd {
+  padding: 10px 0;
+  border-top: 1px solid var(--color-border);
+}
+.panel .factList dt {
+  padding-right: 12px;
+}
+/* The heading is this list's header, so the first row draws no line under it. */
+.panel .factList dt:first-of-type,
+.panel .factList dt:first-of-type + dd {
+  border-top: 0;
+}
 .panel li {
   margin-bottom: 8px;
   line-height: 1.45;
@@ -2481,6 +2502,16 @@
   }
   .panel dt:not(:first-of-type) {
     margin-top: 10px;
+  }
+  /* Stacked, a fact's label and its value are two rows of one column, so only
+     the label carries the rule — a line on the value would cut the pair in
+     half. The label's own padding replaces the margin the plain lists use. */
+  .panel .factList dd {
+    padding-top: 0;
+    border-top: 0;
+  }
+  .panel .factList dt:not(:first-of-type) {
+    margin-top: 0;
   }
 }
 /* The poison warning. It sits above the panels rather than inside one: a warning
