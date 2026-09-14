@@ -1509,6 +1509,29 @@
   color: var(--color-text-muted);
   font-size: 0.92rem;
 }
+/* What a ZIP's weather station says, offered rather than applied. Set apart from
+   the facts above it because it is a question, not a reading. */
+.frostOffer {
+  margin: 12px 0 0;
+  padding: 12px 14px;
+  border: 2px solid var(--color-accent);
+  background: color-mix(in srgb, var(--color-accent-soft) 45%, transparent);
+}
+.frostOffer p {
+  margin: 0 0 8px;
+  font-size: 0.95rem;
+  line-height: 1.45;
+}
+.frostOfferNote {
+  color: var(--color-text-muted);
+  font-size: 0.88rem;
+}
+.frostOfferActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+}
 /* Two dates side by side, the length they produce beneath them spanning both:
    the pair reads as one season rather than three separate announcements. */
 .seasonRow {

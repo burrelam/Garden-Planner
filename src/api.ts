@@ -50,8 +50,23 @@ export const api = {
   plant: (id: string) =>
     request<PlantRecord>(`/api/catalog/${encodeURIComponent(id)}`),
   sources: () => request<SourceRecord[]>("/api/sources"),
-  hardinessZone: (zip: string) =>
-    request<{ zone: string }>(`/api/hardiness-zone/${encodeURIComponent(zip)}`),
+  // A ZIP answers two separate questions: which perennials survive the winter,
+  // and when the season starts and ends. Either half can come back empty.
+  location: (zip: string) =>
+    request<{
+      zone: string | null;
+      frost: {
+        station: string;
+        stationName: string;
+        miles: number;
+        years: number;
+        /** MM-DD. The caller puts them in the year the garden is planning. */
+        lastFrost: string;
+        firstFrost: string;
+        lastFrostAverage: string;
+        firstFrostAverage: string;
+      } | null;
+    }>(`/api/location/${encodeURIComponent(zip)}`),
   history: () =>
     request<
       Array<{ id: string; revision: number; reason: string; createdAt: string }>

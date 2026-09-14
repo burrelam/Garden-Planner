@@ -1040,6 +1040,17 @@ function PlannerMore({
   const [field, setField] = useState<"zip" | "zone" | null>(null);
   const [draft, setDraft] = useState("");
   const [status, setStatus] = useState("");
+  /* A ZIP's frost dates are offered rather than applied. She may well have
+     nudged hers for a frost pocket or a warm wall, and a silent overwrite would
+     throw that away with no way of knowing it had happened. */
+  const [proposal, setProposal] = useState<{
+    stationName: string;
+    miles: number;
+    lastFrost: string;
+    firstFrost: string;
+    lastFrostAverage: string;
+    firstFrostAverage: string;
+  } | null>(null);
   // Enter blurs the input, so without this the commit would run twice.
   const settled = useRef(false);
   const { zip, hardinessZone } = state.garden;
@@ -1066,18 +1077,58 @@ function PlannerMore({
     if (cancelled) return;
     if (which === "zip") {
       if (!/^\d{5}$/.test(value) || value === zip) return;
-      setStatus("Looking up hardiness zone…");
+      setStatus("Looking up your zone and frost dates…");
+      setProposal(null);
       try {
-        const { zone } = await api.hardinessZone(value);
+        const { zone, frost } = await api.location(value);
+        // The ZIP and its zone are facts about the place, so they save straight
+        // away. The dates are a suggestion about her garden, so they wait.
         await save({
           ...state,
-          garden: { ...state.garden, zip: value, hardinessZone: zone },
+          garden: {
+            ...state.garden,
+            zip: value,
+            hardinessZone: zone ?? state.garden.hardinessZone,
+          },
         });
-        setStatus(`Saved · zone ${zone}. Settings shows this too.`);
+        if (!frost) {
+          setStatus(
+            zone
+              ? `Saved · zone ${zone}. No weather station near that ZIP, so the frost dates are unchanged.`
+              : "Saved the ZIP, but nothing came back for it.",
+          );
+          return;
+        }
+        const lastFrost = inYearOf(state.garden.lastFrost, frost.lastFrost);
+        const firstFrost = inYearOf(state.garden.firstFrost, frost.firstFrost);
+        if (
+          lastFrost === state.garden.lastFrost &&
+          firstFrost === state.garden.firstFrost
+        ) {
+          setStatus(
+            `Saved · zone ${zone ?? "--"}. Your frost dates already match ${frost.stationName}.`,
+          );
+          return;
+        }
+        setProposal({
+          stationName: frost.stationName,
+          miles: frost.miles,
+          lastFrost,
+          firstFrost,
+          lastFrostAverage: inYearOf(
+            state.garden.lastFrost,
+            frost.lastFrostAverage,
+          ),
+          firstFrostAverage: inYearOf(
+            state.garden.firstFrost,
+            frost.firstFrostAverage,
+          ),
+        });
+        setStatus("");
       } catch {
         await save({ ...state, garden: { ...state.garden, zip: value } });
         setStatus(
-          "Saved the ZIP, but no zone came back. You can type the zone in yourself.",
+          "Saved the ZIP, but the lookup did not answer. You can type the zone and dates in yourself.",
         );
       }
       return;
@@ -1088,6 +1139,17 @@ function PlannerMore({
       garden: { ...state.garden, hardinessZone: value, zip: "" },
     });
     setStatus(`Saved · zone ${value}, ZIP cleared. Settings shows this too.`);
+  };
+
+  const acceptProposal = async () => {
+    if (!proposal) return;
+    const { stationName, lastFrost, firstFrost } = proposal;
+    setProposal(null);
+    await save({
+      ...state,
+      garden: { ...state.garden, lastFrost, firstFrost },
+    });
+    setStatus(`Frost dates set from ${stationName}.`);
   };
 
   const editor = (which: "zip" | "zone", label: string) => (
@@ -1158,6 +1220,47 @@ function PlannerMore({
         <p className={styles.moreStatus} role="status">
           {saving ? "Saving…" : status}
         </p>
+      )}
+      {proposal && (
+        <div
+          className={styles.frostOffer}
+          role="group"
+          aria-label="Frost dates for this ZIP code"
+        >
+          <p>
+            {proposal.stationName} is {milesAway(proposal.miles)} away. It puts
+            your last frost at <b>{prettyDate(proposal.lastFrost)}</b> and your
+            first at <b>{prettyDate(proposal.firstFrost)}</b>. Yours currently
+            say {prettyDate(state.garden.lastFrost)} and{" "}
+            {prettyDate(state.garden.firstFrost)}.
+          </p>
+          {/* The safe dates are the ones we plan on, but saying so out loud
+              stops the milder average looking like the number we got wrong. */}
+          <p className={styles.frostOfferNote}>
+            An ordinary year is kinder — {prettyDate(proposal.lastFrostAverage)}{" "}
+            to {prettyDate(proposal.firstFrostAverage)} — but a frost later than
+            that turns up one year in two, so these are the cautious dates.
+          </p>
+          <p className={styles.frostOfferNote}>
+            Changing them moves every pill on the calendar.
+          </p>
+          <div className={styles.frostOfferActions}>
+            <button
+              className={styles.primary}
+              onClick={() => void acceptProposal()}
+            >
+              Use these dates
+            </button>
+            <button
+              onClick={() => {
+                setProposal(null);
+                setStatus("Kept your own frost dates.");
+              }}
+            >
+              Keep mine
+            </button>
+          </div>
+        </div>
       )}
 
       <h3 className={styles.moreHeading}>Growing season</h3>
@@ -3696,6 +3799,16 @@ function Settings({
   const [zoneLookup, setZoneLookup] = useState<"idle" | "loading" | "error">(
     "idle",
   );
+  /* Controlled, so a ZIP lookup can fill them in. This screen saves on a button
+     rather than as you type, so the looked-up dates sit there to be read — and
+     changed again — before anything is written. */
+  const [lastFrost, setLastFrost] = useState(
+    state?.garden.lastFrost ?? "2026-03-15",
+  );
+  const [firstFrost, setFirstFrost] = useState(
+    state?.garden.firstFrost ?? "2026-11-15",
+  );
+  const [frostFrom, setFrostFrom] = useState("");
   const zoneLookupRequest = useRef(0);
   const [importData, setImportData] = useState<unknown>(null);
   const [preview, setPreview] = useState<{
@@ -3735,6 +3848,8 @@ function Settings({
     if (!state) return;
     setZip(state.garden.zip);
     setHardinessZone(state.garden.hardinessZone);
+    setLastFrost(state.garden.lastFrost);
+    setFirstFrost(state.garden.firstFrost);
   }, [state?.revision]);
   // Same sync for the toggles, except while one of our own writes is still in
   // flight — otherwise a second switch flicks back to the value the first
@@ -3764,8 +3879,8 @@ function Settings({
         name: String(data.get("name")),
         zip,
         hardinessZone,
-        lastFrost: String(data.get("lastFrost")),
-        firstFrost: String(data.get("firstFrost")),
+        lastFrost,
+        firstFrost,
         // The toggles live in their own panel now, so they are no longer on
         // this form — carry the live values rather than reading them back as
         // three missing checkboxes, which would switch all three off.
@@ -3803,18 +3918,31 @@ function Settings({
     savePlannerOptions({ ...plannerOptions, [key]: value });
   const setWishlistDefault = (value: WishlistDefaultStatus) =>
     savePlannerOptions({ ...plannerOptions, wishlistDefaultStatus: value });
-  // Auto-fills the hardiness zone from the ZIP; the zone field stays a normal
-  // input afterward, so typing in it simply overrides the looked-up value.
+  // Auto-fills the zone and both frost dates from the ZIP. Every field stays a
+  // normal input afterward, so typing in one simply overrides what came back —
+  // which is how a gardener records a frost pocket or a warm south wall.
   const handleZipChange = (value: string) => {
     setZip(value);
     if (!/^\d{5}$/.test(value)) return;
     const requestId = ++zoneLookupRequest.current;
     setZoneLookup("loading");
+    setFrostFrom("");
     api
-      .hardinessZone(value)
-      .then((result) => {
+      .location(value)
+      .then(({ zone, frost }) => {
         if (zoneLookupRequest.current !== requestId) return;
-        setHardinessZone(result.zone);
+        if (zone) setHardinessZone(zone);
+        if (frost) {
+          setLastFrost(inYearOf(lastFrost, frost.lastFrost));
+          setFirstFrost(inYearOf(firstFrost, frost.firstFrost));
+          setFrostFrom(
+            `Frost dates from ${frost.stationName}, ${milesAway(frost.miles)} away, over ${frost.years} years. Nothing is saved until you press the button.`,
+          );
+        } else {
+          setFrostFrom(
+            "No weather station near that ZIP, so the frost dates are untouched.",
+          );
+        }
         setZoneLookup("idle");
       })
       .catch(() => {
@@ -3881,13 +4009,18 @@ function Settings({
               </label>
             </div>
             {zoneLookup === "loading" && (
-              <p className={styles.muted}>Looking up hardiness zone…</p>
+              <p className={styles.muted}>
+                Looking up the zone and frost dates…
+              </p>
             )}
             {zoneLookup === "error" && (
               <p className={styles.muted}>
-                Couldn't look up that ZIP's hardiness zone. You can type one in
+                Couldn't look that ZIP up. You can type the zone and dates in
                 directly.
               </p>
+            )}
+            {zoneLookup === "idle" && frostFrom && (
+              <p className={styles.muted}>{frostFrom}</p>
             )}
             <div className={styles.twoCols}>
               <label>
@@ -3895,7 +4028,8 @@ function Settings({
                 <input
                   name="lastFrost"
                   type="date"
-                  defaultValue={state.garden.lastFrost}
+                  value={lastFrost}
+                  onChange={(event) => setLastFrost(event.target.value)}
                   required
                 />
               </label>
@@ -3904,7 +4038,8 @@ function Settings({
                 <input
                   name="firstFrost"
                   type="date"
-                  defaultValue={state.garden.firstFrost}
+                  value={firstFrost}
+                  onChange={(event) => setFirstFrost(event.target.value)}
                   required
                 />
               </label>
@@ -4440,6 +4575,17 @@ function prettyDate(date: string) {
     month: "short",
     day: "numeric",
   });
+}
+/* A frost normal is a day of the year, not a day in 2026, so it is put into
+   whichever year the garden is already planning rather than carrying one of
+   its own. */
+function inYearOf(reference: string, monthDay: string) {
+  return `${reference.slice(0, 4)}-${monthDay}`;
+}
+/* "0.7 miles" reads oddly for somewhere essentially next door. */
+function milesAway(miles: number) {
+  if (miles < 1) return "less than a mile";
+  return `${miles < 10 ? miles.toFixed(1) : Math.round(miles)} miles`;
 }
 function offset(days: number) {
   // Zero reads as "on" on its own, but "on to 155 days after" is nonsense at the start of a

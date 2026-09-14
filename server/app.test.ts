@@ -4,6 +4,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
 import { buildApp } from "./app";
+import type { FrostNormals } from "./frost";
 import { openDatabase, sessions } from "./db";
 
 const cleanups: Array<() => Promise<void> | void> = [];
@@ -11,8 +12,29 @@ afterEach(async () => {
   while (cleanups.length) await cleanups.pop()!();
 });
 
+// A two-station stand-in for the 2 MB snapshot, so the suite stays fast and the
+// expected dates are visible in the test rather than buried in committed data.
+const testNormals = {
+  _source: { dataset: "test" },
+  stations: {
+    USC00356749: {
+      name: "PORTLAND KGW-TV, OR US",
+      years: 24,
+      spring: "02-25",
+      fall: "12-01",
+      springCautious: "03-21",
+      fallCautious: "11-10",
+      spring36: "03-29",
+      fall36: "11-12",
+    },
+  },
+  zips: { "97201": ["USC00356749", 0.7] },
+} satisfies FrostNormals;
+
 async function testApp(
-  options: { hardinessZoneLookup?: (zip: string) => Promise<string | null> } = {},
+  options: {
+    hardinessZoneLookup?: (zip: string) => Promise<string | null>;
+  } = {},
 ) {
   const directory = mkdtempSync(join(tmpdir(), "gardenbuddy-test-"));
   const database = openDatabase(join(directory, "garden.db"));
@@ -21,6 +43,7 @@ async function testApp(
     environment: "development",
     revision: "test-sha",
     hardinessZoneLookup: options.hardinessZoneLookup,
+    frostNormals: testNormals,
   });
   cleanups.push(async () => {
     await app.close();
@@ -206,42 +229,83 @@ describe("authenticated garden API", () => {
     ).toEqual([]);
   });
 
-  it("looks up a hardiness zone for a valid ZIP", async () => {
+  it("gives a ZIP its zone and its frost dates", async () => {
     const { app } = await testApp({
       hardinessZoneLookup: async (zip) => (zip === "97201" ? "8b" : null),
     });
     const token = await login(app);
     const response = await app.inject({
-      url: "/api/hardiness-zone/97201",
+      url: "/api/location/97201",
       cookies: { gardenbuddy_session: token },
     });
     expect(response.statusCode).toBe(200);
-    expect(response.json()).toEqual({ zone: "8b" });
+    expect(response.json()).toEqual({
+      zone: "8b",
+      frost: {
+        station: "USC00356749",
+        stationName: "PORTLAND KGW-TV, OR US",
+        miles: 0.7,
+        years: 24,
+        // The cautious pair, not the median — a median last frost is beaten
+        // by a later one in half of all years.
+        lastFrost: "03-21",
+        firstFrost: "11-10",
+        lastFrostAverage: "02-25",
+        firstFrostAverage: "12-01",
+      },
+    });
+  });
+
+  it("still gives the frost dates when the zone lookup is down", async () => {
+    const { app } = await testApp({
+      hardinessZoneLookup: async () => {
+        throw new Error("phzmapi is unreachable");
+      },
+    });
+    const token = await login(app);
+    const response = await app.inject({
+      url: "/api/location/97201",
+      cookies: { gardenbuddy_session: token },
+    });
+    expect(response.statusCode).toBe(200);
+    expect(response.json().zone).toBeNull();
+    expect(response.json().frost.lastFrost).toBe("03-21");
+  });
+
+  it("still gives the zone when the ZIP has no nearby station", async () => {
+    const { app } = await testApp({ hardinessZoneLookup: async () => "9a" });
+    const token = await login(app);
+    const response = await app.inject({
+      url: "/api/location/99999",
+      cookies: { gardenbuddy_session: token },
+    });
+    expect(response.statusCode).toBe(200);
+    expect(response.json()).toEqual({ zone: "9a", frost: null });
   });
 
   it("rejects a malformed ZIP", async () => {
     const { app } = await testApp();
     const token = await login(app);
     const response = await app.inject({
-      url: "/api/hardiness-zone/abc",
+      url: "/api/location/abc",
       cookies: { gardenbuddy_session: token },
     });
     expect(response.statusCode).toBe(400);
   });
 
-  it("404s when no zone is found for a ZIP", async () => {
+  it("404s when a ZIP has neither a zone nor a station", async () => {
     const { app } = await testApp({ hardinessZoneLookup: async () => null });
     const token = await login(app);
     const response = await app.inject({
-      url: "/api/hardiness-zone/00000",
+      url: "/api/location/00000",
       cookies: { gardenbuddy_session: token },
     });
     expect(response.statusCode).toBe(404);
   });
 
-  it("requires sign-in for the hardiness zone lookup", async () => {
+  it("requires sign-in for the location lookup", async () => {
     const { app } = await testApp();
-    const response = await app.inject({ url: "/api/hardiness-zone/97201" });
+    const response = await app.inject({ url: "/api/location/97201" });
     expect(response.statusCode).toBe(401);
   });
 });

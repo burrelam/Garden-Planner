@@ -21,6 +21,7 @@ import {
   type GardenDb,
 } from "./db";
 import { mapLegacyExport, previewLegacyExport } from "./state";
+import { frostForZip, loadFrostNormals, type FrostNormals } from "./frost";
 
 // Fastify owns the trust boundary: authentication, origin checks, validation, and all mutations
 // happen here before data reaches SQLite.
@@ -45,6 +46,8 @@ export interface AppOptions {
   environment?: string;
   revision?: string;
   hardinessZoneLookup?: (zip: string) => Promise<string | null>;
+  /** Injected by the tests so they do not read the 2 MB snapshot. */
+  frostNormals?: FrostNormals;
 }
 
 // USDA hardiness zones are keyed by lat/lon, not ZIP; phzmapi.org publishes the
@@ -63,6 +66,7 @@ export async function buildApp(options: AppOptions = {}) {
   });
   const database = options.database ?? openDatabase();
   const lookupHardinessZone = options.hardinessZoneLookup ?? fetchHardinessZone;
+  const frostNormals = options.frostNormals ?? loadFrostNormals();
   const environment =
     options.environment ?? process.env.APP_ENV ?? "development";
   const revision = options.revision ?? process.env.APP_REVISION ?? "local";
@@ -286,24 +290,29 @@ export async function buildApp(options: AppOptions = {}) {
     },
   );
   app.get("/api/sources", { preHandler: protectedRoutes }, async () => sources);
+  // One ZIP, both answers. The frost half is read from the committed NOAA
+  // snapshot, so it cannot fail or go slow; the zone half is still the live
+  // lookup, and a garden is useful with either one of them missing. Neither
+  // failure takes the other down with it.
   app.get(
-    "/api/hardiness-zone/:zip",
+    "/api/location/:zip",
     { preHandler: protectedRoutes },
     async (request: any, reply) => {
       const zip = request.params.zip;
       if (!/^\d{5}$/.test(zip))
         return reply.code(400).send({ error: "ZIP must be 5 digits" });
-      let zone: string | null;
+
+      const frost = frostForZip(zip, frostNormals);
+      let zone: string | null = null;
       try {
         zone = await lookupHardinessZone(zip);
       } catch {
-        return reply.code(502).send({ error: "Hardiness zone lookup failed" });
+        zone = null;
       }
-      if (!zone)
-        return reply
-          .code(404)
-          .send({ error: "No hardiness zone found for that ZIP" });
-      return { zone };
+
+      if (!zone && !frost)
+        return reply.code(404).send({ error: "Nothing on file for that ZIP" });
+      return { zone, frost };
     },
   );
 
