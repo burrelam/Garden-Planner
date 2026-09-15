@@ -73,6 +73,7 @@ import {
   frostPosition,
   plantedDatePosition,
 } from "./shared/timing";
+import { hardinessVerdict } from "./shared/hardiness";
 import styles from "./App.module.css";
 import {
   ChevronIcon,
@@ -2970,11 +2971,20 @@ function PlantLibrary() {
             chip: plant.category,
             sub: plant.scientificName ?? "",
             body: plant.summary,
+            // A seed rack leads a perennial's tag with its zones and an annual's
+            // with its days. The card does the same: whichever of the two this
+            // plant actually has to say.
             foot: `${
               plant.cultivars.length
                 ? varietyCount(plant.cultivars.length)
                 : "No varieties listed"
-            }${plant.daysToMaturity ? ` · ${plant.daysToMaturity.value}` : ""}`,
+            }${
+              plant.hardiness
+                ? ` · zones ${plant.hardiness.value.min}–${plant.hardiness.value.max}`
+                : plant.daysToMaturity
+                  ? ` · ${plant.daysToMaturity.value}`
+                  : ""
+            }`,
           })),
     [view, varieties, filtered],
   );
@@ -3431,6 +3441,7 @@ function RelativesLine({ plant }: { plant: PlantRecord }) {
 
 function PlantDetail() {
   const { slug } = useParams();
+  const { state } = useGarden();
   const [plant, setPlant] = useState<PlantRecord | null>(null);
   const [notFound, setNotFound] = useState(false);
   useEffect(() => {
@@ -3470,6 +3481,32 @@ function PlantDetail() {
             <dd>
               <em>{plant.scientificName}</em>
             </dd>
+            {/* Hardiness sits with the rest of the facts rather than in its own
+                panel, because on a seed rack that is exactly where it lives —
+                one line on the tag among the others. Only the plants that stay
+                in the ground carry it, so most records skip this row entirely. */}
+            {plant.hardiness && (
+              <>
+                <dt>Hardy in</dt>
+                <dd>
+                  zones {plant.hardiness.value.min}–{plant.hardiness.value.max}
+                  {state &&
+                    (() => {
+                      const verdict = hardinessVerdict(
+                        plant.hardiness!.value,
+                        state.garden.hardinessZone,
+                      );
+                      return verdict ? (
+                        <span
+                          className={`${styles.hardyNote} ${styles[`hardy-${verdict.tone}`]}`}
+                        >
+                          {verdict.text}
+                        </span>
+                      ) : null;
+                    })()}
+                </dd>
+              </>
+            )}
             {(
               [
                 ["Days to maturity", plant.daysToMaturity],

@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { catalog, familyNames, sources } from "./catalog";
+import { zoneRank } from "./hardiness";
 
 describe("catalog provenance", () => {
   it("points every reviewed fact and timing rule at a registered source", () => {
@@ -13,6 +14,7 @@ describe("catalog provenance", () => {
         ...(plant.soil ? [plant.soil] : []),
         plant.growingTips,
         ...(plant.family ? [plant.family] : []),
+        ...(plant.hardiness ? [plant.hardiness] : []),
       ];
       for (const fact of facts) {
         // A missing fact is allowed — a fact that exists must be able to name its source.
@@ -148,5 +150,36 @@ describe("where a plant is filed", () => {
         `${plant.id} has a bloom window, so it belongs under flowers`,
       ).toBe(false);
     }
+  });
+});
+
+describe("cold hardiness", () => {
+  it("states a coherent zone range wherever it is carried", () => {
+    for (const plant of catalog) {
+      if (!plant.hardiness) continue;
+      const { min, max } = plant.hardiness.value;
+      const low = zoneRank(min);
+      const high = zoneRank(max);
+      expect(low, `${plant.commonName} min zone`).not.toBeNull();
+      expect(high, `${plant.commonName} max zone`).not.toBeNull();
+      expect(low!, `${plant.commonName} range runs cold to warm`).toBeLessThan(
+        high!,
+      );
+    }
+  });
+
+  it("carries it only for plants that have to survive a winter", () => {
+    // A range on an annual is not a hardiness fact — the publications give
+    // cosmos 2a-11b, which only means it grows anywhere for one summer.
+    for (const id of ["tomato", "lettuce", "cosmos", "zinnia", "basil"])
+      expect(
+        catalog.find((plant) => plant.id === id)?.hardiness,
+        `${id} should carry no zone range`,
+      ).toBeUndefined();
+    for (const id of ["rosemary", "peony", "thyme", "daffodil"])
+      expect(
+        catalog.find((plant) => plant.id === id)?.hardiness,
+        `${id} should carry a zone range`,
+      ).toBeDefined();
   });
 });

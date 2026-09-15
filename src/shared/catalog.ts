@@ -285,6 +285,19 @@ const family = (value: string) => ({
   reviewedAt: flowersReviewedAt,
 });
 
+/**
+ * Cold hardiness, as the Plant Toolbox states it. National by nature: a zone
+ * range is a claim about winters everywhere, not about this valley, which is
+ * what makes it the one fact here that travels without being rescoped.
+ */
+const hardyIn = (min: string, max: string) => ({
+  value: { min, max },
+  sourceIds: ["ncsu-plant-toolbox"],
+  locationScope: "national" as const,
+  evidenceLevel: "extension-guidance" as const,
+  reviewedAt: flowersReviewedAt,
+});
+
 // Severity keeps the Plant Toolbox's own wording. Nothing here is re-graded by us.
 const toxic = (
   severity: ToxicityRecord["severity"],
@@ -1948,6 +1961,7 @@ export const catalog: PlantRecord[] = [
       ["ncsu-plant-toolbox"],
       "national",
     ),
+    hardiness: hardyIn("5a", "9b"),
     timing: [
       timing("indoor", "lastFrost", -14, 16, ["osu-educators-guide"]),
       timing("direct", "lastFrost", 62, 77, ["osu-educators-guide"]),
@@ -2012,6 +2026,7 @@ export const catalog: PlantRecord[] = [
       ["ncsu-plant-toolbox"],
       "national",
     ),
+    hardiness: hardyIn("4a", "8b"),
     timing: [
       timing("indoor", "lastFrost", -14, 16, ["osu-educators-guide"]),
       timing("direct", "lastFrost", 62, 77, ["osu-educators-guide"]),
@@ -2068,6 +2083,7 @@ export const catalog: PlantRecord[] = [
       ["ncsu-plant-toolbox"],
       "national",
     ),
+    hardiness: hardyIn("4a", "8b"),
     timing: [
       timing("indoor", "lastFrost", -14, 16, ["osu-educators-guide"]),
       timing("direct", "lastFrost", 62, 77, ["osu-educators-guide"]),
@@ -2119,6 +2135,7 @@ export const catalog: PlantRecord[] = [
       "national",
     ),
     spacing: osuFact("3 to 6 feet apart", ["ncsu-plant-toolbox"], "national"),
+    hardiness: hardyIn("8a", "10b"),
     timing: [
       timing("indoor", "lastFrost", -14, 16, ["osu-educators-guide"]),
       timing("direct", "lastFrost", 62, 77, ["osu-educators-guide"]),
@@ -2397,6 +2414,7 @@ export const catalog: PlantRecord[] = [
       ["ncsu-plant-toolbox", "wikipedia", "clemson-annuals"],
       "national",
     ),
+    hardiness: hardyIn("7a", "10b"),
     timing: [
       timing("transplant", "lastFrost", -42, 14, [
         "clemson-annuals",
@@ -2679,6 +2697,7 @@ export const catalog: PlantRecord[] = [
       "Plant about three times as deep as the bulb is wide, in groups rather than one at a time",
       ["osu-fall-bulbs"],
     ),
+    hardiness: hardyIn("4a", "8b"),
     timing: [
       // October and November in most of western Oregon, and as late as mid-December
       // if the ground can still be dug. Anchored to the first frost, which is the
@@ -2961,6 +2980,7 @@ export const catalog: PlantRecord[] = [
       ["ncsu-plant-toolbox"],
       "national",
     ),
+    hardiness: hardyIn("3a", "8b"),
     timing: [
       // Bare crowns go in during the autumn dormancy. Only drawn while she is still
       // deciding where to put one: `plantOnce` hides this once the row says planted.

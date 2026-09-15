@@ -286,6 +286,21 @@ export interface PlantRecord {
   plantingLabel?: string;
   /** Present only where the plant is genuinely worth a warning. */
   toxicity?: ToxicityRecord;
+  /**
+   * The USDA zones a plant lives through the winter in, as a seed packet or a
+   * nursery tag states it: `{ min: "8a", max: "10b" }`.
+   *
+   * Carried only where the answer means something — a plant that is left in the
+   * ground and has to survive a winter. An annual is pulled up or killed by the
+   * first hard frost either way, so a range on one is not a hardiness fact: the
+   * publications give cosmos 2a-11b, which is a roundabout way of saying it
+   * grows anywhere for one summer, and putting that on a card teaches nothing
+   * while diluting the badge where it counts.
+   *
+   * Not the same question as the calendar's. Hardiness decides whether a
+   * perennial comes back; the frost dates decide when anything is sown.
+   */
+  hardiness?: SourcedFact<{ min: string; max: string }>;
   // Every fact is optional. A plant the publications do not describe should say nothing rather
   // than carry a number nobody can point at — the catalog would rather have a gap than a guess.
   daysToMaturity?: SourcedFact<string>;
