@@ -687,3 +687,73 @@ test("a planner row label does not carry its status", async ({ page }) => {
   expect(text).toMatch(/qty \d/);
   expect(text).not.toMatch(/Will plant|Undecided|Planted/);
 });
+
+/**
+ * Tapping a pill explains it. A pill has only ever whispered through a hover
+ * tooltip, which a phone never shows, so the tap target is the whole cell and
+ * the answer arrives as a bubble.
+ */
+test("a tapped pill explains itself, and only one bubble is ever open", async ({
+  page,
+}) => {
+  const calendar = page.getByLabel("Annual planting calendar");
+  const bubble = page.getByRole("dialog");
+  const pillCell = (name: RegExp) =>
+    calendar.getByRole("button", { name }).first();
+
+  // A cell with a pill in it asks to be tapped; the row's own name column does not.
+  const carrots = pillCell(/^Carrots, .* — what is happening$/);
+  await carrots.click();
+  await expect(bubble).toBeVisible();
+  // The plant, the phase, and the stretch of weeks in words rather than numbers.
+  await expect(bubble).toContainText("Carrots");
+  await expect(bubble).toContainText(
+    /early|late (January|February|March|April|May|June|July|August|September|October|November|December)/,
+  );
+  await expect(carrots).toHaveAttribute("aria-expanded", "true");
+
+  // Tapping the same cell again puts it away.
+  await carrots.click();
+  await expect(bubble).toHaveCount(0);
+
+  // Escape closes it too.
+  await carrots.click();
+  await expect(bubble).toBeVisible();
+  await page.keyboard.press("Escape");
+  await expect(bubble).toHaveCount(0);
+
+  // Tapping a second pill moves the bubble rather than stacking another.
+  await carrots.click();
+  await expect(bubble).toContainText("Carrots");
+  await pillCell(/^Tomato, .* — what is happening$/).click();
+  await expect(bubble).toHaveCount(1);
+  await expect(bubble).toContainText("Tomato");
+
+  // And a tap on an empty stretch of the calendar closes it.
+  await calendar.locator('[data-slot]:not([role="button"])').first().click();
+  await expect(bubble).toHaveCount(0);
+});
+
+test("the bubble stays inside the calendar it belongs to", async ({ page }) => {
+  const calendar = page.getByLabel("Annual planting calendar");
+  await calendar
+    .getByRole("button", { name: /^Carrots, .* — what is happening$/ })
+    .first()
+    .click();
+  const bubble = page.getByRole("dialog");
+  await expect(bubble).toBeVisible();
+  const [card, frame] = await Promise.all([
+    bubble.boundingBox(),
+    calendar.boundingBox(),
+  ]);
+  // Clear of the sticky month headers at the top and of both side edges, so it
+  // is never half off the screen or hidden behind the strip it scrolls under.
+  expect(card!.x).toBeGreaterThanOrEqual(frame!.x - 1);
+  expect(card!.x + card!.width).toBeLessThanOrEqual(
+    frame!.x + frame!.width + 1,
+  );
+  expect(card!.y).toBeGreaterThanOrEqual(frame!.y - 1);
+  expect(card!.y + card!.height).toBeLessThanOrEqual(
+    frame!.y + frame!.height + 1,
+  );
+});

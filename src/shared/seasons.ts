@@ -527,6 +527,13 @@ export function sowingLabel(sowing: string): string {
 export interface SowingLane {
   /** What to call this sowing on screen — its catalog name, or its season. */
   sowing?: string;
+  /**
+   * True where this lane is the crop put in to sit through the winter and be
+   * picked the year after. Carried here rather than re-derived from the lane's
+   * name so the tap-a-pill bubble can say so outright — the flag is the fact,
+   * "Overwintering" is only what we happen to call it.
+   */
+  overwinters?: boolean;
   slots: TimelineSlot[];
 }
 
@@ -657,6 +664,7 @@ export function sowingLanesForEntry(
       (group[0].overwinters
         ? "Overwintering"
         : PLANTING_SEASON_LABEL[seasonOfWindow(group[0])]),
+    overwinters: group[0].overwinters,
     slots: slotsForWindows(group),
   }));
 }

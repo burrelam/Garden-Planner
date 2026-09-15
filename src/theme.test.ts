@@ -229,3 +229,99 @@ describe("the theme's seasons against the gardener's calendar", () => {
     }
   });
 });
+
+/**
+ * The tap-a-pill bubble is a card floating over the calendar, painted the
+ * opposite of whatever the sheet is: dark in the four daylight seasons, and
+ * flipped light in Twilight, whose sheet is already dark.
+ *
+ * The phase name titles that card in the phase's own colour, so the card says
+ * which pill you tapped. Straight from the token that colour does not clear
+ * small-text contrast in either direction — indoor red and harvest green
+ * disappear into a near-black card, and Twilight's pastels into a pale one —
+ * so each direction mixes the phase toward its own ground. This pins both
+ * mixes to the bar they were chosen for, in every season, so a later palette
+ * change cannot quietly take the labels back under it.
+ */
+describe("the pill bubble's phase label", () => {
+  const css = readFileSync(
+    new URL("./App.module.css", import.meta.url),
+    "utf8",
+  );
+  const tokenBlock = (selector: string) => {
+    const at = css.indexOf(selector);
+    if (at < 0) throw new Error(`no ${selector} in App.module.css`);
+    const open = css.indexOf("{", at);
+    return css.slice(open, css.indexOf("}", open));
+  };
+  const base = tokenBlock(":global(:root)");
+  const token = (block: string, name: string) => {
+    const found = new RegExp(`--${name}:\\s*([^;]+);`).exec(block);
+    return found?.[1].trim() ?? null;
+  };
+  /** The percentage each direction keeps, read from the stylesheet itself. */
+  const mixPercent = (selector: string) => {
+    const found =
+      /--bub-head-ink:\s*color-mix\(\s*in srgb,\s*var\(--phase\)\s*(\d+)%/.exec(
+        tokenBlock(selector),
+      );
+    if (!found) throw new Error(`no --bub-head-ink mix in ${selector}`);
+    return Number(found[1]);
+  };
+  const rgb = (hex: string) => {
+    const n = parseInt(hex.slice(1), 16);
+    return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
+  };
+  const toHex = (parts: number[]) =>
+    `#${parts.map((p) => Math.round(p).toString(16).padStart(2, "0")).join("")}`;
+  /** color-mix(in srgb, a keep%, b), which is what the browser computes here. */
+  const mix = (a: string, keep: number, b: string) =>
+    toHex(
+      rgb(a).map((v, i) => (v * keep) / 100 + (rgb(b)[i] * (100 - keep)) / 100),
+    );
+
+  const PHASES = ["indoor", "transplant", "direct", "harvest", "bloom"];
+  const DAYLIGHT = ["spring", "summer", "fall", "winter"];
+  const daylightKeep = mixPercent(".bubBlock {");
+  const nightKeep = mixPercent('(:root[data-theme="night"]) .bubBlock');
+
+  const readings = [...DAYLIGHT, "night"].flatMap((season) => {
+    const block = tokenBlock(`:global(:root[data-theme="${season}"])`);
+    const get = (name: string) => token(block, name) ?? token(base, name)!;
+    const night = season === "night";
+    // The card's ground, and the colour the phase is lifted toward, per .bubble.
+    const card = night ? get("color-inverse-text") : get("color-inverse-bg");
+    const toward = night ? get("color-bg") : get("color-inverse-text");
+    const keep = night ? nightKeep : daylightKeep;
+    return PHASES.map((phase) => ({
+      season,
+      phase,
+      ratio: contrastOf(mix(get(`stage-${phase}`), keep, toward), card),
+    }));
+  });
+
+  it("clears 5:1 on every phase in every season", () => {
+    const under = readings
+      .filter((reading) => reading.ratio < 5)
+      .map(
+        (reading) =>
+          `${reading.season}/${reading.phase} ${reading.ratio.toFixed(2)}`,
+      );
+    expect(under).toEqual([]);
+  });
+
+  it("would not clear it with the raw phase colour, which is why the mix is there", () => {
+    // Guards the mix itself: drop it and ten of the twenty-five combinations
+    // fall under the bar, so this test failing means the mix has been removed.
+    const raw = [...DAYLIGHT, "night"].flatMap((season) => {
+      const block = tokenBlock(`:global(:root[data-theme="${season}"])`);
+      const get = (name: string) => token(block, name) ?? token(base, name)!;
+      const card =
+        season === "night"
+          ? get("color-inverse-text")
+          : get("color-inverse-bg");
+      return PHASES.map((phase) => contrastOf(get(`stage-${phase}`), card));
+    });
+    expect(raw.filter((ratio) => ratio < 5).length).toBeGreaterThan(0);
+  });
+});

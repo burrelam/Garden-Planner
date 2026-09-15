@@ -636,6 +636,42 @@
   --size-cal-row: 58px;
   --size-pill: 14px;
   --size-frost-tick: 5px;
+  /* The bubble's little pointer, drawn as a stepped wedge so it belongs to the
+     same pixel language as every other corner here. One each way up. */
+  --tail-down: polygon(
+    0 0,
+    16px 0,
+    16px 2px,
+    14px 2px,
+    14px 4px,
+    12px 4px,
+    12px 6px,
+    10px 6px,
+    10px 8px,
+    6px 8px,
+    6px 6px,
+    4px 6px,
+    4px 4px,
+    2px 4px,
+    2px 2px,
+    0 2px
+  );
+  --tail-up: polygon(
+    0 8px,
+    0 4px,
+    2px 4px,
+    2px 2px,
+    4px 2px,
+    4px 0,
+    10px 0,
+    10px 2px,
+    12px 2px,
+    12px 4px,
+    14px 4px,
+    14px 6px,
+    16px 6px,
+    16px 8px
+  );
   --size-frost-flake: 18px;
 }
 @media (max-width: 760px) {
@@ -3643,4 +3679,195 @@
   background: var(--color-warn-bg);
   border: 3px solid color-mix(in srgb, var(--color-warn-bg) 62%, #000);
   clip-path: var(--o-nick);
+}
+
+/* ============================================================
+   Tap a pill, get a plain-language bubble — the Ink card.
+   The card takes the OPPOSITE of whatever the sheet is, so it always reads as
+   a layer above the page rather than part of it. In the four daylight seasons
+   that opposite is dark; Twilight's sheet is already dark, so there the card
+   flips and comes back light. That is two tokens swapping roles, not a special
+   case bolted on.
+   ============================================================ */
+.tappable {
+  cursor: pointer;
+}
+.tappable:focus-visible {
+  outline: none;
+}
+.slotTapped,
+.tappable:focus-visible {
+  box-shadow: inset 0 0 0 3px var(--color-focus);
+}
+.bubble {
+  --bub-bg: var(--color-inverse-bg);
+  --bub-ink: var(--color-inverse-text);
+  --bub-muted: var(--color-inverse-muted);
+  --bub-key: var(--color-accent-light);
+  --bub-edge: color-mix(in srgb, var(--color-inverse-bg) 60%, #000);
+  position: absolute;
+  z-index: 30;
+  width: 268px;
+  padding: 11px 13px 12px;
+  border: 3px solid var(--bub-edge);
+  border-radius: 0;
+  clip-path: var(--o-step);
+  background: var(--bub-bg);
+  color: var(--bub-ink);
+  box-shadow: 0 10px 26px rgba(0, 0, 0, 0.42);
+  font-size: 0.9rem;
+  line-height: 1.28;
+}
+/* Twilight flips the same problem over: its stage colours are pastels, and a
+   pale transplant yellow is not text on a pale ground, so there the phase
+   darkens into the page colour instead of lightening into the ink. 36% is what
+   puts transplant yellow, the palest of the five, over 5:1. */
+:global(:root[data-theme="night"]) .bubble {
+  --bub-bg: var(--color-inverse-text);
+  --bub-ink: var(--color-bg);
+  --bub-muted: color-mix(
+    in srgb,
+    var(--color-bg) 66%,
+    var(--color-inverse-text)
+  );
+  --bub-key: var(--color-accent-deep);
+  --bub-edge: color-mix(
+    in srgb,
+    var(--color-inverse-text) 48%,
+    var(--color-bg)
+  );
+}
+/* The phase names the card and rules the note beside it, in its own colour so
+   the card still says which pill you tapped. Straight from the token it does
+   not clear small-text contrast on a near-black card: indoor red, harvest green
+   and winter's bloom all land near 3:1. Lifting it toward the card's own ink
+   keeps the hue and clears 5:1 on all five phases in all four daylight seasons
+   — the same bar Twilight's mix below is set to, measured the same way. */
+.bubBlock {
+  --bub-head-ink: color-mix(
+    in srgb,
+    var(--phase) 71%,
+    var(--color-inverse-text)
+  );
+  --bub-rule: color-mix(in srgb, var(--phase) 71%, var(--color-inverse-text));
+}
+:global(:root[data-theme="night"]) .bubBlock {
+  --bub-head-ink: color-mix(in srgb, var(--phase) 36%, var(--color-bg));
+  --bub-rule: color-mix(in srgb, var(--phase) 36%, var(--color-bg));
+}
+/* A second sowing running in the same fortnight gets its own block, ruled off
+   from the first so the two do not read as one long note. */
+.bubBlock + .bubBlock {
+  margin-top: 10px;
+  padding-top: 9px;
+  border-top: 2px solid var(--bub-edge);
+}
+.tail {
+  position: absolute;
+  left: var(--tail-x, 50%);
+  width: 16px;
+  height: 8px;
+  margin-left: -8px;
+  background: var(--bub-edge);
+}
+.bubble[data-place="above"] .tail {
+  bottom: -11px;
+  clip-path: var(--tail-down);
+}
+.bubble[data-place="below"] .tail {
+  top: -11px;
+  clip-path: var(--tail-up);
+}
+.noTail .tail {
+  display: none;
+}
+.bubPlant {
+  margin: 0 22px 8px 0;
+  font-size: 1.05rem;
+  font-weight: 700;
+  line-height: 1.1;
+}
+.bubHead {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 3px;
+}
+/* The pill sits on a chip of the row's own colour, so it is shown against the
+   ground it has in the calendar — pale chip on the dark card, dark on light. */
+.swatchChip {
+  flex: 0 0 auto;
+  display: block;
+  padding: 3px;
+  background: var(--color-surface);
+  clip-path: var(--o-nick);
+}
+.swatch {
+  display: block;
+  width: 22px;
+  height: var(--size-pill);
+  clip-path: var(--o-nick);
+}
+.bubPhase {
+  font-family: "Silkscreen", ui-monospace, monospace;
+  font-size: 0.56rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--bub-head-ink);
+}
+.bubWhen {
+  margin: 0;
+  color: var(--bub-key);
+  font-size: 0.95rem;
+}
+.bubBody {
+  margin: 7px 0 0;
+  color: var(--bub-muted);
+}
+.bubNote {
+  margin: 9px 0 0;
+  padding: 5px 0 4px 9px;
+  border-left: 3px solid var(--bub-rule);
+  color: var(--bub-ink);
+}
+.bubClose {
+  position: absolute;
+  top: 5px;
+  right: 6px;
+  display: grid;
+  place-items: center;
+  width: 24px;
+  min-width: 24px;
+  height: 24px;
+  min-height: 24px;
+  padding: 0;
+  border: 0;
+  box-shadow: none;
+  clip-path: none;
+  background: transparent;
+  color: var(--bub-muted);
+}
+.bubClose:hover {
+  color: var(--bub-ink);
+}
+@media (prefers-reduced-motion: no-preference) {
+  .bubble {
+    animation: pop 110ms steps(2, end);
+  }
+  @keyframes pop {
+    from {
+      transform: translateY(3px);
+      opacity: 0;
+    }
+    to {
+      transform: none;
+      opacity: 1;
+    }
+  }
+}
+@media (max-width: 760px) {
+  .bubble {
+    width: 232px;
+  }
 }

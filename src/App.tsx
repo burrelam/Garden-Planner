@@ -1,11 +1,14 @@
 import {
   Fragment,
   useEffect,
+  useLayoutEffect,
   useMemo,
   useRef,
   useState,
   type CSSProperties,
   type FormEvent,
+  type KeyboardEvent as ReactKeyboardEvent,
+  type MouseEvent as ReactMouseEvent,
   type ReactNode,
 } from "react";
 import {
@@ -19,6 +22,14 @@ import {
   useParams,
 } from "react-router-dom";
 import { api } from "./api";
+import {
+  PHASE_BODY,
+  laneNote,
+  runAround,
+  slotRangeWords,
+  slotWords,
+  variantNote,
+} from "./shared/pillBubble";
 import { GardenProvider, useGarden } from "./GardenContext";
 import {
   catalog as localCatalog,
@@ -29,6 +40,7 @@ import {
 import type {
   Bed,
   GardenEntry,
+  GardenSettings,
   GardenState,
   Phase,
   PlantProblem,
@@ -493,8 +505,31 @@ function Planner() {
     "name" | "bed" | "status" | "category" | "sow" | "harvest"
   >("bed");
   const [selectedEntryId, setSelectedEntryId] = useState<string | null>(null);
+  /* Which pill has been tapped for an explanation, held as the row and the
+     fortnight rather than as the words — so the bubble re-reads live state and
+     goes quietly if the row it belongs to is removed on another device. */
+  const [tappedPill, setTappedPill] = useState<{
+    entryId: string;
+    slot: number;
+  } | null>(null);
   const [showMore, setShowMore] = useState(false);
   const calendarRef = useRef<HTMLElement>(null);
+
+  /* A tap anywhere else, or Esc, puts the bubble away. The cells stop their
+     own clicks reaching this, so opening one never immediately shuts it. */
+  useEffect(() => {
+    if (!tappedPill) return;
+    const offTap = () => setTappedPill(null);
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setTappedPill(null);
+    };
+    document.addEventListener("click", offTap);
+    document.addEventListener("keydown", onKey);
+    return () => {
+      document.removeEventListener("click", offTap);
+      document.removeEventListener("keydown", onKey);
+    };
+  }, [tappedPill]);
 
   // Amanda's original planner opened near the current month. Keep a little
   // earlier context visible while the plant names remain pinned on the left.
@@ -679,6 +714,11 @@ function Planner() {
   const selectedEntry = state.entries.find(
     (entry) => entry.id === selectedEntryId,
   );
+  /* Looked up fresh each draw, like the bed panel above: once the row is gone
+     there is nothing to explain and the bubble goes with it. */
+  const tappedEntry = tappedPill
+    ? (state.entries.find((entry) => entry.id === tappedPill.entryId) ?? null)
+    : null;
   // Looked up fresh on every draw. Once the bed is gone from the garden — by
   // this device or another one — there is nothing to find and the panel goes
   // with it, instead of lingering over a bed that cannot be removed twice.
@@ -788,6 +828,15 @@ function Planner() {
               />
             ) : null,
           )}
+          {tappedEntry && (
+            <PillBubble
+              entry={tappedEntry}
+              garden={state.garden}
+              slot={tappedPill!.slot}
+              scroller={calendarRef.current}
+              close={() => setTappedPill(null)}
+            />
+          )}
           {groups.map((group) => (
             <div className={styles.calendarGroup} key={group.id}>
               {group.label && (
@@ -873,82 +922,130 @@ function Planner() {
                           : entry.status === "undecided"
                             ? "Tint"
                             : "";
-                      return Array.from({ length: 24 }, (_, index) => (
-                        <div
-                          className={`${styles.slotCell} ${index === currentSlot ? styles.currentColumn : ""}`}
-                          data-slot={index}
-                          /* Read by the stylesheet: a cell holding two
+                      return Array.from({ length: 24 }, (_, index) => {
+                        /* Which lanes actually have something to say in this
+                           fortnight. Computed apart from the pills below,
+                           which draw a blank span for a lane with nothing in
+                           it so the stacked bars stay in line. */
+                        const spoken = lanes.filter(
+                          (lane) => lane.slots[index].phase,
+                        ).length;
+                        const tapped =
+                          tappedPill?.entryId === entry.id &&
+                          tappedPill.slot === index;
+                        return (
+                          <div
+                            className={`${styles.slotCell} ${index === currentSlot ? styles.currentColumn : ""} ${spoken ? styles.tappable : ""} ${tapped ? styles.slotTapped : ""}`}
+                            data-slot={index}
+                            data-entry={entry.id}
+                            {...(spoken
+                              ? {
+                                  role: "button" as const,
+                                  tabIndex: 0,
+                                  "aria-label": `${entry.name}, ${slotWords(index)} — what is happening`,
+                                  "aria-expanded": tapped,
+                                  onClick: (
+                                    event: ReactMouseEvent<HTMLDivElement>,
+                                  ) => {
+                                    // The document-level closer must not see this
+                                    // and shut what the tap just opened.
+                                    event.stopPropagation();
+                                    setTappedPill(
+                                      tapped
+                                        ? null
+                                        : { entryId: entry.id, slot: index },
+                                    );
+                                  },
+                                  onKeyDown: (
+                                    event: ReactKeyboardEvent<HTMLDivElement>,
+                                  ) => {
+                                    if (
+                                      event.key !== "Enter" &&
+                                      event.key !== " "
+                                    )
+                                      return;
+                                    event.preventDefault();
+                                    setTappedPill(
+                                      tapped
+                                        ? null
+                                        : { entryId: entry.id, slot: index },
+                                    );
+                                  },
+                                }
+                              : {})}
+                            /* Read by the stylesheet: a cell holding two
                              sowings splits its height between them rather
                              than letting one paint over the other. */
-                          data-lanes={lanes.length}
-                          style={{ "--lanes": lanes.length } as CSSProperties}
-                          key={index}
-                        >
-                          {lanes.map((lane, laneIndex) => {
-                            const overlay = actualTimeline
-                              ? combinedSlotPhase(
-                                  lane.slots[index].phase,
-                                  actualTimeline[index].phase,
-                                )
-                              : {
-                                  phase: lane.slots[index].phase,
-                                  variant: "" as const,
-                                };
-                            const variant = overlay.variant || statusVariant;
-                            return (
+                            data-lanes={lanes.length}
+                            style={{ "--lanes": lanes.length } as CSSProperties}
+                            key={index}
+                          >
+                            {lanes.map((lane, laneIndex) => {
+                              const overlay = actualTimeline
+                                ? combinedSlotPhase(
+                                    lane.slots[index].phase,
+                                    actualTimeline[index].phase,
+                                  )
+                                : {
+                                    phase: lane.slots[index].phase,
+                                    variant: "" as const,
+                                  };
+                              const variant = overlay.variant || statusVariant;
+                              return (
+                                <span
+                                  key={lane.sowing ?? laneIndex}
+                                  title={
+                                    overlay.phase
+                                      ? `${phaseLabelFor(overlay.phase, entryPlant)}${lane.sowing ? ` — ${sowingLabel(lane.sowing)}` : ""}${overlay.variant === "Tint" ? " (guideline)" : overlay.variant === "Actual" ? " (actual)" : ""}`
+                                      : undefined
+                                  }
+                                  className={`${styles.pill} ${
+                                    overlay.phase
+                                      ? styles[`${overlay.phase}${variant}`]
+                                      : ""
+                                  }`}
+                                />
+                              );
+                            })}
+                            {pinPos && index === pinPos.slot && (
                               <span
-                                key={lane.sowing ?? laneIndex}
-                                title={
-                                  overlay.phase
-                                    ? `${phaseLabelFor(overlay.phase, entryPlant)}${lane.sowing ? ` — ${sowingLabel(lane.sowing)}` : ""}${overlay.variant === "Tint" ? " (guideline)" : overlay.variant === "Actual" ? " (actual)" : ""}`
-                                    : undefined
+                                className={styles.plantedPin}
+                                style={
+                                  {
+                                    "--marker-pos": pinPos.fraction,
+                                  } as CSSProperties
                                 }
-                                className={`${styles.pill} ${
-                                  overlay.phase
-                                    ? styles[`${overlay.phase}${variant}`]
-                                    : ""
-                                }`}
-                              />
-                            );
-                          })}
-                          {pinPos && index === pinPos.slot && (
-                            <span
-                              className={styles.plantedPin}
-                              style={
-                                {
-                                  "--marker-pos": pinPos.fraction,
-                                } as CSSProperties
-                              }
-                              title={`Planted ${prettyDate(entry.plantedDate!)}`}
-                            >
-                              <img
-                                src="/icons/status-planted.png"
-                                alt=""
-                                width={12}
-                                height={12}
-                              />
-                            </span>
-                          )}
-                          {flagPos && index === flagPos.slot && (
-                            <span
-                              className={styles.harvestFlag}
-                              style={
-                                {
-                                  "--marker-pos": flagPos.fraction,
-                                } as CSSProperties
-                              }
-                              title={`Harvest starts ${prettyDate(flagPos.date)}`}
-                            >
-                              <img
-                                src="/icons/harvest-flag.png"
-                                alt=""
-                                width={12}
-                                height={14}
-                              />
-                            </span>
-                          )}
-                        </div>
-                      ));
+                                title={`Planted ${prettyDate(entry.plantedDate!)}`}
+                              >
+                                <img
+                                  src="/icons/status-planted.png"
+                                  alt=""
+                                  width={12}
+                                  height={12}
+                                />
+                              </span>
+                            )}
+                            {flagPos && index === flagPos.slot && (
+                              <span
+                                className={styles.harvestFlag}
+                                style={
+                                  {
+                                    "--marker-pos": flagPos.fraction,
+                                  } as CSSProperties
+                                }
+                                title={`Harvest starts ${prettyDate(flagPos.date)}`}
+                              >
+                                <img
+                                  src="/icons/harvest-flag.png"
+                                  alt=""
+                                  width={12}
+                                  height={14}
+                                />
+                              </span>
+                            )}
+                          </div>
+                        );
+                      });
                     })()}
                   </div>
                 );
@@ -1027,6 +1124,204 @@ function Planner() {
 // runs full screen: the garden's facts, its growing season, and the legend.
 // ZIP and zone are editable here and write to the same garden record Settings
 // writes to, so the two screens are one setting seen from two places.
+/**
+ * What a tapped pill means, said out loud.
+ *
+ * A pill has only ever whispered through a hover tooltip, which a phone never
+ * shows. Tapping its cell opens this instead: the phase, the stretch of weeks
+ * in words, what you are meant to do then, and why this pill is drawn the way
+ * it is.
+ *
+ * It takes the row and the fortnight rather than finished text, and works the
+ * content out from live state, so a bubble left open while the garden changes
+ * underneath it either follows along or closes with its row.
+ */
+function PillBubble({
+  entry,
+  garden,
+  slot,
+  scroller,
+  close,
+}: {
+  entry: GardenEntry;
+  garden: GardenSettings;
+  slot: number;
+  scroller: HTMLElement | null;
+  close: () => void;
+}) {
+  const bubbleRef = useRef<HTMLDivElement>(null);
+  const plant = entry.plantId ? catalogById.get(entry.plantId) : undefined;
+  const settled = isSettledPerennial(entry);
+  const lanes = settled
+    ? withoutPlantingPhases(sowingLanesForEntry(entry, garden))
+    : sowingLanesForEntry(entry, garden);
+  /* The same three derivations the row itself makes, so the bubble describes
+     the pill that is actually drawn rather than a second opinion about it. */
+  const actualTimeline =
+    garden.showPillPredictions && lanes.length === 1 && !settled
+      ? actualTimelineForEntry(entry, garden)
+      : null;
+  const statusVariant: "" | "Slashed" | "Tint" =
+    entry.status === "willplant"
+      ? "Slashed"
+      : entry.status === "undecided"
+        ? "Tint"
+        : "";
+  const logged = Boolean(entry.plantedDate);
+
+  /* One block per lane with something in this fortnight. Usually that is one;
+     a crop grown two ways can have both a spring sowing and an overwintering
+     one running here, and she tapped a cell holding both. */
+  const blocks = lanes.flatMap((lane, laneIndex) => {
+    const overlay = actualTimeline
+      ? combinedSlotPhase(lane.slots[slot].phase, actualTimeline[slot].phase)
+      : { phase: lane.slots[slot].phase, variant: "" as const };
+    const phase = overlay.phase;
+    if (!phase) return [];
+    /* The band she tapped, widened to its own edges. Where the overlay has put
+       an actual-only pill on a slot the guide left empty there is no band to
+       widen — that one slot is the whole of it. */
+    const guideRun = runAround(lane.slots, slot);
+    const run =
+      guideRun && guideRun.phase === phase
+        ? guideRun
+        : { phase, start: slot, end: slot };
+    return [
+      {
+        key: lane.sowing ?? `lane-${laneIndex}`,
+        phase,
+        variant: overlay.variant || statusVariant,
+        run,
+        note: laneNote(lane.sowing, lane.overwinters === true),
+      },
+    ];
+  });
+
+  /* Placed after paint, because where it goes depends on how tall it turned
+     out. Re-run on a resize: the calendar's columns are fractional, so every
+     slot moves when the window width does and a bubble pinned to the old
+     geometry ends up pointing at the wrong fortnight. */
+  useLayoutEffect(() => {
+    const place = () => {
+      const bubble = bubbleRef.current;
+      const grid = bubble?.parentElement;
+      if (!bubble || !grid || !scroller) return;
+      const cell = grid.querySelector<HTMLElement>(
+        `[data-entry="${CSS.escape(entry.id)}"][data-slot="${slot}"]`,
+      );
+      if (!cell) return;
+      const gridBox = grid.getBoundingClientRect();
+      const cellBox = cell.getBoundingClientRect();
+      const left = cellBox.left - gridBox.left;
+      const top = cellBox.top - gridBox.top;
+      const centre = left + cellBox.width / 2;
+      const width = bubble.offsetWidth;
+      const height = bubble.offsetHeight;
+
+      /* Held inside what she can actually see, not merely inside the grid. The
+         calendar scrolls sideways across a year twice the width of a phone, so
+         a bubble centred on a cell near the edge of the window would otherwise
+         sit correctly against the grid and still be half off the screen. */
+      const x = Math.max(
+        scroller.scrollLeft + 8,
+        Math.min(
+          centre - width / 2,
+          scroller.scrollLeft + scroller.clientWidth - width - 8,
+        ),
+      );
+      bubble.style.left = `${x}px`;
+
+      /* The calendar is a scroller with its month and E/L strips pinned across
+         the top, so the bubble has to live in the band between those and the
+         bottom edge. Above the pill by preference, below it when the pill sits
+         near the top — and when the bubble is simply taller than the room on
+         either side it tucks into the band and drops its tail, because a tail
+         that no longer touches its pill points at the wrong row. */
+      const bandTop = scroller.scrollTop + 62;
+      const bandBottom = scroller.scrollTop + scroller.clientHeight - 8;
+      const above = top - height - 11;
+      const below = top + cellBox.height + 11;
+      const side =
+        above >= bandTop
+          ? "above"
+          : below + height <= bandBottom
+            ? "below"
+            : top - bandTop >= bandBottom - (top + cellBox.height)
+              ? "above"
+              : "below";
+      const wanted = side === "above" ? above : below;
+      const clamped = Math.max(bandTop, Math.min(wanted, bandBottom - height));
+      bubble.dataset.place = side;
+      bubble.style.top = `${clamped}px`;
+      bubble.classList.toggle(styles.noTail, Math.abs(clamped - wanted) > 1);
+      bubble.style.setProperty(
+        "--tail-x",
+        `${Math.max(12, Math.min(centre - x, width - 12))}px`,
+      );
+    };
+    place();
+    window.addEventListener("resize", place);
+    return () => window.removeEventListener("resize", place);
+  }, [entry.id, slot, scroller, blocks.length]);
+
+  if (blocks.length === 0) return null;
+  return (
+    <div
+      className={styles.bubble}
+      ref={bubbleRef}
+      role="dialog"
+      aria-label={`What is happening to ${entry.name} in ${slotWords(slot)}`}
+      /* Stops a tap inside the card reaching the document-level closer. */
+      onClick={(event) => event.stopPropagation()}
+    >
+      <button
+        type="button"
+        className={styles.bubClose}
+        aria-label="Close"
+        onClick={close}
+      >
+        <CloseIcon size={11} />
+      </button>
+      <p className={styles.bubPlant}>
+        {entry.name}
+        {entry.variety ? ` · ${entry.variety}` : ""}
+      </p>
+      {blocks.map((block) => (
+        <div
+          className={styles.bubBlock}
+          key={block.key}
+          /* Declared here rather than on the card: a custom property resolves
+             where it is declared, and a card holding two phases needs one of
+             these per block, not one for both. */
+          style={{ "--phase": `var(--stage-${block.phase})` } as CSSProperties}
+        >
+          <span className={styles.bubHead}>
+            <span className={styles.swatchChip}>
+              <span
+                className={`${styles.swatch} ${styles[`${block.phase}${block.variant}`]}`}
+              />
+            </span>
+            <span className={styles.bubPhase}>
+              {phaseLabelFor(block.phase, plant)}
+            </span>
+          </span>
+          <p className={styles.bubWhen}>
+            {slotRangeWords(block.run.start, block.run.end)}
+          </p>
+          <p className={styles.bubBody}>{PHASE_BODY[block.phase]}</p>
+          {block.note && <p className={styles.bubNote}>{block.note}</p>}
+          {variantNote(block.variant, logged) && (
+            <p className={styles.bubNote}>
+              {variantNote(block.variant, logged)}
+            </p>
+          )}
+        </div>
+      ))}
+      <span className={styles.tail} />
+    </div>
+  );
+}
+
 function PlannerMore({
   state,
   save,
