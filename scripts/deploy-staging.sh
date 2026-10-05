@@ -8,7 +8,10 @@ if [[ -n "$(git status --porcelain)" ]]; then
 fi
 
 revision="$(git rev-parse HEAD)"
-npm run check
+# The full regression suite: type-check, build, unit tests, then every browser
+# test on desktop, iPhone and Android. CI=1 makes Playwright start its own
+# server and refuse a stale one already sitting on port 3000.
+npm run test:regression
 # Depot's builder times out in this org ("error releasing builder:
 # deadline_exceeded"), so build on a Fly builder machine instead. Still remote,
 # so no local Docker is needed, and natively amd64 like the machines it runs on.

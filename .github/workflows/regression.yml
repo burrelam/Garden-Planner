@@ -1,0 +1,37 @@
+name: Regression tests
+
+# Runs on every push to any branch and on every pull request, so the exact
+# commit that goes to staging or production already has a result on GitHub.
+on:
+  push:
+  pull_request:
+
+concurrency:
+  group: regression-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  regression:
+    # This name is the required status check on main. Renaming it means
+    # updating the branch protection rule too.
+    name: regression
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - name: Install browsers
+        run: npx playwright install --with-deps chromium webkit
+      - name: Type-check, build, unit tests and browser tests
+        run: npm run test:regression
+      - name: Keep traces from failed browser tests
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-traces
+          path: test-results/
+          retention-days: 7

@@ -32,6 +32,15 @@ if [[ "$(curl --fail --silent https://gardenbuddy-jm-staging.fly.dev/api/meta | 
   echo "Refusing promotion: staging is not running the approved SHA." >&2
   exit 1
 fi
+# main only accepts commits whose "regression" check passed on GitHub, so ask
+# before touching local main rather than discovering it when the push bounces.
+regression="$(gh api "repos/{owner}/{repo}/commits/$approved/check-runs?check_name=regression" \
+  --jq '[.check_runs[] | select(.conclusion == "success")] | length')" || regression=0
+if [[ "$regression" == "0" ]]; then
+  echo "Refusing promotion: GitHub has no passing regression check for $approved." >&2
+  echo "Push the candidate branch and wait for the Regression tests workflow to go green." >&2
+  exit 1
+fi
 git merge-base --is-ancestor "$before" "$approved" || { echo "Approved SHA is not a fast-forward of main." >&2; exit 1; }
 if [[ "$current_branch" != "main" ]]; then
   git switch main

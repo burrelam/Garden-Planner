@@ -39,6 +39,7 @@ For a new development machine, Claude Code, Fly access, staging releases, produc
 | `npm run dev`                   | Run the API and website with live reload                       |
 | `npm run check`                 | Type-check, build, and run the automated tests                 |
 | `npm run test:e2e`              | Test desktop, iPhone/WebKit, and Android/Chromium layouts      |
+| `npm run test:regression`       | The required gate: `check` plus every browser test             |
 | `npm run auth:hash -- "phrase"` | Create an Argon2id hash for a Fly secret                       |
 | `npm run seed:staging`          | Reset staging to Amanda's committed original garden            |
 | `npm run seed:amanda`           | Explicitly seed Amanda's garden; production needs confirmation |
